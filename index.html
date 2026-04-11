@@ -103,7 +103,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .sb-ev{background:var(--evs);color:var(--ev)}.sb-co{background:var(--gs);color:var(--g)}.sb-ri{background:var(--grs);color:var(--gr)}
 .tb{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:800;padding:3px 9px;border-radius:20px}
 .tb.m{background:var(--mats);color:var(--mat)}.tb.p{background:var(--poms);color:var(--pom)}
-.oc-acts{display:flex;gap:5px;flex-shrink:0;margin-top:2px}
+.oc-acts{display:flex;flex-direction:column;gap:5px;flex-shrink:0;margin-top:2px;min-width:90px}
 .act-btn{border:none;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:8px 13px;transition:all 0.2s ease;white-space:nowrap}
 .act-green{background:var(--gs);color:var(--g)}.act-green:hover{background:#C6E8D5;transform:scale(1.03)}
 .act-grey{background:var(--grs);color:var(--gr)}.act-grey:hover{background:#D1D5DB;transform:scale(1.03)}
@@ -510,6 +510,20 @@ margin-left: 12px;
     </div>
   </div>
 </div>
+
+<div class="ov" id="modal-etichetta" style="background:rgba(0,0,0,0.85);z-index:500">
+  <div style="background:#fff;width:100%;max-width:420px;border-radius:20px 20px 0 0;max-height:95vh;overflow-y:auto;padding:0 0 28px 0">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #E5E7EB">
+      <div style="font-size:15px;font-weight:900">🖨️ Etichetta ordine</div>
+      <button onclick="closeModal('modal-etichetta')" style="background:#F0F2F5;border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;font-family:'Nunito',sans-serif">✕</button>
+    </div>
+    <div style="padding:24px 20px" id="etichetta-content"></div>
+    <div style="padding:0 20px">
+      <p style="font-size:12px;color:#6B7280;font-weight:600;text-align:center;margin-bottom:12px">Tocca <b>Condividi ↑ → Stampa</b> per inviare alla stampante</p>
+      <button onclick="closeModal('modal-etichetta')" style="width:100%;padding:13px;background:#F0F2F5;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Chiudi</button>
+    </div>
+  </div>
+</div>
 <div id="toast"></div>
 <!-- ETICHETTA DI STAMPA -->
 <div id="print-label"></div>
@@ -670,11 +684,11 @@ function buildOcHTML(lista){
           ${ds?`<div style="margin-top:3px">${ds}${tb?'&nbsp;'+tb:''}</div>`:''}
           <div class="oc-meta">${sb2}${!ds&&tb?tb:''}${pr}</div>
         </div>
-        <div class="oc-acts" style="margin-top:2px;flex-shrink:0" onclick="event.stopPropagation()">
-          ${o.stato==='evadere'?`<button class="act-btn act-green" onclick="event.stopPropagation();setStato(${o.id},'completato')">Completato</button>`:
-            o.stato==='completato'?`<button class="act-btn act-grey" onclick="event.stopPropagation();setStato(${o.id},'ritirato')">Ritirato</button>`:''}
-          <button class="act-btn" style="background:#EEF2FF;color:#4F46E5;font-size:13px;font-weight:800;padding:8px 11px;border:none;border-radius:10px;cursor:pointer" onclick="event.stopPropagation();stampaEtichetta(${o.id})">🖨️</button>
-          ${o.stato!=='ritirato'?`<button class="act-btn act-del" onclick="event.stopPropagation();eliminaOrd(${o.id})">🗑️</button>`:''}
+                <div class="oc-acts" style="margin-top:2px;flex-shrink:0;flex-direction:column;gap:5px" onclick="event.stopPropagation()">
+          ${o.stato==='evadere'?`<button class="act-btn act-green" style="width:100%" onclick="event.stopPropagation();setStato(${o.id},'completato')">Completato</button>`:
+            o.stato==='completato'?`<button class="act-btn act-grey" style="width:100%" onclick="event.stopPropagation();setStato(${o.id},'ritirato')">Ritirato</button>`:'<div style="height:0"></div>'}
+          <button class="act-btn" style="width:100%;background:#EEF2FF;color:#4F46E5;border:none;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:8px 13px" onclick="event.stopPropagation();stampaEtichetta(${o.id})">🖨️ Stampa</button>
+          ${o.stato!=='ritirato'?`<button class="act-btn act-del" style="width:100%" onclick="event.stopPropagation();eliminaOrd(${o.id})">🗑️ Elimina</button>`:''}
         </div>
       </div>
       ${tags?`<div class="oc-items">${tags}</div>`:''}
@@ -1253,7 +1267,7 @@ function closeModal(id){
   if(id==='modal-det')renderOrdini();
 }
 document.addEventListener('click',function(e){
-  ['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf'].forEach(function(id){
+  ['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta'].forEach(function(id){
     const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);
   });
 });
@@ -1284,24 +1298,31 @@ function importaDati(input){
 function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.className='show'+(t?' '+t:'');clearTimeout(e._t);e._t=setTimeout(function(){e.className=''},2700)}
 
 
+
+
 function stampaEtichetta(id){
   const o=ords.find(x=>x.id===id);if(!o)return;
-  const el=document.getElementById('print-label');if(!el)return;
-  const turnoIcon=o.turno==='mattina'?'☀️ Mattina':o.turno==='pomeriggio'?'🌆 Pomeriggio':'';
+  const turnoLabel=o.turno==='mattina'?'☀️ Mattina':o.turno==='pomeriggio'?'🌆 Pomeriggio':'';
   const dataStr=o.data?fmtD(o.data):'';
   const itemsHTML=(o.items||[]).map(it=>{
     const a=arts.find(x=>x.id===it.artId);if(!a)return'';
     const qty=it.qty?(parseFloat(it.qty)||''):'—';
     const um=it.um?' '+it.um:'';
-    return`<div class="pl-item"><span>${a.nome}</span><span class="pl-item-qty">${qty}${um}</span></div>`;
+    return`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #F0F2F5;font-family:'Nunito',sans-serif">
+      <span style="font-size:16px;font-weight:700;color:#1A1A2E">${a.nome}</span>
+      <span style="font-size:15px;font-weight:900;color:#E67E22;white-space:nowrap;margin-left:12px">${qty}${um}</span>
+    </div>`;
   }).join('');
-  el.innerHTML=`<div class="pl-wrap">
-    <div class="pl-num">#${o.num}</div>
-    <div class="pl-nome">${o.nome}</div>
-    ${(dataStr||turnoIcon)?`<div class="pl-data">${dataStr}${turnoIcon?' · '+turnoIcon:''}</div>`:''}
-    <div class="pl-items">${itemsHTML}</div>
-  </div>`;
-  window.print();
+  const el=document.getElementById('etichetta-content');if(!el)return;
+  el.innerHTML=`
+    <div style="text-align:center;border:2.5px solid #1A1A2E;border-radius:14px;padding:20px;font-family:'Nunito',sans-serif">
+      <div style="font-size:100px;font-weight:900;line-height:1;color:#C0392B;letter-spacing:-3px">#${o.num}</div>
+      <div style="font-size:26px;font-weight:900;color:#1A1A2E;margin-top:4px">${o.nome}</div>
+      ${(dataStr||turnoLabel)?`<div style="font-size:14px;font-weight:700;color:#6B7280;margin-top:6px;padding-bottom:14px;border-bottom:2px dashed #E5E7EB">${dataStr}${turnoLabel?' · '+turnoLabel:''}</div>`:'<div style="padding-bottom:12px;border-bottom:2px dashed #E5E7EB"></div>'}
+      <div style="margin-top:12px;text-align:left">${itemsHTML}</div>
+    </div>`;
+  // Aggiunge modal-etichetta alla lista chiudibili
+  openModal('modal-etichetta');
 }
 
 boot();
