@@ -594,6 +594,7 @@ margin-left: 12px;
               <button class="btn br" style="padding:10px 16px;white-space:nowrap" onclick="salvaAttivita()">Salva</button>
             </div>
           </div>
+          <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#8E44AD;margin-top:4px" onclick="resetOnboarding()"><span style="font-size:20px">🔄</span><div style="text-align:left"><div style="font-size:14px;font-weight:900">Cambia tipo attività</div><div style="font-size:12px;font-weight:600;color:var(--sub)">Riavvia la configurazione iniziale</div></div></button>
           <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#C0392B;margin-top:4px" onclick="doLogout()"><span style="font-size:20px">🚪</span><div style="text-align:left"><div style="font-size:14px;font-weight:900">Esci</div><div style="font-size:12px;font-weight:600;color:var(--sub)">Disconnetti questo dispositivo</div></div></button>
         </div>
       </div>
@@ -856,6 +857,14 @@ async function checkOnboarding(){
   } catch(e){ showOnboarding(); }
 }
 
+
+async function resetOnboarding(){
+  if(!currentUser)return;
+  await db.collection('profili').doc(currentUser.uid).set({onboardingCompleto:false},{merge:true});
+  obSelectedAttivita=null;obSelectedTheme=null;
+  showOnboarding();
+  toast('Scegli il tipo di attività','v');
+}
 </script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -916,7 +925,7 @@ async function loadData(){
 }
 
 async function boot(){
-  await loadData();
+  await loadData(); return true;
   document.getElementById('loading').classList.add('hidden');
   document.getElementById('app').style.display='flex';
   calInit();refreshAll();
@@ -1667,8 +1676,7 @@ auth.onAuthStateChanged(function(user){
   if(user){
     currentUser = user;
     document.getElementById('login-screen').style.display='none';
-    boot();
-    setTimeout(checkOnboarding, 500);
+    boot().then(function(){ setTimeout(checkOnboarding, 300); });
   } else {
     currentUser = null;
     document.getElementById('login-screen').style.display='flex';
