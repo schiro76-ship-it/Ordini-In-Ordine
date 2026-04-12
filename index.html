@@ -14,14 +14,14 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
 
 :root{
-–r:#E05A2B;–rs:#FEF0EA;–rm:#F5C9B5;
-–g:#2A9D72;–gs:#E8F7F0;
+–r:#C0392B;–rs:#F9EDED;–rm:#E8C4C1;
+–g:#1E8A6E;–gs:#E3F3EE;
 –gr:#8A919E;–grs:#F4F5F6;
 –mat:#D4892A;–mats:#FEF5E7;
-–urg:#E05A2B;–urgs:#FEF0EA;
-–ev:#D4892A;–evs:#FEF5E7;
+–urg:#C0392B;–urgs:#F9EDED;
+–ev:#C0392B;–evs:#F9EDED;
 –pom:#7B5EA7;–poms:#F3EEF9;
-–bg:#F7F8FA;–txt:#111827;–sub:#6B7280;–brd:#E5E7EB;
+–bg:#F0F2F5;–txt:#111827;–sub:#6B7280;–brd:#E5E7EB;
 –sh:0 1px 3px rgba(0,0,0,0.06),0 4px 12px rgba(0,0,0,0.04);
 –shl:0 4px 20px rgba(0,0,0,0.10);
 –rad:14px;
@@ -145,10 +145,10 @@ border:1.5px solid transparent;
 transition:all 0.2s;overflow:hidden;
 }
 .oc:hover{box-shadow:var(–sh)}
-.oc.evadere{background:var(–evs);border-color:#F0D4A8}
+.oc.evadere{background:var(–evs);border-color:var(–rm)}
 .oc.completato{background:var(–gs);border-color:#A8DCC8}
 .oc.ritirato{background:var(–grs);border-color:var(–brd);opacity:0.7}
-.oc.urgente{background:var(–urgs)!important;border-color:#F0B8A8!important}
+.oc.urgente{background:var(–urgs)!important;border-color:var(–rm)!important}
 .oc-num{
 width:38px;height:38px;border-radius:10px;
 font-size:14px;font-weight:700;
@@ -996,17 +996,23 @@ function applyTheme(theme){
   const root=document.documentElement;
   root.style.setProperty('--r',theme.r);
   root.style.setProperty('--rs',theme.rs);
+  root.style.setProperty('--rm',theme.rs);
   root.style.setProperty('--g',theme.g);
   root.style.setProperty('--gs',theme.gs);
   root.style.setProperty('--bg',theme.bg);
-  // Aggiorna anche le variabili derivate usate nelle card ordini
   root.style.setProperty('--ev',theme.r);
   root.style.setProperty('--evs',theme.rs);
   root.style.setProperty('--urg',theme.r);
   root.style.setProperty('--urgs',theme.rs);
-  root.style.setProperty('--rm',theme.rs);
+  // Aggiorna top-nav active color
+  const style=document.getElementById('theme-dynamic-style')||document.createElement('style');
+  style.id='theme-dynamic-style';
+  style.textContent='.tn.active{color:'+theme.r+'!important;border-bottom-color:'+theme.r+'!important}'
+    +'.tn-new{background:'+theme.r+'!important}'
+    +'.br{background:'+theme.r+'!important}'
+    +'.sc-filt.active-filt{border-color:var(--txt)!important}';
+  if(!document.getElementById('theme-dynamic-style'))document.head.appendChild(style);
   const sb=document.querySelector('.sidebar');if(sb)sb.style.background=theme.sb;
-  // Salva tema in localStorage per applicazione immediata al prossimo boot
   try{localStorage.setItem('oio-theme',JSON.stringify(theme));}catch(e){}
 }
 
@@ -1014,8 +1020,12 @@ function applyThemeFast(){
   // Applica tema salvato immediatamente senza aspettare Firebase
   try{
     const t=localStorage.getItem('oio-theme');
-    if(t){applyTheme(JSON.parse(t));}
-  }catch(e){}
+    if(t){
+      const theme=JSON.parse(t);
+      if(theme&&theme.r)applyTheme(theme);
+      else localStorage.removeItem('oio-theme');
+    }
+  }catch(e){localStorage.removeItem('oio-theme');}
 }
 async function checkOnboarding(){
   if(!currentUser)return;
