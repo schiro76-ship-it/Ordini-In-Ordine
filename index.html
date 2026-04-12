@@ -805,8 +805,18 @@ function showOnboarding(){
   renderObAttivita();
 }
 function renderObAttivita(){
-  const grid=document.getElementById('ob-attivita-grid');if(!grid)return;
-  grid.innerHTML=ATTIVITA_TYPES.map(a=>`<div class="ob-card ${obSelectedAttivita===a.id?'selected':''}" onclick="selectAttivita('${a.id}')"><div class="ob-emoji">${a.emoji}</div><div class="ob-label">${a.label}</div></div>`).join('');
+  const grid=document.getElementById('ob-attivita-grid');
+  if(!grid||!ATTIVITA_TYPES)return;
+  let html='';
+  for(let i=0;i<ATTIVITA_TYPES.length;i++){
+    const a=ATTIVITA_TYPES[i];
+    const sel=obSelectedAttivita===a.id?'selected':'';
+    html+='<div class="ob-card '+sel+'" onclick="selectAttivita(''+a.id+'')">'
+      +'<div class="ob-emoji">'+a.emoji+'</div>'
+      +'<div class="ob-label">'+a.label+'</div>'
+      +'</div>';
+  }
+  grid.innerHTML=html;
 }
 function selectAttivita(id){
   obSelectedAttivita=id;obSelectedTheme=id;renderObAttivita();
@@ -815,9 +825,24 @@ function selectAttivita(id){
 function obNext(){if(!obSelectedAttivita)return;document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='block';renderObThemes();}
 function obBack(){document.getElementById('ob-step2').style.display='none';document.getElementById('ob-step1').style.display='block';}
 function renderObThemes(){
-  const grid=document.getElementById('ob-themes-grid');if(!grid)return;
-  grid.innerHTML=ATTIVITA_TYPES.map(a=>`<div class="ob-theme ${obSelectedTheme===a.id?'selected':''}" onclick="selectTheme('${a.id}')"><div class="ob-theme-preview" style="background:${a.theme.sb}"><div class="ob-theme-dot" style="background:${a.theme.r}"></div><div class="ob-theme-dot" style="background:${a.theme.g}"></div><div class="ob-theme-dot" style="background:#FFE033"></div></div><div class="ob-theme-label">${a.emoji} ${a.label}</div></div>`).join('');
-  const btn=document.getElementById('ob-btn2');if(btn){btn.disabled=false;btn.style.opacity='1';}
+  const grid=document.getElementById('ob-themes-grid');
+  if(!grid||!ATTIVITA_TYPES)return;
+  let h='';
+  for(let i=0;i<ATTIVITA_TYPES.length;i++){
+    const a=ATTIVITA_TYPES[i];
+    const sel=obSelectedTheme===a.id?'selected':'';
+    h+='<div class="ob-theme '+sel+'" onclick="selectTheme(''+a.id+'')">'
+      +'<div class="ob-theme-preview" style="background:'+a.theme.sb+'">'
+      +'<div class="ob-theme-dot" style="background:'+a.theme.r+'"></div>'
+      +'<div class="ob-theme-dot" style="background:'+a.theme.g+'"></div>'
+      +'<div class="ob-theme-dot" style="background:#FFE033"></div>'
+      +'</div>'
+      +'<div class="ob-theme-label">'+a.emoji+' '+a.label+'</div>'
+      +'</div>';
+  }
+  grid.innerHTML=h;
+  const btn=document.getElementById('ob-btn2');
+  if(btn){btn.disabled=false;btn.style.opacity='1';}
 }
 function selectTheme(id){obSelectedTheme=id;renderObThemes();}
 async function obConfirm(){
