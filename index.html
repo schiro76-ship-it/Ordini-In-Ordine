@@ -281,9 +281,7 @@ margin-left: 12px;
       <div class="ni" onclick="goTab('riepilogo')"><span class="ic">📊</span>Riepilogo</div>
       <div class="ni" onclick="goTab('storico')"><span class="ic">📅</span>Storico</div>
       <div class="ni" onclick="goTab('nuovo')"><span class="ic" style="font-size:22px;font-weight:900">+</span>Nuovo Ordine</div>
-      <div class="ni" onclick="goTab('articoli')"><span class="ic">🗂️</span>Articoli</div>
-      <div class="ni" onclick="esportaDati()" style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.12);padding-top:12px"><span class="ic">⬆️</span>Esporta dati</div>
-      <div class="ni" onclick="document.getElementById('import-file').click()"><span class="ic">⬇️</span>Importa dati</div>
+      <div class="ni" onclick="goTab('impostazioni')"><span class="ic">⚙️</span>Impostazioni</div>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importaDati(this)">
     </nav>
   </aside>
@@ -391,14 +389,16 @@ margin-left: 12px;
     </div>
   </div>
 
-  <div class="sec" id="tab-articoli">
-    <div class="phdr"><h2>Articoli</h2></div>
+  <div class="sec" id="tab-impostazioni">
+    <div class="phdr"><h2>Impostazioni</h2></div>
     <div class="pbody">
-      <div class="two-col">
-        <div>
-          <div class="card">
-            <div class="ch"><div class="ct">Aggiungi articolo</div></div>
-            <div class="cb">
+
+      <!-- ARTICOLI -->
+      <div class="card">
+        <div class="ch"><div class="ct">🗂️ Articoli</div></div>
+        <div class="cb" style="padding-bottom:8px">
+          <div class="two-col">
+            <div>
               <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="an" placeholder="Es. Costata di manzo"></div>
               <div class="fg">
                 <label class="fl">Categoria</label>
@@ -411,28 +411,65 @@ margin-left: 12px;
                   </div>
                 </div>
               </div>
-              <button class="btn br" onclick="addArt()">+ Aggiungi</button>
+              <button class="btn br" onclick="addArt()">+ Aggiungi articolo</button>
             </div>
-          </div>
-          <div class="card">
-            <div class="ch"><div class="ct">📏 Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:11px" onclick="openModal('modal-um')">Gestisci</button></div>
-            <div class="cb"><div class="um-list" id="um-display"></div></div>
-          </div>
-          <div class="card">
-            <div class="ch"><div class="ct">🏷️ Categorie</div><button class="btn br" style="padding:6px 12px;font-size:11px" onclick="renderCatList();openModal('modal-cat')">Gestisci</button></div>
-            <div class="cb"><div class="um-list" id="cat-display"></div></div>
-          </div>
-        </div>
-        <div>
-          <div class="card">
-            <div class="ch"><div class="ct">📦 Catalogo</div><span id="acb" style="background:var(--r);color:#fff;font-size:11px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
-            <div class="cb" style="padding-top:8px;padding-bottom:4px">
-              <div class="sbox"><span class="si">🔍</span><input type="text" id="cam" placeholder="Cerca…" oninput="renderArtM()"></div>
+            <div>
+              <div class="sbox"><span class="si">🔍</span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <span id="acb" style="background:var(--r);color:#fff;font-size:11px;font-weight:900;padding:3px 10px;border-radius:18px"></span>
+              </div>
               <div class="slist" id="aml"></div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- UNITÀ DI MISURA -->
+      <div class="card">
+        <div class="ch"><div class="ct">📏 Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:11px" onclick="openModal('modal-um')">Gestisci</button></div>
+        <div class="cb"><div class="um-list" id="um-display"></div></div>
+      </div>
+
+      <!-- CATEGORIE -->
+      <div class="card">
+        <div class="ch"><div class="ct">🏷️ Categorie</div><button class="btn br" style="padding:6px 12px;font-size:11px" onclick="renderCatList();openModal('modal-cat')">Gestisci</button></div>
+        <div class="cb"><div class="um-list" id="cat-display"></div></div>
+      </div>
+
+      <!-- DATI -->
+      <div class="card">
+        <div class="ch"><div class="ct">💾 Dati</div></div>
+        <div class="cb" style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="esportaDati()"><span style="font-size:20px">⬆️</span><div style="text-align:left"><div style="font-size:14px;font-weight:900">Esporta dati</div><div style="font-size:12px;font-weight:600;color:var(--sub)">Scarica backup JSON</div></div></button>
+          <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="document.getElementById('import-file').click()"><span style="font-size:20px">⬇️</span><div style="text-align:left"><div style="font-size:14px;font-weight:900">Importa dati</div><div style="font-size:12px;font-weight:600;color:var(--sub)">Ripristina da backup JSON</div></div></button>
+        </div>
+      </div>
+
+      <!-- INFO APP -->
+      <div class="card">
+        <div class="ch"><div class="ct">ℹ️ Info app</div></div>
+        <div class="cb">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)">
+              <span style="font-size:14px;font-weight:700;color:var(--sub)">App</span>
+              <span style="font-size:14px;font-weight:800">Ordini in Ordine</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)">
+              <span style="font-size:14px;font-weight:700;color:var(--sub)">Versione</span>
+              <span style="font-size:14px;font-weight:800">1.0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)">
+              <span style="font-size:14px;font-weight:700;color:var(--sub)">Sviluppato per</span>
+              <span style="font-size:14px;font-weight:800">Macelleria Schirinzi</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+              <span style="font-size:14px;font-weight:700;color:var(--sub)">Codice sorgente</span>
+              <a href="https://github.com/schiro76-ship-it/Ordini-In-Ordine" target="_blank" style="font-size:14px;font-weight:800;color:var(--r);text-decoration:none">GitHub →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -611,8 +648,8 @@ function refreshAll(){
   if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');
 }
 
-const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',articoli:'Articoli'};
-const tabIdx={ordini:0,riepilogo:1,storico:2,nuovo:3,articoli:4};
+const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni'};
+const tabIdx={ordini:0,riepilogo:1,storico:2,nuovo:3,impostazioni:4};
 function goTab(name){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
@@ -622,7 +659,7 @@ function goTab(name){
   if(name==='nuovo'){sel=[];tNuovo=null;initNuovo();setTimeout(initNuovo,100)}
   const bar=document.getElementById('nuovo-bottom-bar');
   if(bar)bar.classList.toggle('visible',name==='nuovo');
-  if(name==='articoli'){renderArtM();renderUMDisplay()}
+  if(name==='impostazioni'){renderArtM();renderUMDisplay()}
   if(name==='ordini')renderOrdini();
   if(name==='riepilogo')renderRiepilogo();
   if(name==='storico'){renderStoricoRiepilogo()}
