@@ -816,16 +816,16 @@ function showOnboarding(){
 function renderObAttivita(){
   const grid=document.getElementById('ob-attivita-grid');
   if(!grid||!ATTIVITA_TYPES)return;
-  let html='';
-  for(let i=0;i<ATTIVITA_TYPES.length;i++){
-    const a=ATTIVITA_TYPES[i];
-    const sel=obSelectedAttivita===a.id?'selected':'';
-    html+='<div class="ob-card '+sel+'" onclick="selectAttivita(''+a.id+'')">'
-      +'<div class="ob-emoji">'+a.emoji+'</div>'
-      +'<div class="ob-label">'+a.label+'</div>'
-      +'</div>';
-  }
-  grid.innerHTML=html;
+  let out='';
+  grid.innerHTML='';
+  ATTIVITA_TYPES.forEach(function(a){
+    const sel=obSelectedAttivita===a.id?' selected':'';
+    const div=document.createElement('div');
+    div.className='ob-card'+sel;
+    div.innerHTML='<div class="ob-emoji">'+a.emoji+'</div><div class="ob-label">'+a.label+'</div>';
+    div.onclick=function(){selectAttivita(a.id);};
+    grid.appendChild(div);
+  });
 }
 function selectAttivita(id){
   obSelectedAttivita=id;obSelectedTheme=id;renderObAttivita();
@@ -836,20 +836,20 @@ function obBack(){document.getElementById('ob-step2').style.display='none';docum
 function renderObThemes(){
   const grid=document.getElementById('ob-themes-grid');
   if(!grid||!ATTIVITA_TYPES)return;
-  let h='';
+  let out='';
   for(let i=0;i<ATTIVITA_TYPES.length;i++){
     const a=ATTIVITA_TYPES[i];
-    const sel=obSelectedTheme===a.id?'selected':'';
-    h+='<div class="ob-theme '+sel+'" onclick="selectTheme(''+a.id+'')">'
-      +'<div class="ob-theme-preview" style="background:'+a.theme.sb+'">'
-      +'<div class="ob-theme-dot" style="background:'+a.theme.r+'"></div>'
-      +'<div class="ob-theme-dot" style="background:'+a.theme.g+'"></div>'
-      +'<div class="ob-theme-dot" style="background:#FFE033"></div>'
-      +'</div>'
-      +'<div class="ob-theme-label">'+a.emoji+' '+a.label+'</div>'
-      +'</div>';
+    const sel=obSelectedTheme===a.id?' selected':'';
+    out+='<div class="ob-theme'+sel+'" onclick="selectTheme(\''+a.id+'\')">'; 
+    out+='<div class="ob-theme-preview" style="background:'+a.theme.sb+'">';
+    out+='<div class="ob-theme-dot" style="background:'+a.theme.r+'"></div>';
+    out+='<div class="ob-theme-dot" style="background:'+a.theme.g+'"></div>';
+    out+='<div class="ob-theme-dot" style="background:#FFE033"></div>';
+    out+='</div>';
+    out+='<div class="ob-theme-label">'+a.emoji+' '+a.label+'</div>';
+    out+='</div>';
   }
-  grid.innerHTML=h;
+  grid.innerHTML=out;
   const btn=document.getElementById('ob-btn2');
   if(btn){btn.disabled=false;btn.style.opacity='1';}
 }
