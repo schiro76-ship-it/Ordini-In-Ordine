@@ -262,11 +262,61 @@ font-size: 16px;
 white-space: nowrap;
 margin-left: 12px;
 }
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;background:#2C3E50;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+#login-screen.hidden{display:none}
+.login-box{background:#fff;border-radius:20px;padding:32px 24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo .app-name{font-size:24px;font-weight:900;color:#1A1A2E;margin-top:8px}
+.login-logo .app-sub{font-size:13px;color:#6B7280;font-weight:600;margin-top:2px}
+.login-tab{display:flex;background:#F0F2F5;border-radius:12px;padding:4px;margin-bottom:24px}
+.login-tab button{flex:1;padding:10px;border:none;border-radius:9px;font-family:‘Nunito’,sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all 0.2s;background:transparent;color:#6B7280}
+.login-tab button.active{background:#fff;color:#1A1A2E;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.login-field{margin-bottom:14px}
+.login-field label{display:block;font-size:12px;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
+.login-field input{width:100%;padding:12px 14px;border:1.5px solid #E5E7EB;border-radius:11px;font-family:‘Nunito’,sans-serif;font-size:15px;font-weight:600;color:#1A1A2E;outline:none;transition:border-color 0.2s;box-sizing:border-box}
+.login-field input:focus{border-color:#C0392B}
+.login-btn{width:100%;padding:14px;background:#C0392B;color:#fff;border:none;border-radius:12px;font-family:‘Nunito’,sans-serif;font-size:16px;font-weight:900;cursor:pointer;margin-top:8px;transition:all 0.2s}
+.login-btn:hover{filter:brightness(0.9)}
+.login-err{color:#C0392B;font-size:13px;font-weight:700;text-align:center;margin-top:10px;min-height:20px}
+.login-forgot{text-align:center;margin-top:12px;font-size:13px;font-weight:700;color:#6B7280;cursor:pointer}
+.login-forgot span{color:#C0392B}
 </style>
 
 </head>
 <body>
 
+<!-- SCHERMATA LOGIN -->
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div style="font-size:48px">🗂️</div>
+      <div class="app-name">Ordini in Ordine</div>
+      <div class="app-sub">Gestione ordini per la tua attività</div>
+    </div>
+    <div class="login-tab">
+      <button class="active" id="tab-login-btn" onclick="switchLoginTab('login')">Accedi</button>
+      <button id="tab-reg-btn" onclick="switchLoginTab('registrati')">Registrati</button>
+    </div>
+    <!-- LOGIN -->
+    <div id="form-login">
+      <div class="login-field"><label>Email</label><input type="email" id="login-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
+      <div class="login-field"><label>Password</label><input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="login-btn" onclick="doLogin()">Accedi</button>
+      <div class="login-forgot" onclick="doResetPwd()">Password dimenticata? <span>Recupera</span></div>
+    </div>
+    <!-- REGISTRAZIONE -->
+    <div id="form-reg" style="display:none">
+      <div class="login-field"><label>Email</label><input type="email" id="reg-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
+      <div class="login-field"><label>Password</label><input type="password" id="reg-pwd" placeholder="Minimo 6 caratteri" autocomplete="new-password"></div>
+      <div class="login-field"><label>Conferma password</label><input type="password" id="reg-pwd2" placeholder="Ripeti la password" autocomplete="new-password"></div>
+      <button class="login-btn" onclick="doRegister()">Crea account</button>
+    </div>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
 <div id="loading"><div class="spinner"></div><p>Caricamento…</p></div>
 
 <div class="shell" id="app" style="display:none">
@@ -445,6 +495,15 @@ margin-left: 12px;
         </div>
       </div>
 
+      <!-- LOGOUT -->
+      <div class="card">
+        <div class="ch"><div class="ct">👤 Account</div></div>
+        <div class="cb">
+          <div style="font-size:14px;font-weight:600;color:var(--sub);margin-bottom:12px" id="account-email"></div>
+          <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#C0392B" onclick="doLogout()"><span style="font-size:20px">🚪</span><div style="text-align:left"><div style="font-size:14px;font-weight:900">Esci</div><div style="font-size:12px;font-weight:600;color:var(--sub)">Disconnetti questo dispositivo</div></div></button>
+        </div>
+      </div>
+
       <!-- INFO APP -->
       <div class="card">
         <div class="ch"><div class="ct">ℹ️ Info app</div></div>
@@ -576,6 +635,8 @@ margin-left: 12px;
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyByjm6Hcp-4VhousgnJC5Jhf_oiQZLIrHo",
@@ -588,7 +649,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const DOC_ID = 'macelleria-schirinzi';
+const DOC_ID = 'macelleria-schirinzi'; // verrà sovrascritto con uid utente
 
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;
 const DEFAULT_UM=['kg','g','fette','pezzi','numero','vaschette','bustine'];
@@ -606,13 +667,15 @@ const DEFAULT_ARTS=[
 
 async function saveData(){
   const payload={arts,ords,unitaMisura,cats,nextNum};
-  try{ await db.collection('dati').doc(DOC_ID).set(payload); }catch(e){console.warn('Firebase save error',e);}
+  try{ const uid = currentUser ? currentUser.uid : DOC_ID;
+  await db.collection('dati').doc(uid).set(payload); }catch(e){console.warn('Firebase save error',e);}
   try{ localStorage.setItem('mac-data',JSON.stringify(payload)); }catch{}
 }
 
 async function loadData(){
   try{
-    const snap = await db.collection('dati').doc(DOC_ID).get();
+    const uid = currentUser ? currentUser.uid : DOC_ID;
+    const snap = await db.collection('dati').doc(uid).get();
     if(snap.exists){
       const d=snap.data();
       arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;
@@ -633,7 +696,7 @@ async function boot(){
   document.getElementById('app').style.display='flex';
   calInit();refreshAll();
   try{
-    db.collection('dati').doc(DOC_ID).onSnapshot((snap)=>{
+    db.collection('dati').doc(currentUser ? currentUser.uid : DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
       const d=snap.data();
       arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;
@@ -643,6 +706,8 @@ async function boot(){
 }
 
 function refreshAll(){
+  const emailEl=document.getElementById('account-email');
+  if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;
   renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();
   const cd=document.getElementById('cat-display');
   if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');
@@ -1362,7 +1427,75 @@ function stampaEtichetta(id){
   openModal('modal-etichetta');
 }
 
-boot();
+
+// ── AUTH ──
+const auth = firebase.auth();
+let currentUser = null;
+
+auth.onAuthStateChanged(function(user){
+  if(user){
+    currentUser = user;
+    document.getElementById('login-screen').classList.add('hidden');
+    boot();
+  } else {
+    currentUser = null;
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('app').style.display='none';
+  }
+});
+
+function switchLoginTab(tab){
+  document.getElementById('form-login').style.display = tab==='login'?'block':'none';
+  document.getElementById('form-reg').style.display = tab==='registrati'?'block':'none';
+  document.getElementById('tab-login-btn').classList.toggle('active', tab==='login');
+  document.getElementById('tab-reg-btn').classList.toggle('active', tab==='registrati');
+  document.getElementById('login-err').textContent='';
+}
+
+function loginErr(msg){document.getElementById('login-err').textContent=msg;}
+
+function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pwd=document.getElementById('login-pwd').value;
+  if(!email||!pwd){loginErr('Inserisci email e password');return;}
+  auth.signInWithEmailAndPassword(email,pwd)
+    .catch(function(e){
+      if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')
+        loginErr('Email o password errati');
+      else loginErr('Errore: '+e.message);
+    });
+}
+
+function doRegister(){
+  const email=document.getElementById('reg-email').value.trim();
+  const pwd=document.getElementById('reg-pwd').value;
+  const pwd2=document.getElementById('reg-pwd2').value;
+  if(!email||!pwd){loginErr('Inserisci tutti i campi');return;}
+  if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');return;}
+  if(pwd!==pwd2){loginErr('Le password non coincidono');return;}
+  auth.createUserWithEmailAndPassword(email,pwd)
+    .catch(function(e){
+      if(e.code==='auth/email-already-in-use') loginErr('Email già registrata');
+      else if(e.code==='auth/invalid-email') loginErr('Email non valida');
+      else loginErr('Errore: '+e.message);
+    });
+}
+
+function doResetPwd(){
+  const email=document.getElementById('login-email').value.trim();
+  if(!email){loginErr('Inserisci prima la tua email');return;}
+  auth.sendPasswordResetEmail(email)
+    .then(function(){loginErr('Email di recupero inviata! Controlla la posta.');})
+    .catch(function(e){loginErr('Email non trovata');});
+}
+
+function doLogout(){
+  auth.signOut();
+}
+
+// boot viene chiamato da onAuthStateChanged
+// boot();
 </script>
 
 </body>
