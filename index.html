@@ -874,6 +874,7 @@ async function resetOnboarding(){
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
 <script>
+let isNewUser = false;
 const firebaseConfig = {
   apiKey: "AIzaSyByjm6Hcp-4VhousgnJC5Jhf_oiQZLIrHo",
   authDomain: "ordini-in-ordine-f4966.firebaseapp.com",
@@ -955,11 +956,22 @@ function refreshAll(){
   const emailEl=document.getElementById('account-email');
   if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;
   // Mostra nome attività in sidebar e topbar
+  // Leggi nome attività da Firebase profilo o da displayName
   const nomeAttivita = currentUser&&currentUser.displayName ? currentUser.displayName : '';
   const sbAttivita=document.getElementById('sb-attivita');
   if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;
   const inputAttivita=document.getElementById('input-attivita');
-  if(inputAttivita&&nomeAttivita)inputAttivita.value=nomeAttivita;
+  if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;
+  // Se displayName non ancora disponibile, prova da Firestore
+  if(!nomeAttivita&&currentUser){
+    db.collection('profili').doc(currentUser.uid).get().then(function(snap){
+      if(snap.exists&&snap.data().attivita){
+        const n=snap.data().attivita;
+        if(sbAttivita)sbAttivita.textContent=n;
+        if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;
+      }
+    }).catch(function(){});
+  }
   renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();
   const cd=document.getElementById('cat-display');
   if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');
@@ -1683,7 +1695,6 @@ function stampaEtichetta(id){
 // ── AUTH ──
 const auth = firebase.auth();
 let currentUser = null;
-let isNewUser = false;
 
 auth.onAuthStateChanged(function(user){
   if(user){
