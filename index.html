@@ -373,14 +373,13 @@ margin-left: 12px;
         <span style="color:#5B2D8E">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#5B2D8E">nOrdine</span>
       </div>
     </div>
-    <div class="ob-title">Benvenuto! Configuriamo la tua attività</div>
+    <div class="ob-title">Che tipo di attività hai?</div>
   </div>
 
   <!-- STEP 1: tipo attività -->
 
   <div class="ob-step" id="ob-step1">
-    <h2>Che tipo di attività hai?</h2>
-    <p>Caricheremo un catalogo articoli pre-impostato per te</p>
+    <h2>Qual è la tua attività?</h2>
     <div class="ob-grid" id="ob-attivita-grid"></div>
     <button class="btn br btn-full" onclick="obNext()" id="ob-btn1" disabled style="opacity:0.4">Inizia! 🎉</button>
   </div>
@@ -594,6 +593,10 @@ margin-left: 12px;
               <button class="btn br" style="padding:10px 16px;white-space:nowrap" onclick="salvaAttivita()">Salva</button>
             </div>
           </div>
+          <div class="fg" style="margin-top:14px;border-top:1px solid var(--brd);padding-top:14px">
+            <label class="fl">Tema colori</label>
+            <div id="tema-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"></div>
+          </div>
           <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#8E44AD;margin-top:4px" onclick="resetOnboarding()"><span style="font-size:20px">🔄</span><div style="text-align:left"><div style="font-size:14px;font-weight:900">Cambia tipo attività</div><div style="font-size:12px;font-weight:600;color:var(--sub)">Riavvia la configurazione iniziale</div></div></button>
           <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#C0392B;margin-top:4px" onclick="doLogout()"><span style="font-size:20px">🚪</span><div style="text-align:left"><div style="font-size:14px;font-weight:900">Esci</div><div style="font-size:12px;font-weight:600;color:var(--sub)">Disconnetti questo dispositivo</div></div></button>
         </div>
@@ -726,7 +729,33 @@ margin-left: 12px;
 
 <!-- FIREBASE COMPAT (funziona su tutti i browser incluso Safari iOS) -->
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js">
+function renderTemaGrid(){
+  const grid=document.getElementById('tema-grid');
+  if(!grid||!ATTIVITA_TYPES)return;
+  grid.innerHTML='';
+  ATTIVITA_TYPES.forEach(function(a){
+    const div=document.createElement('div');
+    div.style.cssText='border:3px solid transparent;border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.2s';
+    div.onclick=function(){
+      applyTheme(a.theme);
+      // Salva in Firestore
+      if(currentUser){
+        db.collection('profili').doc(currentUser.uid).set({tema:a.id},{merge:true}).catch(function(){});
+      }
+      toast('Tema aggiornato ✅','v');
+      renderTemaGrid();
+    };
+    div.innerHTML='<div style="height:44px;display:flex;align-items:center;justify-content:center;gap:4px;background:'+a.theme.sb+'">'
+      +'<div style="width:12px;height:12px;border-radius:50%;background:'+a.theme.r+'"></div>'
+      +'<div style="width:12px;height:12px;border-radius:50%;background:'+a.theme.g+'"></div>'
+      +'<div style="width:12px;height:12px;border-radius:50%;background:#FFE033"></div>'
+      +'</div>'
+      +'<div style="font-size:10px;font-weight:800;padding:5px 4px;text-align:center;background:#fff;color:#1A1A2E">'+a.emoji+' '+a.label+'</div>';
+    grid.appendChild(div);
+  });
+}
+</script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
@@ -821,7 +850,7 @@ function renderObAttivita(){
   let out='';
   grid.innerHTML='';
   ATTIVITA_TYPES.forEach(function(a){
-    const sel=obSelectedAttivita===a.id?' selected':'';
+    const sel=(obSelectedAttivita&&obSelectedAttivita===a.id)?' selected':'';
     const div=document.createElement('div');
     div.className='ob-card'+sel;
     div.innerHTML='<div class="ob-emoji">'+a.emoji+'</div><div class="ob-label">'+a.label+'</div>';
@@ -1034,7 +1063,7 @@ function goTab(name){
   if(name==='nuovo'){sel=[];tNuovo=null;initNuovo();setTimeout(initNuovo,100)}
   const bar=document.getElementById('nuovo-bottom-bar');
   if(bar)bar.classList.toggle('visible',name==='nuovo');
-  if(name==='impostazioni'){renderArtM();renderUMDisplay()}
+  if(name==='impostazioni'){renderArtM();renderUMDisplay();renderTemaGrid()}
   if(name==='ordini')renderOrdini();
   if(name==='riepilogo')renderRiepilogo();
   if(name==='storico'){renderStoricoRiepilogo()}
