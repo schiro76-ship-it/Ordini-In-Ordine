@@ -1679,10 +1679,9 @@ auth.onAuthStateChanged(function(user){
     document.getElementById('login-screen').style.display='none';
     if(isNewUser){
       isNewUser = false;
-      alert('DEBUG: nuovo utente rilevato!');
       boot().then(function(){
         obSelectedAttivita=null; obSelectedTheme=null;
-        showOnboarding();
+        setTimeout(showOnboarding, 100);
       });
     } else {
       boot().then(function(){ setTimeout(checkOnboarding, 300); });
