@@ -1161,7 +1161,7 @@ function sincNuovoNum(val){
   const usati=new Set(ords.map(o=>o.num));
   if(badge)badge.textContent=usati.has(v)?'⚠️ già usato':'';
 }
-function minNumeroLibero(){const usati=new Set(ords.map(o=>o.num));let n=1;while(usati.has(n))n++;return n;}
+function minNumeroLibero(){const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));let n=1;while(usati.has(n))n++;return n;}
 function initNuovo(){
   const numLibero=minNumeroLibero();
   const elTop=document.getElementById('nuovo-num-top');if(elTop)elTop.value=numLibero;
