@@ -725,7 +725,138 @@ margin-left: 12px;
 
 <!-- FIREBASE COMPAT (funziona su tutti i browser incluso Safari iOS) -->
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js">
+const ATTIVITA_TYPES = [
+  { id:'macelleria', label:'Macelleria', emoji:'🥩',
+    theme:{r:'#C0392B',rs:'#F9EDED',g:'#1E8A6E',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'},
+    cats:['Bovino','Suino','Agnello','Pollame','Salumi','Elaborati','Varie'],
+    arts:[{nome:'Costata di manzo',cat:'Bovino'},{nome:'Filetto di manzo',cat:'Bovino'},{nome:'Macinato di manzo',cat:'Bovino'},{nome:'Braciola di maiale',cat:'Suino'},{nome:'Salsiccia fresca',cat:'Suino'},{nome:'Arista di maiale',cat:'Suino'},{nome:'Costolette di agnello',cat:'Agnello'},{nome:'Coscia di agnello',cat:'Agnello'},{nome:'Petto di pollo',cat:'Pollame'},{nome:'Cosce di pollo',cat:'Pollame'},{nome:'Prosciutto crudo',cat:'Salumi'},{nome:'Salame Milano',cat:'Salumi'}]
+  },
+  { id:'pescheria', label:'Pescheria', emoji:'🐟',
+    theme:{r:'#1565C0',rs:'#E3F2FD',g:'#00897B',gs:'#E0F2F1',bg:'#E8F4F8',sb:'#0D47A1'},
+    cats:['Pesce fresco','Crostacei','Molluschi','Affumicati','Varie'],
+    arts:[{nome:'Branzino',cat:'Pesce fresco'},{nome:'Orata',cat:'Pesce fresco'},{nome:'Salmone',cat:'Pesce fresco'},{nome:'Tonno',cat:'Pesce fresco'},{nome:'Gamberi',cat:'Crostacei'},{nome:'Scampi',cat:'Crostacei'},{nome:'Cozze',cat:'Molluschi'},{nome:'Vongole',cat:'Molluschi'},{nome:'Polpo',cat:'Molluschi'},{nome:'Salmone affumicato',cat:'Affumicati'}]
+  },
+  { id:'pasticceria', label:'Pasticceria / Gelateria', emoji:'🎂',
+    theme:{r:'#E91E8C',rs:'#FCE4EC',g:'#8BC34A',gs:'#F1F8E9',bg:'#FFF8F9',sb:'#880E4F'},
+    cats:['Torte','Mignon','Lievitati','Gelato','Varie'],
+    arts:[{nome:'Torta al cioccolato',cat:'Torte'},{nome:'Torta alla frutta',cat:'Torte'},{nome:'Cheesecake',cat:'Torte'},{nome:'Cannoli',cat:'Mignon'},{nome:'Profiteroles',cat:'Mignon'},{nome:'Croissant',cat:'Lievitati'},{nome:'Brioche',cat:'Lievitati'},{nome:'Gelato alla fragola',cat:'Gelato'},{nome:'Gelato al pistacchio',cat:'Gelato'}]
+  },
+  { id:'panificio', label:'Panificio / Pizzeria', emoji:'🍞',
+    theme:{r:'#795548',rs:'#EFEBE9',g:'#558B2F',gs:'#F1F8E9',bg:'#FDF6F0',sb:'#4E342E'},
+    cats:['Pane','Focacce','Pizze','Dolci','Varie'],
+    arts:[{nome:'Pane comune',cat:'Pane'},{nome:'Pane integrale',cat:'Pane'},{nome:'Ciabatta',cat:'Pane'},{nome:'Focaccia classica',cat:'Focacce'},{nome:'Focaccia rosmarino',cat:'Focacce'},{nome:'Pizza margherita',cat:'Pizze'},{nome:'Pizza capricciosa',cat:'Pizze'},{nome:'Cornetto',cat:'Dolci'},{nome:'Crostata',cat:'Dolci'}]
+  },
+  { id:'gastronomia', label:'Gastronomia / Rosticceria', emoji:'🍖',
+    theme:{r:'#E65100',rs:'#FBE9E7',g:'#2E7D32',gs:'#E8F5E9',bg:'#FFF3E0',sb:'#BF360C'},
+    cats:['Arrosti','Fritti','Contorni','Primi','Varie'],
+    arts:[{nome:'Pollo arrosto',cat:'Arrosti'},{nome:'Porchetta',cat:'Arrosti'},{nome:'Arrosto di vitello',cat:'Arrosti'},{nome:'Supplì',cat:'Fritti'},{nome:'Olive ascolane',cat:'Fritti'},{nome:'Patate al forno',cat:'Contorni'},{nome:'Verdure grigliate',cat:'Contorni'},{nome:'Lasagne',cat:'Primi'},{nome:'Pasta al forno',cat:'Primi'}]
+  },
+  { id:'fioraio', label:'Fioraio', emoji:'💐',
+    theme:{r:'#7B1FA2',rs:'#F3E5F5',g:'#2E7D32',gs:'#E8F5E9',bg:'#F9F5FF',sb:'#4A148C'},
+    cats:['Bouquet','Piante','Composizioni','Varie'],
+    arts:[{nome:'Bouquet di rose',cat:'Bouquet'},{nome:'Bouquet misto',cat:'Bouquet'},{nome:'Mazzo di girasoli',cat:'Bouquet'},{nome:'Orchidea',cat:'Piante'},{nome:'Ficus',cat:'Piante'},{nome:'Corona funebre',cat:'Composizioni'},{nome:'Centrotavola',cat:'Composizioni'}]
+  },
+  { id:'salumeria', label:'Salumeria / Formaggi', emoji:'🧀',
+    theme:{r:'#F57F17',rs:'#FFFDE7',g:'#558B2F',gs:'#F1F8E9',bg:'#FFFEF5',sb:'#E65100'},
+    cats:['Salumi','Formaggi','Sottolio','Varie'],
+    arts:[{nome:'Prosciutto crudo DOP',cat:'Salumi'},{nome:'Mortadella',cat:'Salumi'},{nome:'Speck',cat:'Salumi'},{nome:'Parmigiano Reggiano',cat:'Formaggi'},{nome:'Pecorino',cat:'Formaggi'},{nome:'Mozzarella',cat:'Formaggi'},{nome:'Olive in salamoia',cat:'Sottolio'},{nome:'Pomodori secchi',cat:'Sottolio'}]
+  },
+  { id:'enoteca', label:'Enoteca / Cantina', emoji:'🍷',
+    theme:{r:'#880E4F',rs:'#FCE4EC',g:'#33691E',gs:'#F1F8E9',bg:'#FFF8FA',sb:'#4A0030'},
+    cats:['Rossi','Bianchi','Rosati','Spumanti','Varie'],
+    arts:[{nome:'Barolo',cat:'Rossi'},{nome:'Chianti',cat:'Rossi'},{nome:'Primitivo',cat:'Rossi'},{nome:'Pinot Grigio',cat:'Bianchi'},{nome:'Vermentino',cat:'Bianchi'},{nome:'Prosecco',cat:'Spumanti'},{nome:'Franciacorta',cat:'Spumanti'}]
+  },
+  { id:'cioccolateria', label:'Cioccolateria', emoji:'🍫',
+    theme:{r:'#4E342E',rs:'#EFEBE9',g:'#558B2F',gs:'#F1F8E9',bg:'#FDF8F5',sb:'#3E2723'},
+    cats:['Cioccolato','Confetti','Praline','Varie'],
+    arts:[{nome:'Tavoletta fondente',cat:'Cioccolato'},{nome:'Tavoletta al latte',cat:'Cioccolato'},{nome:'Confetti bianchi',cat:'Confetti'},{nome:'Confetti colorati',cat:'Confetti'},{nome:'Praline assortite',cat:'Praline'},{nome:'Tartufi al cioccolato',cat:'Praline'}]
+  },
+  { id:'conserve', label:'Conserve / Prodotti tipici', emoji:'🫙',
+    theme:{r:'#2E7D32',rs:'#E8F5E9',g:'#F57F17',gs:'#FFF8E1',bg:'#F5FFF5',sb:'#1B5E20'},
+    cats:['Conserve','Marmellate','Olio e Aceto','Varie'],
+    arts:[{nome:'Pomodori pelati',cat:'Conserve'},{nome:'Passata di pomodoro',cat:'Conserve'},{nome:'Marmellata di arance',cat:'Marmellate'},{nome:'Marmellata di fichi',cat:'Marmellate'},{nome:'Olio extravergine',cat:'Olio e Aceto'},{nome:'Aceto balsamico',cat:'Olio e Aceto'}]
+  },
+  { id:'erboristeria', label:'Erboristeria', emoji:'🌿',
+    theme:{r:'#388E3C',rs:'#E8F5E9',g:'#00838F',gs:'#E0F7FA',bg:'#F1F8E9',sb:'#1B5E20'},
+    cats:['Tisane','Integratori','Cosmetici','Varie'],
+    arts:[{nome:'Camomilla',cat:'Tisane'},{nome:'Menta',cat:'Tisane'},{nome:'Melissa',cat:'Tisane'},{nome:'Vitamina C',cat:'Integratori'},{nome:'Magnesio',cat:'Integratori'}]
+  },
+  { id:'negozio_regalo', label:'Negozio regalo', emoji:'🎁',
+    theme:{r:'#C2185B',rs:'#FCE4EC',g:'#00838F',gs:'#E0F7FA',bg:'#FFF5F9',sb:'#880E4F'},
+    cats:['Bomboniere','Regali','Varie'],
+    arts:[{nome:'Bomboniera matrimonio',cat:'Bomboniere'},{nome:'Bomboniera battesimo',cat:'Bomboniere'},{nome:'Cofanetto regalo',cat:'Regali'},{nome:'Cesto natalizio',cat:'Regali'}]
+  },
+  { id:'altro', label:'Altro', emoji:'📦',
+    theme:{r:'#455A64',rs:'#ECEFF1',g:'#00695C',gs:'#E0F2F1',bg:'#F5F5F5',sb:'#263238'},
+    cats:['Categoria 1','Categoria 2','Varie'],
+    arts:[]
+  },
+];
+
+function getAttivitaById(id){return ATTIVITA_TYPES.find(a=>a.id===id)||ATTIVITA_TYPES[ATTIVITA_TYPES.length-1];}
+let obSelectedAttivita=null,obSelectedTheme=null;
+
+function showOnboarding(){
+  document.getElementById('onboarding-screen').classList.add('visible');
+  renderObAttivita();
+}
+function renderObAttivita(){
+  const grid=document.getElementById('ob-attivita-grid');if(!grid)return;
+  grid.innerHTML=ATTIVITA_TYPES.map(a=>`<div class="ob-card ${obSelectedAttivita===a.id?'selected':''}" onclick="selectAttivita('${a.id}')"><div class="ob-emoji">${a.emoji}</div><div class="ob-label">${a.label}</div></div>`).join('');
+}
+function selectAttivita(id){
+  obSelectedAttivita=id;obSelectedTheme=id;renderObAttivita();
+  const btn=document.getElementById('ob-btn1');if(btn){btn.disabled=false;btn.style.opacity='1';}
+}
+function obNext(){if(!obSelectedAttivita)return;document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='block';renderObThemes();}
+function obBack(){document.getElementById('ob-step2').style.display='none';document.getElementById('ob-step1').style.display='block';}
+function renderObThemes(){
+  const grid=document.getElementById('ob-themes-grid');if(!grid)return;
+  grid.innerHTML=ATTIVITA_TYPES.map(a=>`<div class="ob-theme ${obSelectedTheme===a.id?'selected':''}" onclick="selectTheme('${a.id}')"><div class="ob-theme-preview" style="background:${a.theme.sb}"><div class="ob-theme-dot" style="background:${a.theme.r}"></div><div class="ob-theme-dot" style="background:${a.theme.g}"></div><div class="ob-theme-dot" style="background:#FFE033"></div></div><div class="ob-theme-label">${a.emoji} ${a.label}</div></div>`).join('');
+  const btn=document.getElementById('ob-btn2');if(btn){btn.disabled=false;btn.style.opacity='1';}
+}
+function selectTheme(id){obSelectedTheme=id;renderObThemes();}
+async function obConfirm(){
+  if(!obSelectedAttivita||!obSelectedTheme)return;
+  const attivita=getAttivitaById(obSelectedAttivita);
+  const themeData=getAttivitaById(obSelectedTheme);
+  cats=[...attivita.cats];
+  arts=attivita.arts.map((a,i)=>({id:i+1,...a}));
+  unitaMisura=['kg','g','pezzi','numero','fette','vaschette','bustine'];
+  ords=[];
+  await saveData();
+  if(currentUser){
+    await db.collection('profili').doc(currentUser.uid).set({
+      attivita:currentUser.displayName||'',email:currentUser.email,
+      tipoAttivita:obSelectedAttivita,tema:obSelectedTheme,
+      onboardingCompleto:true,creato:new Date().toISOString()
+    },{merge:true});
+  }
+  applyTheme(themeData.theme);
+  document.getElementById('onboarding-screen').classList.remove('visible');
+  refreshAll();
+  toast('Benvenuto! La tua attività è pronta 🎉','v');
+}
+function applyTheme(theme){
+  const root=document.documentElement;
+  root.style.setProperty('--r',theme.r);root.style.setProperty('--rs',theme.rs);
+  root.style.setProperty('--g',theme.g);root.style.setProperty('--gs',theme.gs);
+  root.style.setProperty('--bg',theme.bg);
+  const sb=document.querySelector('.sidebar');if(sb)sb.style.background=theme.sb;
+}
+async function checkOnboarding(){
+  if(!currentUser)return;
+  try{
+    const snap=await db.collection('profili').doc(currentUser.uid).get();
+    if(snap.exists&&snap.data().onboardingCompleto){
+      const tid=snap.data().tema||snap.data().tipoAttivita;
+      if(tid){const a=getAttivitaById(tid);if(a)applyTheme(a.theme);}
+    } else { showOnboarding(); }
+  } catch(e){ showOnboarding(); }
+}
+
+</script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
@@ -1536,251 +1667,8 @@ auth.onAuthStateChanged(function(user){
   if(user){
     currentUser = user;
     document.getElementById('login-screen').style.display='none';
-    
-const ATTIVITA_TYPES = [
-  { id:'macelleria', label:'Macelleria', emoji:'🥩',
-    theme:{r:'#C0392B',rs:'#F9EDED',g:'#1E8A6E',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'},
-    cats:['Bovino','Suino','Agnello','Pollame','Salumi','Elaborati','Varie'],
-    arts:[
-      {nome:'Costata di manzo',cat:'Bovino'},{nome:'Filetto di manzo',cat:'Bovino'},{nome:'Macinato di manzo',cat:'Bovino'},
-      {nome:'Braciola di maiale',cat:'Suino'},{nome:'Salsiccia fresca',cat:'Suino'},{nome:'Arista di maiale',cat:'Suino'},
-      {nome:'Costolette di agnello',cat:'Agnello'},{nome:'Coscia di agnello',cat:'Agnello'},
-      {nome:'Petto di pollo',cat:'Pollame'},{nome:'Cosce di pollo',cat:'Pollame'},
-      {nome:'Prosciutto crudo',cat:'Salumi'},{nome:'Salame Milano',cat:'Salumi'},
-    ]
-  },
-  { id:'pescheria', label:'Pescheria', emoji:'🐟',
-    theme:{r:'#1565C0',rs:'#E3F2FD',g:'#00897B',gs:'#E0F2F1',bg:'#E8F4F8',sb:'#0D47A1'},
-    cats:['Pesce fresco','Crostacei','Molluschi','Affumicati','Varie'],
-    arts:[
-      {nome:'Branzino',cat:'Pesce fresco'},{nome:'Orata',cat:'Pesce fresco'},{nome:'Salmone',cat:'Pesce fresco'},
-      {nome:'Tonno',cat:'Pesce fresco'},{nome:'Merluzzo',cat:'Pesce fresco'},
-      {nome:'Gamberi',cat:'Crostacei'},{nome:'Scampi',cat:'Crostacei'},{nome:'Aragosta',cat:'Crostacei'},
-      {nome:'Cozze',cat:'Molluschi'},{nome:'Vongole',cat:'Molluschi'},{nome:'Polpo',cat:'Molluschi'},
-      {nome:'Salmone affumicato',cat:'Affumicati'},{nome:'Spada affumicato',cat:'Affumicati'},
-    ]
-  },
-  { id:'pasticceria', label:'Pasticceria / Gelateria', emoji:'🎂',
-    theme:{r:'#E91E8C',rs:'#FCE4EC',g:'#8BC34A',gs:'#F1F8E9',bg:'#FFF8F9',sb:'#880E4F'},
-    cats:['Torte','Mignon','Lievitati','Gelato','Varie'],
-    arts:[
-      {nome:'Torta al cioccolato',cat:'Torte'},{nome:'Torta alla frutta',cat:'Torte'},{nome:'Cheesecake',cat:'Torte'},
-      {nome:'Cannoli',cat:'Mignon'},{nome:'Profiteroles',cat:'Mignon'},{nome:'Bignè',cat:'Mignon'},
-      {nome:'Croissant',cat:'Lievitati'},{nome:'Brioche',cat:'Lievitati'},
-      {nome:'Gelato alla fragola',cat:'Gelato'},{nome:'Gelato al pistacchio',cat:'Gelato'},
-    ]
-  },
-  { id:'panificio', label:'Panificio / Pizzeria', emoji:'🍞',
-    theme:{r:'#795548',rs:'#EFEBE9',g:'#558B2F',gs:'#F1F8E9',bg:'#FDF6F0',sb:'#4E342E'},
-    cats:['Pane','Focacce','Pizze','Dolci','Varie'],
-    arts:[
-      {nome:'Pane comune',cat:'Pane'},{nome:'Pane integrale',cat:'Pane'},{nome:'Ciabatta',cat:'Pane'},
-      {nome:'Focaccia classica',cat:'Focacce'},{nome:'Focaccia con rosmarino',cat:'Focacce'},
-      {nome:'Pizza margherita',cat:'Pizze'},{nome:'Pizza capricciosa',cat:'Pizze'},
-      {nome:'Cornetto',cat:'Dolci'},{nome:'Crostata',cat:'Dolci'},
-    ]
-  },
-  { id:'gastronomia', label:'Gastronomia / Rosticceria', emoji:'🍖',
-    theme:{r:'#E65100',rs:'#FBE9E7',g:'#2E7D32',gs:'#E8F5E9',bg:'#FFF3E0',sb:'#BF360C'},
-    cats:['Arrosti','Fritti','Contorni','Primi','Varie'],
-    arts:[
-      {nome:'Pollo arrosto',cat:'Arrosti'},{nome:'Porchetta',cat:'Arrosti'},{nome:'Arrosto di vitello',cat:'Arrosti'},
-      {nome:'Supplì',cat:'Fritti'},{nome:'Olive ascolane',cat:'Fritti'},{nome:'Fritto misto',cat:'Fritti'},
-      {nome:'Patate al forno',cat:'Contorni'},{nome:'Verdure grigliate',cat:'Contorni'},
-      {nome:'Lasagne',cat:'Primi'},{nome:'Pasta al forno',cat:'Primi'},
-    ]
-  },
-  { id:'fioraio', label:'Fioraio', emoji:'💐',
-    theme:{r:'#7B1FA2',rs:'#F3E5F5',g:'#2E7D32',gs:'#E8F5E9',bg:'#F9F5FF',sb:'#4A148C'},
-    cats:['Bouquet','Piante','Composizioni','Accessori','Varie'],
-    arts:[
-      {nome:'Bouquet di rose',cat:'Bouquet'},{nome:'Bouquet misto',cat:'Bouquet'},{nome:'Mazzo di girasoli',cat:'Bouquet'},
-      {nome:'Orchidea',cat:'Piante'},{nome:'Ficus',cat:'Piante'},{nome:'Pianta grassa',cat:'Piante'},
-      {nome:'Corona funebre',cat:'Composizioni'},{nome:'Centrotavola',cat:'Composizioni'},
-    ]
-  },
-  { id:'salumeria', label:'Salumeria / Formaggi', emoji:'🧀',
-    theme:{r:'#F57F17',rs:'#FFFDE7',g:'#558B2F',gs:'#F1F8E9',bg:'#FFFEF5',sb:'#E65100'},
-    cats:['Salumi','Formaggi','Sott'oli','Varie'],
-    arts:[
-      {nome:'Prosciutto crudo DOP',cat:'Salumi'},{nome:'Mortadella',cat:'Salumi'},{nome:'Speck',cat:'Salumi'},
-      {nome:'Parmigiano Reggiano',cat:'Formaggi'},{nome:'Pecorino',cat:'Formaggi'},{nome:'Mozzarella',cat:'Formaggi'},
-      {nome:'Olive in salamoia',cat:'Sott'oli'},{nome:'Pomodori secchi',cat:'Sott'oli'},
-    ]
-  },
-  { id:'enoteca', label:'Enoteca / Cantina', emoji:'🍷',
-    theme:{r:'#880E4F',rs:'#FCE4EC',g:'#33691E',gs:'#F1F8E9',bg:'#FFF8FA',sb:'#4A0030'},
-    cats:['Rossi','Bianchi','Rosati','Spumanti','Varie'],
-    arts:[
-      {nome:'Barolo',cat:'Rossi'},{nome:'Chianti',cat:'Rossi'},{nome:'Primitivo',cat:'Rossi'},
-      {nome:'Pinot Grigio',cat:'Bianchi'},{nome:'Vermentino',cat:'Bianchi'},{nome:'Fiano',cat:'Bianchi'},
-      {nome:'Prosecco',cat:'Spumanti'},{nome:'Franciacorta',cat:'Spumanti'},
-    ]
-  },
-  { id:'cioccolateria', label:'Cioccolateria / Confetteria', emoji:'🍫',
-    theme:{r:'#4E342E',rs:'#EFEBE9',g:'#558B2F',gs:'#F1F8E9',bg:'#FDF8F5',sb:'#3E2723'},
-    cats:['Cioccolato','Confetti','Praline','Varie'],
-    arts:[
-      {nome:'Tavoletta fondente',cat:'Cioccolato'},{nome:'Tavoletta al latte',cat:'Cioccolato'},
-      {nome:'Confetti bianchi',cat:'Confetti'},{nome:'Confetti colorati',cat:'Confetti'},
-      {nome:'Praline assortite',cat:'Praline'},{nome:'Tartufi al cioccolato',cat:'Praline'},
-    ]
-  },
-  { id:'conserve', label:'Conserve / Prodotti tipici', emoji:'🫙',
-    theme:{r:'#2E7D32',rs:'#E8F5E9',g:'#F57F17',gs:'#FFF8E1',bg:'#F5FFF5',sb:'#1B5E20'},
-    cats:['Conserve','Marmellate','Olio e Aceto','Varie'],
-    arts:[
-      {nome:'Pomodori pelati',cat:'Conserve'},{nome:'Passata di pomodoro',cat:'Conserve'},
-      {nome:'Marmellata di arance',cat:'Marmellate'},{nome:'Marmellata di fichi',cat:'Marmellate'},
-      {nome:'Olio extravergine',cat:'Olio e Aceto'},{nome:'Aceto balsamico',cat:'Olio e Aceto'},
-    ]
-  },
-  { id:'negozio_regalo', label:'Negozio regalo / Bomboniere', emoji:'🎁',
-    theme:{r:'#C2185B',rs:'#FCE4EC',g:'#00838F',gs:'#E0F7FA',bg:'#FFF5F9',sb:'#880E4F'},
-    cats:['Bomboniere','Regali','Cornici','Varie'],
-    arts:[
-      {nome:'Bomboniera matrimonio',cat:'Bomboniere'},{nome:'Bomboniera battesimo',cat:'Bomboniere'},
-      {nome:'Cofanetto regalo',cat:'Regali'},{nome:'Cesto natalizio',cat:'Regali'},
-    ]
-  },
-  { id:'altro', label:'Altro', emoji:'📦',
-    theme:{r:'#455A64',rs:'#ECEFF1',g:'#00695C',gs:'#E0F2F1',bg:'#F5F5F5',sb:'#263238'},
-    cats:['Categoria 1','Categoria 2','Varie'],
-    arts:[]
-  },
-];
-
-function getAttivitaById(id){ return ATTIVITA_TYPES.find(a=>a.id===id)||ATTIVITA_TYPES[ATTIVITA_TYPES.length-1]; }
-
-
-// ── ONBOARDING ──
-let obSelectedAttivita = null;
-let obSelectedTheme = null;
-
-function showOnboarding(){
-  document.getElementById('onboarding-screen').classList.add('visible');
-  renderObAttivita();
-}
-
-function renderObAttivita(){
-  const grid = document.getElementById('ob-attivita-grid');
-  grid.innerHTML = ATTIVITA_TYPES.map(a => `
-    <div class="ob-card ${obSelectedAttivita===a.id?'selected':''}" onclick="selectAttivita('${a.id}')">
-      <div class="ob-emoji">${a.emoji}</div>
-      <div class="ob-label">${a.label}</div>
-    </div>`).join('');
-}
-
-function selectAttivita(id){
-  obSelectedAttivita = id;
-  obSelectedTheme = id; // default = tema dell'attività
-  renderObAttivita();
-  const btn = document.getElementById('ob-btn1');
-  if(btn){btn.disabled=false;btn.style.opacity='1';}
-}
-
-function obNext(){
-  if(!obSelectedAttivita) return;
-  document.getElementById('ob-step1').style.display='none';
-  document.getElementById('ob-step2').style.display='block';
-  renderObThemes();
-}
-
-function obBack(){
-  document.getElementById('ob-step2').style.display='none';
-  document.getElementById('ob-step1').style.display='block';
-}
-
-function renderObThemes(){
-  const grid = document.getElementById('ob-themes-grid');
-  grid.innerHTML = ATTIVITA_TYPES.map(a => `
-    <div class="ob-theme ${obSelectedTheme===a.id?'selected':''}" onclick="selectTheme('${a.id}')">
-      <div class="ob-theme-preview" style="background:${a.theme.sb}">
-        <div class="ob-theme-dot" style="background:${a.theme.r}"></div>
-        <div class="ob-theme-dot" style="background:${a.theme.g}"></div>
-        <div class="ob-theme-dot" style="background:#FFE033"></div>
-      </div>
-      <div class="ob-theme-label">${a.emoji} ${a.label}</div>
-    </div>`).join('');
-  const btn = document.getElementById('ob-btn2');
-  if(btn){btn.disabled=false;btn.style.opacity='1';}
-}
-
-function selectTheme(id){
-  obSelectedTheme = id;
-  renderObThemes();
-}
-
-async function obConfirm(){
-  if(!obSelectedAttivita||!obSelectedTheme) return;
-  const attivita = getAttivitaById(obSelectedAttivita);
-  const themeData = getAttivitaById(obSelectedTheme);
-  
-  // Applica catalogo
-  cats = [...attivita.cats];
-  arts = attivita.arts.map((a,i)=>({id:i+1,...a}));
-  unitaMisura = ['kg','g','pezzi','numero','fette','vaschette','bustine'];
-  ords = [];
-  
-  // Salva tema scelto nel profilo
-  const themeId = obSelectedTheme;
-  
-  await saveData();
-  
-  // Salva profilo con tipo attività e tema
-  if(currentUser){
-    await db.collection('profili').doc(currentUser.uid).set({
-      attivita: currentUser.displayName || '',
-      email: currentUser.email,
-      tipoAttivita: obSelectedAttivita,
-      tema: themeId,
-      onboardingCompleto: true,
-      creato: new Date().toISOString()
-    },{merge:true});
-  }
-  
-  // Applica tema
-  applyTheme(themeData.theme);
-  
-  document.getElementById('onboarding-screen').classList.remove('visible');
-  toast('Benvenuto! La tua attività è pronta 🎉','v');
-}
-
-function applyTheme(theme){
-  const root = document.documentElement;
-  root.style.setProperty('--r', theme.r);
-  root.style.setProperty('--rs', theme.rs);
-  root.style.setProperty('--g', theme.g);
-  root.style.setProperty('--gs', theme.gs);
-  root.style.setProperty('--bg', theme.bg);
-  // Aggiorna colore sidebar
-  const sidebar = document.querySelector('.sidebar');
-  if(sidebar) sidebar.style.background = theme.sb;
-}
-
-async function checkOnboarding(){
-  if(!currentUser) return;
-  try{
-    const snap = await db.collection('profili').doc(currentUser.uid).get();
-    if(snap.exists && snap.data().onboardingCompleto){
-      // Applica tema salvato
-      const tipoAttivita = snap.data().tema || snap.data().tipoAttivita;
-      if(tipoAttivita){
-        const attivita = getAttivitaById(tipoAttivita);
-        if(attivita) applyTheme(attivita.theme);
-      }
-    } else {
-      // Mostra onboarding
-      showOnboarding();
-    }
-  } catch(e){
-    console.warn('Profilo non trovato, mostro onboarding');
-    showOnboarding();
-  }
-}
-
-
-boot();
+    boot();
+    setTimeout(checkOnboarding, 500);
   } else {
     currentUser = null;
     document.getElementById('login-screen').style.display='flex';
