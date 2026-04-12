@@ -1158,7 +1158,7 @@ let sel=[],tNuovo=null,catS='Tutti';
 function sincNuovoNum(val){
   const v=parseInt(val)||0;
   const badge=document.getElementById('nuovo-num-badge');
-  const usati=new Set(ords.map(o=>o.num));
+  const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));
   if(badge)badge.textContent=usati.has(v)?'⚠️ già usato':'';
 }
 function minNumeroLibero(){const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));let n=1;while(usati.has(n))n++;return n;}
@@ -1234,7 +1234,7 @@ async function salvaOrdine(){
     if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}
   }
   const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();
-  if(ords.find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}
+  if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}
   const id=Date.now();
   ords.push({id:id,num:numInput,nome:nome,data:calSelDate||null,turno:tNuovo,stato:'evadere',
     items:sel.map(function(s,i){return{artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i}}),
