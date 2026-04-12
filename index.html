@@ -382,7 +382,7 @@ margin-left: 12px;
     <h2>Che tipo di attività hai?</h2>
     <p>Caricheremo un catalogo articoli pre-impostato per te</p>
     <div class="ob-grid" id="ob-attivita-grid"></div>
-    <button class="btn br btn-full" onclick="obNext()" id="ob-btn1" disabled style="opacity:0.4">Avanti →</button>
+    <button class="btn br btn-full" onclick="obNext()" id="ob-btn1" disabled style="opacity:0.4">Inizia! 🎉</button>
   </div>
 
   <!-- STEP 2: tema colori -->
@@ -715,14 +715,14 @@ margin-left: 12px;
     </div>
   </div>
 </div>
-<div id="toast"></div>
-<!-- ETICHETTA DI STAMPA -->
-<div id="print-label"></div>
 
 <div id="nuovo-bottom-bar">
   <div id="bottom-bar-count" style="font-size:13px;font-weight:800;color:var(--sub);text-align:center;margin-bottom:8px;display:none"></div>
   <button class="btn br btn-full" onclick="salvaOrdine()">✅ Aggiungi ordine</button>
 </div>
+<div id="toast"></div>
+<!-- ETICHETTA DI STAMPA -->
+<div id="print-label"></div>
 
 <!-- FIREBASE COMPAT (funziona su tutti i browser incluso Safari iOS) -->
 
@@ -808,6 +808,8 @@ function getAttivitaById(id){return ATTIVITA_TYPES.find(a=>a.id===id)||ATTIVITA_
 let obSelectedAttivita=null,obSelectedTheme=null;
 
 function showOnboarding(){
+  obSelectedAttivita=null;
+  obSelectedTheme=null;
   const el = document.getElementById('onboarding-screen');
   el.style.display='flex';
   el.style.zIndex='99999';
@@ -831,7 +833,12 @@ function selectAttivita(id){
   obSelectedAttivita=id;obSelectedTheme=id;renderObAttivita();
   const btn=document.getElementById('ob-btn1');if(btn){btn.disabled=false;btn.style.opacity='1';}
 }
-function obNext(){if(!obSelectedAttivita)return;document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='block';renderObThemes();}
+function obNext(){
+  if(!obSelectedAttivita)return;
+  // Usa tema di default uguale al tipo attività, poi conferma direttamente
+  obSelectedTheme=obSelectedAttivita;
+  obConfirm();
+}
 function obBack(){document.getElementById('ob-step2').style.display='none';document.getElementById('ob-step1').style.display='block';}
 function renderObThemes(){
   const grid=document.getElementById('ob-themes-grid');
@@ -881,6 +888,16 @@ function applyTheme(theme){
   root.style.setProperty('--g',theme.g);root.style.setProperty('--gs',theme.gs);
   root.style.setProperty('--bg',theme.bg);
   const sb=document.querySelector('.sidebar');if(sb)sb.style.background=theme.sb;
+  // Salva tema in localStorage per applicazione immediata al prossimo boot
+  try{localStorage.setItem('oio-theme',JSON.stringify(theme));}catch(e){}
+}
+
+function applyThemeFast(){
+  // Applica tema salvato immediatamente senza aspettare Firebase
+  try{
+    const t=localStorage.getItem('oio-theme');
+    if(t){applyTheme(JSON.parse(t));}
+  }catch(e){}
 }
 async function checkOnboarding(){
   if(!currentUser)return;
@@ -956,6 +973,7 @@ async function loadData(){
 }
 
 async function boot(){
+  applyThemeFast(); // Applica tema cached immediatamente
   try{ await loadData(); }catch(e){ console.warn('loadData error',e); }
   document.getElementById('loading').classList.add('hidden');
   document.getElementById('app').style.display='flex';
