@@ -1671,12 +1671,22 @@ function stampaEtichetta(id){
 // ── AUTH ──
 const auth = firebase.auth();
 let currentUser = null;
+let isNewUser = false;
 
 auth.onAuthStateChanged(function(user){
   if(user){
     currentUser = user;
     document.getElementById('login-screen').style.display='none';
-    boot().then(function(){ setTimeout(checkOnboarding, 300); });
+    if(isNewUser){
+      isNewUser = false;
+      alert('DEBUG: nuovo utente rilevato!');
+      boot().then(function(){
+        obSelectedAttivita=null; obSelectedTheme=null;
+        showOnboarding();
+      });
+    } else {
+      boot().then(function(){ setTimeout(checkOnboarding, 300); });
+    }
   } else {
     currentUser = null;
     document.getElementById('login-screen').style.display='flex';
@@ -1730,6 +1740,7 @@ function doLogin(){
 }
 
 function doRegister(){
+  isNewUser = true;
   const attivita=document.getElementById('reg-attivita').value.trim();
   const email=document.getElementById('reg-email').value.trim();
   const pwd=document.getElementById('reg-pwd').value;
@@ -1740,13 +1751,14 @@ function doRegister(){
   if(pwd!==pwd2){loginErr('Le password non coincidono');return;}
   auth.createUserWithEmailAndPassword(email,pwd)
     .then(function(cred){
-      // Salva nome attività nel profilo utente e in Firestore
       cred.user.updateProfile({displayName: attivita});
-      return db.collection('profili').doc(cred.user.uid).set({
+      db.collection('profili').doc(cred.user.uid).set({
         attivita: attivita,
         email: email,
+        onboardingCompleto: false,
         creato: new Date().toISOString()
       });
+
     })
     .catch(function(e){
       if(e.code==='auth/email-already-in-use') loginErr('Email già registrata');
