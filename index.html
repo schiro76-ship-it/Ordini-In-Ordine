@@ -1461,7 +1461,15 @@ auth.onAuthStateChanged(function(user){
   if(user){
     currentUser = user;
     document.getElementById('login-screen').style.display='none';
-    
+    boot();
+  } else {
+    currentUser = null;
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('app').style.display='none';
+  }
+});
+
 function salvaAttivita(){
   const nome=document.getElementById('input-attivita').value.trim();
   if(!nome){toast('Inserisci il nome attività!','err');return;}
@@ -1477,19 +1485,12 @@ function salvaAttivita(){
     .then(function(){
       const sbAttivita=document.getElementById('sb-attivita');
       if(sbAttivita)sbAttivita.textContent=nome;
+      const inputAttivita=document.getElementById('input-attivita');
+      if(inputAttivita)inputAttivita.value=nome;
       toast('Nome attività salvato ✅','v');
     })
     .catch(function(e){toast('Errore: '+e.message,'err');});
 }
-
-boot();
-  } else {
-    currentUser = null;
-    document.getElementById('login-screen').style.display='flex';
-    document.getElementById('loading').classList.add('hidden');
-    document.getElementById('app').style.display='none';
-  }
-});
 
 function switchLoginTab(tab){
   document.getElementById('form-login').style.display = tab==='login'?'block':'none';
