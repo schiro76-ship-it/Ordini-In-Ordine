@@ -1149,7 +1149,7 @@ function goTab(name){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   document.querySelectorAll('.sb-nav .ni').forEach((n,i)=>n.classList.toggle('active',i===tabIdx[name]));
-  document.getElementById('topbar-title').textContent=tabTitles[name]||name;
+  const ttEl=document.getElementById('topbar-title');if(ttEl)ttEl.textContent=tabTitles[name]||name;
   // Aggiorna bottom nav
   document.querySelectorAll('#bottom-nav .bn-item').forEach(b=>{
     b.classList.remove('active');
@@ -1165,8 +1165,8 @@ function goTab(name){
   if(name==='riepilogo')renderRiepilogo();
   if(name==='storico'){renderStoricoRiepilogo()}
 }
-function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open')}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open')}
+function openSidebar(){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');if(sb)sb.classList.add('open');if(ov)ov.classList.add('open');}
+function closeSidebar(){const sb=document.getElementById('sidebar');const ov=document.getElementById('sb-overlay');if(sb)sb.classList.remove('open');if(ov)ov.classList.remove('open');}
 
 function stats(){
   const visibili=ords.filter(o=>!isRitiratoVecchio(o));
