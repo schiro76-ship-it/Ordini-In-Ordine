@@ -925,7 +925,7 @@ async function loadData(){
 }
 
 async function boot(){
-  await loadData();
+  try{ await loadData(); }catch(e){ console.warn('loadData error',e); }
   document.getElementById('loading').classList.add('hidden');
   document.getElementById('app').style.display='flex';
   calInit();refreshAll();
