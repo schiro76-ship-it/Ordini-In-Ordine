@@ -807,7 +807,14 @@ body{background:var(–bg)}
 
 <!-- FIREBASE COMPAT (funziona su tutti i browser incluso Safari iOS) -->
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+<script>
+
 function renderTemaGrid(){
   const grid=document.getElementById('tema-grid');
   if(!grid||!ATTIVITA_TYPES)return;
@@ -833,19 +840,8 @@ function renderTemaGrid(){
     grid.appendChild(div);
   });
 }
-</script>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-
-<script>
-
-window.onerror = function(msg, src, line, col, err){
-  document.getElementById('loading').innerHTML = '<div style="padding:20px;color:red;font-family:monospace;font-size:12px"><b>ERRORE JS:</b><br>' + msg + '<br>Riga: ' + line + '</div>';
-  document.getElementById('loading').classList.remove('hidden');
-  return false;
-};
 let isNewUser = false;
 
 const ATTIVITA_TYPES = [
@@ -1142,24 +1138,10 @@ const tabIdx={ordini:0,riepilogo:1,storico:2,nuovo:3,impostazioni:4};
 function goTab(name){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
-  // Top nav tabs
   document.querySelectorAll('#top-nav .tn').forEach(t=>t.classList.remove('active'));
   const tn=document.getElementById('tn-'+name);
   if(tn)tn.classList.add('active');
-  // Bottom nav
   document.querySelectorAll('#bottom-nav .bn-item').forEach(b=>b.classList.remove('active'));
-  const bn=document.getElementById('bn-'+name);
-  if(bn)bn.classList.add('active');
-  // Topbar title non più necessario
-  closeSidebar();
-  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  document.querySelectorAll('.sb-nav .ni').forEach((n,i)=>n.classList.toggle('active',i===tabIdx[name]));
-  const ttEl=document.getElementById('topbar-title');if(ttEl)ttEl.textContent=tabTitles[name]||name;
-  // Aggiorna bottom nav
-  document.querySelectorAll('#bottom-nav .bn-item').forEach(b=>{
-    b.classList.remove('active');
-  });
   const bn=document.getElementById('bn-'+name);
   if(bn)bn.classList.add('active');
   closeSidebar();
