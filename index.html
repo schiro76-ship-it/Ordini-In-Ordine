@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Macelleria Schirinzi — Ordini</title>
+<title>OrdinInOrdine</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Schirinzi">
@@ -931,6 +931,16 @@ async function boot(){
   document.getElementById('loading').classList.add('hidden');
   document.getElementById('app').style.display='flex';
   calInit();refreshAll();
+  // Controlla onboarding DOPO che l'app è visibile
+  if(isNewUser){
+    isNewUser=false;
+    obSelectedAttivita=null;obSelectedTheme=null;
+    const el=document.getElementById('onboarding-screen');
+    el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';
+    renderObAttivita();
+  } else {
+    setTimeout(checkOnboarding, 300);
+  }
   try{
     db.collection('dati').doc(currentUser ? currentUser.uid : DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
@@ -1679,15 +1689,7 @@ auth.onAuthStateChanged(function(user){
   if(user){
     currentUser = user;
     document.getElementById('login-screen').style.display='none';
-    if(isNewUser){
-      isNewUser = false;
-      boot().then(function(){
-        obSelectedAttivita=null; obSelectedTheme=null;
-        setTimeout(showOnboarding, 500);
-      });
-    } else {
-      boot().then(function(){ setTimeout(checkOnboarding, 300); });
-    }
+    boot();
   } else {
     currentUser = null;
     document.getElementById('login-screen').style.display='flex';
