@@ -994,9 +994,17 @@ async function obConfirm(){
 }
 function applyTheme(theme){
   const root=document.documentElement;
-  root.style.setProperty('--r',theme.r);root.style.setProperty('--rs',theme.rs);
-  root.style.setProperty('--g',theme.g);root.style.setProperty('--gs',theme.gs);
+  root.style.setProperty('--r',theme.r);
+  root.style.setProperty('--rs',theme.rs);
+  root.style.setProperty('--g',theme.g);
+  root.style.setProperty('--gs',theme.gs);
   root.style.setProperty('--bg',theme.bg);
+  // Aggiorna anche le variabili derivate usate nelle card ordini
+  root.style.setProperty('--ev',theme.r);
+  root.style.setProperty('--evs',theme.rs);
+  root.style.setProperty('--urg',theme.r);
+  root.style.setProperty('--urgs',theme.rs);
+  root.style.setProperty('--rm',theme.rs);
   const sb=document.querySelector('.sidebar');if(sb)sb.style.background=theme.sb;
   // Salva tema in localStorage per applicazione immediata al prossimo boot
   try{localStorage.setItem('oio-theme',JSON.stringify(theme));}catch(e){}
@@ -1815,7 +1823,15 @@ function importaDati(input){
       const d=JSON.parse(e.target.result);
       if(!d.arts||!d.ords){toast('File non valido!','err');return}
       arts=d.arts;ords=d.ords;unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;
-      await saveData();refreshAll();
+      await saveData();
+      // Riapplica tema dal profilo
+      if(currentUser){
+        db.collection('profili').doc(currentUser.uid).get().then(function(snap){
+          if(snap.exists){const tid=snap.data().tema||snap.data().tipoAttivita;if(tid){const a=getAttivitaById(tid);if(a)applyTheme(a.theme);}}
+        }).catch(function(){});
+      }
+      refreshAll();
+      goTab('ordini');
       toast('Importati '+ords.length+' ordini e '+arts.length+' articoli ✅','v');
     }catch(err){toast('Errore nel file!','err')}
   };
