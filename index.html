@@ -925,7 +925,7 @@ async function loadData(){
 }
 
 async function boot(){
-  await loadData(); return true;
+  await loadData();
   document.getElementById('loading').classList.add('hidden');
   document.getElementById('app').style.display='flex';
   calInit();refreshAll();
