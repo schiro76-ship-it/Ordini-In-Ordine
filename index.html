@@ -799,7 +799,9 @@ function getAttivitaById(id){return ATTIVITA_TYPES.find(a=>a.id===id)||ATTIVITA_
 let obSelectedAttivita=null,obSelectedTheme=null;
 
 function showOnboarding(){
-  document.getElementById('onboarding-screen').classList.add('visible');
+  const el = document.getElementById('onboarding-screen');
+  el.style.display='flex';
+  el.style.zIndex='99999';
   renderObAttivita();
 }
 function renderObAttivita(){
@@ -835,7 +837,7 @@ async function obConfirm(){
     },{merge:true});
   }
   applyTheme(themeData.theme);
-  document.getElementById('onboarding-screen').classList.remove('visible');
+  document.getElementById('onboarding-screen').style.display='none';
   refreshAll();
   toast('Benvenuto! La tua attività è pronta 🎉','v');
 }
@@ -1681,7 +1683,7 @@ auth.onAuthStateChanged(function(user){
       isNewUser = false;
       boot().then(function(){
         obSelectedAttivita=null; obSelectedTheme=null;
-        setTimeout(showOnboarding, 100);
+        setTimeout(showOnboarding, 500);
       });
     } else {
       boot().then(function(){ setTimeout(checkOnboarding, 300); });
