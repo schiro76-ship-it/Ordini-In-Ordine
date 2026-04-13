@@ -741,25 +741,24 @@ function renderDetModal(o){
 
   document.getElementById('modal-det-body').innerHTML=`
     <div style="background:${hBg};color:#fff;padding:14px 16px;border-radius:12px;margin-bottom:14px">
-      <div style="font-size:19px;font-weight:900;margin-bottom:8px">${o.nome}</div>
-      <div style="display:grid;grid-template-columns:0.5fr 1fr;gap:6px;margin-bottom:8px">
+      <div style="display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:end;margin-bottom:8px">
         <div><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">#Num</div>
           <input type="number" value="${o.num}" style="width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;color:#fff;outline:none" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
         <div><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">Nome</div>
           <input value="${o.nome.replace(/"/g,'&quot;')}" style="width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;outline:none" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
+        <div style="flex-shrink:0"><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">Data</div>
+          <button onclick="toggleDetCal(${o.id})" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap">
+            📅 <span id="det-data-lbl">${o.data?o.data:'—'}${o.turno?' '+(o.turno==='mattina'?'☀️':'🌆'):''}</span>
+          </button>
+        </div>
       </div>
-      <div><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:4px">Data e turno di ritiro</div>
-        <button onclick="toggleDetCal(${o.id})" style="width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;text-align:left;cursor:pointer">
-          📅 <span id="det-data-lbl">${dataLabel}${o.turno?' · '+turnoLabel:''}</span>
-        </button>
-        <div id="det-cal-wrap" style="display:none;margin-top:6px;border-radius:10px;overflow:hidden">
-          <div class="cal-wrap">
-            <div class="cal-nav"><button onclick="detCalNav(${o.id},-1)">‹</button><span class="cn-lbl" id="det-cal-lbl"></span><button onclick="detCalNav(${o.id},+1)">›</button></div>
-            <div class="cal-grid" id="det-cal-grid"></div>
-            <div class="cal-turno" id="det-cal-turno" style="display:none">
-              <button class="ct-mat" onclick="detCalSceglTurno(${o.id},'mattina')">☀️ Mattina</button>
-              <button class="ct-pom" onclick="detCalSceglTurno(${o.id},'pomeriggio')">🌆 Pomeriggio</button>
-            </div>
+      <div id="det-cal-wrap" style="display:none;margin-top:6px;border-radius:10px;overflow:hidden">
+        <div class="cal-wrap">
+          <div class="cal-nav"><button onclick="detCalNav(${o.id},-1)">‹</button><span class="cn-lbl" id="det-cal-lbl"></span><button onclick="detCalNav(${o.id},+1)">›</button></div>
+          <div class="cal-grid" id="det-cal-grid"></div>
+          <div class="cal-turno" id="det-cal-turno" style="display:none">
+            <button class="ct-mat" onclick="detCalSceglTurno(${o.id},'mattina')">☀️ Mattina</button>
+            <button class="ct-pom" onclick="detCalSceglTurno(${o.id},'pomeriggio')">🌆 Pomeriggio</button>
           </div>
         </div>
       </div>
