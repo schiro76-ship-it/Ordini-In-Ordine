@@ -57,7 +57,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
   .phdr h2{font-size:22px;font-weight:900}
   .pbody{padding:12px 16px 24px}
 }
-#nuovo-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--brd);padding:10px 16px 20px;z-index:200;box-shadow:0 -4px 16px rgba(0,0,0,0.10)}
+#nuovo-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--brd);padding:10px 16px 20px;z-index:50;box-shadow:0 -4px 16px rgba(0,0,0,0.10)}
 #nuovo-bottom-bar.visible{display:block}
 .pbody.has-bottom-bar{padding-bottom:100px!important}
 @media(min-width:640px) and (max-width:1023px){
@@ -170,8 +170,9 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 @keyframes su{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
 .mta{font-size:19px;font-weight:900;margin-bottom:16px}
 .ma{display:flex;gap:8px;margin-top:16px}
-.modal-qart-inner{background:#fff;border-radius:20px 20px 0 0;padding:22px 18px 30px;width:100%;max-width:440px;box-shadow:var(--shl);animation:su 0.18s ease}
-@media(min-width:640px){.modal-qart-inner{border-radius:18px}}
+.modal-qart-inner{background:#fff;border-radius:20px 20px 0 0;padding:22px 18px 30px;width:100%;max-width:440px;box-shadow:var(--shl);animation:su 0.18s ease;max-height:85vh;overflow-y:auto}
+@media(min-width:640px){.modal-qart-inner{border-radius:18px;max-height:88vh}}
+@supports(padding-bottom:env(safe-area-inset-bottom)){.modal-qart-inner{padding-bottom:max(30px,env(safe-area-inset-bottom))}}
 .art-det-row{border:2px solid var(--brd);border-radius:10px;padding:12px 14px;margin-bottom:10px;transition:border-color 0.2s}
 .art-det-row.done{background:var(--gs);border-color:var(--g)}
 .art-det-row:not(.done){border-color:#C0392B;border-width:1.5px}
@@ -574,7 +575,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
         </div>
       </div>
     </div>
-    <div class="ma">
+    <div class="ma" style="position:sticky;bottom:0;background:#fff;padding-top:12px;margin-top:8px">
       <button class="btn bg2" style="flex:1" onclick="closeModal('modal-qart')">Annulla</button>
       <button class="btn br" style="flex:1" onclick="addArtRapido()">+ Aggiungi</button>
     </div>
