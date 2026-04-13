@@ -897,7 +897,7 @@ async function addArtRapido(){
   const qs=document.getElementById('qac');let c=qs.value==='__qnuova__'?'':qs.value;
   const qi=document.getElementById('qnuova-cat-input');if(qs.value==='__qnuova__'&&qi&&qi.value.trim())c=qi.value.trim();
   if(!n){toast('Inserisci il nome!');return}
-  if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase())){toast('Già presente!');return}
+  if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!');return}
   const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
   arts.push({id:id,nome:n,cat:c});
