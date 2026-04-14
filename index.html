@@ -65,6 +65,12 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
   .page-wrap{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
   #bottom-nav{display:flex}
 }
+/* Fallback: se JS rileva portrait smartphone, aggiunge classe al body */
+body.portrait-phone .sidebar{display:none!important}
+body.portrait-phone .sb-overlay{display:none!important}
+body.portrait-phone .topbar{display:none!important}
+body.portrait-phone .page-wrap{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+body.portrait-phone #bottom-nav{display:flex!important}
 #bottom-nav{
   display:none;
   position:fixed;bottom:0;left:0;right:0;
@@ -87,9 +93,13 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
   display:flex;align-items:center;justify-content:center;
   font-size:26px;margin-top:-16px;box-shadow:0 4px 12px rgba(192,57,43,0.4);
 }
-#nuovo-bottom-bar{display:none;position:fixed;bottom:calc(58px + env(safe-area-inset-bottom,0px));left:0;right:0;background:#fff;border-top:1.5px solid var(--brd);padding:10px 16px 12px;z-index:50;box-shadow:0 -4px 16px rgba(0,0,0,0.10)}
+#nuovo-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--brd);padding:10px 16px 20px;z-index:50;box-shadow:0 -4px 16px rgba(0,0,0,0.10)}
 #nuovo-bottom-bar.visible{display:block}
-.pbody.has-bottom-bar{padding-bottom:160px!important}
+.pbody.has-bottom-bar{padding-bottom:100px!important}
+@media(max-width:639px) and (orientation:portrait){
+  #nuovo-bottom-bar{bottom:calc(58px + env(safe-area-inset-bottom,0px));padding:10px 16px 12px}
+  .pbody.has-bottom-bar{padding-bottom:160px!important}
+}
 @media(min-width:640px) and (max-width:1023px){
   body{background:#DDE0E8}
   :root{--sbw:200px}
@@ -1050,6 +1060,15 @@ function doLogin(){const email=document.getElementById('login-email').value.trim
 function doRegister(){isNewUser=true;const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');return;}auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){cred.user.updateProfile({displayName:attivita});db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,onboardingCompleto:false,creato:new Date().toISOString()});}).catch(function(e){if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
 function doResetPwd(){const email=document.getElementById('login-email').value.trim();if(!email){loginErr('Inserisci prima la tua email');return;}auth.sendPasswordResetEmail(email).then(function(){loginErr('Email di recupero inviata! Controlla la posta.');}).catch(function(e){loginErr('Email non trovata');});}
 function doLogout(){auth.signOut();}
+
+function checkPortrait(){
+  const isPhone = window.innerWidth <= 639;
+  const isPortrait = window.innerHeight > window.innerWidth;
+  document.body.classList.toggle('portrait-phone', isPhone && isPortrait);
+}
+window.addEventListener('resize', checkPortrait);
+window.addEventListener('orientationchange', function(){setTimeout(checkPortrait,100)});
+checkPortrait();
 </script>
 
 <nav id="bottom-nav">
