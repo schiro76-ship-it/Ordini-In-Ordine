@@ -126,9 +126,12 @@ body.portrait-phone .modal-qart-inner{padding-bottom:calc(110px + env(safe-area-
 .sc{background:#fff;border-radius:12px;padding:13px 8px;text-align:center;box-shadow:var(--sh)}
 .sc .sn{font-size:26px;font-weight:900;line-height:1}
 .sc .sl{font-size:11px;color:var(--sub);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
-.sc-filt{border:2px solid transparent;transition:border-color 0.15s,box-shadow 0.15s;cursor:pointer}
+.sc-filt{border:3px solid transparent;transition:border-color 0.15s,box-shadow 0.15s;cursor:pointer}
 .sc-filt:hover{box-shadow:var(--shl)}
-.sc-filt.active-filt{border-color:rgba(0,0,0,0.25);box-shadow:var(--shl)}
+#sf-tutti.active-filt{border-color:var(--r)}
+#sf-evadere.active-filt{border-color:var(--ev)}
+#sf-completato.active-filt{border-color:var(--g)}
+#sf-ritirato.active-filt{border-color:var(--gr)}
 .sbox{position:relative;margin-bottom:12px}
 .sbox input{width:100%;padding:12px 14px 12px 44px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none;transition:border-color 0.2s}
 .sbox input:focus{border-color:var(--r)}
@@ -782,10 +785,31 @@ function stats(){
     evCard.style.background=hasUrgente?'var(--urgs)':'var(--evs)';
     evNum.style.color=hasUrgente?'var(--urg)':'var(--ev)';
     evLbl.style.color=hasUrgente?'var(--urg)':'var(--ev)';
+    // Aggiorna anche il bordo attivo se selezionato
+    evCard.dataset.urgente=hasUrgente?'1':'0';
+    if(evCard.classList.contains('active-filt')){
+      evCard.style.borderColor=hasUrgente?'var(--urg)':'var(--ev)';
+    }
   }
 }
 let ft='tutti';
-function setFT(t,cid){ft=t;document.querySelectorAll('.sc-filt').forEach(c=>c.classList.remove('active-filt'));document.getElementById(cid)&&document.getElementById(cid).classList.add('active-filt');renderOrdini()}
+function setFT(t,cid){
+  ft=t;
+  document.querySelectorAll('.sc-filt').forEach(c=>{
+    c.classList.remove('active-filt');
+    c.style.borderColor='';
+  });
+  const el=document.getElementById(cid);
+  if(el){
+    el.classList.add('active-filt');
+    // Per evadere con urgente usa colore rosso
+    if(cid==='sf-evadere'){
+      const urgente=el.dataset.urgente==='1';
+      el.style.borderColor=urgente?'var(--urg)':'var(--ev)';
+    }
+  }
+  renderOrdini();
+}
 const fmtD=d=>{if(!d)return'';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'})};
 const oggi=()=>new Date().toISOString().slice(0,10);
 const nowMin=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
