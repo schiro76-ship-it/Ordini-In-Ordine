@@ -74,32 +74,37 @@ body.portrait-phone #bottom-nav{display:flex!important}
 #bottom-nav{
   display:none;
   position:fixed;bottom:0;left:0;right:0;
-  background:#fff;border-top:1.5px solid var(--brd);
-  padding:0 0 env(safe-area-inset-bottom,0px);
-  z-index:300;box-shadow:0 -2px 12px rgba(0,0,0,0.10);
-  height:calc(58px + env(safe-area-inset-bottom,0px));
+  background:#2C3E50;
+  border-top:none;
+  padding:0 0 env(safe-area-inset-bottom,16px);
+  z-index:300;box-shadow:0 -4px 20px rgba(0,0,0,0.25);
+  height:calc(68px + env(safe-area-inset-bottom,16px));
 }
 .bn-item{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;cursor:pointer;padding:8px 4px 0;border:none;background:none;
+  gap:3px;cursor:pointer;padding:10px 4px 0;border:none;background:none;
   font-family:'Nunito',sans-serif;font-size:10px;font-weight:800;
-  color:var(--sub);transition:color 0.15s;-webkit-tap-highlight-color:transparent;
+  color:rgba(255,255,255,0.5);transition:color 0.15s;-webkit-tap-highlight-color:transparent;
 }
-.bn-item.active{color:var(--r)}
-.bn-item .bn-ic{font-size:20px;line-height:1}
+.bn-item.active{color:#fff}
+.bn-item .bn-ic{font-size:22px;line-height:1}
 .bn-item.bn-new{color:#fff}
 .bn-item.bn-new .bn-ic-wrap{
-  background:var(--r);width:44px;height:44px;border-radius:50%;
+  background:var(--r);width:48px;height:48px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-size:26px;margin-top:-16px;box-shadow:0 4px 12px rgba(192,57,43,0.4);
+  font-size:28px;font-weight:900;margin-top:-20px;
+  box-shadow:0 4px 16px rgba(192,57,43,0.5);
+  border:3px solid #2C3E50;
 }
 #nuovo-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--brd);padding:10px 16px 20px;z-index:50;box-shadow:0 -4px 16px rgba(0,0,0,0.10)}
 #nuovo-bottom-bar.visible{display:block}
 .pbody.has-bottom-bar{padding-bottom:100px!important}
 @media(max-width:639px) and (orientation:portrait){
-  #nuovo-bottom-bar{bottom:calc(58px + env(safe-area-inset-bottom,0px));padding:10px 16px 12px}
-  .pbody.has-bottom-bar{padding-bottom:160px!important}
+  #nuovo-bottom-bar{bottom:calc(68px + env(safe-area-inset-bottom,16px));padding:10px 16px 12px}
+  .pbody.has-bottom-bar{padding-bottom:170px!important}
 }
+body.portrait-phone .page-wrap{padding-bottom:calc(74px + env(safe-area-inset-bottom,16px))}
+body.portrait-phone #app{padding-top:env(safe-area-inset-top,44px)}
 @media(min-width:640px) and (max-width:1023px){
   body{background:#DDE0E8}
   :root{--sbw:200px}
@@ -169,18 +174,18 @@ body.portrait-phone #bottom-nav{display:flex!important}
 .fi:focus{border-color:var(--r)}
 .cal-trigger{width:100%;padding:12px 14px;border:1.5px solid var(--brd);border-radius:11px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--sub);background:#fff;cursor:pointer;text-align:left;transition:border-color 0.2s;display:flex;align-items:center;gap:8px}
 .cal-trigger.has-val{color:var(--txt);border-color:var(--r)}
-.cal-wrap{background:#fff;border-radius:12px;box-shadow:var(--shl);overflow:hidden;margin-top:6px}
-.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--r)}
-.cal-nav .cn-lbl{font-size:14px;font-weight:900;color:#fff}
-.cal-nav button{background:rgba(255,255,255,0.2);border:none;color:#fff;width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:4px 8px 4px}
-.cal-dow{font-size:10px;font-weight:800;color:var(--sub);text-align:center;padding:3px 0;text-transform:uppercase}
-.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;border-radius:50%;transition:all 0.12s;border:none;background:none;font-family:'Nunito',sans-serif;color:var(--txt)}
+.cal-wrap{background:#fff;border-radius:12px;box-shadow:var(--shl);overflow:hidden;margin-top:6px;max-width:340px}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--r)}
+.cal-nav .cn-lbl{font-size:13px;font-weight:900;color:#fff}
+.cal-nav button{background:rgba(255,255,255,0.2);border:none;color:#fff;width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:3px 6px 2px}
+.cal-dow{font-size:9px;font-weight:800;color:var(--sub);text-align:center;padding:2px 0;text-transform:uppercase}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;border-radius:50%;transition:all 0.12s;border:none;background:none;font-family:'Nunito',sans-serif;color:var(--txt)}
 .cal-day:hover{background:var(--rs);color:var(--r)}.cal-day.today{color:var(--r);font-weight:900}
 .cal-day.sel{background:var(--r);color:#fff!important}.cal-day.other-month{color:var(--brd)}
 .cal-day.past{color:var(--brd);cursor:default}.cal-day.past:hover{background:none}
 .cal-turno{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--brd)}
-.cal-turno button{padding:10px 8px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.cal-turno button{padding:9px 8px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:4px}
 .cal-turno .ct-mat{background:var(--mats);color:var(--mat);border-right:1px solid var(--brd)}
 .cal-turno .ct-pom{background:var(--poms);color:var(--pom)}
 .sp{min-height:48px;border:2px dashed var(--brd);border-radius:11px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;margin-bottom:14px;background:var(--bg)}
