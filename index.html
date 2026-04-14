@@ -76,8 +76,8 @@ body.portrait-phone #bottom-nav{display:flex!important}
   position:fixed;bottom:0;left:0;right:0;
   background:#2C3E50;
   border-top:none;
-  padding-bottom:max(env(safe-area-inset-bottom), 20px);
-  z-index:300;box-shadow:0 -4px 20px rgba(0,0,0,0.25);
+  padding-bottom:max(env(safe-area-inset-bottom), 28px);
+  z-index:95;box-shadow:0 -4px 20px rgba(0,0,0,0.25);
 }
 .bn-item{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -103,8 +103,8 @@ body.portrait-phone #bottom-nav{display:flex!important}
   .pbody.has-bottom-bar{padding-bottom:170px!important}
 }
 body.portrait-phone .page-wrap{padding-bottom:calc(74px + env(safe-area-inset-bottom,16px))}
-body.portrait-phone .modal{padding-bottom:calc(30px + env(safe-area-inset-bottom,20px))}
-body.portrait-phone .modal-qart-inner{padding-bottom:calc(30px + env(safe-area-inset-bottom,20px))}
+body.portrait-phone .modal{padding-bottom:calc(90px + env(safe-area-inset-bottom,28px))}
+body.portrait-phone .modal-qart-inner{padding-bottom:calc(90px + env(safe-area-inset-bottom,28px))}
 @media(min-width:640px) and (max-width:1023px){
   body{background:#DDE0E8}
   :root{--sbw:200px}
@@ -740,10 +740,14 @@ function refreshAll(){const emailEl=document.getElementById('account-email');if(
 const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni'};
 const tabIdx={ordini:0,riepilogo:1,storico:2,nuovo:3,impostazioni:4};
 function goTab(name){
+  // Chiudi tutti i modal aperti
+  document.querySelectorAll('.ov.open').forEach(function(ov){
+    ov.classList.remove('open');
+    document.body.style.overflow='';
+  });
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   document.querySelectorAll('.sb-nav .ni').forEach((n,i)=>n.classList.toggle('active',i===tabIdx[name]));
-  // Sync bottom nav
   document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
   const bnBtn=document.getElementById('bn-'+name);
   if(bnBtn)bnBtn.classList.add('active');
@@ -1046,8 +1050,17 @@ function calNavMese(d){calMonth+=d;if(calMonth<0){calMonth=11;calYear--}if(calMo
 function renderCal(){const mesi=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];document.getElementById('cal-mese-lbl').textContent=mesi[calMonth]+' '+calYear;const hn=new Date();hn.setHours(0,0,0,0);const primo=new Date(calYear,calMonth,1),sd=(primo.getDay()+6)%7;const gm=new Date(calYear,calMonth+1,0).getDate(),gmp=new Date(calYear,calMonth,0).getDate();const dow=['Lu','Ma','Me','Gi','Ve','Sa','Do'];let h=dow.map(d=>`<div class="cal-dow">${d}</div>`).join('');for(let i=sd-1;i>=0;i--)h+=`<button class="cal-day other-month" disabled>${gmp-i}</button>`;for(let g=1;g<=gm;g++){const d=new Date(calYear,calMonth,g);const iso=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(g).padStart(2,'0')}`;const past=d<hn,isT=d.getTime()===hn.getTime(),isSel=iso===calSelDate;h+=`<button class="cal-day ${past?'past':''} ${isT?'today':''} ${isSel?'sel':''}" ${past?'disabled':''} onclick="calSelGiorno('${iso}')">${g}</button>`;}const rest=(7-(sd+gm)%7)%7;for(let i=1;i<=rest;i++)h+=`<button class="cal-day other-month" disabled>${i}</button>`;document.getElementById('cal-grid').innerHTML=h;if(calSelDate){document.getElementById('cal-turno').style.display='grid';}else{document.getElementById('cal-turno').style.display='none';}}
 function calSelGiorno(iso){calSelDate=iso;renderCal()}
 function calSceglTurno(t){tNuovo=t;const dt=new Date(calSelDate+'T00:00:00');const ds=dt.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});const icon=t==='mattina'?'☀️':'🌆',label=t==='mattina'?'Mattina':'Pomeriggio',col=t==='mattina'?'var(--mat)':'var(--pom)';const tr=document.getElementById('cal-trigger');tr.classList.add('has-val');document.getElementById('cal-trigger-txt').innerHTML=`<span style="color:${col};font-weight:900">${icon} ${label}</span> &nbsp;·&nbsp; ${ds}`;document.getElementById('cal-wrap').style.display='none';}
-function openModal(id){document.getElementById(id).classList.add('open')}
-function closeModal(id){if(id==='modal-det'){document.querySelectorAll('#modal-det-body .art-det-inputs input[type="number"]').forEach(inp=>{inp.dispatchEvent(new Event('change'));});ords.forEach(o=>{if(!o.items||!o.items.length)return;const tuttiDone=o.items.every(it=>it.done);if(tuttiDone&&o.stato==='evadere')o.stato='completato';if(!tuttiDone&&o.stato==='completato')o.stato='evadere';});saveData();}document.getElementById(id).classList.remove('open');if(id==='modal-det')renderOrdini();}
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(id){
+  if(id==='modal-det'){
+    document.querySelectorAll('#modal-det-body .art-det-inputs input[type="number"]').forEach(inp=>{inp.dispatchEvent(new Event('change'));});
+    ords.forEach(o=>{if(!o.items||!o.items.length)return;const tuttiDone=o.items.every(it=>it.done);if(tuttiDone&&o.stato==='evadere')o.stato='completato';if(!tuttiDone&&o.stato==='completato')o.stato='evadere';});
+    saveData();
+  }
+  document.getElementById(id).classList.remove('open');
+  if(!document.querySelector('.ov.open'))document.body.style.overflow='';
+  if(id==='modal-det')renderOrdini();
+}
 document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
 function esportaDati(){const data=JSON.stringify({arts:arts,ords:ords,unitaMisura:unitaMisura,cats:cats,nextNum:nextNum},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='macelleria_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);toast('Backup scaricato ✅','v');}
 function importaDati(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const d=JSON.parse(e.target.result);if(!d.arts||!d.ords){toast('File non valido!','err');return}arts=d.arts;ords=d.ords;unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;await saveData();refreshAll();toast('Importati '+ords.length+' ordini e '+arts.length+' articoli ✅','v');}catch(err){toast('Errore nel file!','err')}};reader.readAsText(file);input.value='';}
