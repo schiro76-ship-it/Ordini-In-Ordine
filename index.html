@@ -128,7 +128,7 @@ body.portrait-phone .modal-qart-inner{padding-bottom:calc(110px + env(safe-area-
 .sc .sl{font-size:11px;color:var(--sub);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
 .sc-filt{border:2px solid transparent;transition:all 0.15s;cursor:pointer}
 .sc-filt:hover{transform:translateY(-1px);box-shadow:var(--shl)}
-.sc-filt.active-filt{border-color:var(--txt);box-shadow:var(--shl)}
+.sc-filt.active-filt{border-color:rgba(0,0,0,0.15);box-shadow:var(--shl)}
 .sbox{position:relative;margin-bottom:12px}
 .sbox input{width:100%;padding:12px 14px 12px 44px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none;transition:border-color 0.2s}
 .sbox input:focus{border-color:var(--r)}
@@ -402,10 +402,10 @@ body.portrait-phone .modal-qart-inner{padding-bottom:calc(110px + env(safe-area-
         <div class="phdr"><h2>Ordini</h2><button id="btn-nuovo-ordini" class="btn br" style="font-size:13px;padding:9px 16px;white-space:nowrap" onclick="goTab('nuovo')">+ Nuovo</button></div>
         <div class="pbody">
           <div class="stats-row">
-            <div class="sc sc-filt active-filt" id="sf-tutti" onclick="setFT('tutti','sf-tutti')"><div class="sn" id="st-tot" style="color:var(--txt)">0</div><div class="sl">Tutti</div></div>
-            <div class="sc sc-filt" id="sf-evadere" onclick="setFT('evadere','sf-evadere')"><div class="sn" id="st-ev" style="color:var(--r)">0</div><div class="sl">Da evadere</div></div>
-            <div class="sc sc-filt" id="sf-completato" onclick="setFT('completato','sf-completato')"><div class="sn" id="st-co" style="color:var(--g)">0</div><div class="sl">Completati</div></div>
-            <div class="sc sc-filt" id="sf-ritirato" onclick="setFT('ritirato','sf-ritirato')"><div class="sn" id="st-ri" style="color:var(--gr)">0</div><div class="sl">Ritirati</div></div>
+            <div class="sc sc-filt active-filt" id="sf-tutti" onclick="setFT('tutti','sf-tutti')" style="background:var(--rs)"><div class="sn" id="st-tot" style="color:var(--r)">0</div><div class="sl" style="color:var(--r)">Tutti</div></div>
+            <div class="sc sc-filt" id="sf-evadere" onclick="setFT('evadere','sf-evadere')" style="background:var(--evs)"><div class="sn" id="st-ev" style="color:var(--ev)">0</div><div class="sl" id="sl-ev" style="color:var(--ev)">Da evadere</div></div>
+            <div class="sc sc-filt" id="sf-completato" onclick="setFT('completato','sf-completato')" style="background:var(--gs)"><div class="sn" id="st-co" style="color:var(--g)">0</div><div class="sl" style="color:var(--g)">Completati</div></div>
+            <div class="sc sc-filt" id="sf-ritirato" onclick="setFT('ritirato','sf-ritirato')" style="background:var(--grs)"><div class="sn" id="st-ri" style="color:var(--gr)">0</div><div class="sl" style="color:var(--gr)">Ritirati</div></div>
           </div>
           <div class="sbox"><span class="si">🔍</span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini()"></div>
           <div class="cp" id="ordini-date-pills"></div>
@@ -764,7 +764,26 @@ function goTab(name){
 }
 function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open')}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open')}
-function stats(){const visibili=ords.filter(o=>!isRitiratoVecchio(o));const ev=visibili.filter(o=>o.stato==='evadere').length;const co=visibili.filter(o=>o.stato==='completato').length;const ri=visibili.filter(o=>o.stato==='ritirato').length;document.getElementById('st-tot').textContent=visibili.length;document.getElementById('st-ev').textContent=ev;document.getElementById('st-co').textContent=co;document.getElementById('st-ri').textContent=ri;}
+function stats(){
+  const visibili=ords.filter(o=>!isRitiratoVecchio(o));
+  const ev=visibili.filter(o=>o.stato==='evadere').length;
+  const co=visibili.filter(o=>o.stato==='completato').length;
+  const ri=visibili.filter(o=>o.stato==='ritirato').length;
+  const hasUrgente=visibili.some(o=>isUrgente(o));
+  document.getElementById('st-tot').textContent=visibili.length;
+  document.getElementById('st-ev').textContent=ev;
+  document.getElementById('st-co').textContent=co;
+  document.getElementById('st-ri').textContent=ri;
+  // Da evadere: rosso se urgente, arancione altrimenti
+  const evCard=document.getElementById('sf-evadere');
+  const evNum=document.getElementById('st-ev');
+  const evLbl=document.getElementById('sl-ev');
+  if(evCard&&evNum&&evLbl){
+    evCard.style.background=hasUrgente?'var(--urgs)':'var(--evs)';
+    evNum.style.color=hasUrgente?'var(--urg)':'var(--ev)';
+    evLbl.style.color=hasUrgente?'var(--urg)':'var(--ev)';
+  }
+}
 let ft='tutti';
 function setFT(t,cid){ft=t;document.querySelectorAll('.sc-filt').forEach(c=>c.classList.remove('active-filt'));document.getElementById(cid)&&document.getElementById(cid).classList.add('active-filt');renderOrdini()}
 const fmtD=d=>{if(!d)return'';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'})};
