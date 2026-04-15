@@ -1096,26 +1096,34 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
-// Fix tastiera: nasconde la bottom bar e la bottom nav quando la tastiera è aperta
-function handleViewport(){
+// Fix tastiera: nasconde la bottom bar quando un input prende focus nel tab nuovo
+function onInputFocus(){
   const bar=document.getElementById('nuovo-bottom-bar');
-  const bottomNav=document.getElementById('bottom-nav');
-  if(!window.visualViewport)return;
-  const vv=window.visualViewport;
-  const keyboardHeight=window.innerHeight-vv.height-vv.offsetTop;
-  const isKeyboardOpen=keyboardHeight>100;
-  if(isKeyboardOpen){
-    if(bar)bar.style.display='none';
-    if(bottomNav)bottomNav.style.display='none';
-  } else {
-    if(bar&&bar.classList.contains('visible'))bar.style.display='block';
-    if(bottomNav&&document.body.classList.contains('portrait-phone'))bottomNav.style.display='flex';
+  if(bar)bar.style.display='none';
+}
+function onInputBlur(){
+  setTimeout(function(){
+    // Ricontrolla che il focus non sia su un altro input
+    const active=document.activeElement;
+    const isInput=active&&(active.tagName==='INPUT'||active.tagName==='SELECT'||active.tagName==='TEXTAREA');
+    if(!isInput){
+      const bar=document.getElementById('nuovo-bottom-bar');
+      if(bar&&bar.classList.contains('visible'))bar.style.display='block';
+    }
+  },150);
+}
+document.addEventListener('focusin',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
+    const tabNuovo=document.getElementById('tab-nuovo');
+    if(tabNuovo&&tabNuovo.classList.contains('active'))onInputFocus();
   }
-}
-if(window.visualViewport){
-  window.visualViewport.addEventListener('resize',handleViewport);
-  window.visualViewport.addEventListener('scroll',handleViewport);
-}
+});
+document.addEventListener('focusout',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
+    const tabNuovo=document.getElementById('tab-nuovo');
+    if(tabNuovo&&tabNuovo.classList.contains('active'))onInputBlur();
+  }
+});
 </script>
 
 <nav id="bottom-nav">
