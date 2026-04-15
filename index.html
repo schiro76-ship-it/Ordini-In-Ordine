@@ -43,11 +43,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .sb-nav .ni.active{background:var(--r)}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:39}
 .sb-overlay.open{display:block}
-.pcontent{flex:1;min-width:0;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto}
+.pcontent{flex:1;min-width:0;display:flex;flex-direction:column;overflow-x:hidden}
 .topbar{display:none;background:#fff;border-bottom:1px solid var(--brd);padding:0 16px;height:54px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;box-shadow:0 1px 8px rgba(0,0,0,0.06);flex-shrink:0}
 .topbar .tb-menu{background:none;border:none;font-size:24px;cursor:pointer;padding:4px}
 .topbar .tb-title{font-size:17px;font-weight:900}
-.page-wrap{flex:1}
+.page-wrap{flex:1;overflow-y:auto}
 .sec{display:none}.sec.active{display:block}
 @media(max-width:639px){
   .sidebar{position:fixed;top:0;left:0;height:100vh;transform:translateX(-100%)}
@@ -119,7 +119,9 @@ body.portrait-phone{background:#2C3E50}
 body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
-/* Titolo pagina bianco su sfondo scuro */
+/* iOS portrait: nasconde le barre fisse quando la tastiera è aperta */
+body.portrait-phone #app:focus-within #nuovo-bottom-bar.visible{display:none!important}
+body.portrait-phone #app:focus-within #bottom-nav{display:none!important}
 body.portrait-phone .phdr h2{color:#fff}
 body.portrait-phone .phdr{padding:14px 16px 0}
 @media(min-width:640px) and (max-width:1023px){
@@ -1096,7 +1098,7 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
-// nessuna gestione manuale della tastiera - iOS gestisce tutto nativamente
+// tastiera gestita da iOS nativamente
 </script>
 
 <nav id="bottom-nav">
