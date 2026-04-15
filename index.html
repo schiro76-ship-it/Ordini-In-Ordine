@@ -119,9 +119,6 @@ body.portrait-phone{background:#2C3E50}
 body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
-/* iOS portrait: nasconde le barre fisse quando la tastiera è aperta */
-body.portrait-phone #app:focus-within #nuovo-bottom-bar.visible{display:none!important}
-body.portrait-phone #app:focus-within #bottom-nav{display:none!important}
 body.portrait-phone .phdr h2{color:#fff}
 body.portrait-phone .phdr{padding:14px 16px 0}
 @media(min-width:640px) and (max-width:1023px){
@@ -1099,6 +1096,50 @@ window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,
 checkPortrait();
 
 // tastiera gestita da iOS nativamente
+// Fix iOS PWA: rileva tastiera confrontando innerHeight
+(function(){
+  if(!document.body.classList.contains('portrait-phone'))return;
+  var origHeight=window.innerHeight;
+  var keyboardOpen=false;
+
+  function showBars(){
+    var bar=document.getElementById('nuovo-bottom-bar');
+    var nav=document.getElementById('bottom-nav');
+    if(bar&&bar.classList.contains('visible'))bar.style.setProperty('display','block','important');
+    if(nav)nav.style.setProperty('display','flex','important');
+    keyboardOpen=false;
+  }
+  function hideBars(){
+    var bar=document.getElementById('nuovo-bottom-bar');
+    var nav=document.getElementById('bottom-nav');
+    if(bar)bar.style.setProperty('display','none','important');
+    if(nav)nav.style.setProperty('display','none','important');
+    keyboardOpen=true;
+  }
+
+  document.addEventListener('focusin',function(e){
+    if(!document.body.classList.contains('portrait-phone'))return;
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT'){
+      setTimeout(function(){
+        if(window.innerHeight<origHeight-100)hideBars();
+      },400);
+    }
+  });
+  document.addEventListener('focusout',function(e){
+    if(!document.body.classList.contains('portrait-phone'))return;
+    setTimeout(function(){
+      var active=document.activeElement;
+      if(!active||!(active.tagName==='INPUT'||active.tagName==='TEXTAREA'||active.tagName==='SELECT')){
+        showBars();
+        origHeight=window.innerHeight;
+      }
+    },300);
+  });
+  window.addEventListener('resize',function(){
+    if(!document.body.classList.contains('portrait-phone'))return;
+    if(!keyboardOpen)origHeight=window.innerHeight;
+  });
+})();
 </script>
 
 <nav id="bottom-nav">
