@@ -95,9 +95,9 @@ body.portrait-phone #bottom-nav{display:flex}
   box-shadow:0 4px 16px rgba(192,57,43,0.5);
   border:3px solid #2C3E50;
 }
-#nuovo-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--brd);padding:10px 16px 20px;z-index:50;box-shadow:0 -4px 16px rgba(0,0,0,0.10)}
+#nuovo-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:transparent;padding:10px 16px 20px;z-index:50}
 #nuovo-bottom-bar.visible{display:block}
-.pbody.has-bottom-bar{padding-bottom:100px!important}
+body.portrait-phone #nuovo-bottom-bar{bottom:calc(64px + env(safe-area-inset-bottom,16px));padding:10px 16px 12px}.pbody.has-bottom-bar{padding-bottom:100px!important}
 @media(max-width:639px) and (orientation:portrait){
   #nuovo-bottom-bar{bottom:calc(68px + env(safe-area-inset-bottom,16px));padding:10px 16px 12px}
   .pbody.has-bottom-bar{padding-bottom:170px!important}
@@ -121,6 +121,8 @@ body.portrait-phone #status-bar-cover{display:block}
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
 body.portrait-phone .phdr h2{color:#fff}
 body.portrait-phone .phdr{padding:14px 16px 0}
+/* Spazio extra sotto la ricerca solo quando la tastiera è aperta */
+body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!important}
 @media(min-width:640px) and (max-width:1023px){
   body{background:#DDE0E8}
   :root{--sbw:200px}
@@ -498,7 +500,7 @@ body.portrait-phone .phdr{padding:14px 16px 0}
             <div class="cb" style="padding-bottom:8px">
               <div class="cp" id="pills" style="margin-bottom:8px"></div>
               <div class="sbox" style="margin-bottom:6px"><span class="si">🔍</span><input type="text" id="can" placeholder="Digita per cercare un articolo…" oninput="renderArtS()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
-              <div id="agrid" style="min-height:300px"></div>
+              <div id="agrid"></div>
             </div>
           </div>
           <div id="card-sel" style="display:none;margin-bottom:10px"><div id="sp"></div></div>
@@ -666,7 +668,7 @@ body.portrait-phone .phdr{padding:14px 16px 0}
 </div>
 <div id="nuovo-bottom-bar">
   <div id="bottom-bar-count" style="font-size:13px;font-weight:800;color:var(--sub);text-align:center;margin-bottom:8px;display:none"></div>
-  <button class="btn br btn-full" onclick="salvaOrdine()">✅ Aggiungi ordine</button>
+  <button class="btn br btn-full" onclick="salvaOrdine()" style="border-radius:14px;box-shadow:0 4px 16px rgba(192,57,43,0.35)">✅ Aggiungi ordine</button>
 </div>
 <div id="toast"></div>
 <div id="print-label"></div>
@@ -1107,19 +1109,19 @@ document.addEventListener('focusin',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
     document.getElementById('nuovo-bottom-bar').style.display='none';
     document.getElementById('bottom-nav').style.display='none';
+    document.body.classList.add('keyboard-open');
   }
 });
 document.addEventListener('focusout',function(e){
   if(!document.body.classList.contains('portrait-phone'))return;
   setTimeout(function(){
     var a=document.activeElement;
-    // Se il focus è ancora su un input, non fare nulla
     if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;
-    // Se il focus è andato su body o document, la tastiera è chiusa
     var bar=document.getElementById('nuovo-bottom-bar');
     var nav=document.getElementById('bottom-nav');
     if(bar&&bar.classList.contains('visible'))bar.style.display='';
     if(nav)nav.style.display='flex';
+    document.body.classList.remove('keyboard-open');
   },300);
 });
 </script>
