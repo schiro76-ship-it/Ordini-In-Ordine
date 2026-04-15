@@ -1096,7 +1096,7 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
-// Fix tastiera: sposta la bottom bar sopra la tastiera usando visualViewport
+// Fix tastiera: nasconde la bottom bar e la bottom nav quando la tastiera è aperta
 function handleViewport(){
   const bar=document.getElementById('nuovo-bottom-bar');
   const bottomNav=document.getElementById('bottom-nav');
@@ -1105,15 +1105,11 @@ function handleViewport(){
   const keyboardHeight=window.innerHeight-vv.height-vv.offsetTop;
   const isKeyboardOpen=keyboardHeight>100;
   if(isKeyboardOpen){
-    const offset=window.innerHeight-vv.height;
-    if(bar&&bar.classList.contains('visible')){
-      bar.style.bottom=offset+'px';
-      bar.style.transition='none';
-    }
-    if(bottomNav)bottomNav.style.transform='translateY('+(offset+bottomNav.offsetHeight)+'px)';
+    if(bar)bar.style.display='none';
+    if(bottomNav)bottomNav.style.display='none';
   } else {
-    if(bar){bar.style.bottom='';bar.style.transition='';}
-    if(bottomNav)bottomNav.style.transform='';
+    if(bar&&bar.classList.contains('visible'))bar.style.display='block';
+    if(bottomNav&&document.body.classList.contains('portrait-phone'))bottomNav.style.display='flex';
   }
 }
 if(window.visualViewport){
