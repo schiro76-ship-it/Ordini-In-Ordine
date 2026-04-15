@@ -1095,6 +1095,31 @@ function checkPortrait(){
 window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
+
+// Fix tastiera: sposta la bottom bar sopra la tastiera usando visualViewport
+function handleViewport(){
+  const bar=document.getElementById('nuovo-bottom-bar');
+  const bottomNav=document.getElementById('bottom-nav');
+  if(!window.visualViewport)return;
+  const vv=window.visualViewport;
+  const keyboardHeight=window.innerHeight-vv.height-vv.offsetTop;
+  const isKeyboardOpen=keyboardHeight>100;
+  if(isKeyboardOpen){
+    const offset=window.innerHeight-vv.height;
+    if(bar&&bar.classList.contains('visible')){
+      bar.style.bottom=offset+'px';
+      bar.style.transition='none';
+    }
+    if(bottomNav)bottomNav.style.transform='translateY('+(offset+bottomNav.offsetHeight)+'px)';
+  } else {
+    if(bar){bar.style.bottom='';bar.style.transition='';}
+    if(bottomNav)bottomNav.style.transform='';
+  }
+}
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',handleViewport);
+  window.visualViewport.addEventListener('scroll',handleViewport);
+}
 </script>
 
 <nav id="bottom-nav">
