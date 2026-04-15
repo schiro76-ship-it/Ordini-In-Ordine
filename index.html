@@ -43,11 +43,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .sb-nav .ni.active{background:var(--r)}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:39}
 .sb-overlay.open{display:block}
-.pcontent{flex:1;min-width:0;display:flex;flex-direction:column;overflow-x:hidden}
+.pcontent{flex:1;min-width:0;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto}
 .topbar{display:none;background:#fff;border-bottom:1px solid var(--brd);padding:0 16px;height:54px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;box-shadow:0 1px 8px rgba(0,0,0,0.06);flex-shrink:0}
 .topbar .tb-menu{background:none;border:none;font-size:24px;cursor:pointer;padding:4px}
 .topbar .tb-title{font-size:17px;font-weight:900}
-.page-wrap{flex:1;overflow-y:auto}
+.page-wrap{flex:1}
 .sec{display:none}.sec.active{display:block}
 @media(max-width:639px){
   .sidebar{position:fixed;top:0;left:0;height:100vh;transform:translateX(-100%)}
