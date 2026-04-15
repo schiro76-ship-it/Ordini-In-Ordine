@@ -1095,51 +1095,24 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
-// tastiera gestita da iOS nativamente
-// Fix iOS PWA: rileva tastiera confrontando innerHeight
-(function(){
+// Fix tastiera iOS PWA: focusin/focusout semplice
+document.addEventListener('focusin',function(e){
   if(!document.body.classList.contains('portrait-phone'))return;
-  var origHeight=window.innerHeight;
-  var keyboardOpen=false;
-
-  function showBars(){
-    var bar=document.getElementById('nuovo-bottom-bar');
-    var nav=document.getElementById('bottom-nav');
-    if(bar&&bar.classList.contains('visible'))bar.style.setProperty('display','block','important');
-    if(nav)nav.style.setProperty('display','flex','important');
-    keyboardOpen=false;
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
+    document.getElementById('nuovo-bottom-bar').style.display='none';
+    document.getElementById('bottom-nav').style.display='none';
   }
-  function hideBars(){
+});
+document.addEventListener('focusout',function(e){
+  if(!document.body.classList.contains('portrait-phone'))return;
+  setTimeout(function(){
+    var a=document.activeElement;
+    if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;
     var bar=document.getElementById('nuovo-bottom-bar');
-    var nav=document.getElementById('bottom-nav');
-    if(bar)bar.style.setProperty('display','none','important');
-    if(nav)nav.style.setProperty('display','none','important');
-    keyboardOpen=true;
-  }
-
-  document.addEventListener('focusin',function(e){
-    if(!document.body.classList.contains('portrait-phone'))return;
-    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT'){
-      setTimeout(function(){
-        if(window.innerHeight<origHeight-100)hideBars();
-      },400);
-    }
-  });
-  document.addEventListener('focusout',function(e){
-    if(!document.body.classList.contains('portrait-phone'))return;
-    setTimeout(function(){
-      var active=document.activeElement;
-      if(!active||!(active.tagName==='INPUT'||active.tagName==='TEXTAREA'||active.tagName==='SELECT')){
-        showBars();
-        origHeight=window.innerHeight;
-      }
-    },300);
-  });
-  window.addEventListener('resize',function(){
-    if(!document.body.classList.contains('portrait-phone'))return;
-    if(!keyboardOpen)origHeight=window.innerHeight;
-  });
-})();
+    if(bar&&bar.classList.contains('visible'))bar.style.display='block';
+    document.getElementById('bottom-nav').style.display='flex';
+  },100);
+});
 </script>
 
 <nav id="bottom-nav">
