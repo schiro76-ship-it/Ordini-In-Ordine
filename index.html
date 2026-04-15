@@ -102,9 +102,6 @@ body.portrait-phone #bottom-nav{display:flex!important}
   #nuovo-bottom-bar{bottom:calc(68px + env(safe-area-inset-bottom,16px));padding:10px 16px 12px}
   .pbody.has-bottom-bar{padding-bottom:170px!important}
 }
-/* Portrait phone: pulsante dentro il flusso, non fixed, la tastiera lo spinge su */
-body.portrait-phone #nuovo-bottom-bar{position:static!important;bottom:auto!important;left:auto!important;right:auto!important;margin:8px 16px calc(74px + env(safe-area-inset-bottom,16px));border-radius:var(--rad);box-shadow:var(--sh)}
-body.portrait-phone .pbody.has-bottom-bar{padding-bottom:20px!important}
 /* FIX SAFE AREA TOP: il body ha il colore scuro sotto la status bar,
    .pcontent NON aggiunge padding extra (lo spazio è già dato dal body) */
 body.portrait-phone .page-wrap{padding-bottom:calc(74px + env(safe-area-inset-bottom,16px))}
@@ -506,10 +503,6 @@ body.portrait-phone .phdr{padding:14px 16px 0}
             </div>
           </div>
           <div id="card-sel" style="display:none;margin-bottom:10px"><div id="sp"></div></div>
-          <div id="nuovo-bottom-bar">
-            <div id="bottom-bar-count" style="font-size:13px;font-weight:800;color:var(--sub);text-align:center;margin-bottom:8px;display:none"></div>
-            <button class="btn br btn-full" onclick="salvaOrdine()">✅ Aggiungi ordine</button>
-          </div>
         </div>
       </div>
       <div class="sec" id="tab-impostazioni">
@@ -671,6 +664,10 @@ body.portrait-phone .phdr{padding:14px 16px 0}
       <button onclick="closeModal('modal-etichetta')" style="width:100%;padding:13px;background:#F0F2F5;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Chiudi</button>
     </div>
   </div>
+</div>
+<div id="nuovo-bottom-bar">
+  <div id="bottom-bar-count" style="font-size:13px;font-weight:800;color:var(--sub);text-align:center;margin-bottom:8px;display:none"></div>
+  <button class="btn br btn-full" onclick="salvaOrdine()">✅ Aggiungi ordine</button>
 </div>
 <div id="toast"></div>
 <div id="print-label"></div>
@@ -1099,34 +1096,7 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
-// Fix tastiera: nasconde la bottom bar quando un input prende focus nel tab nuovo
-function onInputFocus(){
-  const bar=document.getElementById('nuovo-bottom-bar');
-  if(bar)bar.style.display='none';
-}
-function onInputBlur(){
-  setTimeout(function(){
-    // Ricontrolla che il focus non sia su un altro input
-    const active=document.activeElement;
-    const isInput=active&&(active.tagName==='INPUT'||active.tagName==='SELECT'||active.tagName==='TEXTAREA');
-    if(!isInput){
-      const bar=document.getElementById('nuovo-bottom-bar');
-      if(bar&&bar.classList.contains('visible'))bar.style.display='block';
-    }
-  },150);
-}
-document.addEventListener('focusin',function(e){
-  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
-    const tabNuovo=document.getElementById('tab-nuovo');
-    if(tabNuovo&&tabNuovo.classList.contains('active'))onInputFocus();
-  }
-});
-document.addEventListener('focusout',function(e){
-  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
-    const tabNuovo=document.getElementById('tab-nuovo');
-    if(tabNuovo&&tabNuovo.classList.contains('active'))onInputBlur();
-  }
-});
+// nessuna gestione manuale della tastiera - iOS gestisce tutto nativamente
 </script>
 
 <nav id="bottom-nav">
