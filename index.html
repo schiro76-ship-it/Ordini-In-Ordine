@@ -806,7 +806,7 @@ function setFT(t,cid){ft=t;document.querySelectorAll('.sc-filt').forEach(c=>{c.c
 const fmtD=d=>{if(!d)return'';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'})};
 const oggi=()=>new Date().toISOString().slice(0,10);
 const nowMin=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
-function isUrgente(o){if(!o.data||o.stato!=='evadere'||o.data!==oggi())return false;const nm=nowMin();return(o.turno==='pomeriggio'&&nm>=840)||(o.turno==='mattina'&&nm<840)}
+function isUrgente(o){if(!o.data||o.stato!=='evadere')return false;return o.data<=oggi()}
 function priScore(o){if(!o.data)return 99999;return new Date(o.data+'T00:00:00').getTime()+(o.turno==='mattina'?0:43200000)}
 function isRitiratoVecchio(o){if(o.stato!=='ritirato')return false;const ref=o.ritirato_il||o.creato;if(!ref)return false;return(Date.now()-new Date(ref).getTime())>24*60*60*1000;}
 function buildOcHTML(lista){
