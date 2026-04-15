@@ -497,7 +497,7 @@ body.portrait-phone .phdr{padding:14px 16px 0}
             <div class="ch"><div class="ct">🗂️ Aggiungi articoli</div><button class="btn-outline-r" onclick="openQArt()">✏️ Nuovo</button></div>
             <div class="cb" style="padding-bottom:8px">
               <div class="cp" id="pills" style="margin-bottom:8px"></div>
-              <div class="sbox" style="margin-bottom:6px"><span class="si">🔍</span><input type="text" id="can" placeholder="Digita per cercare un articolo…" oninput="renderArtS()" autocomplete="off"></div>
+              <div class="sbox" style="margin-bottom:6px"><span class="si">🔍</span><input type="text" id="can" placeholder="Digita per cercare un articolo…" oninput="renderArtS()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
               <div id="agrid"></div>
             </div>
           </div>
@@ -764,7 +764,13 @@ function goTab(name){
   closeSidebar();
   if(name==='nuovo'){sel=[];tNuovo=null;initNuovo();setTimeout(initNuovo,100)}
   const bar=document.getElementById('nuovo-bottom-bar');
-  if(bar)bar.classList.toggle('visible',name==='nuovo');
+  if(bar){
+    bar.style.display=''; // resetta sempre lo stile inline
+    bar.classList.toggle('visible',name==='nuovo');
+  }
+  // Assicura che bottom-nav sia sempre visibile quando si cambia tab
+  const nav=document.getElementById('bottom-nav');
+  if(nav&&document.body.classList.contains('portrait-phone'))nav.style.display='flex';
   if(name==='impostazioni'){renderArtM();renderUMDisplay();renderTemaGrid();}
   if(name==='ordini')renderOrdini();
   if(name==='riepilogo')renderRiepilogo();
@@ -1107,11 +1113,14 @@ document.addEventListener('focusout',function(e){
   if(!document.body.classList.contains('portrait-phone'))return;
   setTimeout(function(){
     var a=document.activeElement;
+    // Se il focus è ancora su un input, non fare nulla
     if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;
+    // Se il focus è andato su body o document, la tastiera è chiusa
     var bar=document.getElementById('nuovo-bottom-bar');
-    if(bar&&bar.classList.contains('visible'))bar.style.display='block';
-    document.getElementById('bottom-nav').style.display='flex';
-  },100);
+    var nav=document.getElementById('bottom-nav');
+    if(bar&&bar.classList.contains('visible'))bar.style.display='';
+    if(nav)nav.style.display='flex';
+  },300);
 });
 </script>
 
