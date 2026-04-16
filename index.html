@@ -32,7 +32,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 @keyframes spin{to{transform:rotate(360deg)}}
 #loading p{font-size:15px;font-weight:700;color:#6B7280}
 .shell{display:flex;min-height:100vh}
-.sidebar{width:var(--sbw);background:#2C3E50;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;z-index:40;transition:transform 0.25s ease;padding-top:env(safe-area-inset-top,0px)}
+.sidebar{width:var(--sbw);background:#2C3E50;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;min-height:100vh;height:100vh;z-index:40;transition:transform 0.25s ease;padding-top:env(safe-area-inset-top,0px)}
 .sb-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.12)}
 .sb-logo .title{font-size:17px;font-weight:900;color:#fff}
 .sb-logo .sub{font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
@@ -123,6 +123,7 @@ body.portrait-phone .phdr h2{color:#fff}
 body.portrait-phone .phdr{padding:14px 16px 0}
 /* Spazio extra sotto la ricerca solo quando la tastiera è aperta */
 body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!important}
+/* Cover status bar per tablet - rimosso, usa solo padding-top */
 @media(min-width:640px) and (max-width:1023px){
   body{background:#DDE0E8}
   :root{--sbw:200px}
@@ -1118,10 +1119,7 @@ var inactivityOverlay=document.createElement('div');
 inactivityOverlay.style.cssText='position:fixed;inset:0;z-index:99990;display:none;background:transparent;';
 inactivityOverlay.addEventListener('touchstart',function(e){
   e.stopPropagation();e.preventDefault();
-},{capture:true,passive:false});
-inactivityOverlay.addEventListener('touchend',function(e){
-  e.stopPropagation();e.preventDefault();
-  setTimeout(function(){inactivityOverlay.style.display='none';},50);
+  inactivityOverlay.style.display='none';
 },{capture:true,passive:false});
 document.body.appendChild(inactivityOverlay);
 // Si attiva solo quando la pagina era nascosta (schermo spento)
