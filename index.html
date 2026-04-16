@@ -1113,16 +1113,12 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
-// Fix accesso guidato: ignora il primo tocco per 600ms dopo che lo schermo si riaccende
+// Fix accesso guidato: blocca esattamente il primo tocco dopo che lo schermo si riaccende
 var _guideBlocked=false;
-var _guideTimer=null;
 document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='visible'){
-    _guideBlocked=true;
-    clearTimeout(_guideTimer);
-    _guideTimer=setTimeout(function(){_guideBlocked=false;},600);
-  }
+  if(document.visibilityState==='visible')_guideBlocked=true;
 });
+window.addEventListener('pageshow',function(){_guideBlocked=true;});
 document.addEventListener('touchend',function(e){
   if(_guideBlocked){e.preventDefault();e.stopPropagation();_guideBlocked=false;}
 },{capture:true,passive:false});
