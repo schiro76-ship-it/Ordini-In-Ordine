@@ -154,8 +154,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .sbox input:focus{border-color:var(--r)}
 .sbox .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:18px}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease,border-left-color 0.35s ease,box-shadow 0.2s ease;animation:fadeInUp 0.2s ease both}
-.rp-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border-radius:11px;margin-bottom:8px;box-shadow:var(--sh);border-left:3px solid var(--ev);transition:border-left-color 0.2s ease,background 0.2s ease;animation:fadeInUp 0.2s ease both}
+.oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease,border-left-color 0.35s ease,box-shadow 0.2s ease}
 .oc:hover{box-shadow:var(--shl)}
 .oc.evadere{border-left-color:var(--ev)}.oc.completato{border-left-color:var(--g)}.oc.ritirato{border-left-color:var(--gr);opacity:0.72}
 .oc.urgente{border-left-color:var(--urg)!important}
@@ -257,7 +256,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 @media(max-width:400px){.art-det-inputs{grid-template-columns:1fr 1fr}}
 .art-det-inputs input,.art-det-inputs select{padding:9px 10px;border:1.5px solid var(--brd);border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none;width:100%}
 .art-det-inputs label{font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:3px}
-.rp-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border-radius:11px;margin-bottom:8px;box-shadow:var(--sh);border-left:3px solid var(--ev);transition:border-left-color 0.2s ease,background 0.2s ease;animation:fadeInUp 0.2s ease both}
+.rp-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border-radius:11px;margin-bottom:8px;box-shadow:var(--sh);border-left:3px solid var(--ev);transition:border-left-color 0.2s ease,background 0.2s ease}
 .rp-row-detail{padding:0 14px 10px;background:#fff;border-radius:0 0 11px 11px;margin-top:-8px;margin-bottom:8px;box-shadow:var(--sh)}
 .rp-pri{width:32px;height:32px;border-radius:50%;background:var(--ev);color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .rp-art{flex:1;font-size:15px;font-weight:800}
@@ -812,8 +811,7 @@ function priScore(o){if(!o.data)return 99999;return new Date(o.data+'T00:00:00')
 function isRitiratoVecchio(o){if(o.stato!=='ritirato')return false;const ref=o.ritirato_il||o.creato;if(!ref)return false;return(Date.now()-new Date(ref).getTime())>24*60*60*1000;}
 function buildOcHTML(lista){
   if(!lista.length)return`<div class="empty"><div class="ei">📭</div><p>Nessun ordine trovato.</p></div>`;
-  return lista.map((o,idx)=>{
-    const delay=Math.min(idx*0.05,0.3);
+  return lista.map(o=>{
     const urg=isUrgente(o);
     const nc={evadere:urg?'urg':'ev',completato:'co',ritirato:'ri'}[o.stato];
     const ocClass=`oc ${o.stato}${urg?' urgente':''}`;
@@ -827,17 +825,19 @@ function buildOcHTML(lista){
       const um=it.um?` ${it.um}`:'';
       const qty=it.qty!==''&&it.qty!==null&&it.qty!==undefined?(parseFloat(it.qty)||''):'';
       const qtyStr=qty?`${qty}${um}`:'—';
+      const isRitirato=o.stato==='ritirato';
       const isItemUrg=urg&&!it.done;
-      const circleClass=it.done?'done':isItemUrg?'urg':'';
-      const tagClass=`itag${it.done?' done':''}${isItemUrg?' urg':''}`;
-      return`<div class="${tagClass}" onclick="event.stopPropagation();togItemOrdini(${o.id},${idx},this)">
-        <div class="itag-circle ${circleClass}">${it.done?'✓':''}</div>
+      const circleClass=isRitirato?'done':it.done?'done':isItemUrg?'urg':'';
+      const tagClass=`itag${isRitirato?' done':it.done?' done':''}${isItemUrg?' urg':''}`;
+      const clickHandler=isRitirato?'':'onclick="event.stopPropagation();togItemOrdini('+o.id+','+idx+',this)"';
+      return`<div class="${tagClass}" ${clickHandler} style="${isRitirato?'cursor:default;opacity:0.6':'cursor:pointer'}">
+        <div class="itag-circle ${circleClass}">${(it.done||isRitirato)?'✓':''}</div>
         <span class="qty">${qtyStr}</span>
         <span style="flex:1">${a.nome}</span>
         ${it.nota?`<span class="nt">"${it.nota}"</span>`:''}
       </div>`;
     }).join('');
-    return`<div class="${ocClass}" data-oid="${o.id}" onclick="openDet(${o.id})" style="cursor:pointer;animation-delay:${delay}s">
+    return`<div class="${ocClass}" data-oid="${o.id}" onclick="openDet(${o.id})" style="cursor:pointer">
       <div class="oc-top" style="align-items:flex-start">
         <div class="oc-num ${nc}" style="margin-top:2px;flex-shrink:0">#${o.num}</div>
         <div class="oc-info" style="flex:1;min-width:0">
@@ -1110,11 +1110,19 @@ var ignoraTouch=false;
 document.addEventListener('visibilitychange',function(){
   if(document.visibilityState==='visible'){
     ignoraTouch=true;
-    setTimeout(function(){ignoraTouch=false;},600);
+    setTimeout(function(){ignoraTouch=false;},800);
   }
 });
+window.addEventListener('focus',function(){
+  ignoraTouch=true;
+  setTimeout(function(){ignoraTouch=false;},800);
+});
 document.addEventListener('touchstart',function(e){
-  if(ignoraTouch){e.stopPropagation();e.preventDefault();}
+  if(ignoraTouch){
+    e.stopPropagation();
+    e.preventDefault();
+    ignoraTouch=false;
+  }
 },{capture:true,passive:false});
 
 // Fix tastiera iOS PWA: focusin/focusout semplice
