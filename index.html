@@ -129,6 +129,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   .phdr{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .phdr h2{font-size:23px;font-weight:900}
   .pbody{padding:14px 24px 32px}
+  .pcontent{padding-top:env(safe-area-inset-top,20px)}
 }
 @media(min-width:1024px){
   body{background:#DDE0E8}
@@ -1119,17 +1120,19 @@ inactivityOverlay.addEventListener('touchstart',function(e){
 inactivityOverlay.addEventListener('touchend',function(e){
   e.stopPropagation();
   e.preventDefault();
-  inactivityOverlay.style.display='none';
+  setTimeout(function(){
+    inactivityOverlay.style.display='none';
+  },50);
 },{capture:true,passive:false});
 document.body.appendChild(inactivityOverlay);
 
+function showOverlay(){inactivityOverlay.style.display='block';}
+function hideOverlay(){inactivityOverlay.style.display='none';}
 document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='visible'){
-    inactivityOverlay.style.display='block';
-  } else {
-    inactivityOverlay.style.display='none';
-  }
+  if(document.visibilityState==='visible')showOverlay();
+  else hideOverlay();
 });
+window.addEventListener('pageshow',function(){showOverlay();});
 
 // Fix tastiera iOS PWA: focusin/focusout semplice
 document.addEventListener('focusin',function(e){
