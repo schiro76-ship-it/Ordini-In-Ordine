@@ -129,7 +129,8 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   .phdr{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .phdr h2{font-size:23px;font-weight:900}
   .pbody{padding:14px 24px 32px}
-  .pcontent{padding-top:env(safe-area-inset-top,20px)}
+  .pcontent{padding-top:0}
+  .page-wrap{padding-top:env(safe-area-inset-top,20px)}
 }
 @media(min-width:1024px){
   body{background:#DDE0E8}
@@ -158,6 +159,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease,border-left-color 0.35s ease,box-shadow 0.2s ease}
 .oc:hover{box-shadow:var(--shl)}
 .oc.evadere{border-left-color:var(--ev)}.oc.completato{border-left-color:var(--g)}.oc.ritirato{border-left-color:var(--gr);opacity:0.85}
+.oc.ritirato .tb,.oc.ritirato .act-btn,.oc.ritirato .stato-badge{filter:grayscale(1);opacity:0.7}
 .oc.urgente{border-left-color:var(--urg)!important}
 .oc-num.ev{background:var(--ev)}.oc-num.co{background:var(--g)}.oc-num.ri{background:var(--gr)}.oc-num.urg{background:var(--urg)}
 .oc-num{transition:background 0.3s ease}
@@ -186,6 +188,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .itag-circle{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--ev);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;transition:all 0.15s}
 .itag-circle.urg{border-color:var(--urg)}
 .itag-circle.done{border-color:var(--g);background:var(--g);color:#fff}
+.itag-circle.ritirato{border-color:var(--gr);background:var(--gr);color:#fff}
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .ch{padding:15px 18px 13px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center}
 .ct{font-size:15px;font-weight:900}
@@ -1110,29 +1113,26 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
-// Fix accesso guidato: overlay che cattura il primo tocco dopo riattivazione schermo
+// Fix accesso guidato: overlay attivo dopo inattività, si rimuove al touchend
 var inactivityOverlay=document.createElement('div');
 inactivityOverlay.style.cssText='position:fixed;inset:0;z-index:99990;display:none;background:transparent;';
 inactivityOverlay.addEventListener('touchstart',function(e){
-  e.stopPropagation();
-  e.preventDefault();
+  e.stopPropagation();e.preventDefault();
 },{capture:true,passive:false});
 inactivityOverlay.addEventListener('touchend',function(e){
-  e.stopPropagation();
-  e.preventDefault();
-  setTimeout(function(){
-    inactivityOverlay.style.display='none';
-  },50);
+  e.stopPropagation();e.preventDefault();
+  setTimeout(function(){inactivityOverlay.style.display='none';},50);
 },{capture:true,passive:false});
 document.body.appendChild(inactivityOverlay);
-
-function showOverlay(){inactivityOverlay.style.display='block';}
-function hideOverlay(){inactivityOverlay.style.display='none';}
-document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='visible')showOverlay();
-  else hideOverlay();
-});
-window.addEventListener('pageshow',function(){showOverlay();});
+var inactivityTimer=null;
+function resetInactivity(){
+  clearTimeout(inactivityTimer);
+  inactivityTimer=setTimeout(function(){
+    inactivityOverlay.style.display='block';
+  },20000);
+}
+document.addEventListener('touchstart',function(){resetInactivity();},{capture:true,passive:true});
+resetInactivity();
 
 // Fix tastiera iOS PWA: focusin/focusout semplice
 document.addEventListener('focusin',function(e){
