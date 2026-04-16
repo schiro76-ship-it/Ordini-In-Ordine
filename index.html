@@ -1113,7 +1113,7 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
-// Fix accesso guidato: overlay attivo dopo inattività, si rimuove al touchend
+// Fix accesso guidato: overlay attivo solo quando lo schermo si è spento
 var inactivityOverlay=document.createElement('div');
 inactivityOverlay.style.cssText='position:fixed;inset:0;z-index:99990;display:none;background:transparent;';
 inactivityOverlay.addEventListener('touchstart',function(e){
@@ -1124,15 +1124,15 @@ inactivityOverlay.addEventListener('touchend',function(e){
   setTimeout(function(){inactivityOverlay.style.display='none';},50);
 },{capture:true,passive:false});
 document.body.appendChild(inactivityOverlay);
-var inactivityTimer=null;
-function resetInactivity(){
-  clearTimeout(inactivityTimer);
-  inactivityTimer=setTimeout(function(){
+// Si attiva solo quando la pagina era nascosta (schermo spento)
+var eraHidden=false;
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden'){eraHidden=true;}
+  else if(document.visibilityState==='visible'&&eraHidden){
     inactivityOverlay.style.display='block';
-  },20000);
-}
-document.addEventListener('touchstart',function(){resetInactivity();},{capture:true,passive:true});
-resetInactivity();
+    eraHidden=false;
+  }
+});
 
 // Fix tastiera iOS PWA: focusin/focusout semplice
 document.addEventListener('focusin',function(e){
