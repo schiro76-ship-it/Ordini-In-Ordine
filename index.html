@@ -156,7 +156,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease,border-left-color 0.35s ease,box-shadow 0.2s ease}
 .oc:hover{box-shadow:var(--shl)}
-.oc.evadere{border-left-color:var(--ev)}.oc.completato{border-left-color:var(--g)}.oc.ritirato{border-left-color:var(--gr);opacity:0.72}
+.oc.evadere{border-left-color:var(--ev)}.oc.completato{border-left-color:var(--g)}.oc.ritirato{border-left-color:var(--gr);opacity:0.72;filter:grayscale(1)}
 .oc.urgente{border-left-color:var(--urg)!important}
 .oc-num.ev{background:var(--ev)}.oc-num.co{background:var(--g)}.oc-num.ri{background:var(--gr)}.oc-num.urg{background:var(--urg)}
 .oc-num{transition:background 0.3s ease}
@@ -1107,6 +1107,7 @@ checkPortrait();
 
 // Fix accesso guidato: ignora il primo tocco dopo che lo schermo si riattiva
 var ignoraTouch=false;
+var touchStartTime=0;
 document.addEventListener('visibilitychange',function(){
   if(document.visibilityState==='visible'){
     ignoraTouch=true;
@@ -1118,7 +1119,16 @@ window.addEventListener('focus',function(){
   setTimeout(function(){ignoraTouch=false;},800);
 });
 document.addEventListener('touchstart',function(e){
+  touchStartTime=Date.now();
   if(ignoraTouch){
+    e.stopPropagation();
+    e.preventDefault();
+    ignoraTouch=false;
+  }
+},{capture:true,passive:false});
+document.addEventListener('touchend',function(e){
+  // Se il tocco è durato più di 300ms è probabile sblocco schermo — ignora
+  if(Date.now()-touchStartTime>300){
     e.stopPropagation();
     e.preventDefault();
     ignoraTouch=false;
