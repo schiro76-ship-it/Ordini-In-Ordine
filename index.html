@@ -1119,39 +1119,47 @@ function stampaEtichettaRp(oidStr,artId){
   const o=ords.find(x=>x.id===oid);
   if(!o)return;
 
-  // 50x80mm a 8px/mm = 400x640px
-  const W=400,H=640,pad=20;
+  const W=400,pad=20;
   const canvas=document.createElement('canvas');
-  canvas.width=W;canvas.height=H;
+  canvas.width=W;
+
+  // Prima passata: calcolo altezza necessaria
   const ctx=canvas.getContext('2d');
-
-  // Sfondo bianco
-  ctx.fillStyle='#ffffff';
-  ctx.fillRect(0,0,W,H);
-
-  // Bordo
-  ctx.strokeStyle='#1A1A2E';ctx.lineWidth=3;
-  ctx.strokeRect(4,4,W-8,H-8);
-
   let y=pad+10;
+  y+=90; // numero
+  y+=40; // nome
+  const turnoLabel=o.turno==='mattina'?'Mattina':o.turno==='pomeriggio'?'Pomeriggio':'';
+  const dataStr=o.data?fmtD(o.data):'';
+  const metaStr=[dataStr,turnoLabel].filter(Boolean).join(' · ');
+  if(metaStr)y+=28;
+  y+=22; // separatore
+  (o.items||[]).forEach(function(it){
+    const a=arts.find(x=>x.id===it.artId);if(!a)return;
+    y+=it.artId===artId?50:28;
+  });
+  y+=pad;
 
-  // Numero ordine
-  ctx.fillStyle='#C0392B';
+  canvas.height=y;
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(0,0,W,canvas.height);
+  ctx.strokeStyle='#1A1A2E';ctx.lineWidth=3;
+  ctx.strokeRect(4,4,W-8,canvas.height-8);
+
+  y=pad+10;
+
+  // Numero
+  ctx.fillStyle='#1A1A2E';
   ctx.font='900 80px sans-serif';
   ctx.textAlign='center';
   ctx.fillText('#'+o.num,W/2,y+70);
   y+=90;
 
-  // Nome cliente
-  ctx.fillStyle='#1A1A2E';
+  // Nome
   ctx.font='900 26px sans-serif';
   ctx.fillText(o.nome,W/2,y+26);
   y+=40;
 
-  // Data e turno
-  const turnoLabel=o.turno==='mattina'?'Mattina':o.turno==='pomeriggio'?'Pomeriggio':'';
-  const dataStr=o.data?fmtD(o.data):'';
-  const metaStr=[dataStr,turnoLabel].filter(Boolean).join(' · ');
+  // Meta
   if(metaStr){
     ctx.fillStyle='#6B7280';
     ctx.font='600 16px sans-serif';
@@ -1159,7 +1167,7 @@ function stampaEtichettaRp(oidStr,artId){
     y+=28;
   }
 
-  // Linea separatrice
+  // Separatore tratteggiato
   ctx.strokeStyle='#E5E7EB';ctx.lineWidth=1.5;
   ctx.setLineDash([6,4]);
   ctx.beginPath();ctx.moveTo(pad,y+8);ctx.lineTo(W-pad,y+8);ctx.stroke();
@@ -1167,54 +1175,44 @@ function stampaEtichettaRp(oidStr,artId){
   y+=22;
 
   // Articoli
-  ctx.textAlign='left';
   (o.items||[]).forEach(function(it){
-    const a=arts.find(x=>x.id===it.artId);
-    if(!a)return;
+    const a=arts.find(x=>x.id===it.artId);if(!a)return;
     const qty=(it.qty?(parseFloat(it.qty)||''):'—')+(it.um?' '+it.um:'');
     const isEv=it.artId===artId;
-
+    ctx.textAlign='left';
     if(isEv){
-      // Sfondo evidenziato
       ctx.fillStyle='#FEF3E2';
       ctx.fillRect(pad-4,y-2,W-pad*2+8,42);
       ctx.strokeStyle='#C0392B';ctx.lineWidth=2;
       ctx.strokeRect(pad-4,y-2,W-pad*2+8,42);
-      // Nome articolo evidenziato
       ctx.fillStyle='#C0392B';
       ctx.font='900 22px sans-serif';
-      ctx.fillText('★ '+a.nome,pad+4,y+24);
-      // Quantità evidenziata
+      ctx.fillText('★ '+a.nome,pad+4,y+28);
       ctx.textAlign='right';
-      ctx.fillText(qty,W-pad-4,y+24);
-      ctx.textAlign='left';
+      ctx.fillText(qty,W-pad-4,y+28);
       y+=50;
     } else {
-      ctx.fillStyle='#aaaaaa';
-      ctx.font='600 15px sans-serif';
-      ctx.fillText(a.nome,pad,y+16);
+      ctx.fillStyle='#888888';
+      ctx.font='500 15px sans-serif';
+      ctx.fillText(a.nome,pad,y+18);
       ctx.textAlign='right';
-      ctx.fillStyle='#cccccc';
-      ctx.fillText(qty,W-pad,y+16);
-      ctx.textAlign='left';
-      // Linea sottile
+      ctx.fillText(qty,W-pad,y+18);
       ctx.strokeStyle='#F0F2F5';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(pad,y+22);ctx.lineTo(W-pad,y+22);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath();ctx.moveTo(pad,y+24);ctx.lineTo(W-pad,y+24);ctx.stroke();
       y+=28;
     }
   });
 
-  // Apri PNG in nuova scheda
+  // Mostra nel modal etichetta
   const url=canvas.toDataURL('image/png');
-  const win=window.open('','_blank');
-  if(win){
-    win.document.write('<html><body style="margin:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="'+url+'" style="max-width:100%;box-shadow:0 4px 20px rgba(0,0,0,0.2)"></body></html>');
-    win.document.close();
-  } else {
-    // fallback: download diretto
-    const a2=document.createElement('a');
-    a2.href=url;a2.download='etichetta_'+o.num+'.png';a2.click();
-  }
+  const el=document.getElementById('etichetta-content');
+  if(!el)return;
+  el.innerHTML=`<div style="text-align:center">
+    <p style="font-size:12px;color:#6B7280;font-weight:600;margin-bottom:12px">Tieni premuto sull'immagine per salvarla nelle Foto</p>
+    <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15)">
+  </div>`;
+  openModal('modal-etichetta');
 }
 
 // Fix accesso guidato: app sorda quando schermo spento, si risveglia solo dopo visible
