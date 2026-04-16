@@ -832,8 +832,10 @@ function buildOcHTML(lista){
       const clickHandler=isRitirato?'':'onclick="event.stopPropagation();togItemOrdini('+o.id+','+idx+',this)"';
       const tagStyle=isRitirato?'cursor:default;background:var(--grs);color:var(--gr)':'cursor:pointer';
       const qtyStyle=isRitirato?'color:var(--gr)':'';
+      const circleContent=(isRitirato||it.done)?'✓':'';
+      const circleStyle=isRitirato?'border-color:var(--gr);background:var(--gr);color:#fff':'';
       return`<div class="${tagClass}" ${clickHandler} style="${tagStyle}">
-        <div class="itag-circle ${circleClass}" style="${isRitirato?'border-color:var(--gr);background:var(--gr);color:#fff':''}">✓</div>
+        <div class="itag-circle ${circleClass}" style="${circleStyle}">${circleContent}</div>
         <span class="qty" style="${qtyStyle}">${qtyStr}</span>
         <span style="flex:1">${a.nome}</span>
         ${it.nota?`<span class="nt">"${it.nota}"</span>`:''}
@@ -1113,11 +1115,11 @@ inactivityOverlay.style.cssText='position:fixed;inset:0;z-index:99990;display:no
 inactivityOverlay.addEventListener('touchstart',function(e){
   e.stopPropagation();
   e.preventDefault();
-  inactivityOverlay.style.display='none';
 },{capture:true,passive:false});
 inactivityOverlay.addEventListener('touchend',function(e){
   e.stopPropagation();
   e.preventDefault();
+  inactivityOverlay.style.display='none';
 },{capture:true,passive:false});
 document.body.appendChild(inactivityOverlay);
 
