@@ -666,8 +666,11 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
     <div style="padding:24px 20px" id="etichetta-content"></div>
     <div style="padding:0 20px">
       <p style="font-size:12px;color:#6B7280;font-weight:600;text-align:center;margin-bottom:12px">Tocca <b>Condividi ↑ → Stampa</b> per inviare alla stampante</p>
-      <button onclick="closeModal('modal-etichetta')" style="width:100%;padding:13px;background:#F0F2F5;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Chiudi</button>
-    </div>
+
+```
+</div>
+```
+
   </div>
 </div>
 <div id="nuovo-bottom-bar">
@@ -1176,26 +1179,30 @@ function _disegnaEtichetta(o,artIdEvidenziato){
 function _mostraCanvasNelModal(canvas){
   const url=canvas.toDataURL('image/png');
   const el=document.getElementById('etichetta-content');if(!el)return;
-  // Tenta Web Share API con file (AirPrint / app native)
-  async function condividiEtichetta(){
-    try{
-      const blob=await(await fetch(url)).blob();
-      const file=new File([blob],'etichetta.png',{type:'image/png'});
-      if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-        await navigator.share({files:[file],title:'Etichetta ordine'});
-        return;
-      }
-    }catch(e){}
-    // Fallback: salva immagine
-    const a=document.createElement('a');a.href=url;a.download='etichetta.png';a.click();
-  }
   el.innerHTML=`<div style="text-align:center">
     <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
-    <button onclick="(${condividiEtichetta.toString()})()" style="width:100%;padding:13px;background:#C0392B;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer">🖨️ Condividi / Stampa</button>
-    <p style="font-size:11px;color:#6B7280;font-weight:600;margin-top:10px">Oppure tieni premuto sull'immagine per salvarla nelle Foto</p>
+    <button id="btn-condividi-etichetta" style="width:100%;padding:13px;background:#F0F2F5;color:#1A1A2E;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer">🖨️ Condividi / Stampa</button>
   </div>`;
   openModal('modal-etichetta');
+  // Attach condividi dopo render
+  setTimeout(function(){
+    const btn=document.getElementById('btn-condividi-etichetta');
+    if(!btn)return;
+    btn.addEventListener('click',async function(){
+      try{
+        const blob=await(await fetch(url)).blob();
+        const file=new File([blob],'etichetta.png',{type:'image/png'});
+        if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+          await navigator.share({files:[file],title:'Etichetta ordine'});
+          return;
+        }
+      }catch(e){console.warn('share error',e);}
+      // Fallback download
+      const a=document.createElement('a');a.href=url;a.download='etichetta.png';a.click();
+    });
+  },100);
 }
+
 function stampaEtichetta(id){
   const o=ords.find(x=>x.id===id);if(!o)return;
   _mostraCanvasNelModal(_disegnaEtichetta(o,null));
