@@ -1176,7 +1176,24 @@ function _disegnaEtichetta(o,artIdEvidenziato){
 function _mostraCanvasNelModal(canvas){
   const url=canvas.toDataURL('image/png');
   const el=document.getElementById('etichetta-content');if(!el)return;
-  el.innerHTML='<div style="text-align:center"><p style="font-size:12px;color:#6B7280;font-weight:600;margin-bottom:12px">Tieni premuto sull\'immagine per salvarla nelle Foto</p><img src="'+url+'" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15)"></div>';
+  // Tenta Web Share API con file (AirPrint / app native)
+  async function condividiEtichetta(){
+    try{
+      const blob=await(await fetch(url)).blob();
+      const file=new File([blob],'etichetta.png',{type:'image/png'});
+      if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],title:'Etichetta ordine'});
+        return;
+      }
+    }catch(e){}
+    // Fallback: salva immagine
+    const a=document.createElement('a');a.href=url;a.download='etichetta.png';a.click();
+  }
+  el.innerHTML=`<div style="text-align:center">
+    <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
+    <button onclick="(${condividiEtichetta.toString()})()" style="width:100%;padding:13px;background:#C0392B;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer">🖨️ Condividi / Stampa</button>
+    <p style="font-size:11px;color:#6B7280;font-weight:600;margin-top:10px">Oppure tieni premuto sull'immagine per salvarla nelle Foto</p>
+  </div>`;
   openModal('modal-etichetta');
 }
 function stampaEtichetta(id){
