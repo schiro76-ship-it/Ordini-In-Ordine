@@ -1113,14 +1113,18 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
-// Fix accesso guidato: blocca il primo touchstart dopo che lo schermo si riaccende
-var _guideBlocked=false;
+// Fix accesso guidato: app sorda quando schermo spento, si risveglia solo dopo visible
+var _screenOff=false;
 document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='visible')_guideBlocked=true;
-  else _guideBlocked=false;
+  if(document.visibilityState==='hidden'){
+    _screenOff=true;
+  } else {
+    // Schermo riacceso: aspetta che il ciclo eventi finisca, poi sblocca
+    setTimeout(function(){_screenOff=false;},0);
+  }
 });
 document.addEventListener('touchstart',function(e){
-  if(_guideBlocked){e.preventDefault();e.stopPropagation();_guideBlocked=false;}
+  if(_screenOff){e.preventDefault();e.stopPropagation();}
 },{capture:true,passive:false});
 
 // Fix tastiera iOS PWA: focusin/focusout semplice
