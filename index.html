@@ -503,7 +503,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
             <div class="ch"><div class="ct">🗂️ Aggiungi articoli</div><button class="btn-outline-r" onclick="openQArt()">✏️ Nuovo</button></div>
             <div class="cb" style="padding-bottom:8px">
               <div class="cp" id="pills" style="margin-bottom:8px"></div>
-              <div class="sbox" style="margin-bottom:6px"><span class="si">🔍</span><input type="text" id="can" placeholder="Digita per cercare un articolo…" oninput="renderArtS()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
+              <div class="sbox" style="margin-bottom:6px"><span class="si">🔍</span><input type="text" id="can" placeholder="Cerca articolo…" oninput="renderArtS()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
               <div id="agrid"></div>
             </div>
           </div>
@@ -921,17 +921,17 @@ function renderDetModal(o){
         </div>
       </div>
     </div>
-    <div style="font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase;margin-bottom:8px">Articoli <span style="background:var(--bg);border-radius:10px;padding:1px 7px;color:var(--txt)">${(o.items||[]).length}</span></div>
-    <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:13px;margin-bottom:8px">Nessun articolo.</p>'}</div>
-    <div style="margin-top:14px;border-top:1px solid var(--brd);padding-top:12px">
+    <div style="margin-bottom:14px;border-bottom:1px solid var(--brd);padding-bottom:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:12px;font-weight:800;color:var(--sub);text-transform:uppercase">Aggiungi articolo</span>
         <button class="btn-outline-r" onclick="openDetQArt(${o.id})">✏️ Nuovo</button>
       </div>
       <div class="cp" id="det-cat-pills" style="margin-bottom:8px"></div>
-      <div class="sbox" style="margin-bottom:8px"><span class="si">🔍</span><input type="text" id="det-search-art" placeholder="Cerca nel catalogo…" style="width:100%;padding:9px 13px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id})"></div>
+      <div class="sbox" style="margin-bottom:8px"><span class="si">🔍</span><input type="text" id="det-search-art" placeholder="Cerca articolo…" style="width:100%;padding:9px 13px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id})"></div>
       <div id="det-art-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;max-height:180px;overflow-y:auto"></div>
     </div>
+    <div style="font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase;margin-bottom:8px">Articoli <span style="background:var(--bg);border-radius:10px;padding:1px 7px;color:var(--txt)">${(o.items||[]).length}</span></div>
+    <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:13px;margin-bottom:8px">Nessun articolo.</p>'}</div>
     <div style="display:flex;gap:7px;margin-top:14px;border-top:1px solid var(--brd);padding-top:12px;flex-wrap:wrap">
       ${o.stato!=='evadere'?`<button class="btn br" style="flex:1;min-width:90px;font-size:12px;padding:9px" onclick="setStatoD(${o.id},'evadere')">Da evadere</button>`:''}
       ${o.stato!=='completato'?`<button class="btn bgg" style="flex:1;min-width:90px;font-size:12px;padding:9px" onclick="setStatoD(${o.id},'completato')">Completato</button>`:''}
