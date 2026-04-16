@@ -154,7 +154,8 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .sbox input:focus{border-color:var(--r)}
 .sbox .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:18px}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease,border-left-color 0.35s ease,box-shadow 0.2s ease}
+.oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease,border-left-color 0.35s ease,box-shadow 0.2s ease;animation:fadeInUp 0.2s ease both}
+.rp-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border-radius:11px;margin-bottom:8px;box-shadow:var(--sh);border-left:3px solid var(--ev);transition:border-left-color 0.2s ease,background 0.2s ease;animation:fadeInUp 0.2s ease both}
 .oc:hover{box-shadow:var(--shl)}
 .oc.evadere{border-left-color:var(--ev)}.oc.completato{border-left-color:var(--g)}.oc.ritirato{border-left-color:var(--gr);opacity:0.72}
 .oc.urgente{border-left-color:var(--urg)!important}
@@ -256,7 +257,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 @media(max-width:400px){.art-det-inputs{grid-template-columns:1fr 1fr}}
 .art-det-inputs input,.art-det-inputs select{padding:9px 10px;border:1.5px solid var(--brd);border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none;width:100%}
 .art-det-inputs label{font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:3px}
-.rp-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border-radius:11px;margin-bottom:8px;box-shadow:var(--sh);border-left:3px solid var(--ev);transition:border-left-color 0.2s ease,background 0.2s ease}
+.rp-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border-radius:11px;margin-bottom:8px;box-shadow:var(--sh);border-left:3px solid var(--ev);transition:border-left-color 0.2s ease,background 0.2s ease;animation:fadeInUp 0.2s ease both}
 .rp-row-detail{padding:0 14px 10px;background:#fff;border-radius:0 0 11px 11px;margin-top:-8px;margin-bottom:8px;box-shadow:var(--sh)}
 .rp-pri{width:32px;height:32px;border-radius:50%;background:var(--ev);color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .rp-art{flex:1;font-size:15px;font-weight:800}
@@ -300,7 +301,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .login-btn:hover{filter:brightness(0.9)}
 .login-err{color:#C0392B;font-size:13px;font-weight:700;text-align:center;margin-top:10px;min-height:20px}
 .login-forgot{text-align:center;margin-top:12px;font-size:13px;font-weight:700;color:rgba(255,255,255,0.7);cursor:pointer}
-.login-forgot span{color:#C0392B}
+.login-forgot span{color:#FF6B35}
 .logo-text{font-size:17px}.logo-sub{font-size:9px}
 @media(min-width:640px) and (max-width:1023px){.logo-text{font-size:14px}.logo-sub{font-size:9px}}
 @media(min-width:1024px){.logo-text{font-size:17px}.logo-sub{font-size:10px}}
@@ -811,7 +812,8 @@ function priScore(o){if(!o.data)return 99999;return new Date(o.data+'T00:00:00')
 function isRitiratoVecchio(o){if(o.stato!=='ritirato')return false;const ref=o.ritirato_il||o.creato;if(!ref)return false;return(Date.now()-new Date(ref).getTime())>24*60*60*1000;}
 function buildOcHTML(lista){
   if(!lista.length)return`<div class="empty"><div class="ei">📭</div><p>Nessun ordine trovato.</p></div>`;
-  return lista.map(o=>{
+  return lista.map((o,idx)=>{
+    const delay=Math.min(idx*0.05,0.3);
     const urg=isUrgente(o);
     const nc={evadere:urg?'urg':'ev',completato:'co',ritirato:'ri'}[o.stato];
     const ocClass=`oc ${o.stato}${urg?' urgente':''}`;
@@ -835,7 +837,7 @@ function buildOcHTML(lista){
         ${it.nota?`<span class="nt">"${it.nota}"</span>`:''}
       </div>`;
     }).join('');
-    return`<div class="${ocClass}" data-oid="${o.id}" onclick="openDet(${o.id})" style="cursor:pointer">
+    return`<div class="${ocClass}" data-oid="${o.id}" onclick="openDet(${o.id})" style="cursor:pointer;animation-delay:${delay}s">
       <div class="oc-top" style="align-items:flex-start">
         <div class="oc-num ${nc}" style="margin-top:2px;flex-shrink:0">#${o.num}</div>
         <div class="oc-info" style="flex:1;min-width:0">
