@@ -883,10 +883,18 @@ let rpExpanded={},rpCatFilter='Tutte';
 function toggleRp(key){rpExpanded[key]=!rpExpanded[key];renderRiepilogo()}
 function setRpCat(c){rpCatFilter=c;renderRiepilogo()}
 function renderRiepilogoSenzaRiordino(){renderRiepilogo();}
-function renderRiepilogo(){const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nessun ordine da evadere!</p></div>';return}const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''})).filter(Boolean))].sort();const pillsEl=document.getElementById('riepilogo-cat-pills');if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" onclick="setRpCat('${c}')">${c}</span>`).join('');const map={};ev.forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!map[k])map[k]={artId:it.artId,ordini:[]};map[k].ordini.push(Object.assign({},it,{ordine:o}));}));const voci=Object.values(map).filter(v=>v.ordini.some(x=>!x.done)||rpExpanded[v.artId]).map(v=>Object.assign({},v,{minScore:v.ordini.some(x=>!x.done)?Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))})).sort((a,b)=>{
+function renderRiepilogo(posBefore){const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nessun ordine da evadere!</p></div>';return}const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''})).filter(Boolean))].sort();const pillsEl=document.getElementById('riepilogo-cat-pills');if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" onclick="setRpCat('${c}')">${c}</span>`).join('');const map={};ev.forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!map[k])map[k]={artId:it.artId,ordini:[]};map[k].ordini.push(Object.assign({},it,{ordine:o}));}));const voci=Object.values(map).filter(v=>v.ordini.some(x=>!x.done)||rpExpanded[v.artId]).map(v=>Object.assign({},v,{minScore:v.ordini.some(x=>!x.done)?Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))})).sort((a,b)=>{
   const aDone=a.ordini.every(x=>x.done),bDone=b.ordini.every(x=>x.done);
-  if(aDone&&!bDone)return 1;
-  if(!aDone&&bDone)return -1;
+  // Se abbiamo posizioni salvate, le card completate restano dove erano
+  if(posBefore){
+    const aPos=posBefore[a.artId],bPos=posBefore[b.artId];
+    if(aPos!==undefined&&bPos!==undefined)return aPos-bPos;
+    if(aDone&&aPos!==undefined)return 1;
+    if(bDone&&bPos!==undefined)return -1;
+  } else {
+    if(aDone&&!bDone)return 1;
+    if(!aDone&&bDone)return -1;
+  }
   if(a.urgente&&!b.urgente)return -1;
   if(!a.urgente&&b.urgente)return 1;
   return a.minScore-b.minScore;
@@ -1031,12 +1039,19 @@ async function delItemFromOrd(oid,idx){const o=ords.find(x=>x.id===oid);if(!o)re
 async function togRpItem(oidStr,idx){
   const oid=parseInt(oidStr);const o=ords.find(x=>x.id===oid);
   if(!o||idx<0||!o.items[idx])return;
+  // Salva posizioni attuali PRIMA di modificare
+  const posBefore={};
+  document.querySelectorAll('#riepilogo-list [data-artid]').forEach(function(c,i){
+    posBefore[parseInt(c.dataset.artid)]=i;
+  });
   o.items[idx].done=!o.items[idx].done;
-  if(o.items.every(function(it){return it.done})&&o.stato==='evadere')o.stato='completato';
+  const tuttiDone=o.items.every(function(it){return it.done});
+  if(tuttiDone&&o.stato==='evadere')o.stato='completato';
   if(!o.items[idx].done&&o.stato==='completato')o.stato='evadere';
   await saveData();
   renderOrdini();
-  renderRiepilogo();
+  // Se tutti done, preserva posizione; altrimenti riordino normale
+  renderRiepilogo(tuttiDone?posBefore:null);
 }
 let sel=[],tNuovo=null,catS='Tutti';
 function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.textContent=usati.has(v)?'⚠️ già usato':'';}
