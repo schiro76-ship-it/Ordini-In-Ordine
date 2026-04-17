@@ -897,32 +897,40 @@ function toggleRp(key){
 function setRpCat(c){rpCatFilter=c;renderRiepilogo()}
 
 function _flipAnimate(listEl){
-  // BEFORE: salva posizioni attuali
   const before={};
   listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
     const key=el.dataset.oid||el.dataset.artid;
-    const r=el.getBoundingClientRect();
-    before[key]={top:r.top,opacity:1};
+    before[key]=el.getBoundingClientRect().top;
   });
   return function afterRender(){
-    // AFTER: calcola delta e anima
-    listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
+    const els=listEl.querySelectorAll('[data-oid],[data-artid]');
+    // Prepara GPU e calcola delta prima di applicare qualsiasi stile
+    const anims=[];
+    els.forEach(function(el){
       const key=el.dataset.oid||el.dataset.artid;
-      if(!before[key])return;
-      const r=el.getBoundingClientRect();
-      const dy=before[key].top-r.top;
-      if(Math.abs(dy)<2)return;
-      // Invert
-      el.style.transition='none';
-      el.style.transform='translateY('+dy+'px)';
-      // Force reflow
-      el.getBoundingClientRect();
-      // Play
-      el.style.transition='transform 0.35s cubic-bezier(0.4,0,0.2,1)';
-      el.style.transform='translateY(0)';
-      el.addEventListener('transitionend',function h(){
-        el.style.transition='';el.style.transform='';
-        el.removeEventListener('transitionend',h);
+      if(before[key]===undefined)return;
+      const dy=before[key]-el.getBoundingClientRect().top;
+      if(Math.abs(dy)<1)return;
+      anims.push({el:el,dy:dy});
+    });
+    if(!anims.length)return;
+    // Applica will-change e transform inverso a tutti insieme
+    anims.forEach(function(a){
+      a.el.style.willChange='transform';
+      a.el.style.transition='none';
+      a.el.style.transform='translateY('+a.dy+'px)';
+    });
+    // Force reflow unico
+    listEl.getBoundingClientRect();
+    // Avvia tutte le transizioni insieme
+    anims.forEach(function(a){
+      a.el.style.transition='transform 0.5s cubic-bezier(0.25,0.1,0.25,1)';
+      a.el.style.transform='translateY(0)';
+      a.el.addEventListener('transitionend',function h(){
+        a.el.style.transition='';
+        a.el.style.transform='';
+        a.el.style.willChange='';
+        a.el.removeEventListener('transitionend',h);
       });
     });
   };
