@@ -870,7 +870,7 @@ let ftData='tutti';
 function setFtData(d){ftData=d;renderOrdini()}
 function renderOrdini(){
   const _ordList=document.getElementById('ordini-list');
-  const _ordAfter=_ordList?_flipAnimate(_ordList):null;
+  const _ordAfter=_ordList?_flipAnimateOrdini(_ordList):null;
   const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=dt.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data!==ftData)return false;if(c)return o.nome.toLowerCase().includes(c)||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.nome.toLowerCase().includes(c)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});document.getElementById('ordini-list').innerHTML=buildOcHTML(l);stats();if(_ordAfter)setTimeout(_ordAfter,0);}
 let stCalState={year:new Date().getFullYear(),month:new Date().getMonth(),field:null};
 function fmtBtnDate(iso){if(!iso)return'📅 —';const d=new Date(iso+'T00:00:00');return'📅 '+d.toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'});}
@@ -895,6 +895,40 @@ function toggleRp(key){
   renderRiepilogo();
 }
 function setRpCat(c){rpCatFilter=c;renderRiepilogo()}
+
+function _flipAnimateOrdini(listEl){
+  const before={};
+  listEl.querySelectorAll('[data-oid]').forEach(function(el){
+    before[el.dataset.oid]=el.getBoundingClientRect().top;
+  });
+  return function afterRender(){
+    const anims=[];
+    listEl.querySelectorAll('[data-oid]').forEach(function(el){
+      const key=el.dataset.oid;
+      if(before[key]===undefined)return;
+      const dy=before[key]-el.getBoundingClientRect().top;
+      if(Math.abs(dy)<1)return;
+      anims.push({el:el,dy:dy});
+    });
+    if(!anims.length)return;
+    anims.forEach(function(a){
+      a.el.style.willChange='transform';
+      a.el.style.transition='none';
+      a.el.style.transform='translateY('+a.dy+'px)';
+    });
+    listEl.getBoundingClientRect();
+    anims.forEach(function(a){
+      a.el.style.transition='transform 0.7s cubic-bezier(0.25,0.1,0.25,1)';
+      a.el.style.transform='translateY(0)';
+      a.el.addEventListener('transitionend',function h(){
+        a.el.style.transition='';
+        a.el.style.transform='';
+        a.el.style.willChange='';
+        a.el.removeEventListener('transitionend',h);
+      });
+    });
+  };
+}
 
 function _flipAnimate(listEl){
   const before={};
