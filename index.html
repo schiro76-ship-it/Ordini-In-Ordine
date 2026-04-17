@@ -879,13 +879,15 @@ function clearStDates(){['st-dal','st-al'].forEach(id=>{document.getElementById(
 let stCatFilter='Tutte';
 function setStCat(c){stCatFilter=c;renderStoricoRiepilogo()}
 function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&document.getElementById('st-dal').value||'';const al=document.getElementById('st-al')&&document.getElementById('st-al').value||'';const cerca=(document.getElementById('st-art-cerca')&&document.getElementById('st-art-cerca').value||'').toLowerCase().trim();const ordsF=ords.filter(o=>{if(o.stato!=='ritirato')return false;if(!o.data)return!dal&&!al;if(dal&&o.data<dal)return false;if(al&&o.data>al)return false;return true;});const map={};ordsF.forEach(o=>(o.items||[]).forEach(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return;const k=`${it.artId}_${it.um||''}`;if(!map[k])map[k]={artId:it.artId,nome:a.nome,cat:a.cat||'',um:it.um||'',qty:0,nOrdini:0};map[k].qty+=(parseFloat(it.qty)||1);map[k].nOrdini++;}));const voci=Object.values(map).sort((a,b)=>a.nome.localeCompare(b.nome));const catsP=['Tutte',...new Set(voci.map(v=>v.cat).filter(Boolean))].sort();if(!catsP.includes(stCatFilter))stCatFilter='Tutte';const pillsEl=document.getElementById('st-cat-pills');if(pillsEl)pillsEl.innerHTML=catsP.map(c=>`<span class="pill ${c===stCatFilter?'active':''}" onclick="setStCat('${c}')">${c}</span>`).join('');const filtrate=voci.filter(v=>{if(stCatFilter!=='Tutte'&&v.cat!==stCatFilter)return false;if(cerca&&!v.nome.toLowerCase().includes(cerca))return false;return true;});const el=document.getElementById('storico-riepilogo');if(!el)return;if(!ordsF.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600;text-align:center;padding:20px">Nessun ordine ritirato nel periodo selezionato.</p>';return}if(!filtrate.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600;text-align:center;padding:20px">Nessun articolo trovato.</p>';return}el.innerHTML=`<p style="font-size:12px;color:var(--sub);font-weight:700;margin-bottom:10px">${ordsF.length} ordini ritirati nel periodo</p>`+filtrate.map(v=>{const q=v.qty%1===0?v.qty:v.qty.toFixed(2).replace(/\.?0+$/,'');return`<div class="rp-row" style="margin-bottom:6px"><div class="rp-art">${v.nome}${v.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:6px">${v.cat}</span>`:''}</div><div style="text-align:right;flex-shrink:0"><span class="rp-qty" style="font-size:18px">${q}</span><span class="rp-um">${v.um?' '+v.um:''}</span><span style="font-size:11px;color:var(--sub);display:block">${v.nOrdini} ordini</span></div></div>`;}).join('');}
-let rpExpanded={},rpCatFilter='Tutte',_rpPosPreservate=null;
+let rpExpanded={},rpCatFilter='Tutte',_rpPosPreservate=null,_rpDaPreservare=null;
 function toggleRp(key){
   rpExpanded[key]=!rpExpanded[key];
-  // Se si chiude una card completata, rimuovi la sua posizione preservata
-  if(!rpExpanded[key]&&_rpPosPreservate&&_rpPosPreservate[key]!==undefined){
-    delete _rpPosPreservate[key];
-    if(!Object.keys(_rpPosPreservate).length)_rpPosPreservate=null;
+  if(!rpExpanded[key]){
+    if(_rpPosPreservate&&_rpPosPreservate[key]!==undefined){
+      delete _rpPosPreservate[key];
+      if(!Object.keys(_rpPosPreservate).length)_rpPosPreservate=null;
+    }
+    if(_rpDaPreservare)_rpDaPreservare.delete(parseInt(key));
   }
   renderRiepilogo();
 }
@@ -893,6 +895,15 @@ function setRpCat(c){rpCatFilter=c;renderRiepilogo()}
 function renderRiepilogoSenzaRiordino(){renderRiepilogo();}
 function renderRiepilogo(){const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nessun ordine da evadere!</p></div>';return}const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''})).filter(Boolean))].sort();const pillsEl=document.getElementById('riepilogo-cat-pills');if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" onclick="setRpCat('${c}')">${c}</span>`).join('');const map={};ev.forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!map[k])map[k]={artId:it.artId,ordini:[]};map[k].ordini.push(Object.assign({},it,{ordine:o}));}));const voci=Object.values(map).filter(v=>v.ordini.some(x=>!x.done)||rpExpanded[v.artId]).map(v=>Object.assign({},v,{minScore:v.ordini.some(x=>!x.done)?Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))})).sort((a,b)=>{
   const aDone=a.ordini.every(x=>x.done),bDone=b.ordini.every(x=>x.done);
+  // Se dobbiamo preservare questo artId, prima del sort salviamo la sua posizione attuale nel DOM
+  if(_rpDaPreservare&&_rpDaPreservare.size){
+    _rpPosPreservate=_rpPosPreservate||{};
+    document.querySelectorAll('#riepilogo-list [data-artid]').forEach(function(c,i){
+      const aid=parseInt(c.dataset.artid);
+      if(_rpDaPreservare.has(aid)){_rpPosPreservate[aid]=i;}
+    });
+    _rpDaPreservare=null;
+  }
   // Card completate con posizione preservata: restano dove erano
   if(_rpPosPreservate&&aDone&&_rpPosPreservate[a.artId]!==undefined&&
      bDone&&_rpPosPreservate[b.artId]!==undefined)
@@ -1048,12 +1059,10 @@ async function togRpItem(oidStr,idx){
   o.items[idx].done=!o.items[idx].done;
   const tuttiDone=o.items.every(function(it){return it.done});
   if(tuttiDone&&o.stato==='evadere'){
-    // Salva posizione attuale PRIMA del saveData/render
-    _rpPosPreservate=_rpPosPreservate||{};
-    document.querySelectorAll('#riepilogo-list [data-artid]').forEach(function(c,i){
-      _rpPosPreservate[parseInt(c.dataset.artid)]=i;
-    });
     o.stato='completato';
+    // Segna questo artId come "da preservare" — la posizione verrà salvata dopo il primo render
+    _rpDaPreservare=_rpDaPreservare||new Set();
+    (o.items||[]).forEach(function(it){_rpDaPreservare.add(it.artId);});
   }
   if(!o.items[idx].done&&o.stato==='completato'){
     // De-spuntata: rimuovi preservazione per questo artId
