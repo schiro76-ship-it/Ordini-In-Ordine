@@ -932,21 +932,11 @@ function _flipAnimateOrdini(listEl){
 
 function _flipAnimate(listEl){
   const before={};
-  // Salva posizioni E chiavi di tutte le card prima del render
   listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
     const key=el.dataset.oid||el.dataset.artid;
     before[key]=el.getBoundingClientRect().top;
   });
-  // Salva anche le chiavi presenti ora (per rilevare quelle che spariscono)
-  const keysBefore=new Set(Object.keys(before));
-
   return function afterRender(){
-    const keysAfter=new Set();
-    listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
-      keysAfter.add(el.dataset.oid||el.dataset.artid);
-    });
-
-    // Card che si spostano
     const anims=[];
     listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
       const key=el.dataset.oid||el.dataset.artid;
@@ -955,49 +945,22 @@ function _flipAnimate(listEl){
       if(Math.abs(dy)<1)return;
       anims.push({el:el,dy:dy});
     });
-
     if(!anims.length)return;
-
-    // Applica transform inverso a tutte
     anims.forEach(function(a){
-      a.el.style.willChange='transform,opacity';
+      a.el.style.willChange='transform';
       a.el.style.transition='none';
       a.el.style.transform='translateY('+a.dy+'px)';
     });
-
-    // Reflow unico
     listEl.getBoundingClientRect();
-
-    // Anima: card che si spostano molto (>200px) fanno anche fade out mentre si muovono
     anims.forEach(function(a){
-      const grande=Math.abs(a.dy)>150;
-      if(grande){
-        // Si muove verso destinazione con fade out a metà strada
-        a.el.style.transition='transform 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.6s ease';
-        a.el.style.transform='translateY(0)';
-        a.el.style.opacity='0.3';
-        a.el.addEventListener('transitionend',function h(e){
-          if(e.propertyName!=='transform')return;
-          a.el.style.transition='opacity 0.3s ease';
-          a.el.style.opacity='1';
-          setTimeout(function(){
-            a.el.style.transition='';
-            a.el.style.transform='';
-            a.el.style.opacity='';
-            a.el.style.willChange='';
-          },300);
-          a.el.removeEventListener('transitionend',h);
-        });
-      } else {
-        a.el.style.transition='transform 0.5s cubic-bezier(0.25,0.1,0.25,1)';
-        a.el.style.transform='translateY(0)';
-        a.el.addEventListener('transitionend',function h(){
-          a.el.style.transition='';
-          a.el.style.transform='';
-          a.el.style.willChange='';
-          a.el.removeEventListener('transitionend',h);
-        });
-      }
+      a.el.style.transition='transform 0.7s cubic-bezier(0.25,0.1,0.25,1)';
+      a.el.style.transform='translateY(0)';
+      a.el.addEventListener('transitionend',function h(){
+        a.el.style.transition='';
+        a.el.style.transform='';
+        a.el.style.willChange='';
+        a.el.removeEventListener('transitionend',h);
+      });
     });
   };
 }
