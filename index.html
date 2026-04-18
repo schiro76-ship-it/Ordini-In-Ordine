@@ -914,12 +914,12 @@ function _flipAnimateOrdini(listEl){
     anims.forEach(function(a){
       a.el.style.willChange='transform';
       a.el.style.transition='none';
-      a.el.style.transform='translateY('+a.dy+'px)';
+      a.el.style.transform='translateY('+a.dy+'px) translateZ(0)';
     });
     listEl.getBoundingClientRect();
     anims.forEach(function(a){
-      a.el.style.transition='transform 0.7s cubic-bezier(0.25,0.1,0.25,1)';
-      a.el.style.transform='translateY(0)';
+      a.el.style.transition='transform 0.8s cubic-bezier(0.25,0.1,0.25,1)';
+      a.el.style.transform='translateY(0) translateZ(0)';
       a.el.addEventListener('transitionend',function h(){
         a.el.style.transition='';
         a.el.style.transform='';
@@ -949,12 +949,12 @@ function _flipAnimate(listEl){
     anims.forEach(function(a){
       a.el.style.willChange='transform';
       a.el.style.transition='none';
-      a.el.style.transform='translateY('+a.dy+'px)';
+      a.el.style.transform='translateY('+a.dy+'px) translateZ(0)';
     });
     listEl.getBoundingClientRect();
     anims.forEach(function(a){
-      a.el.style.transition='transform 0.7s cubic-bezier(0.25,0.1,0.25,1)';
-      a.el.style.transform='translateY(0)';
+      a.el.style.transition='transform 0.8s cubic-bezier(0.25,0.1,0.25,1)';
+      a.el.style.transform='translateY(0) translateZ(0)';
       a.el.addEventListener('transitionend',function h(){
         a.el.style.transition='';
         a.el.style.transform='';
