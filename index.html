@@ -710,10 +710,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
     <div style="padding:0 20px">
       <p style="font-size:12px;color:#6B7280;font-weight:600;text-align:center;margin-bottom:12px">Tocca <b>Condividi ↑ → Stampa</b> per inviare alla stampante</p>
 
-```
-</div>
-```
-
+    </div>
   </div>
 </div>
 <div id="nuovo-bottom-bar">
@@ -927,8 +924,15 @@ function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&d
   html+=filtrate.map(v=>{const q=v.qty%1===0?v.qty:v.qty.toFixed(2).replace(/\.?0+$/,'');return`<div class="rp-row" style="margin-bottom:6px"><div class="rp-art">${v.nome}${v.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:6px">${v.cat}</span>`:''}</div><div style="text-align:right;flex-shrink:0"><span class="rp-qty" style="font-size:18px">${q}</span><span class="rp-um">${v.um?' '+v.um:''}</span><span style="font-size:11px;color:var(--sub);display:block">${v.nOrdini} ordini</span></div></div>`;}).join('');
   // Dettaglio ordini (se abilitato)
   if(_stSetOrdini){
-    html+=`<div style="margin-top:18px;border-top:2px solid var(--brd);padding-top:14px"><div style="font-size:12px;font-weight:900;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Dettaglio ordini</div>`;
-    html+=ordsF.sort((a,b)=>new Date(a.data+'T00:00:00')-new Date(b.data+'T00:00:00')).map(o=>{
+    const stDetCerca=(document.getElementById('st-det-cerca')&&document.getElementById('st-det-cerca').value||'').toLowerCase().trim();
+    html+=`<div style="margin-top:18px;border-top:2px solid var(--brd);padding-top:14px">
+      <div style="font-size:12px;font-weight:900;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Dettaglio ordini</div>
+      <div style="position:relative;margin-bottom:10px">
+        <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px">🔍</span>
+        <input type="text" id="st-det-cerca" placeholder="Cerca per nome, numero…" oninput="renderStoricoRiepilogo()" style="width:100%;padding:10px 14px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none">
+      </div>`;
+    const ordsFiltered=ordsF.filter(o=>!stDetCerca||o.nome.toLowerCase().includes(stDetCerca)||String(o.num).includes(stDetCerca)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.nome.toLowerCase().includes(stDetCerca);}));
+    html+=ordsFiltered.sort((a,b)=>new Date(a.data+'T00:00:00')-new Date(b.data+'T00:00:00')).map(o=>{
       const turnoLabel=o.ora?'🕐 '+o.ora:o.turno==='mattina'?'☀️ Mat.':o.turno==='pomeriggio'?'🌆 Pom.':'';
       const items=(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return'';const qty=(it.qty?(parseFloat(it.qty)||''):'—')+(it.um?' '+it.um:'');return`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:13px"><span style="color:var(--txt);font-weight:600">${a.nome}</span><span style="font-weight:800;color:var(--sub)">${qty}</span></div>`;}).join('');
       return`<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:14px;font-weight:900;color:var(--r)">#${o.num}</span><span style="font-size:14px;font-weight:800;flex:1">${o.nome}</span><span style="font-size:12px;color:var(--sub)">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</span></div>${items}</div>`;
