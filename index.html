@@ -871,7 +871,39 @@ function setFtData(d){ftData=d;renderOrdini()}
 function renderOrdini(){
   const _ordList=document.getElementById('ordini-list');
   const _ordAfter=_ordList?_flipAnimateOrdini(_ordList):null;
-  const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=dt.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data!==ftData)return false;if(c)return o.nome.toLowerCase().includes(c)||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.nome.toLowerCase().includes(c)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});document.getElementById('ordini-list').innerHTML=buildOcHTML(l);stats();if(_ordAfter)setTimeout(_ordAfter,0);}
+  const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=dt.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data!==ftData)return false;if(c)return o.nome.toLowerCase().includes(c)||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.nome.toLowerCase().includes(c)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});const _ordListEl=document.getElementById('ordini-list');
+  // Aggiorna il contenuto mantenendo i nodi esistenti per FLIP fluido
+  const _newHTML=buildOcHTML(l);
+  // Costruisci in un fragment temporaneo
+  const _tmp=document.createElement('div');
+  _tmp.innerHTML=_newHTML;
+  // Rimuovi card che non servono più, aggiorna quelle esistenti, aggiungi nuove
+  const _existing={};
+  Array.from(_ordListEl.children).forEach(function(el){
+    const oid=el.dataset&&el.dataset.oid;
+    if(oid)_existing[oid]=el;
+  });
+  // Svuota e riempi mantenendo i nodi aggiornati
+  const _newCards=Array.from(_tmp.children);
+  _newCards.forEach(function(newEl){
+    const oid=newEl.dataset&&newEl.dataset.oid;
+    if(oid&&_existing[oid]){
+      // Aggiorna il contenuto della card esistente senza sostituirla
+      _existing[oid].innerHTML=newEl.innerHTML;
+      _existing[oid].className=newEl.className;
+      _existing[oid].setAttribute('style',newEl.getAttribute('style')||'');
+      _ordListEl.appendChild(_existing[oid]);
+    } else {
+      _ordListEl.appendChild(newEl);
+    }
+  });
+  // Rimuovi card non più presenti
+  Object.keys(_existing).forEach(function(oid){
+    if(!_newCards.some(function(el){return el.dataset&&el.dataset.oid===oid;})){
+      _existing[oid].remove();
+    }
+  });
+  stats();if(_ordAfter)setTimeout(_ordAfter,0);}
 let stCalState={year:new Date().getFullYear(),month:new Date().getMonth(),field:null};
 function fmtBtnDate(iso){if(!iso)return'📅 —';const d=new Date(iso+'T00:00:00');return'📅 '+d.toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'});}
 function toggleStCal(field){const w=document.getElementById('st-cal-wrap');if(stCalState.field===field&&w.style.display!=='none'){w.style.display='none';stCalState.field=null;return;}stCalState.field=field;w.style.display='block';renderStCal();}
