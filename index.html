@@ -1151,13 +1151,21 @@ function renderDetModal(o){
           </button>
         </div>
       </div>
-      <div id="det-cal-wrap" style="display:none;margin-top:6px;border-radius:10px;overflow:hidden">
-        <div class="cal-wrap">
+      <div id="det-cal-wrap" style="display:none;margin-top:6px">
+        <div class="cal-compact" id="det-cal-compact">
           <div class="cal-nav"><button onclick="detCalNav(${o.id},-1)">‹</button><span class="cn-lbl" id="det-cal-lbl"></span><button onclick="detCalNav(${o.id},+1)">›</button></div>
           <div class="cal-grid" id="det-cal-grid"></div>
-          <div class="cal-turno" id="det-cal-turno" style="display:none">
-            <button class="ct-mat" onclick="detCalSceglTurno(${o.id},'mattina')">☀️ Mattina</button>
-            <button class="ct-pom" onclick="detCalSceglTurno(${o.id},'pomeriggio')">🌆 Pomeriggio</button>
+          <div id="det-cal-salva-solo" style="display:none;padding:6px 8px;border-top:1px solid var(--brd)">
+            <button onclick="detCalSalva(${o.id})" style="width:100%;padding:8px;background:var(--r);color:#fff;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;cursor:pointer">✓ Conferma data</button>
+          </div>
+          <div id="det-cal-row-extra" class="cal-row-mp" style="display:none">
+            <button id="det-cal-btn-mat" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'mattina')">☀️ Mat.</button>
+            <button id="det-cal-btn-pom" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'pomeriggio')">🌆 Pom.</button>
+            <div id="det-cal-time-wrap" class="cal-time-wrap" style="display:none">
+              <span style="font-size:12px;color:var(--sub)">🕐</span>
+              <input type="time" id="det-cal-time-inp" class="cal-time-inp" onchange="detCalSceglOra(${o.id},this.value)">
+            </div>
+            <button onclick="detCalSalva(${o.id})" style="padding:6px 10px;background:var(--r);color:#fff;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:900;cursor:pointer;margin-left:4px">✓</button>
           </div>
         </div>
       </div>
@@ -1182,9 +1190,10 @@ function renderDetModal(o){
   setTimeout(function(){renderDetArtGrid(o.id);initDetCal(o);},0);
 }
 let detCalYear=0,detCalMonth=0,detCalSelDate=null,detCalOid=null;
-function initDetCal(o){detCalOid=o.id;const n=new Date();detCalYear=n.getFullYear();detCalMonth=n.getMonth();detCalSelDate=o.data||null;renderDetCalGrid();}
+function initDetCal(o){detCalOid=o.id;const n=new Date();detCalYear=n.getFullYear();detCalMonth=n.getMonth();detCalSelDate=o.data||null;detCalTurno=o.turno||null;detCalOra=o.ora||null;renderDetCalGrid();}
 function toggleDetCal(oid){const w=document.getElementById('det-cal-wrap');if(w)w.style.display=w.style.display==='none'?'block':'none';}
 function detCalNav(oid,d){detCalMonth+=d;if(detCalMonth<0){detCalMonth=11;detCalYear--}if(detCalMonth>11){detCalMonth=0;detCalYear++}renderDetCalGrid();}
+var detCalOra=null,detCalTurno=null;
 function renderDetCalGrid(){
   const mesi=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
   const lbl=document.getElementById('det-cal-lbl');if(lbl)lbl.textContent=mesi[detCalMonth]+' '+detCalYear;
@@ -1202,17 +1211,49 @@ function renderDetCalGrid(){
   }
   const rest=(7-(sd+gm)%7)%7;for(let i=1;i<=rest;i++)h+=`<button class="cal-day other-month" disabled>${i}</button>`;
   const grid=document.getElementById('det-cal-grid');if(grid)grid.innerHTML=h;
-  const turnoDiv=document.getElementById('det-cal-turno');if(turnoDiv)turnoDiv.style.display=detCalSelDate?'grid':'none';
+  // Riga M/P e ora
+  const rowExtra=document.getElementById('det-cal-row-extra');
+  const btnMat=document.getElementById('det-cal-btn-mat');
+  const btnPom=document.getElementById('det-cal-btn-pom');
+  const timeWrap=document.getElementById('det-cal-time-wrap');
+  const timeInp=document.getElementById('det-cal-time-inp');
+  // Pulsante "Conferma data" quando non c'è riga M/P
+  const salvaSolo=document.getElementById('det-cal-salva-solo');
+  if(salvaSolo)salvaSolo.style.display=(detCalSelDate&&!(_calSetMP||_calSetOra))?'block':'none';
+  if(rowExtra){
+    const showRow=detCalSelDate&&(_calSetMP||_calSetOra);
+    rowExtra.style.display=showRow?'flex':'none';
+    if(btnMat)btnMat.style.display=_calSetMP?'':'none';
+    if(btnPom)btnPom.style.display=_calSetMP?'':'none';
+    if(timeWrap)timeWrap.style.display=_calSetOra?'flex':'none';
+    if(timeInp&&_calSetOra&&!detCalOra){
+      timeInp.value=detCalTurno==='pomeriggio'?'14:00':'08:00';
+    }
+    if(timeInp&&detCalOra)timeInp.value=detCalOra;
+    if(btnMat)btnMat.className='cal-btn-mp'+(detCalTurno==='mattina'&&!detCalOra?' sel-mat':'');
+    if(btnPom)btnPom.className='cal-btn-mp'+(detCalTurno==='pomeriggio'&&!detCalOra?' sel-pom':'');
+  }
 }
 function detCalSelGiorno(iso){detCalSelDate=iso;renderDetCalGrid();}
 async function detCalSceglTurno(oid,turno){
   const o=ords.find(x=>x.id===oid);if(!o)return;
-  o.data=detCalSelDate;o.turno=turno;o.ora=null;
+  if(detCalTurno===turno&&!detCalOra){detCalTurno=null;}
+  else{detCalTurno=turno;detCalOra=null;const ti=document.getElementById('det-cal-time-inp');if(ti)ti.value='';}
+  renderDetCalGrid();
+}
+async function detCalSalva(oid){
+  const o=ords.find(x=>x.id===oid);if(!o)return;
+  o.data=detCalSelDate;o.turno=detCalOra?null:detCalTurno;o.ora=detCalOra||null;
   await saveData();
   const lbl=document.getElementById('det-data-lbl');
-  if(lbl)lbl.textContent=fmtD(detCalSelDate)+' · '+(turno==='mattina'?'☀️ Mattina':'🌆 Pomeriggio');
+  if(lbl)lbl.textContent=fmtD(detCalSelDate)+(o.ora?' 🕐'+o.ora:o.turno?' · '+(o.turno==='mattina'?'☀️ Mattina':'🌆 Pomeriggio'):'');
   const w=document.getElementById('det-cal-wrap');if(w)w.style.display='none';
   renderOrdini();toast('Data aggiornata ✅','v');
+}
+async function detCalSceglOra(oid,val){
+  detCalOra=val||null;
+  if(detCalOra)detCalTurno=null;
+  renderDetCalGrid();
 }
 let detQArtOid=null;
 function openDetQArt(oid){
@@ -1409,10 +1450,14 @@ function renderCal(){
     if(btnMat)btnMat.style.display=_calSetMP?'':'none';
     if(btnPom)btnPom.style.display=_calSetMP?'':'none';
     if(timeWrap)timeWrap.style.display=_calSetOra?'flex':'none';
+    // Valore di default per input ora
+    if(timeInp&&_calSetOra&&!calOra){
+      timeInp.value=tNuovo==='pomeriggio'?'14:00':'08:00';
+    }
+    if(timeInp&&calOra)timeInp.value=calOra;
     // Aggiorna stati attivi
     if(btnMat)btnMat.className='cal-btn-mp'+(tNuovo==='mattina'&&!calOra?' sel-mat':'');
     if(btnPom)btnPom.className='cal-btn-mp'+(tNuovo==='pomeriggio'&&!calOra?' sel-pom':'');
-    if(timeInp&&calOra)timeInp.value=calOra;
   }
   // Aggiorna bordo calendario se ha valore
   const calComp=document.getElementById('cal-nuovo');
