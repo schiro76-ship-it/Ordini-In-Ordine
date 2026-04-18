@@ -930,12 +930,20 @@ function _flipAnimateOrdini(listEl){
         anims.forEach(function(a){
           a.el.style.transition='transform 0.45s cubic-bezier(0.4,0,0.2,1)';
           a.el.style.transform='translateY(0) translateZ(0)';
-          a.el.addEventListener('transitionend',function h(){
-            a.el.style.transition='';
-            a.el.style.transform='';
-            a.el.style.willChange='';
-            a.el.removeEventListener('transitionend',h);
-          });
+          (function(el){
+            var done=false;
+            function cleanup(){
+              if(done)return;done=true;
+              el.style.transition='';
+              el.style.transform='';
+              el.style.willChange='';
+            }
+            el.addEventListener('transitionend',function h(){
+              el.removeEventListener('transitionend',h);
+              cleanup();
+            });
+            setTimeout(cleanup,600); // fallback sicuro
+          })(a.el);
         });
       });
     });
@@ -979,12 +987,20 @@ function _flipAnimate(listEl){
         anims.forEach(function(a){
           a.el.style.transition='transform 0.45s cubic-bezier(0.4,0,0.2,1)';
           a.el.style.transform='translateY(0) translateZ(0)';
-          a.el.addEventListener('transitionend',function h(){
-            a.el.style.transition='';
-            a.el.style.transform='';
-            a.el.style.willChange='';
-            a.el.removeEventListener('transitionend',h);
-          });
+          (function(el){
+            var done=false;
+            function cleanup(){
+              if(done)return;done=true;
+              el.style.transition='';
+              el.style.transform='';
+              el.style.willChange='';
+            }
+            el.addEventListener('transitionend',function h(){
+              el.removeEventListener('transitionend',h);
+              cleanup();
+            });
+            setTimeout(cleanup,600); // fallback sicuro
+          })(a.el);
         });
       });
     });
