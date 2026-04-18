@@ -898,7 +898,6 @@ function setRpCat(c){rpCatFilter=c;renderRiepilogo()}
 
 var _flipLocked=false;
 function _flipAnimateOrdini(listEl){
-  if(_flipLocked)return function(){};
   const before={};
   // Fermo eventuali animazioni in corso e leggo la posizione reale
   listEl.querySelectorAll('[data-oid]').forEach(function(el){
@@ -926,13 +925,15 @@ function _flipAnimateOrdini(listEl){
       a.el.style.willChange='transform';
       a.el.style.transition='none';
       a.el.style.transform='translateY('+a.dy+'px) translateZ(0)';
+      a.el.getBoundingClientRect(); // forza reflow per ogni card
     });
+    if(_flipLocked){return;}
     _flipLocked=true;
     setTimeout(function(){_flipLocked=false;},700);
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         anims.forEach(function(a){
-          a.el.style.transition='transform 0.45s cubic-bezier(0.4,0,0.2,1)';
+          a.el.style.cssText+=';transition:transform 0.45s cubic-bezier(0.4,0,0.2,1)!important';
           a.el.style.transform='translateY(0) translateZ(0)';
           (function(el){
             var done=false;
@@ -955,7 +956,6 @@ function _flipAnimateOrdini(listEl){
 }
 
 function _flipAnimate(listEl){
-  if(_flipLocked)return function(){};
   const before={};
   // Fermo eventuali animazioni in corso e leggo la posizione reale
   listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
@@ -985,14 +985,16 @@ function _flipAnimate(listEl){
       a.el.style.willChange='transform';
       a.el.style.transition='none';
       a.el.style.transform='translateY('+a.dy+'px) translateZ(0)';
+      a.el.getBoundingClientRect(); // forza reflow per ogni card
     });
     // Aspetta il prossimo frame per avviare la transizione
+    if(_flipLocked){return;}
     _flipLocked=true;
     setTimeout(function(){_flipLocked=false;},700);
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         anims.forEach(function(a){
-          a.el.style.transition='transform 0.45s cubic-bezier(0.4,0,0.2,1)';
+          a.el.style.cssText+=';transition:transform 0.45s cubic-bezier(0.4,0,0.2,1)!important';
           a.el.style.transform='translateY(0) translateZ(0)';
           (function(el){
             var done=false;
