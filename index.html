@@ -927,21 +927,14 @@ function renderOrdini(){
       _ordListEl.appendChild(newEl);
     }
   });
-  // Rimuovi card non più presenti con animazione
+  // Rimuovi card non più presenti — prima il FLIP poi rimozione
+  const _toRemove=[];
   Object.keys(_existing).forEach(function(oid){
     if(!_newCards.some(function(el){return el.dataset&&el.dataset.oid===oid;})){
-      const el=_existing[oid];
-      el.style.transition='opacity 0.2s ease, max-height 0.3s ease';
-      el.style.overflow='hidden';
-      el.style.maxHeight=el.offsetHeight+'px';
-      el.style.opacity='0';
-      requestAnimationFrame(function(){
-        el.style.maxHeight='0';
-        el.style.marginBottom='0';
-        setTimeout(function(){el.remove();},320);
-      });
+      _toRemove.push(_existing[oid]);
     }
   });
+  _toRemove.forEach(function(el){el.remove();});
   stats();if(_ordAfter)setTimeout(_ordAfter,0);}
 let stCalState={year:new Date().getFullYear(),month:new Date().getMonth(),field:null};
 function fmtBtnDate(iso){if(!iso)return'📅 —';const d=new Date(iso+'T00:00:00');return'📅 '+d.toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'});}
