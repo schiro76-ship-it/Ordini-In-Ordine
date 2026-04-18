@@ -896,7 +896,9 @@ function toggleRp(key){
 }
 function setRpCat(c){rpCatFilter=c;renderRiepilogo()}
 
+var _flipLocked=false;
 function _flipAnimateOrdini(listEl){
+  if(_flipLocked)return function(){};
   const before={};
   // Fermo eventuali animazioni in corso e leggo la posizione reale
   listEl.querySelectorAll('[data-oid]').forEach(function(el){
@@ -925,6 +927,8 @@ function _flipAnimateOrdini(listEl){
       a.el.style.transition='none';
       a.el.style.transform='translateY('+a.dy+'px) translateZ(0)';
     });
+    _flipLocked=true;
+    setTimeout(function(){_flipLocked=false;},700);
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         anims.forEach(function(a){
@@ -942,7 +946,7 @@ function _flipAnimateOrdini(listEl){
               el.removeEventListener('transitionend',h);
               cleanup();
             });
-            setTimeout(cleanup,600); // fallback sicuro
+            setTimeout(cleanup,600);
           })(a.el);
         });
       });
@@ -951,6 +955,7 @@ function _flipAnimateOrdini(listEl){
 }
 
 function _flipAnimate(listEl){
+  if(_flipLocked)return function(){};
   const before={};
   // Fermo eventuali animazioni in corso e leggo la posizione reale
   listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
@@ -982,6 +987,8 @@ function _flipAnimate(listEl){
       a.el.style.transform='translateY('+a.dy+'px) translateZ(0)';
     });
     // Aspetta il prossimo frame per avviare la transizione
+    _flipLocked=true;
+    setTimeout(function(){_flipLocked=false;},700);
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         anims.forEach(function(a){
@@ -999,7 +1006,7 @@ function _flipAnimate(listEl){
               el.removeEventListener('transitionend',h);
               cleanup();
             });
-            setTimeout(cleanup,600); // fallback sicuro
+            setTimeout(cleanup,600);
           })(a.el);
         });
       });
