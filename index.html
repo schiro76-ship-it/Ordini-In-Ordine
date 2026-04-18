@@ -899,43 +899,7 @@ function buildOcHTML(lista){
 let ftData='tutti';
 function setFtData(d){ftData=d;renderOrdini()}
 function renderOrdini(){
-  const _ordList=document.getElementById('ordini-list');
-  const _ordAfter=_ordList?_flipAnimateOrdini(_ordList):null;
-  const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=dt.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data!==ftData)return false;if(c)return o.nome.toLowerCase().includes(c)||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.nome.toLowerCase().includes(c)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});const _ordListEl=document.getElementById('ordini-list');
-  // Aggiorna il contenuto mantenendo i nodi esistenti per FLIP fluido
-  const _newHTML=buildOcHTML(l);
-  // Costruisci in un fragment temporaneo
-  const _tmp=document.createElement('div');
-  _tmp.innerHTML=_newHTML;
-  // Rimuovi card che non servono più, aggiorna quelle esistenti, aggiungi nuove
-  const _existing={};
-  Array.from(_ordListEl.children).forEach(function(el){
-    const oid=el.dataset&&el.dataset.oid;
-    if(oid)_existing[oid]=el;
-  });
-  // Svuota e riempi mantenendo i nodi aggiornati
-  const _newCards=Array.from(_tmp.children);
-  _newCards.forEach(function(newEl){
-    const oid=newEl.dataset&&newEl.dataset.oid;
-    if(oid&&_existing[oid]){
-      // Aggiorna il contenuto della card esistente senza sostituirla
-      _existing[oid].innerHTML=newEl.innerHTML;
-      _existing[oid].className=newEl.className;
-      _existing[oid].setAttribute('style',newEl.getAttribute('style')||'');
-      _ordListEl.appendChild(_existing[oid]);
-    } else {
-      _ordListEl.appendChild(newEl);
-    }
-  });
-  // Rimuovi card non più presenti — prima il FLIP poi rimozione
-  const _toRemove=[];
-  Object.keys(_existing).forEach(function(oid){
-    if(!_newCards.some(function(el){return el.dataset&&el.dataset.oid===oid;})){
-      _toRemove.push(_existing[oid]);
-    }
-  });
-  _toRemove.forEach(function(el){el.remove();});
-  stats();if(_ordAfter)setTimeout(_ordAfter,0);}
+  const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=dt.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data!==ftData)return false;if(c)return o.nome.toLowerCase().includes(c)||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.nome.toLowerCase().includes(c)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});document.getElementById('ordini-list').innerHTML=buildOcHTML(l);stats();}
 let stCalState={year:new Date().getFullYear(),month:new Date().getMonth(),field:null};
 function fmtBtnDate(iso){if(!iso)return'📅 —';const d=new Date(iso+'T00:00:00');return'📅 '+d.toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'});}
 function toggleStCal(field){const w=document.getElementById('st-cal-wrap');if(stCalState.field===field&&w.style.display!=='none'){w.style.display='none';stCalState.field=null;return;}stCalState.field=field;w.style.display='block';renderStCal();}
@@ -960,129 +924,9 @@ function toggleRp(key){
 }
 function setRpCat(c){rpCatFilter=c;renderRiepilogo()}
 
-var _flipLocked=false;
-function _flipAnimateOrdini(listEl){
-  const before={};
-  // Fermo eventuali animazioni in corso e leggo la posizione reale
-  listEl.querySelectorAll('[data-oid]').forEach(function(el){
-    if(el.style.transform){
-      el.style.transition='none';
-      el.style.transform='';
-      el.style.willChange='';
-    }
-  });
-  listEl.getBoundingClientRect(); // reflow per applicare il reset
-  listEl.querySelectorAll('[data-oid]').forEach(function(el){
-    before[el.dataset.oid]=el.getBoundingClientRect().top;
-  });
-  return function afterRender(){
-    const anims=[];
-    listEl.querySelectorAll('[data-oid]').forEach(function(el){
-      const key=el.dataset.oid;
-      if(before[key]===undefined)return;
-      const dy=before[key]-el.getBoundingClientRect().top;
-      if(Math.abs(dy)<1)return;
-      anims.push({el:el,dy:dy});
-    });
-    if(!anims.length)return;
-    anims.forEach(function(a){
-      a.el.style.willChange='transform';
-      a.el.style.transition='none';
-      a.el.style.transform='translateY('+a.dy+'px) translateZ(0)';
-      a.el.getBoundingClientRect(); // forza reflow per ogni card
-    });
-    if(_flipLocked){return;}
-    _flipLocked=true;
-    setTimeout(function(){_flipLocked=false;},700);
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        anims.forEach(function(a){
-          a.el.style.cssText+=';transition:transform 0.45s cubic-bezier(0.4,0,0.2,1)!important';
-          a.el.style.transform='translateY(0) translateZ(0)';
-          (function(el){
-            var done=false;
-            function cleanup(){
-              if(done)return;done=true;
-              el.style.transition='';
-              el.style.transform='';
-              el.style.willChange='';
-            }
-            el.addEventListener('transitionend',function h(){
-              el.removeEventListener('transitionend',h);
-              cleanup();
-            });
-            setTimeout(cleanup,600);
-          })(a.el);
-        });
-      });
-    });
-  };
-}
 
-function _flipAnimate(listEl){
-  const before={};
-  // Fermo eventuali animazioni in corso e leggo la posizione reale
-  listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
-    if(el.style.transform){
-      el.style.transition='none';
-      el.style.transform='';
-      el.style.willChange='';
-    }
-  });
-  listEl.getBoundingClientRect(); // reflow per applicare il reset
-  listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
-    const key=el.dataset.oid||el.dataset.artid;
-    before[key]=el.getBoundingClientRect().top;
-  });
-  return function afterRender(){
-    const anims=[];
-    listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
-      const key=el.dataset.oid||el.dataset.artid;
-      if(before[key]===undefined)return;
-      const dy=before[key]-el.getBoundingClientRect().top;
-      if(Math.abs(dy)<1)return;
-      anims.push({el:el,dy:dy});
-    });
-    if(!anims.length)return;
-    // Applica transform inverso immediatamente — nessun frame visibile nella posizione sbagliata
-    anims.forEach(function(a){
-      a.el.style.willChange='transform';
-      a.el.style.transition='none';
-      a.el.style.transform='translateY('+a.dy+'px) translateZ(0)';
-      a.el.getBoundingClientRect(); // forza reflow per ogni card
-    });
-    // Aspetta il prossimo frame per avviare la transizione
-    if(_flipLocked){return;}
-    _flipLocked=true;
-    setTimeout(function(){_flipLocked=false;},700);
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        anims.forEach(function(a){
-          a.el.style.cssText+=';transition:transform 0.45s cubic-bezier(0.4,0,0.2,1)!important';
-          a.el.style.transform='translateY(0) translateZ(0)';
-          (function(el){
-            var done=false;
-            function cleanup(){
-              if(done)return;done=true;
-              el.style.transition='';
-              el.style.transform='';
-              el.style.willChange='';
-            }
-            el.addEventListener('transitionend',function h(){
-              el.removeEventListener('transitionend',h);
-              cleanup();
-            });
-            setTimeout(cleanup,600);
-          })(a.el);
-        });
-      });
-    });
-  };
-}
 function renderRiepilogoSenzaRiordino(){renderRiepilogo();}
 function renderRiepilogo(){
-  const _rpList=document.getElementById('riepilogo-list');
-  const _rpAfter=_rpList?_flipAnimate(_rpList):null;
   const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nessun ordine da evadere!</p></div>';return}const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''})).filter(Boolean))].sort();const pillsEl=document.getElementById('riepilogo-cat-pills');if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" onclick="setRpCat('${c}')">${c}</span>`).join('');const map={};ev.forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!map[k])map[k]={artId:it.artId,ordini:[]};map[k].ordini.push(Object.assign({},it,{ordine:o}));}));const voci=Object.values(map).filter(v=>v.ordini.some(x=>!x.done)||rpExpanded[v.artId]).map(v=>Object.assign({},v,{minScore:v.ordini.some(x=>!x.done)?Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))})).sort((a,b)=>{
   const aDone=a.ordini.every(x=>x.done),bDone=b.ordini.every(x=>x.done);
   // Se dobbiamo preservare questo artId, prima del sort salviamo la sua posizione attuale nel DOM
@@ -1105,27 +949,7 @@ function renderRiepilogo(){
   if(a.urgente&&!b.urgente)return -1;
   if(!a.urgente&&b.urgente)return 1;
   return a.minScore-b.minScore;
-});const cerca=(document.getElementById('riepilogo-cerca')&&document.getElementById('riepilogo-cerca').value||'').toLowerCase().trim();const _rpListEl=document.getElementById('riepilogo-list');
-  const _rpNewHTML=voci.filter(v=>{const a=arts.find(x=>x.id===v.artId);if(rpCatFilter!=='Tutte'&&(a&&a.cat||'')!==rpCatFilter)return false;if(!cerca)return true;return a&&a.nome.toLowerCase().includes(cerca);}).map((v,i)=>{const a=arts.find(x=>x.id===v.artId);const nome=a?a.nome:'?';const righeDaFare={};v.ordini.filter(x=>!x.done).forEach(x=>{const um=x.um||'';if(!righeDaFare[um])righeDaFare[um]=0;righeDaFare[um]+=(parseFloat(x.qty)||1);});const qStr=Object.entries(righeDaFare).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span class="rp-qty">${q}</span><span class="rp-um">${um?' '+um:''}</span>`;}).join(' + ');const tuttiDone=v.ordini.every(x=>x.done);const rowClass=`rp-row ${v.urgente?'rp-urgente':tuttiDone?'rp-completato':''}`;const exp=rpExpanded[v.artId];const dettaglio=exp?v.ordini.map(x=>{const q=parseFloat(x.qty)||1;const qs=q%1===0?q:q.toFixed(2).replace(/\.?0+$/,'');const isUrg=isUrgente(x.ordine);const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';const bg=x.done?'var(--gs)':isUrg?'var(--urgs)':'var(--evs)';const circleClass='itag-circle'+(x.done?' done':isUrg?' urg':'');const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});return`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;min-height:38px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'✓':''}</div><span style="flex:1;color:var(--txt);font-weight:700;font-size:14px">#${x.ordine.num} ${x.ordine.nome}</span><span style="font-weight:900;color:${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};font-size:14px">${qs}${x.um?' '+x.um:''}</span></div><button onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="background:#EEF2FF;color:#4F46E5;border:none;border-radius:8px;padding:4px 8px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0">🖨️</button></div>`;}).join(''):'';return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;cursor:pointer" onclick="toggleRp(${v.artId})"><div style="display:flex;align-items:center;gap:12px"><div class="rp-pri">${i+1}</div><div class="rp-art">${nome}${a&&a.cat?`<span style="font-size:10px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="display:flex;align-items:center;gap:4px">${tuttiDone?'<span style="color:var(--g);font-weight:800;font-size:13px">✓ Tutto fatto</span>':qStr}</div><span style="font-size:14px;color:var(--sub);margin-left:4px">${exp?'▲':'▼'}</span></div>${exp?`<div style="padding-top:8px;border-top:1px solid var(--brd)">${dettaglio}</div>`:''}</div>`;}).join('');
-  const _rpTmp=document.createElement('div');_rpTmp.innerHTML=_rpNewHTML;
-  const _rpExisting={};
-  Array.from(_rpListEl.children).forEach(function(el){
-    const aid=el.dataset&&el.dataset.artid;if(aid)_rpExisting[aid]=el;
-  });
-  const _rpNewCards=Array.from(_rpTmp.children);
-  _rpNewCards.forEach(function(newEl){
-    const aid=newEl.dataset&&newEl.dataset.artid;
-    if(aid&&_rpExisting[aid]){
-      _rpExisting[aid].innerHTML=newEl.innerHTML;
-      _rpExisting[aid].className=newEl.className;
-      _rpExisting[aid].setAttribute('style',newEl.getAttribute('style')||'');
-      _rpListEl.appendChild(_rpExisting[aid]);
-    } else {_rpListEl.appendChild(newEl);}
-  });
-  Object.keys(_rpExisting).forEach(function(aid){
-    if(!_rpNewCards.some(function(el){return el.dataset&&el.dataset.artid===aid;}))_rpExisting[aid].remove();
-  });
-  if(_rpAfter)setTimeout(_rpAfter,0);}
+});const cerca=(document.getElementById('riepilogo-cerca')&&document.getElementById('riepilogo-cerca').value||'').toLowerCase().trim();document.getElementById('riepilogo-list').innerHTML=voci.filtervoci.filter(v=>{const a=arts.find(x=>x.id===v.artId);if(rpCatFilter!=='Tutte'&&(a&&a.cat||'')!==rpCatFilter)return false;if(!cerca)return true;return a&&a.nome.toLowerCase().includes(cerca);}).map((v,i)=>{const a=arts.find(x=>x.id===v.artId);const nome=a?a.nome:'?';const righeDaFare={};v.ordini.filter(x=>!x.done).forEach(x=>{const um=x.um||'';if(!righeDaFare[um])righeDaFare[um]=0;righeDaFare[um]+=(parseFloat(x.qty)||1);});const qStr=Object.entries(righeDaFare).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span class="rp-qty">${q}</span><span class="rp-um">${um?' '+um:''}</span>`;}).join(' + ');const tuttiDone=v.ordini.every(x=>x.done);const rowClass=`rp-row ${v.urgente?'rp-urgente':tuttiDone?'rp-completato':''}`;const exp=rpExpanded[v.artId];const dettaglio=exp?v.ordini.map(x=>{const q=parseFloat(x.qty)||1;const qs=q%1===0?q:q.toFixed(2).replace(/\.?0+$/,'');const isUrg=isUrgente(x.ordine);const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';const bg=x.done?'var(--gs)':isUrg?'var(--urgs)':'var(--evs)';const circleClass='itag-circle'+(x.done?' done':isUrg?' urg':'');const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});return`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;min-height:38px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'✓':''}</div><span style="flex:1;color:var(--txt);font-weight:700;font-size:14px">#${x.ordine.num} ${x.ordine.nome}</span><span style="font-weight:900;color:${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};font-size:14px">${qs}${x.um?' '+x.um:''}</span></div><button onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="background:#EEF2FF;color:#4F46E5;border:none;border-radius:8px;padding:4px 8px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0">🖨️</button></div>`;}).join(''):'';return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;cursor:pointer" onclick="toggleRp(${v.artId})"><div style="display:flex;align-items:center;gap:12px"><div class="rp-pri">${i+1}</div><div class="rp-art">${nome}${a&&a.cat?`<span style="font-size:10px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="display:flex;align-items:center;gap:4px">${tuttiDone?'<span style="color:var(--g);font-weight:800;font-size:13px">✓ Tutto fatto</span>':qStr}</div><span style="font-size:14px;color:var(--sub);margin-left:4px">${exp?'▲':'▼'}</span></div>${exp?`<div style="padding-top:8px;border-top:1px solid var(--brd)">${dettaglio}</div>`:''}</div>`;}).join('');}
 async function setStato(id,stato){const o=ords.find(x=>x.id===id);if(!o)return;o.stato=stato;if(stato==='ritirato')o.ritirato_il=new Date().toISOString();if(stato==='completato')o.items.forEach(function(it){it.done=true});if(stato==='evadere')o.items.forEach(function(it){it.done=false});await saveData();renderOrdini();toast(stato==='completato'?'Completato ✅':stato==='ritirato'?'Ritirato 🛍️':'Riaperto','v');}
 function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+o.nome+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};openModal('modal-del-conf');}
 async function delOrd(id){ords=ords.filter(x=>x.id!==id);await saveData();renderOrdini();toast('Ordine eliminato');}
