@@ -916,15 +916,18 @@ function _flipAnimateOrdini(listEl){
       a.el.style.transition='none';
       a.el.style.transform='translateY('+a.dy+'px) translateZ(0)';
     });
-    listEl.getBoundingClientRect();
-    anims.forEach(function(a){
-      a.el.style.transition='transform 0.8s cubic-bezier(0.25,0.1,0.25,1)';
-      a.el.style.transform='translateY(0) translateZ(0)';
-      a.el.addEventListener('transitionend',function h(){
-        a.el.style.transition='';
-        a.el.style.transform='';
-        a.el.style.willChange='';
-        a.el.removeEventListener('transitionend',h);
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        anims.forEach(function(a){
+          a.el.style.transition='transform 0.45s cubic-bezier(0.4,0,0.2,1)';
+          a.el.style.transform='translateY(0) translateZ(0)';
+          a.el.addEventListener('transitionend',function h(){
+            a.el.style.transition='';
+            a.el.style.transform='';
+            a.el.style.willChange='';
+            a.el.removeEventListener('transitionend',h);
+          });
+        });
       });
     });
   };
@@ -946,20 +949,25 @@ function _flipAnimate(listEl){
       anims.push({el:el,dy:dy});
     });
     if(!anims.length)return;
+    // Applica transform inverso immediatamente — nessun frame visibile nella posizione sbagliata
     anims.forEach(function(a){
       a.el.style.willChange='transform';
       a.el.style.transition='none';
       a.el.style.transform='translateY('+a.dy+'px) translateZ(0)';
     });
-    listEl.getBoundingClientRect();
-    anims.forEach(function(a){
-      a.el.style.transition='transform 0.8s cubic-bezier(0.25,0.1,0.25,1)';
-      a.el.style.transform='translateY(0) translateZ(0)';
-      a.el.addEventListener('transitionend',function h(){
-        a.el.style.transition='';
-        a.el.style.transform='';
-        a.el.style.willChange='';
-        a.el.removeEventListener('transitionend',h);
+    // Aspetta il prossimo frame per avviare la transizione
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        anims.forEach(function(a){
+          a.el.style.transition='transform 0.45s cubic-bezier(0.4,0,0.2,1)';
+          a.el.style.transform='translateY(0) translateZ(0)';
+          a.el.addEventListener('transitionend',function h(){
+            a.el.style.transition='';
+            a.el.style.transform='';
+            a.el.style.willChange='';
+            a.el.removeEventListener('transitionend',h);
+          });
+        });
       });
     });
   };
