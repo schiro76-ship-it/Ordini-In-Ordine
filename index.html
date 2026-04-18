@@ -898,6 +898,15 @@ function setRpCat(c){rpCatFilter=c;renderRiepilogo()}
 
 function _flipAnimateOrdini(listEl){
   const before={};
+  // Fermo eventuali animazioni in corso e leggo la posizione reale
+  listEl.querySelectorAll('[data-oid]').forEach(function(el){
+    if(el.style.transform){
+      el.style.transition='none';
+      el.style.transform='';
+      el.style.willChange='';
+    }
+  });
+  listEl.getBoundingClientRect(); // reflow per applicare il reset
   listEl.querySelectorAll('[data-oid]').forEach(function(el){
     before[el.dataset.oid]=el.getBoundingClientRect().top;
   });
@@ -935,6 +944,15 @@ function _flipAnimateOrdini(listEl){
 
 function _flipAnimate(listEl){
   const before={};
+  // Fermo eventuali animazioni in corso e leggo la posizione reale
+  listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
+    if(el.style.transform){
+      el.style.transition='none';
+      el.style.transform='';
+      el.style.willChange='';
+    }
+  });
+  listEl.getBoundingClientRect(); // reflow per applicare il reset
   listEl.querySelectorAll('[data-oid],[data-artid]').forEach(function(el){
     const key=el.dataset.oid||el.dataset.artid;
     before[key]=el.getBoundingClientRect().top;
