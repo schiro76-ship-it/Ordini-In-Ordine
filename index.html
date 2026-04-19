@@ -1320,13 +1320,27 @@ async function salvaOrdine(){const nome=document.getElementById('nn').value.trim
 function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})">✏️</button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})">🗑️</button></div>`).join(''):'<div class="empty"><div class="ei">🗂️</div><p>Nessun articolo.</p></div>';}
 function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';openModal('modal-edit-art');}
 async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato ✅','v');}
-async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;if(!n){toast('Inserisci il nome!');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});
+async function addArt(){
+  const n=document.getElementById('an').value.trim();
+  const s=document.getElementById('ac2');
+  let c=s.value==='__nuova__'?'':s.value;
+  if(!n){toast('Inserisci il nome!');return}
+  if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!');return}
+  const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
-  if(detQArtOid){await addItemToOrd(detQArtOid,id);detQArtOid=null;}
-  else{sel.push({id:id,qty:'',um:'',nota:'',done:false});catS='Tutti';renderPills();renderArtS();renderSP();}
+  arts.push({id:id,nome:n,cat:c});
   document.getElementById('an').value='';
-  await saveData();refreshAll();
   closeModal('modal-qart');
+  await saveData();
+  refreshCatSelects();
+  if(detQArtOid){
+    await addItemToOrd(detQArtOid,id);detQArtOid=null;
+  } else {
+    sel.push({id:id,qty:'',um:'',nota:'',done:false});
+    catS='Tutti';
+    renderPills();renderArtS();renderSP();
+    setTimeout(function(){const q=document.getElementById('qin-'+id);if(q)q.focus();},50);
+  }
   toast('"'+n+'" aggiunto ✅','v');
 }
 async function delArt(id){arts=arts.filter(x=>x.id!==id);await saveData();renderArtM();stats();toast('Eliminato')}
