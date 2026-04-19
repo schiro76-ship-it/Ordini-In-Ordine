@@ -831,8 +831,19 @@ function goTab(name){
   if(name==='nuovo'){sel=[];tNuovo=null;initNuovo();setTimeout(initNuovo,100)}
   const bar=document.getElementById('nuovo-bottom-bar');
   if(bar){
-    bar.style.display=''; // resetta sempre lo stile inline
     bar.classList.toggle('visible',name==='nuovo');
+    if(name==='nuovo'){
+      // In landscape smartphone forza display via stile inline
+      const isPhone=window.innerWidth<=639||window.innerHeight<=639;
+      const isLandscape=window.innerWidth>window.innerHeight;
+      if(isPhone&&isLandscape){
+        bar.style.display='block';
+      } else {
+        bar.style.display='';
+      }
+    } else {
+      bar.style.display='';
+    }
   }
   // Assicura che bottom-nav sia sempre visibile quando si cambia tab
   const nav=document.getElementById('bottom-nav');
