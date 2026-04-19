@@ -974,12 +974,19 @@ function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&d
     html+=ordsFiltered.sort((a,b)=>new Date(a.data+'T00:00:00')-new Date(b.data+'T00:00:00')).map(o=>{
       const turnoLabel=o.ora?'🕐 '+o.ora:o.turno==='mattina'?'☀️ Mat.':o.turno==='pomeriggio'?'🌆 Pom.':'';
       const items=(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return'';const qty=(it.qty?(parseFloat(it.qty)||''):'—')+(it.um?' '+it.um:'');return`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:13px"><span style="color:var(--txt);font-weight:600">${a.nome}</span><span style="font-weight:800;color:var(--sub)">${qty}</span></div>`;}).join('');
-      return`<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:14px;font-weight:900;color:var(--r)">#${o.num}</span><span style="font-size:14px;font-weight:800;flex:1">${o.nome}</span><span style="font-size:12px;color:var(--sub)">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</span></div>${items}</div>`;
+      return`<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:15px;font-weight:900;color:var(--r)">#${o.num}</span><span style="font-size:15px;font-weight:800;flex:1">${o.nome}</span></div><div style="font-size:12px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
     }).join('');
     if(!ordsFiltered.length)html+='<p style="color:var(--sub);font-size:14px;font-weight:600;text-align:center;padding:20px">Nessun ordine trovato.</p>';
     html+='</div>';
   }
-  el.innerHTML=html;}
+  // Ripristina focus sul campo ricerca dettaglio se era attivo
+  const _wasDetCerca=document.activeElement&&document.activeElement.id==='st-det-cerca';
+  el.innerHTML=html;
+  if(_wasDetCerca){
+    const _inp=document.getElementById('st-det-cerca');
+    if(_inp){_inp.focus();const l=_inp.value.length;_inp.setSelectionRange(l,l);}
+  }
+}
 let rpExpanded={},rpCatFilter='Tutte',_rpPosPreservate=null,_rpDaPreservare=null;
 function toggleRp(key){
   rpExpanded[key]=!rpExpanded[key];
