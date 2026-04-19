@@ -65,6 +65,12 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
   .page-wrap{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
   #bottom-nav{display:flex}
 }
+/* Su landscape (tablet e smartphone): mostra nuovo riquadro, nascondi voce sidebar */
+@media(min-width:640px) and (orientation:landscape){
+  #sc-nuovo{display:block!important}
+  .sb-nav .ni-nuovo{display:none!important}
+  #tab-ordini .stats-row{grid-template-columns:repeat(5,1fr)}
+}
 /* Fallback: se JS rileva portrait smartphone, aggiunge classe al body */
 body.portrait-phone .sidebar{display:none!important}
 body.portrait-phone .sb-overlay{display:none!important}
@@ -140,6 +146,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
   #sc-nuovo{display:block!important}
   .sb-nav .ni-nuovo{display:none!important}
+  #tab-ordini .stats-row{grid-template-columns:repeat(5,1fr)}
 }
 @media(max-width:1023px){.two-col>*{margin-bottom:14px}}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
