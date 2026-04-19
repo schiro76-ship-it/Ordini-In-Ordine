@@ -101,9 +101,13 @@ body.portrait-phone #bottom-nav{display:flex}
   box-shadow:0 4px 16px rgba(192,57,43,0.5);
   border:3px solid #2C3E50;
 }
-#nuovo-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:transparent;padding:10px 16px 20px;z-index:50}
+#nuovo-bottom-bar{display:none;background:transparent;padding:10px 0 8px}
 #nuovo-bottom-bar.visible{display:block}
-body.portrait-phone #nuovo-bottom-bar.visible{position:static;padding:10px 0 20px;margin-top:12px}
+/* Solo tablet/desktop: fixed in fondo */
+@media(min-width:640px){
+  #nuovo-bottom-bar{position:fixed;bottom:0;left:var(--sbw);right:0;padding:10px 24px 20px;background:rgba(221,224,232,0.97);backdrop-filter:blur(8px);z-index:50}
+}
+
 /* portrait-phone: barra nel flusso, no offset necessario */.pbody.has-bottom-bar{padding-bottom:100px!important}
 @media(max-width:639px) and (orientation:portrait){
   #nuovo-bottom-bar{bottom:calc(68px + env(safe-area-inset-bottom,16px));padding:10px 16px 12px}
@@ -541,6 +545,10 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
             </div>
           </div>
           <div id="card-sel" style="display:none;margin-bottom:10px"><div id="sp"></div></div>
+        <div id="nuovo-bottom-bar" style="display:none;padding:10px 0 8px">
+          <div id="bottom-bar-count" style="font-size:13px;font-weight:800;color:var(--sub);text-align:center;margin-bottom:8px;display:none"></div>
+          <button class="btn br btn-full" onclick="salvaOrdine()" style="border-radius:14px;font-size:17px;padding:15px">✅ Aggiungi ordine</button>
+        </div>
         </div>
       </div>
       <div class="sec" id="tab-impostazioni">
