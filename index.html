@@ -829,6 +829,7 @@ async function boot(){applyThemeFast();loadCalSettings();loadStoricoSettings();t
       const d=snap.data();
       arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;
       refreshAll();
+      if(sel&&sel.length)renderSP();
       const tabRep=document.getElementById('tab-riepilogo');
       if(tabRep&&tabRep.classList.contains('active'))renderRiepilogo();
     });
