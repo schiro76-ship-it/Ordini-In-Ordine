@@ -1334,7 +1334,7 @@ async function addArt(){const n=document.getElementById('an').value.trim();const
     closeModal('modal-qart');
     renderPills();renderArtS();renderSP();
     const qinp=document.getElementById('qin-'+id);if(qinp)qinp.focus();
-    await saveData();refreshCatSelects();
+    await saveData();refreshAll();
   }
   toast('"'+n+'" aggiunto ✅','v');
 }
