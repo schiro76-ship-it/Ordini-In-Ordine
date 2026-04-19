@@ -138,6 +138,8 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   .phdr h2{font-size:26px;font-weight:900}
   .pbody{padding:16px 32px 40px}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+  #sc-nuovo{display:block!important}
+  .sb-nav .ni-nuovo{display:none!important}
 }
 @media(max-width:1023px){.two-col>*{margin-bottom:14px}}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
@@ -419,7 +421,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
       <div class="ni active" onclick="goTab('ordini')"><span class="ic">📋</span>Ordini</div>
       <div class="ni" onclick="goTab('riepilogo')"><span class="ic">📊</span>Riepilogo</div>
       <div class="ni" onclick="goTab('storico')"><span class="ic">📅</span>Storico</div>
-      <div class="ni" onclick="goTab('nuovo')"><span class="ic" style="font-size:22px;font-weight:900">+</span>Nuovo Ordine</div>
+      <div class="ni ni-nuovo" onclick="goTab('nuovo')"><span class="ic" style="font-size:22px;font-weight:900">+</span>Nuovo Ordine</div>
       <div class="ni" onclick="goTab('impostazioni')"><span class="ic">⚙️</span>Impostazioni</div>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importaDati(this)">
     </nav>
@@ -434,6 +436,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
         <div class="phdr"><h2>Ordini</h2><button id="btn-nuovo-ordini" class="btn br" style="font-size:13px;padding:9px 16px;white-space:nowrap" onclick="goTab('nuovo')">+ Nuovo</button></div>
         <div class="pbody">
           <div class="stats-row">
+            <div class="sc sc-nuovo" onclick="goTab('nuovo')" style="background:var(--r);cursor:pointer;display:none" id="sc-nuovo"><div class="sn" style="color:#fff;font-size:32px;line-height:1">+</div><div class="sl" style="color:rgba(255,255,255,0.9)">Nuovo</div></div>
             <div class="sc sc-filt active-filt" id="sf-tutti" onclick="setFT('tutti','sf-tutti')" style="background:var(--rs)"><div class="sn" id="st-tot" style="color:var(--r)">0</div><div class="sl" style="color:var(--r)">Tutti</div></div>
             <div class="sc sc-filt" id="sf-evadere" onclick="setFT('evadere','sf-evadere')" style="background:var(--evs)"><div class="sn" id="st-ev" style="color:var(--ev)">0</div><div class="sl" id="sl-ev" style="color:var(--ev)">Da evadere</div></div>
             <div class="sc sc-filt" id="sf-completato" onclick="setFT('completato','sf-completato')" style="background:var(--gs)"><div class="sn" id="st-co" style="color:var(--g)">0</div><div class="sl" style="color:var(--g)">Completati</div></div>
