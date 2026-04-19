@@ -109,8 +109,13 @@ body.portrait-phone #nuovo-bottom-bar{bottom:calc(64px + env(safe-area-inset-bot
   .pbody.has-bottom-bar{padding-bottom:170px!important}
 }
 @media(max-width:639px) and (orientation:landscape){
-  #nuovo-bottom-bar.visible{display:block!important;bottom:env(safe-area-inset-bottom,8px);padding:8px 16px;left:var(--sbw)}
-  .pbody.has-bottom-bar{padding-bottom:80px!important}
+  #bottom-nav{display:none!important}
+  #btn-nuovo-ordini{display:inline-flex!important}
+  #sc-nuovo{display:block!important}
+  .sb-nav .ni-nuovo{display:none!important}
+  #tab-ordini .stats-row{grid-template-columns:repeat(5,1fr)}
+  #nuovo-bottom-bar.visible{display:block!important;left:var(--sbw);bottom:4px;padding:6px 16px}
+  .pbody.has-bottom-bar{padding-bottom:70px!important}
 }
 /* FIX SAFE AREA TOP: il body ha il colore scuro sotto la status bar,
    .pcontent NON aggiunge padding extra (lo spazio è già dato dal body) */
@@ -831,19 +836,8 @@ function goTab(name){
   if(name==='nuovo'){sel=[];tNuovo=null;initNuovo();setTimeout(initNuovo,100)}
   const bar=document.getElementById('nuovo-bottom-bar');
   if(bar){
+    bar.style.display='';
     bar.classList.toggle('visible',name==='nuovo');
-    if(name==='nuovo'){
-      // In landscape smartphone forza display via stile inline
-      const isPhone=window.innerWidth<=639||window.innerHeight<=639;
-      const isLandscape=window.innerWidth>window.innerHeight;
-      if(isPhone&&isLandscape){
-        bar.style.display='block';
-      } else {
-        bar.style.display='';
-      }
-    } else {
-      bar.style.display='';
-    }
   }
   // Assicura che bottom-nav sia sempre visibile quando si cambia tab
   const nav=document.getElementById('bottom-nav');
