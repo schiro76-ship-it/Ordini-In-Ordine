@@ -516,11 +516,9 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
         <div class="phdr"><h2>Nuovo Ordine <span id="nuovo-num-badge" style="font-size:12px;color:var(--urg)"></span></h2><div style="display:flex;align-items:center;gap:12px"><div style="display:flex;align-items:center;gap:4px"><span style="font-size:18px;font-weight:900;color:var(--sub)">#</span><input type="number" id="nuovo-num-top" min="1" style="width:64px;font-size:20px;font-weight:900;color:var(--r);border:none;border-bottom:2px solid var(--r);background:transparent;font-family:'Nunito',sans-serif;outline:none;text-align:center" oninput="sincNuovoNum(this.value)"></div><button onclick="goTab('ordini')" style="padding:8px 16px;background:var(--bg);color:var(--sub);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer">Annulla</button></div></div>
         <div class="pbody has-bottom-bar">
           <div class="card" style="margin-bottom:14px">
-            <div class="ch"><div class="ct">👤 Cliente</div></div>
+            <div class="ch"><div class="ct">📅 Ritiro</div></div>
             <div class="cb">
-              <div class="fg"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi"></div>
               <div class="fg">
-                <label class="fl">Data e turno di ritiro</label>
                 <div class="cal-compact" id="cal-nuovo">
                   <div class="cal-nav"><button onclick="calNavMese(-1)">‹</button><span class="cn-lbl" id="cal-mese-lbl"></span><button onclick="calNavMese(+1)">›</button></div>
                   <div class="cal-grid" id="cal-grid"></div>
@@ -529,11 +527,18 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
                     <button id="cal-btn-pom" class="cal-btn-mp" onclick="calSceglTurno('pomeriggio')">🌆 Pom.</button>
                     <div id="cal-time-wrap" class="cal-time-wrap" style="display:none">
                       <span style="font-size:12px;color:var(--sub)">🕐</span>
-                      <input type="time" id="cal-time-inp" class="cal-time-inp" onchange="calSceglOra(this.value)">
+                      <input type="time" id="cal-time-inp" class="cal-time-inp" onchange="calSceglOra(this.value)" onblur="if(this.value)setTimeout(function(){var nn=document.getElementById('nn');if(nn)nn.focus();},50)">
                     </div>
                   </div>
                 </div>
+                <div id="cal-hint" style="font-size:11px;color:var(--sub);font-weight:600;margin-top:6px;display:none">💡 Puoi usare Mattina/Pomeriggio invece dell'orario dalle Impostazioni → Calendario</div>
               </div>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="ch"><div class="ct">👤 Cliente</div></div>
+            <div class="cb">
+              <div class="fg"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi"></div>
             </div>
           </div>
           <div class="card" style="margin-bottom:14px">
@@ -631,20 +636,19 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
           <div class="card">
             <div class="ch"><div class="ct">📅 Calendario</div></div>
             <div class="cb">
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--brd)">
-                <div><div style="font-size:15px;font-weight:700">Mostra Mattina/Pomeriggio</div><div style="font-size:12px;color:var(--sub);font-weight:600">Mostra i pulsanti ☀️ M e 🌆 P</div></div>
-                <label style="position:relative;display:inline-block;width:48px;height:26px;flex-shrink:0">
-                  <input type="checkbox" id="cal-set-mp" onchange="saveCalSettings()" style="opacity:0;width:0;height:0">
-                  <span id="cal-set-mp-track" style="position:absolute;inset:0;background:#ccc;border-radius:13px;cursor:pointer;transition:0.3s"></span>
-                  <span id="cal-set-mp-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
+              <div style="padding:6px 0 4px;font-size:12px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px">Tipo di orario</div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveCalMode('ora')">
+                  <span id="cal-radio-ora" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
+                  <div><div style="font-size:15px;font-weight:700">🕐 Orario</div><div style="font-size:12px;color:var(--sub);font-weight:600">Inserisci un orario preciso</div></div>
                 </label>
-              </div>
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
-                <div><div style="font-size:15px;font-weight:700">Mostra orario</div><div style="font-size:12px;color:var(--sub);font-weight:600">Mostra il campo 🕐 orario</div></div>
-                <label style="position:relative;display:inline-block;width:48px;height:26px;flex-shrink:0">
-                  <input type="checkbox" id="cal-set-ora" onchange="saveCalSettings()" style="opacity:0;width:0;height:0">
-                  <span id="cal-set-ora-track" style="position:absolute;inset:0;background:#ccc;border-radius:13px;cursor:pointer;transition:0.3s"></span>
-                  <span id="cal-set-ora-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveCalMode('mp')">
+                  <span id="cal-radio-mp" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
+                  <div><div style="font-size:15px;font-weight:700">☀️🌆 Mattina / Pomeriggio</div><div style="font-size:12px;color:var(--sub);font-weight:600">Scegli il turno di consegna</div></div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveCalMode('niente')">
+                  <span id="cal-radio-niente" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
+                  <div><div style="font-size:15px;font-weight:700">— Solo giorno</div><div style="font-size:12px;color:var(--sub);font-weight:600">Nessun orario, solo la data</div></div>
                 </label>
               </div>
             </div>
@@ -1348,35 +1352,36 @@ async function addArtRapido(){
   else{sel.push({id:id,qty:1,um:'',nota:'',done:false});catS='Tutti';renderPills();renderArtS();renderSP();}
   toast('"'+n+'" aggiunto ✅','v');
 }
-// Impostazioni calendario
-var _calSetMP=true,_calSetOra=true;
+// Impostazioni calendario — modalità: 'ora' | 'mp' | 'niente'
+var _calMode='ora';
 function loadCalSettings(){
-  try{
-    const s=JSON.parse(localStorage.getItem('cal-settings')||'{}');
-    _calSetMP=s.mp!==false;
-    _calSetOra=s.ora!==false;
-  }catch(e){}
+  try{const s=JSON.parse(localStorage.getItem('cal-settings')||'{}');_calMode=s.mode||'ora';}catch(e){}
   applyCalSettings();
 }
-function saveCalSettings(){
-  _calSetMP=document.getElementById('cal-set-mp').checked;
-  _calSetOra=document.getElementById('cal-set-ora').checked;
-  localStorage.setItem('cal-settings',JSON.stringify({mp:_calSetMP,ora:_calSetOra}));
+function saveCalMode(mode){
+  _calMode=mode;
+  localStorage.setItem('cal-settings',JSON.stringify({mode:_calMode}));
   applyCalSettings();
   renderCal();
 }
+function saveCalSettings(){saveCalMode(_calMode);}
 function applyCalSettings(){
-  // Aggiorna toggle UI
-  ['mp','ora'].forEach(function(k){
-    const cb=document.getElementById('cal-set-'+k);
-    const track=document.getElementById('cal-set-'+k+'-track');
-    const thumb=document.getElementById('cal-set-'+k+'-thumb');
-    const val=k==='mp'?_calSetMP:_calSetOra;
-    if(cb)cb.checked=val;
-    if(track)track.style.background=val?'var(--r)':'#ccc';
-    if(thumb)thumb.style.left=val?'25px':'3px';
+  // Aggiorna radio UI
+  ['ora','mp','niente'].forEach(function(k){
+    const el=document.getElementById('cal-radio-'+k);
+    if(!el)return;
+    el.innerHTML=_calMode===k?'<div style="width:10px;height:10px;border-radius:50%;background:var(--r)"></div>':'';
+    el.style.borderColor=_calMode===k?'var(--r)':'var(--brd)';
+    el.parentElement.style.background=_calMode===k?'var(--rs)':'transparent';
   });
+  // Aggiorna hint nel calendario
+  const hint=document.getElementById('cal-hint');
+  if(hint)hint.style.display=_calMode==='ora'?'block':'none';
+  // Variabili di compatibilità
+  _calSetMP=_calMode==='mp';
+  _calSetOra=_calMode==='ora';
 }
+var _calSetMP=false,_calSetOra=true;
 
 // Impostazioni storico
 var _stSetOrdini=false;
@@ -1495,20 +1500,27 @@ function renderCal(){
 function calSelGiorno(iso){
   calSelDate=iso;
   renderCal();
-  // Update trigger label
   _aggiornaTriggerLabel();
+  // Se modalità niente → focus su nome subito
+  if(_calMode==='niente'){
+    setTimeout(function(){const nn=document.getElementById('nn');if(nn)nn.focus();},50);
+  }
 }
 function calSceglTurno(t){
   if(tNuovo===t&&!calOra){tNuovo=null;}
   else{tNuovo=t;calOra=null;const ti=document.getElementById('cal-time-inp');if(ti)ti.value='';}
   renderCal();
   _aggiornaTriggerLabel();
+  // Focus su nome dopo selezione M/P
+  setTimeout(function(){const nn=document.getElementById('nn');if(nn)nn.focus();},50);
 }
 function calSceglOra(v){
   calOra=v||null;
   if(calOra)tNuovo=null;
   renderCal();
   _aggiornaTriggerLabel();
+  // Focus su nome dopo selezione orario
+  setTimeout(function(){const nn=document.getElementById('nn');if(nn)nn.focus();},100);
 }
 function _aggiornaTriggerLabel(){
   // Aggiorna la label del trigger (legacy per compatibilità)
