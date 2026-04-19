@@ -952,11 +952,11 @@ function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&d
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:5px">
           <label style="font-size:12px;font-weight:800;color:var(--sub)">Dal</label>
-          <button onclick="toggleStDetCal('dal')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetDal?'📅 '+stDetDal:'📅 —'}</button>
+          <button onclick="toggleStDetCal('dal')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetDal?'📅 '+fmtD(stDetDal):'📅 —'}</button>
         </div>
         <div style="display:flex;align-items:center;gap:5px">
           <label style="font-size:12px;font-weight:800;color:var(--sub)">Al</label>
-          <button onclick="toggleStDetCal('al')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetAl?'📅 '+stDetAl:'📅 —'}</button>
+          <button onclick="toggleStDetCal('al')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetAl?'📅 '+fmtD(stDetAl):'📅 —'}</button>
         </div>
         <button onclick="_stDetDal='';_stDetAl='';renderStoricoRiepilogo()" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;background:var(--bg);color:var(--txt);cursor:pointer">Tutto</button>
       </div>
