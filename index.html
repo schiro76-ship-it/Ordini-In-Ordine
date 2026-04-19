@@ -109,7 +109,7 @@ body.portrait-phone #nuovo-bottom-bar{bottom:calc(64px + env(safe-area-inset-bot
   .pbody.has-bottom-bar{padding-bottom:170px!important}
 }
 @media(max-width:639px) and (orientation:landscape){
-  #nuovo-bottom-bar.visible{display:block;bottom:env(safe-area-inset-bottom,8px);padding:8px 16px}
+  #nuovo-bottom-bar.visible{display:block!important;bottom:env(safe-area-inset-bottom,8px);padding:8px 16px;left:var(--sbw)}
   .pbody.has-bottom-bar{padding-bottom:80px!important}
 }
 /* FIX SAFE AREA TOP: il body ha il colore scuro sotto la status bar,
