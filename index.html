@@ -110,6 +110,7 @@ body.portrait-phone #nuovo-bottom-bar{bottom:calc(64px + env(safe-area-inset-bot
 }
 @media(max-width:639px) and (orientation:landscape){
   #bottom-nav{display:none!important}
+  body.landscape-phone #bottom-nav{display:none!important}
   #btn-nuovo-ordini{display:inline-flex!important}
   #sc-nuovo{display:block!important}
   .sb-nav .ni-nuovo{display:none!important}
@@ -1618,7 +1619,16 @@ function doLogout(){auth.signOut();}
 function checkPortrait(){
   const isPhone=window.innerWidth<=639;
   const isPortrait=window.innerHeight>window.innerWidth;
+  const isLandscapePhone=isPhone&&!isPortrait;
   document.body.classList.toggle('portrait-phone',isPhone&&isPortrait);
+  document.body.classList.toggle('landscape-phone',isLandscapePhone);
+  // Gestione bottom nav in landscape smartphone
+  const nav=document.getElementById('bottom-nav');
+  if(nav){
+    if(isLandscapePhone) nav.style.display='none';
+    else if(!isPhone) nav.style.display='';
+    // portrait-phone gestisce il proprio caso
+  }
 }
 window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
