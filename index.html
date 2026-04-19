@@ -710,7 +710,10 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
     <div style="padding:0 20px">
       <p style="font-size:12px;color:#6B7280;font-weight:600;text-align:center;margin-bottom:12px">Tocca <b>Condividi ↑ → Stampa</b> per inviare alla stampante</p>
 
-    </div>
+```
+</div>
+```
+
   </div>
 </div>
 <div id="nuovo-bottom-bar">
@@ -924,20 +927,46 @@ function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&d
   html+=filtrate.map(v=>{const q=v.qty%1===0?v.qty:v.qty.toFixed(2).replace(/\.?0+$/,'');return`<div class="rp-row" style="margin-bottom:6px"><div class="rp-art">${v.nome}${v.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:6px">${v.cat}</span>`:''}</div><div style="text-align:right;flex-shrink:0"><span class="rp-qty" style="font-size:18px">${q}</span><span class="rp-um">${v.um?' '+v.um:''}</span><span style="font-size:11px;color:var(--sub);display:block">${v.nOrdini} ordini</span></div></div>`;}).join('');
   // Dettaglio ordini (se abilitato)
   if(_stSetOrdini){
-    const stDetCerca=(document.getElementById('st-det-cerca')&&document.getElementById('st-det-cerca').value||'').toLowerCase().trim();
-    const stDetCat=(document.getElementById('st-det-cat-val')&&document.getElementById('st-det-cat-val').value)||'Tutte';
+    const stDetCerca=_stDetCerca.toLowerCase().trim();
+    const stDetCat=_stDetCat;
+    const stDetDal=_stDetDal;
+    const stDetAl=_stDetAl;
     // Categorie presenti negli ordini filtrati
-    const stDetCats=['Tutte',...[...new Set(ordsF.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||'';}).filter(Boolean)))].sort()];
-    const stDetPills=stDetCats.map(c=>`<span class="pill ${c===stDetCat?'active':''}" onclick="document.getElementById('st-det-cat-val').value='${c}';renderStoricoRiepilogo()">${c}</span>`).join('');
     html+=`<div style="margin-top:18px;border-top:2px solid var(--brd);padding-top:14px">
       <div style="font-size:12px;font-weight:900;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Dettaglio ordini</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="font-size:12px;font-weight:800;color:var(--sub)">Dal</label>
+          <button id="st-det-dal-btn" onclick="toggleStDetCal('dal')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${_stDetDal?'📅 '+_stDetDal:'📅 —'}</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <label style="font-size:12px;font-weight:800;color:var(--sub)">Al</label>
+          <button id="st-det-al-btn" onclick="toggleStDetCal('al')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${_stDetAl?'📅 '+_stDetAl:'📅 —'}</button>
+        </div>
+        <button onclick="_stDetDal='';_stDetAl='';renderStoricoRiepilogo()" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;background:var(--bg);color:var(--txt);cursor:pointer">Tutto</button>
+      </div>
+      <div id="st-det-cal-wrap" style="display:none;margin-bottom:10px">
+        <div class="cal-wrap">
+          <div class="cal-nav"><button onclick="stDetCalNav(-1)">‹</button><span class="cn-lbl" id="st-det-cal-lbl"></span><button onclick="stDetCalNav(+1)">›</button></div>
+          <div class="cal-grid" id="st-det-cal-grid"></div>
+        </div>
+      </div>
       <div style="position:relative;margin-bottom:10px">
         <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px">🔍</span>
-        <input type="text" id="st-det-cerca" placeholder="Cerca per nome, numero, articolo…" oninput="renderStoricoRiepilogo()" style="width:100%;padding:10px 14px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none">
+        <input type="text" id="st-det-cerca" value="${_stDetCerca}" placeholder="Cerca per nome, numero, articolo…" oninput="_stDetCerca=this.value;renderStoricoRiepilogo()" style="width:100%;padding:10px 14px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none">
       </div>
-      <input type="hidden" id="st-det-cat-val" value="${stDetCat}">
       <div class="cp" style="margin-bottom:10px">${stDetPills}</div>`;
-    const ordsFiltered=ordsF.filter(o=>{
+    // Filtra per date dedicate (non eredita dal filtro articoli)
+    const ordsDetBase=ords.filter(o=>{
+      if(o.stato!=='ritirato')return false;
+      if(!o.data)return!stDetDal&&!stDetAl;
+      if(stDetDal&&o.data<stDetDal)return false;
+      if(stDetAl&&o.data>stDetAl)return false;
+      return true;
+    });
+    const stDetCats=['Tutte',...[...new Set(ordsDetBase.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||'';}).filter(Boolean)))].sort()];
+    const stDetPills=stDetCats.map(c=>`<span class="pill ${c===_stDetCat?'active':''}" onclick="_stDetCat='${c}';renderStoricoRiepilogo()">${c}</span>`).join('');
+    const ordsFiltered=ordsDetBase.filter(o=>{
       if(stDetCerca&&!o.nome.toLowerCase().includes(stDetCerca)&&!String(o.num).includes(stDetCerca)&&!(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.nome.toLowerCase().includes(stDetCerca);}))return false;
       if(stDetCat!=='Tutte'&&!(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat===stDetCat;}))return false;
       return true;
@@ -1275,6 +1304,42 @@ function applyCalSettings(){
 
 // Impostazioni storico
 var _stSetOrdini=false;
+var _stDetCerca='',_stDetCat='Tutte',_stDetDal='',_stDetAl='';
+var _stDetCalField=null,_stDetCalYear=new Date().getFullYear(),_stDetCalMonth=new Date().getMonth();
+function toggleStDetCal(field){
+  const w=document.getElementById('st-det-cal-wrap');
+  if(!w)return;
+  if(_stDetCalField===field&&w.style.display!=='none'){w.style.display='none';_stDetCalField=null;return;}
+  _stDetCalField=field;w.style.display='block';renderStDetCal();
+}
+function stDetCalNav(d){_stDetCalMonth+=d;if(_stDetCalMonth<0){_stDetCalMonth=11;_stDetCalYear--}if(_stDetCalMonth>11){_stDetCalMonth=0;_stDetCalYear++}renderStDetCal();}
+function renderStDetCal(){
+  const mesi=['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+  const lbl=document.getElementById('st-det-cal-lbl');if(lbl)lbl.textContent=mesi[_stDetCalMonth]+' '+_stDetCalYear;
+  const primo=new Date(_stDetCalYear,_stDetCalMonth,1),sd=(primo.getDay()+6)%7;
+  const gm=new Date(_stDetCalYear,_stDetCalMonth+1,0).getDate(),gmp=new Date(_stDetCalYear,_stDetCalMonth,0).getDate();
+  const dow=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
+  let h=dow.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  for(let i=sd-1;i>=0;i--)h+=`<button class="cal-day other-month" disabled>${gmp-i}</button>`;
+  for(let g=1;g<=gm;g++){
+    const iso=`${_stDetCalYear}-${String(_stDetCalMonth+1).padStart(2,'0')}-${String(g).padStart(2,'0')}`;
+    const isSel=(_stDetCalField==='dal'&&iso===_stDetDal)||(_stDetCalField==='al'&&iso===_stDetAl);
+    const inRange=_stDetDal&&_stDetAl&&iso>=_stDetDal&&iso<=_stDetAl;
+    h+=`<button class="cal-day${isSel?' sel':''}${inRange&&!isSel?' today':''}" onclick="selStDetCalDay('${iso}')">${g}</button>`;
+  }
+  const rest=(7-(sd+gm)%7)%7;for(let i=1;i<=rest;i++)h+=`<button class="cal-day other-month" disabled>${i}</button>`;
+  const grid=document.getElementById('st-det-cal-grid');if(grid)grid.innerHTML=h;
+}
+function selStDetCalDay(iso){
+  if(_stDetCalField==='dal')_stDetDal=iso;
+  else _stDetAl=iso;
+  const w=document.getElementById('st-det-cal-wrap');if(w)w.style.display='none';
+  _stDetCalField=null;
+  renderStoricoRiepilogo();
+  // Ripristina focus sulla ricerca
+  setTimeout(function(){const el=document.getElementById('st-det-cerca');if(el)el.focus();},50);
+}
+
 function loadStoricoSettings(){
   try{const s=JSON.parse(localStorage.getItem('st-settings')||'{}');_stSetOrdini=s.ordini===true;}catch(e){}
   applyStoricoSettings();
