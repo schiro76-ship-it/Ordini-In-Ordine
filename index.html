@@ -108,6 +108,10 @@ body.portrait-phone #nuovo-bottom-bar{bottom:calc(64px + env(safe-area-inset-bot
   #nuovo-bottom-bar{bottom:calc(68px + env(safe-area-inset-bottom,16px));padding:10px 16px 12px}
   .pbody.has-bottom-bar{padding-bottom:170px!important}
 }
+@media(max-width:639px) and (orientation:landscape){
+  #nuovo-bottom-bar.visible{display:block;bottom:env(safe-area-inset-bottom,8px);padding:8px 16px}
+  .pbody.has-bottom-bar{padding-bottom:80px!important}
+}
 /* FIX SAFE AREA TOP: il body ha il colore scuro sotto la status bar,
    .pcontent NON aggiunge padding extra (lo spazio è già dato dal body) */
 body.portrait-phone .page-wrap{padding-bottom:calc(74px + env(safe-area-inset-bottom,16px))}
