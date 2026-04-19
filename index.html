@@ -1714,7 +1714,11 @@ document.addEventListener('touchstart',function(e){
 document.addEventListener('focusin',function(e){
   if(!document.body.classList.contains('portrait-phone'))return;
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
-    document.getElementById('nuovo-bottom-bar').style.display='none';
+    // Non nascondere la bottom bar in nuovo ordine — la gestisce visualViewport
+    const bar=document.getElementById('nuovo-bottom-bar');
+    if(bar&&!bar.classList.contains('visible')){
+      bar.style.display='none';
+    }
     document.getElementById('bottom-nav').style.display='none';
     document.body.classList.add('keyboard-open');
   }
