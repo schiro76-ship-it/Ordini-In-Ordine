@@ -3,8 +3,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, 
-maximum-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,  maximum-scale=1.0, viewport-fit=cover">
 <title>OrdinInOrdine</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" 
@@ -1928,8 +1927,7 @@ ${it.done?'checked':''}"
 onclick="togItemDone(${o.id},${idx})">${it.done?'✓':''}</div><div 
 class="art-det-name">${a?a.nome:'<i 
 style="color:var(--sub)">Rimosso</i>'}</div><button 
-onclick="if(confirm('Rimuovere questo articolo 
-dall\'ordine?'))delItemFromOrd(${o.id},${idx})" 
+onclick="if(confirm('Rimuovere questo articolo  dall\'ordine?'))delItemFromOrd(${o.id},${idx})" 
 style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--sub);padding:2px 
 4px">🗑️</button></div><div 
 class="art-det-inputs"><div><label>Quantità</label><input type="number" 
@@ -2350,8 +2348,7 @@ totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div
 class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span 
 class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" 
 onclick="editArt(${a.id})">✏️</button><button class="ibtn d" 
-onclick="if(confirm('Eliminare questo articolo dal 
-catalogo?'))delArt(${a.id})">🗑️</button></div>`).join(''):'<div 
+onclick="if(confirm('Eliminare questo articolo dal  catalogo?'))delArt(${a.id})">🗑️</button></div>`).join(''):'<div 
 class="empty"><div class="ei">🗂️</div><p>Nessun articolo.</p></div>';}
 function editArt(id){const 
 a=arts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const 
@@ -2381,13 +2378,11 @@ async function delArt(id){arts=arts.filter(x=>x.id!==id);await
 saveData();renderArtM();stats();toast('Eliminato')}
 function 
 renderUMDisplay(){document.getElementById('um-display').innerHTML=unitaMisura.map(u=>`<span 
-class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare 
-questa unità di misura?'))delUM('${u}')" 
+class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare  questa unità di misura?'))delUM('${u}')" 
 style="margin-left:4px;cursor:pointer;color:var(--r);font-size:10px">✕</span></span>`).join('')}
 function 
 renderUMModal(){document.getElementById('um-modal-list').innerHTML=unitaMisura.map(u=>`<span 
-class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare 
-questa unità di misura?'))delUM('${u}')">✕</span></span>`).join('')}
+class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare  questa unità di misura?'))delUM('${u}')">✕</span></span>`).join('')}
 async function addUM(){const 
 v=document.getElementById('um-new').value.trim().toLowerCase();if(!v||unitaMisura.includes(v)){toast(v?'Già 
 presente!':'Inserisci 
@@ -2405,8 +2400,7 @@ style="display:flex;align-items:center;gap:8px;padding:10px
 0;border-bottom:1px solid var(--brd)"><span 
 style="flex:1;font-weight:700;font-size:15px">${c}</span><span 
 style="font-size:11px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} 
-articoli</span><button class="ibtn d" onclick="if(confirm('Eliminare 
-questa categoria?'))delCat('${c}')">🗑️</button></div>`).join('');}
+articoli</span><button class="ibtn d" onclick="if(confirm('Eliminare  questa categoria?'))delCat('${c}')">🗑️</button></div>`).join('');}
 async function 
 delCat(nome){cats=cats.filter(x=>x!==nome);arts.forEach(function(a){if(a.cat===nome)a.cat=''});await 
 saveData();refreshAll();renderCatList();toast('Categoria eliminata','v');}
@@ -2660,9 +2654,6 @@ function calSceglOra(v){
   if(calOra)tNuovo=null;
   renderCal();
   _aggiornaTriggerLabel();
-  // Focus su nome dopo selezione orario
-  setTimeout(function(){const 
-nn=document.getElementById('nn');if(nn)nn.focus();},100);
 }
 function _aggiornaTriggerLabel(){
   // Aggiorna la label del trigger (legacy per compatibilità)
