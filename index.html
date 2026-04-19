@@ -103,7 +103,8 @@ body.portrait-phone #bottom-nav{display:flex}
 }
 #nuovo-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:transparent;padding:10px 16px 20px;z-index:50}
 #nuovo-bottom-bar.visible{display:block}
-body.portrait-phone #nuovo-bottom-bar{bottom:calc(64px + env(safe-area-inset-bottom,16px));padding:10px 16px 12px}.pbody.has-bottom-bar{padding-bottom:100px!important}
+body.portrait-phone #nuovo-bottom-bar.visible{position:static;padding:10px 0 20px;margin-top:12px}
+/* portrait-phone: barra nel flusso, no offset necessario */.pbody.has-bottom-bar{padding-bottom:100px!important}
 @media(max-width:639px) and (orientation:portrait){
   #nuovo-bottom-bar{bottom:calc(68px + env(safe-area-inset-bottom,16px));padding:10px 16px 12px}
   .pbody.has-bottom-bar{padding-bottom:170px!important}
@@ -1669,23 +1670,7 @@ function checkPortrait(){
 }
 window.addEventListener('resize',checkPortrait);
 
-// Bottom bar sempre sopra la tastiera via visualViewport
-if(window.visualViewport){
-  window.visualViewport.addEventListener('resize',function(){
-    const bar=document.getElementById('nuovo-bottom-bar');
-    if(!bar||!bar.classList.contains('visible'))return;
-    const vv=window.visualViewport;
-    const offsetFromBottom=window.innerHeight-(vv.offsetTop+vv.height);
-    bar.style.bottom=Math.max(offsetFromBottom,0)+'px';
-  });
-  window.visualViewport.addEventListener('scroll',function(){
-    const bar=document.getElementById('nuovo-bottom-bar');
-    if(!bar||!bar.classList.contains('visible'))return;
-    const vv=window.visualViewport;
-    const offsetFromBottom=window.innerHeight-(vv.offsetTop+vv.height);
-    bar.style.bottom=Math.max(offsetFromBottom,0)+'px';
-  });
-}
+
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
@@ -1714,11 +1699,6 @@ document.addEventListener('touchstart',function(e){
 document.addEventListener('focusin',function(e){
   if(!document.body.classList.contains('portrait-phone'))return;
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
-    // Non nascondere la bottom bar in nuovo ordine — la gestisce visualViewport
-    const bar=document.getElementById('nuovo-bottom-bar');
-    if(bar&&!bar.classList.contains('visible')){
-      bar.style.display='none';
-    }
     document.getElementById('bottom-nav').style.display='none';
     document.body.classList.add('keyboard-open');
   }
@@ -1730,7 +1710,7 @@ document.addEventListener('focusout',function(e){
     if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;
     var bar=document.getElementById('nuovo-bottom-bar');
     var nav=document.getElementById('bottom-nav');
-    if(bar&&bar.classList.contains('visible')){/* mantieni visibile, gestita da visualViewport */}
+    if(bar&&bar.classList.contains('visible')&&!document.body.classList.contains('portrait-phone'))bar.style.display='';
     if(nav)nav.style.display='flex';
     document.body.classList.remove('keyboard-open');
   },300);
