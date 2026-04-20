@@ -1239,7 +1239,18 @@ async function togItemDone(oid,idx){const o=ords.find(x=>x.id===oid);if(!o)retur
 async function updItem(oid,idx,field,val){const o=ords.find(x=>x.id===oid);if(!o)return;o.items[idx][field]=val;await saveData();}
 async function updOrdCampo(oid,campo,val){const o=ords.find(x=>x.id===oid);if(!o)return;o[campo]=val||null;await saveData();renderOrdini();}
 async function setStatoD(oid,stato){await setStato(oid,stato);const o=ords.find(x=>x.id===oid);if(o)renderDetModal(o);}
-async function addItemToOrd(oid,artId){const o=ords.find(x=>x.id===oid);if(!o)return;const newIdx=o.items.length;o.items.push({artId:artId,qty:'',um:'',nota:'',done:false});await saveData();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);renderOrdini();toast('Articolo aggiunto ✅','v');const qi=document.getElementById('det-qty-'+oid+'-'+newIdx);if(qi)qi.focus();}
+async function addItemToOrd(oid,artId){
+  const o=ords.find(x=>x.id===oid);if(!o)return;
+  const newIdx=o.items.length;
+  o.items.push({artId:artId,qty:'',um:'',nota:'',done:false});
+  // Render subito e focus sincrono — prima di saveData per aprire tastiera su iOS
+  const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);
+  const qi=document.getElementById('det-qty-'+oid+'-'+newIdx);
+  if(qi)qi.focus();
+  renderOrdini();
+  toast('Articolo aggiunto \u2705','v');
+  saveData();
+}
 function confDelItem(oid,idx){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const a=arts.find(x=>x.id===(o.items[idx]||{}).artId);
