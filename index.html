@@ -1243,13 +1243,19 @@ async function addItemToOrd(oid,artId){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const newIdx=o.items.length;
   o.items.push({artId:artId,qty:'',um:'',nota:'',done:false});
+  // Crea input temporaneo e focus sincrono prima del render — unico modo per aprire tastiera su iOS
+  const _tmp=document.createElement('input');
+  _tmp.setAttribute('type','number');
+  _tmp.style.cssText='position:fixed;top:0;left:0;opacity:0;width:1px;height:1px;';
+  document.body.appendChild(_tmp);
+  _tmp.focus();
   const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);
   renderOrdini();
-  // Focus dopo render — setTimeout 0 mantiene il contesto touch su iOS
   setTimeout(function(){
     const qi=document.getElementById('det-qty-'+oid+'-'+newIdx);
     if(qi)qi.focus();
-  },0);
+    if(_tmp.parentNode)_tmp.parentNode.removeChild(_tmp);
+  },50);
   saveData();
 }
 function confDelItem(oid,idx){
