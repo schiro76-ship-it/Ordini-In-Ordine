@@ -1355,10 +1355,17 @@ async function addArtRapido(){
   const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
   arts.push({id:id,nome:n,cat:c});
-  await saveData();refreshCatSelects();closeModal('modal-qart');
-  if(detQArtOid){await addItemToOrd(detQArtOid,id);detQArtOid=null;}
-  else{sel.push({id:id,qty:'',um:'',nota:'',done:false});catS='Tutti';renderPills();renderArtS();renderSP();setTimeout(function(){const inp=document.getElementById('qin-'+id);if(inp)inp.focus();},50);}
-  toast('"'+n+'" aggiunto ✅','v');
+  // Focus sincrono prima dell'await: unico modo per aprire tastiera su iOS
+  const _tmpInp=document.createElement('input');
+  _tmpInp.style.cssText='position:fixed;top:0;left:0;opacity:0;width:1px;height:1px;';
+  document.body.appendChild(_tmpInp);
+  _tmpInp.focus();
+  try{
+    await saveData();refreshCatSelects();closeModal('modal-qart');
+    if(detQArtOid){await addItemToOrd(detQArtOid,id);detQArtOid=null;}
+    else{sel.push({id:id,qty:'',um:'',nota:'',done:false});catS='Tutti';renderPills();renderArtS();renderSP();setTimeout(function(){const inp=document.getElementById('qin-'+id);if(inp)inp.focus();},50);}
+    toast('"'+n+'" aggiunto ✅','v');
+  }finally{if(_tmpInp.parentNode)_tmpInp.parentNode.removeChild(_tmpInp);}
 }
 // Impostazioni calendario — modalità: 'ora' | 'mp' | 'niente'
 var _calMode='ora';
