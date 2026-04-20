@@ -1250,7 +1250,7 @@ async function addItemToOrd(oid,artId){const o=ords.find(x=>x.id===oid);if(!o)re
 function confDelItem(oid,idx){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const a=arts.find(x=>x.id===(o.items[idx]||{}).artId);
-  document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:'articolo')+'" dall'ordine?';
+  document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:'articolo')+'" dall\'ordine?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delItemFromOrd(oid,idx);};
   openModal('modal-del-conf');
 }
@@ -1285,14 +1285,33 @@ function renderDetSelCards(oid){
   const ids=Object.keys(detSelItems);
   if(!ids.length){wrap.style.display='none';wrap.innerHTML='';return;}
   wrap.style.display='block';
-  wrap.innerHTML=ids.map(function(aid){
+  let html='';
+  ids.forEach(function(aid){
     const a=arts.find(x=>x.id===parseInt(aid));
     const s=detSelItems[aid];
-    const umPills=unitaMisura.map(function(u){return '<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detSelUM('+oid+','+aid+',''+u+'')" onclick="detSelUM('+oid+','+aid+',''+u+'')" style="padding:5px 10px;border-radius:18px;border:1.5px solid '+(s.um===u?'var(--r)':'var(--brd)')+';background:'+(s.um===u?'var(--r)':'#fff')+';color:'+(s.um===u?'#fff':'var(--sub)')+';font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">'+u+'</button>';}).join('');
-    return '<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">'+(a?a.nome:'?')+'</div><button class="sel-rm" onclick="togDetArt('+oid+','+aid+')">✕</button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button style="background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="detChQty('+oid+','+aid+',-0.5)">−</button><input id="det-qin-'+aid+'" class="sel-input" type="number" step="0.01" min="0.01" value="'+s.qty+'" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="detSelItems['+aid+'].qty=this.value"><button style="background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="detChQty('+oid+','+aid+',+0.5)">+</button>'+umPills+'</div><div style="display:flex;align-items:center;gap:6px"><input id="det-nota-'+aid+'" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="'+(s.nota||'')+'" oninput="detSelItems['+aid+'].nota=this.value" style="flex:1"><button onmousedown="event.preventDefault()" onclick="detTornaRicerca('+oid+')" style="width:32px;height:32px;border-radius:8px;border:none;background:var(--g);color:#fff;font-size:16px;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif">✓</button></div></div>';
-  }).join('');
-  if(ids.length>0){wrap.innerHTML+='<button class="btn br btn-full" style="margin-top:4px" onclick="detConfermaSelCards('+oid+')">✅ Aggiungi '+(ids.length>1?ids.length+' articoli':'articolo')+'</button>';}
+    let umHtml='';
+    unitaMisura.forEach(function(u){
+      const sel=s.um===u;
+      umHtml+=`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detSelUM(${oid},${aid},'${u}')" onclick="detSelUM(${oid},${aid},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--r)':'var(--brd)'};background:${sel?'var(--r)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
+    });
+    html+=`<div class="sel-card">
+      <div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}</div><button class="sel-rm" onclick="togDetArt(${oid},${aid})">✕</button></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+        <button style="background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="detChQty(${oid},${aid},-0.5)">−</button>
+        <input id="det-qin-${aid}" class="sel-input" type="number" step="0.01" min="0.01" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="detSelItems[${aid}].qty=this.value">
+        <button style="background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="detChQty(${oid},${aid},+0.5)">+</button>
+        ${umHtml}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input id="det-nota-${aid}" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${s.nota||''}" oninput="detSelItems[${aid}].nota=this.value" style="flex:1">
+        <button onmousedown="event.preventDefault()" onclick="detTornaRicerca(${oid})" style="width:32px;height:32px;border-radius:8px;border:none;background:var(--g);color:#fff;font-size:16px;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif">✓</button>
+      </div>
+    </div>`;
+  });
+  if(ids.length>0){html+=`<button class="btn br btn-full" style="margin-top:4px" onclick="detConfermaSelCards(${oid})">✅ Aggiungi ${ids.length>1?ids.length+' articoli':'articolo'}</button>`;}
+  wrap.innerHTML=html;
 }
+
 function detSelUM(oid,artId,um){
   if(!detSelItems[artId])return;
   detSelItems[artId].um=um;
