@@ -1250,7 +1250,7 @@ async function addItemToOrd(oid,artId){
     const qi=document.getElementById('det-qty-'+oid+'-'+newIdx);
     if(qi)qi.focus();
   },0);
-  saveData().then(function(){toast('Articolo aggiunto \u2705','v');});
+  saveData();
 }
 function confDelItem(oid,idx){
   const o=ords.find(x=>x.id===oid);if(!o)return;
