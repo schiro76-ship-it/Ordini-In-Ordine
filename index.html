@@ -1074,8 +1074,31 @@ function renderDetModal(o){
   const hBg={evadere:'linear-gradient(135deg,var(--r),#8B1A1A)',completato:'linear-gradient(135deg,var(--g),#0D5C47)',ritirato:'linear-gradient(135deg,var(--gr),#374151)'}[o.stato];
   const artRows=(o.items||[]).map(function(it,idx){
     const a=arts.find(x=>x.id===it.artId);
-    const umSel=`<option value="">—</option>`+unitaMisura.map(u=>`<option value="${u}"${it.um===u?' selected':''}>${u}</option>`).join('');
-    return`<div class="art-det-row ${it.done?'done':''}" id="adr-${o.id}-${idx}"><div class="art-det-top"><div class="art-det-check ${it.done?'checked':''}" onclick="togItemDone(${o.id},${idx})">${it.done?'✓':''}</div><div class="art-det-name">${a?a.nome:'<i style="color:var(--sub)">Rimosso</i>'}</div><button onclick="confDelItem(${o.id},${idx})" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--sub);padding:2px 4px">🗑️</button></div><div class="art-det-inputs"><div><label>Quantità</label><input id="det-qty-${o.id}-${idx}" type="number" step="0.01" min="0.01" value="${it.qty||''}" onchange="updItem(${o.id},${idx},'qty',parseFloat(this.value)||1)"></div><div><label>U.M.</label><select onchange="updItem(${o.id},${idx},'um',this.value)">${umSel}</select></div><div style="grid-column:1/-1"><label>Note</label><input type="text" value="${(it.nota||'').replace(/"/g,'&quot;')}" placeholder="Nota…" oninput="updItem(${o.id},${idx},'nota',this.value)"></div></div></div>`;
+    const nome=a?a.nome:'<i style="color:var(--sub)">Rimosso</i>';
+    const isRitirato=o.stato==='ritirato';
+    const cardStyle=isRitirato?'opacity:0.6;':'';
+    let umPills='';
+    unitaMisura.forEach(function(u){
+      const sel=it.um===u;
+      const dis=isRitirato?'disabled':'' ;
+      umPills+=`<button ${dis} onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detUpdUM(${o.id},${idx},'${u}')" onclick="detUpdUM(${o.id},${idx},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--r)':'var(--brd)'};background:${sel?'var(--r)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
+    });
+    return `<div class="sel-card" style="${cardStyle}">
+      <div class="sel-card-top">
+        <div class="sel-card-name">${nome}</div>
+        ${!isRitirato?`<button class="sel-rm" onclick="confDelItem(${o.id},${idx})">🗑️</button>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+        <button ${isRitirato?'disabled':''} style="background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="detChQtyDirect(${o.id},${idx},-0.5)">−</button>
+        <input id="det-qty-${o.id}-${idx}" class="sel-input" type="number" step="0.01" min="0.01" value="${it.qty||''}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" ${isRitirato?'disabled':''} oninput="updItem(${o.id},${idx},'qty',this.value)" onchange="updItem(${o.id},${idx},'qty',parseFloat(this.value)||this.value)">
+        <button ${isRitirato?'disabled':''} style="background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="detChQtyDirect(${o.id},${idx},+0.5)">+</button>
+        ${umPills}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(it.nota||'').replace(/"/g,'&quot;')}" ${isRitirato?'disabled':''} oninput="updItem(${o.id},${idx},'nota',this.value)" style="flex:1">
+        ${!isRitirato?`<button onmousedown="event.preventDefault()" onclick="detFocusCerca(${o.id})" style="width:32px;height:32px;border-radius:8px;border:none;background:var(--g);color:#fff;font-size:16px;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif">✓</button>`:''}
+      </div>
+    </div>`;
   }).join('');
   document.getElementById('modal-det-body').innerHTML=`
     <div style="background:${hBg};color:#fff;padding:14px 16px;border-radius:12px;margin-bottom:14px">
@@ -1257,6 +1280,33 @@ async function addItemToOrd(oid,artId){
     if(_tmp.parentNode)_tmp.parentNode.removeChild(_tmp);
   },50);
   saveData();
+}
+
+function detUpdUM(oid,idx,um){
+  const o=ords.find(x=>x.id===oid);if(!o)return;
+  o.items[idx].um=um;
+  saveData();
+  // Aggiorna solo le pill UM senza fare renderDetModal completo
+  renderDetModal(o);
+  // Focus su nota dopo selezione UM
+  setTimeout(function(){
+    const nota=document.querySelector('#modal-det-body .sel-card:nth-child('+(idx+1)+') .sel-input-nota');
+    if(nota)nota.focus();
+  },30);
+}
+function detChQtyDirect(oid,idx,d){
+  const o=ords.find(x=>x.id===oid);if(!o)return;
+  const cur=parseFloat(o.items[idx].qty)||1;
+  const newVal=Math.max(0.01,Math.round((cur+d)*100)/100);
+  o.items[idx].qty=newVal;
+  const inp=document.getElementById('det-qty-'+oid+'-'+idx);
+  if(inp)inp.value=newVal;
+  saveData();
+}
+function detFocusCerca(oid){
+  const s=document.getElementById('det-search-art');
+  if(s){s.value='';s.focus();}
+  renderDetArtGrid(oid);
 }
 function confDelItem(oid,idx){
   const o=ords.find(x=>x.id===oid);if(!o)return;
