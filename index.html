@@ -1243,11 +1243,13 @@ async function addItemToOrd(oid,artId){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const newIdx=o.items.length;
   o.items.push({artId:artId,qty:'',um:'',nota:'',done:false});
-  // Render subito e focus sincrono — prima di saveData per aprire tastiera su iOS
   const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);
-  const qi=document.getElementById('det-qty-'+oid+'-'+newIdx);
-  if(qi)qi.focus();
   renderOrdini();
+  // Focus dopo render — setTimeout 0 mantiene il contesto touch su iOS
+  setTimeout(function(){
+    const qi=document.getElementById('det-qty-'+oid+'-'+newIdx);
+    if(qi)qi.focus();
+  },0);
   saveData().then(function(){toast('Articolo aggiunto \u2705','v');});
 }
 function confDelItem(oid,idx){
@@ -1384,8 +1386,8 @@ async function addArtRapido(){
     const inp=document.getElementById('qin-'+id);
     if(inp)inp.focus();
     saveData();
+    toast('"'+n+'" aggiunto ✅','v');
   }
-  toast('"'+n+'" aggiunto ✅','v');
 }
 // Impostazioni calendario — modalità: 'ora' | 'mp' | 'niente'
 var _calMode='ora';
