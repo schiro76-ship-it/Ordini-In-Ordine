@@ -1079,7 +1079,7 @@ function renderDetModal(o){
   const artRows=(o.items||[]).map(function(it,idx){
     const a=arts.find(x=>x.id===it.artId);
     const umSel=`<option value="">—</option>`+unitaMisura.map(u=>`<option value="${u}"${it.um===u?' selected':''}>${u}</option>`).join('');
-    return`<div class="art-det-row ${it.done?'done':''}" id="adr-${o.id}-${idx}"><div class="art-det-top"><div class="art-det-check ${it.done?'checked':''}" onclick="togItemDone(${o.id},${idx})">${it.done?'✓':''}</div><div class="art-det-name">${a?a.nome:'<i style="color:var(--sub)">Rimosso</i>'}</div><button onclick="confDelItem(${o.id},${idx})" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--sub);padding:2px 4px">🗑️</button></div><div class="art-det-inputs"><div><label>Quantità</label><input id="det-qty-${o.id}-${idx}" type="number" step="0.01" min="0.01" value="${it.qty||''}" onchange="updItem(${o.id},${idx},'qty',parseFloat(this.value)||1)"></div><div><label>U.M.</label><select onchange="updItem(${o.id},${idx},'um',this.value)">${umSel}</select></div><div style="grid-column:1/-1"><label>Note</label><input type="text" value="${(it.nota||'').replace(/"/g,'&quot;')}" placeholder="Nota…" oninput="updItem(${o.id},${idx},'nota',this.value)"></div></div></div>`;
+    return`<div class="art-det-row ${it.done?'done':''}" id="adr-${o.id}-${idx}"><div class="art-det-top"><div class="art-det-check ${it.done?'checked':''}" onclick="togItemDone(${o.id},${idx})">${it.done?'✓':''}</div><div class="art-det-name">${a?a.nome:'<i style="color:var(--sub)">Rimosso</i>'}</div><button onclick="if(confirm('Rimuovere questo articolo dall\'ordine?'))delItemFromOrd(${o.id},${idx})" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--sub);padding:2px 4px">🗑️</button></div><div class="art-det-inputs"><div><label>Quantità</label><input id="det-qty-${o.id}-${idx}" type="number" step="0.01" min="0.01" value="${it.qty||''}" onchange="updItem(${o.id},${idx},'qty',parseFloat(this.value)||1)"></div><div><label>U.M.</label><select onchange="updItem(${o.id},${idx},'um',this.value)">${umSel}</select></div><div style="grid-column:1/-1"><label>Note</label><input type="text" value="${(it.nota||'').replace(/"/g,'&quot;')}" placeholder="Nota…" oninput="updItem(${o.id},${idx},'nota',this.value)"></div></div></div>`;
   }).join('');
   document.getElementById('modal-det-body').innerHTML=`
     <div style="background:${hBg};color:#fff;padding:14px 16px;border-radius:12px;margin-bottom:14px">
@@ -1121,7 +1121,6 @@ function renderDetModal(o){
       <div class="cp" id="det-cat-pills" style="margin-bottom:8px"></div>
       <div class="sbox" style="margin-bottom:8px"><span class="si">🔍</span><input type="text" id="det-search-art" placeholder="Cerca articolo…" style="width:100%;padding:9px 13px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id})"></div>
       <div id="det-art-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;max-height:180px;overflow-y:auto"></div>
-      <div id="det-sel-cards" style="display:none;margin-top:8px"></div>
     </div>
     <div style="font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase;margin-bottom:8px">Articoli <span style="background:var(--bg);border-radius:10px;padding:1px 7px;color:var(--txt)">${(o.items||[]).length}</span></div>
     <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:13px;margin-bottom:8px">Nessun articolo.</p>'}</div>
@@ -1131,7 +1130,6 @@ function renderDetModal(o){
       ${o.stato!=='ritirato'?`<button class="btn" style="flex:1;min-width:90px;font-size:12px;padding:9px;background:var(--gr);color:#fff" onclick="setStatoD(${o.id},'ritirato')">Ritirato</button>`:''}
     </div>
     <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-det')">Chiudi</button></div>`;
-  detSelItems={};
   setTimeout(function(){renderDetArtGrid(o.id);initDetCal(o);},0);
 }
 let detCalYear=0,detCalMonth=0,detCalSelDate=null,detCalOid=null;
@@ -1222,7 +1220,7 @@ function renderDetArtGrid(oid){
     &&(!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c))
   ).sort((a,b)=>a.nome.localeCompare(b.nome));
   el.innerHTML=l.length
-    ?l.map(a=>{const inSel=!!detSelItems[a.id];return`<button class="ac ${inSel?'sel':''}" onclick="togDetArt(${oid},${a.id})" style="font-size:11px;padding:7px 8px">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}</button>`;}).join('')
+    ?l.map(a=>`<button class="ac" onclick="addItemToOrd(${oid},${a.id})" style="font-size:11px;padding:7px 8px">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}</button>`).join('')
     :'<p style="font-size:12px;color:var(--sub);font-weight:600;grid-column:1/-1">'+(c?'Nessun risultato.':'Tutti già presenti.')+'</p>';
 }
 async function togItemOrdini(oid,idx,rowEl){
@@ -1246,84 +1244,6 @@ async function updItem(oid,idx,field,val){const o=ords.find(x=>x.id===oid);if(!o
 async function updOrdCampo(oid,campo,val){const o=ords.find(x=>x.id===oid);if(!o)return;o[campo]=val||null;await saveData();renderOrdini();}
 async function setStatoD(oid,stato){await setStato(oid,stato);const o=ords.find(x=>x.id===oid);if(o)renderDetModal(o);}
 async function addItemToOrd(oid,artId){const o=ords.find(x=>x.id===oid);if(!o)return;const newIdx=o.items.length;o.items.push({artId:artId,qty:'',um:'',nota:'',done:false});await saveData();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);renderOrdini();toast('Articolo aggiunto ✅','v');const qi=document.getElementById('det-qty-'+oid+'-'+newIdx);if(qi)qi.focus();}
-
-function confDelItem(oid,idx){
-  const o=ords.find(x=>x.id===oid);if(!o)return;
-  const a=arts.find(x=>x.id===(o.items[idx]||{}).artId);
-  document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:'articolo')+'" dall\'ordine?';
-  document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delItemFromOrd(oid,idx);};
-  openModal('modal-del-conf');
-}
-let detSelItems={};
-function togDetArt(oid,artId){
-  if(detSelItems[artId]){delete detSelItems[artId];renderDetArtGrid(oid);renderDetSelCards(oid);return;}
-  detSelItems[artId]={qty:'',um:'',nota:''};
-  renderDetArtGrid(oid);renderDetSelCards(oid);
-  const inp=document.getElementById('det-qin-'+artId);
-  if(inp)inp.focus();
-}
-function detTornaRicerca(oid){
-  const s=document.getElementById('det-search-art');
-  if(s){s.value='';s.focus();}
-  renderDetArtGrid(oid);
-}
-async function detConfermaSelCards(oid){
-  const o=ords.find(x=>x.id===oid);if(!o)return;
-  const ids=Object.keys(detSelItems);if(!ids.length)return;
-  for(const aid of ids){
-    const s=detSelItems[aid];
-    const qEl=document.getElementById('det-qin-'+aid);
-    if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;
-    o.items.push({artId:parseInt(aid),qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false});
-  }
-  detSelItems={};
-  await saveData();renderOrdini();renderDetModal(o);
-  toast('Articoli aggiunti ✅','v');
-}
-function renderDetSelCards(oid){
-  const wrap=document.getElementById('det-sel-cards');if(!wrap)return;
-  const ids=Object.keys(detSelItems);
-  if(!ids.length){wrap.style.display='none';wrap.innerHTML='';return;}
-  wrap.style.display='block';
-  let html='';
-  ids.forEach(function(aid){
-    const a=arts.find(x=>x.id===parseInt(aid));
-    const s=detSelItems[aid];
-    let umHtml='';
-    unitaMisura.forEach(function(u){
-      const sel=s.um===u;
-      umHtml+=`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detSelUM(${oid},${aid},'${u}')" onclick="detSelUM(${oid},${aid},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--r)':'var(--brd)'};background:${sel?'var(--r)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
-    });
-    html+=`<div class="sel-card">
-      <div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}</div><button class="sel-rm" onclick="togDetArt(${oid},${aid})">✕</button></div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
-        <button style="background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="detChQty(${oid},${aid},-0.5)">−</button>
-        <input id="det-qin-${aid}" class="sel-input" type="number" step="0.01" min="0.01" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="detSelItems[${aid}].qty=this.value">
-        <button style="background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="detChQty(${oid},${aid},+0.5)">+</button>
-        ${umHtml}
-      </div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <input id="det-nota-${aid}" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${s.nota||''}" oninput="detSelItems[${aid}].nota=this.value" style="flex:1">
-        <button onmousedown="event.preventDefault()" onclick="detTornaRicerca(${oid})" style="width:32px;height:32px;border-radius:8px;border:none;background:var(--g);color:#fff;font-size:16px;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif">✓</button>
-      </div>
-    </div>`;
-  });
-  if(ids.length>0){html+=`<button class="btn br btn-full" style="margin-top:4px" onclick="detConfermaSelCards(${oid})">✅ Aggiungi ${ids.length>1?ids.length+' articoli':'articolo'}</button>`;}
-  wrap.innerHTML=html;
-}
-
-function detSelUM(oid,artId,um){
-  if(!detSelItems[artId])return;
-  detSelItems[artId].um=um;
-  renderDetSelCards(oid);
-  setTimeout(function(){const n=document.getElementById('det-nota-'+artId);if(n)n.focus();},30);
-}
-function detChQty(oid,artId,d){
-  if(!detSelItems[artId])return;
-  const s=detSelItems[artId];
-  s.qty=Math.max(0.01,Math.round(((parseFloat(s.qty)||1)+d)*100)/100);
-  const inp=document.getElementById('det-qin-'+artId);if(inp)inp.value=s.qty;
-}
 async function delItemFromOrd(oid,idx){const o=ords.find(x=>x.id===oid);if(!o)return;o.items.splice(idx,1);await saveData();renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso');}
 async function togRpItem(oidStr,idx){
   const oid=parseInt(oidStr);const o=ords.find(x=>x.id===oid);
