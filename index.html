@@ -1357,7 +1357,7 @@ async function addArtRapido(){
   arts.push({id:id,nome:n,cat:c});
   await saveData();refreshCatSelects();closeModal('modal-qart');
   if(detQArtOid){await addItemToOrd(detQArtOid,id);detQArtOid=null;}
-  else{sel.push({id:id,qty:1,um:'',nota:'',done:false});catS='Tutti';renderPills();renderArtS();renderSP();}
+  else{sel.push({id:id,qty:'',um:'',nota:'',done:false});catS='Tutti';renderPills();renderArtS();renderSP();setTimeout(function(){const inp=document.getElementById('qin-'+id);if(inp)inp.focus();},50);}
   toast('"'+n+'" aggiunto ✅','v');
 }
 // Impostazioni calendario — modalità: 'ora' | 'mp' | 'niente'
