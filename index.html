@@ -1354,7 +1354,7 @@ async function togRpItem(oidStr,idx){
 let sel=[],tNuovo=null,catS='Tutti';
 var _qtyStep=1;
 function loadQtyStep(){try{const s=localStorage.getItem('qty-step');if(s)_qtyStep=parseFloat(s)||1;}catch(e){}}
-function saveQtyStep(v){_qtyStep=parseFloat(v)||1;localStorage.setItem('qty-step',_qtyStep);}
+function saveQtyStep(v){_qtyStep=parseFloat(String(v).replace(',','.'))||1;localStorage.setItem('qty-step',_qtyStep);}
 function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.textContent=usati.has(v)?'⚠️ già usato':'';}
 function minNumeroLibero(){const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));let n=1;while(usati.has(n))n++;return n;}
 function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getElementById('nuovo-num-top');if(elTop)elTop.value=numLibero;const badge=document.getElementById('nuovo-num-badge');if(badge)badge.textContent='';document.getElementById('nn').value='';tNuovo=null;calSelDate=null;calOra=null;const tr=document.getElementById('cal-trigger');if(tr){tr.classList.remove('has-val');document.getElementById('cal-trigger-txt').textContent='Scegli giorno e turno…'}const cw=document.getElementById('cal-wrap');if(cw)cw.style.display='none';calInit();catS='Tutti';renderPills();renderArtS();sel=[];renderSP();}
