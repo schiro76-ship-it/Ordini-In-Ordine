@@ -140,29 +140,19 @@ body.portrait-phone{background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
 #status-bar-cover-sidebar{display:none;position:fixed;top:0;left:0;width:var(–sbw);height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
 #status-bar-cover-content{display:none;position:fixed;top:0;left:var(–sbw);right:0;height:env(safe-area-inset-top,44px);background:var(–bg);z-index:9999}
-body.portrait-phone #status-bar-cover-sidebar{display:none}
-body.portrait-phone #status-bar-cover-content{display:none}
+/* iPhone: solo cover content a tutta larghezza */
+body.portrait-phone #status-bar-cover-content{display:block;left:0;right:0}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
-body.portrait-phone #status-bar-cover-content{display:block;left:0}
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
-/* Tablet portrait e landscape: banda bicolore */
-@media(min-width:640px) and (max-width:1023px){
-#status-bar-cover-sidebar{display:block}
-#status-bar-cover-content{display:block}
-.sidebar{padding-top:env(safe-area-inset-top,20px)}
-.page-wrap{padding-top:env(safe-area-inset-top,20px)}
-}
-/* Desktop */
-@media(min-width:1024px){
-#status-bar-cover-sidebar{display:block}
-#status-bar-cover-content{display:block}
-.sidebar{padding-top:env(safe-area-inset-top,0px)}
-.page-wrap{padding-top:env(safe-area-inset-top,0px)}
-}
 body.portrait-phone .phdr h2{color:#fff}
 body.portrait-phone .phdr{padding:14px 16px 0}
 /* Spazio extra sotto la ricerca solo quando la tastiera è aperta */
 body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!important}
+/* Tablet: banda bicolore portrait e landscape */
+@media(min-width:640px) and (max-width:1023px){
+#status-bar-cover-sidebar{display:block}
+#status-bar-cover-content{display:block}
+}
 @media(min-width:640px) and (max-width:1023px){
 body{background:#DDE0E8}
 :root{–sbw:200px}
