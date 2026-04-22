@@ -1234,15 +1234,16 @@ function renderDetArtGrid(oid){
   const pillsEl=document.getElementById('det-cat-pills');
   const catsDisp=['Tutti',...cats.sort()];
   if(pillsEl)pillsEl.innerHTML=catsDisp.map(c=>`<span class="pill ${c===detCatFilter?'active':''}" onclick="setDetCat('${c}',${oid})">${c}</span>`).join('');
-  const c=(document.getElementById('det-search-art')&&document.getElementById('det-search-art').value||'').toLowerCase();
+  const c=(document.getElementById('det-search-art')&&document.getElementById('det-search-art').value||'').toLowerCase().trim();
+  if(!c){el.innerHTML='';return;}
   const p=new Set((o.items||[]).map(function(it){return it.artId}));
   const l=arts.filter(a=>!p.has(a.id)
     &&(detCatFilter==='Tutti'||a.cat===detCatFilter)
-    &&(!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c))
+    &&(a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c))
   ).sort((a,b)=>a.nome.localeCompare(b.nome));
   el.innerHTML=l.length
     ?l.map(a=>`<button class="ac" onclick="addItemToOrd(${oid},${a.id})" style="font-size:11px;padding:7px 8px">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}</button>`).join('')
-    :'<p style="font-size:12px;color:var(--sub);font-weight:600;grid-column:1/-1">'+(c?'Nessun risultato.':'Tutti già presenti.')+'</p>';
+    :'<p style="font-size:12px;color:var(--sub);font-weight:600;grid-column:1/-1">Nessun risultato.</p>';
 }
 async function togItemOrdini(oid,idx,rowEl){
   const o=ords.find(x=>x.id===oid);if(!o||!o.items[idx])return;
