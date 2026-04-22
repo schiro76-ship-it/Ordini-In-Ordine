@@ -1308,7 +1308,7 @@ function detUpdUM(oid,idx,um){
 function detChQtyDirect(oid,idx,d){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const cur=parseFloat(o.items[idx].qty)||0;
-  const newVal=Math.max(0,Math.round((cur+d*_qtyStep)*100)/100);
+  const newVal=Math.max(0,parseFloat((cur+d*_qtyStep).toFixed(4)));
   o.items[idx].qty=newVal;
   const inp=document.getElementById('det-qty-'+oid+'-'+idx);
   if(inp)inp.value=newVal;
@@ -1388,7 +1388,7 @@ function togArt(id){
     },50);
   }
 }
-function chQty(id,d){const s=sel.find(x=>x.id===id);if(!s)return;s.qty=Math.max(0,Math.round(((parseFloat(s.qty)||0)+d*_qtyStep)*100)/100);const inp=document.getElementById('qin-'+id);if(inp)inp.value=s.qty}
+function chQty(id,d){const s=sel.find(x=>x.id===id);if(!s)return;s.qty=Math.max(0,parseFloat(((parseFloat(s.qty)||0)+d*_qtyStep).toFixed(4)));const inp=document.getElementById('qin-'+id);if(inp)inp.value=s.qty}
 function setSelQty(id,v){const s=sel.find(x=>x.id===id);if(s)s.qty=parseFloat(v)||1}
 function setSelUM(id,v){const s=sel.find(x=>x.id===id);if(s)s.um=v}
 function selUMpill(id,v){
