@@ -597,15 +597,6 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
             <div class="cb"><div class="um-list" id="cat-display"></div></div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct">🔢 Quantità</div></div>
-            <div class="cb">
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
-                <div><div style="font-size:15px;font-weight:700">Passo + / −</div><div style="font-size:12px;color:var(--sub);font-weight:600">Di quanto aumenta/diminuisce la quantità</div></div>
-                <input type="number" id="qty-step-input" step="0.01" min="0.01" value="1" style="width:80px;padding:9px 11px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--txt);outline:none;text-align:center" oninput="saveQtyStep(this.value)">
-              </div>
-            </div>
-          </div>
-          <div class="card">
             <div class="ch"><div class="ct">💾 Dati</div></div>
             <div class="cb" style="display:flex;flex-direction:column;gap:10px">
               <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="esportaDati()"><span style="font-size:20px">⬆️</span><div style="text-align:left"><div style="font-size:14px;font-weight:900">Esporta dati</div><div style="font-size:12px;font-weight:600;color:var(--sub)">Scarica backup JSON</div></div></button>
@@ -833,7 +824,7 @@ const DEFAULT_UM=['kg','g','fette','pezzi','numero','vaschette','bustine'];
 const DEFAULT_ARTS=[{id:1,nome:'Costata di manzo',cat:'Bovino'},{id:2,nome:'Filetto di manzo',cat:'Bovino'},{id:3,nome:'Bistecca T-bone',cat:'Bovino'},{id:4,nome:'Macinato di manzo',cat:'Bovino'},{id:5,nome:'Roast beef',cat:'Bovino'},{id:6,nome:'Ossobuco',cat:'Bovino'},{id:7,nome:'Braciola di maiale',cat:'Suino'},{id:8,nome:'Salsiccia fresca',cat:'Suino'},{id:9,nome:'Arista di maiale',cat:'Suino'},{id:10,nome:'Pancetta',cat:'Suino'},{id:11,nome:'Coscia di agnello',cat:'Agnello'},{id:12,nome:'Costolette di agnello',cat:'Agnello'},{id:13,nome:'Petto di pollo',cat:'Pollame'},{id:14,nome:'Cosce di pollo',cat:'Pollame'},{id:15,nome:'Tacchino intero',cat:'Pollame'},{id:16,nome:'Prosciutto crudo',cat:'Salumi'},{id:17,nome:'Salame Milano',cat:'Salumi'}];
 async function saveData(){const payload={arts,ords,unitaMisura,cats,nextNum};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload);}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
 async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;}
-async function boot(){applyThemeFast();loadCalSettings();loadStoricoSettings();loadQtyStep();try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();if(isNewUser){isNewUser=false;obSelectedAttivita=null;obSelectedTheme=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyThemeFast();loadCalSettings();loadStoricoSettings();try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();if(isNewUser){isNewUser=false;obSelectedAttivita=null;obSelectedTheme=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();}else{setTimeout(checkOnboarding,300);}
   try{
     db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
@@ -867,7 +858,7 @@ function goTab(name){
   // Assicura che bottom-nav sia sempre visibile quando si cambia tab
   const nav=document.getElementById('bottom-nav');
   if(nav&&document.body.classList.contains('portrait-phone'))nav.style.display='flex';
-  if(name==='impostazioni'){renderArtM();renderUMDisplay();renderTemaGrid();const qsi=document.getElementById('qty-step-input');if(qsi)qsi.value=_qtyStep;}
+  if(name==='impostazioni'){renderArtM();renderUMDisplay();renderTemaGrid();}
   if(name==='ordini')renderOrdini();
   if(name==='riepilogo')renderRiepilogo();
   if(name==='storico'){renderStoricoRiepilogo();}
@@ -1308,7 +1299,7 @@ function detUpdUM(oid,idx,um){
 function detChQtyDirect(oid,idx,d){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const cur=parseFloat(o.items[idx].qty)||0;
-  const newVal=Math.max(0,parseFloat((cur+d*_qtyStep).toFixed(4)));
+  const newVal=Math.max(0,parseFloat((cur+d).toFixed(4)));
   o.items[idx].qty=newVal;
   const inp=document.getElementById('det-qty-'+oid+'-'+idx);
   if(inp)inp.value=newVal;
@@ -1352,9 +1343,6 @@ async function togRpItem(oidStr,idx){
   renderRiepilogo();
 }
 let sel=[],tNuovo=null,catS='Tutti';
-var _qtyStep=1;
-function loadQtyStep(){try{const s=localStorage.getItem('qty-step');if(s)_qtyStep=parseFloat(s)||1;}catch(e){}}
-function saveQtyStep(v){_qtyStep=parseFloat(String(v).replace(',','.'))||1;localStorage.setItem('qty-step',_qtyStep);}
 function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.textContent=usati.has(v)?'⚠️ già usato':'';}
 function minNumeroLibero(){const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));let n=1;while(usati.has(n))n++;return n;}
 function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getElementById('nuovo-num-top');if(elTop)elTop.value=numLibero;const badge=document.getElementById('nuovo-num-badge');if(badge)badge.textContent='';document.getElementById('nn').value='';tNuovo=null;calSelDate=null;calOra=null;const tr=document.getElementById('cal-trigger');if(tr){tr.classList.remove('has-val');document.getElementById('cal-trigger-txt').textContent='Scegli giorno e turno…'}const cw=document.getElementById('cal-wrap');if(cw)cw.style.display='none';calInit();catS='Tutti';renderPills();renderArtS();sel=[];renderSP();}
@@ -1388,7 +1376,7 @@ function togArt(id){
     },50);
   }
 }
-function chQty(id,d){const s=sel.find(x=>x.id===id);if(!s)return;s.qty=Math.max(0,parseFloat(((parseFloat(s.qty)||0)+d*_qtyStep).toFixed(4)));const inp=document.getElementById('qin-'+id);if(inp)inp.value=s.qty}
+function chQty(id,d){const s=sel.find(x=>x.id===id);if(!s)return;s.qty=Math.max(0,parseFloat(((parseFloat(s.qty)||0)+d).toFixed(4)));const inp=document.getElementById('qin-'+id);if(inp)inp.value=s.qty}
 function setSelQty(id,v){const s=sel.find(x=>x.id===id);if(s)s.qty=parseFloat(v)||1}
 function setSelUM(id,v){const s=sel.find(x=>x.id===id);if(s)s.um=v}
 function selUMpill(id,v){
