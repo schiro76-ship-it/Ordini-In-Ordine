@@ -1386,7 +1386,7 @@ function tornaRicerca(){
 }
 function confRimArt(id){
   const a=arts.find(x=>x.id===id);
-  document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:'articolo')+'" dall'ordine?';
+  document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:'articolo')+'" dall\'ordine?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');togArt(id);};
   openModal('modal-del-conf');
 }
