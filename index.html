@@ -1124,15 +1124,15 @@ function renderDetModal(o){
       </div>
       <div style="display:flex;align-items:center;gap:6px">
         <input class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(it.nota||'').replace(/"/g,'&quot;')}" ${isRitirato?'disabled':''} oninput="updItem(${o.id},${idx},'nota',this.value)" style="flex:1">
-        ${!isRitirato?`<button onmousedown="event.preventDefault()" onclick="detFocusCerca(${o.id})" style="width:32px;height:32px;border-radius:8px;border:none;background:var(--g);color:#fff;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">🔍</button>`:''}
+        ${!isRitirato?`<button onmousedown="event.preventDefault()" onclick="detFocusCerca(${o.id})" style="width:32px;height:32px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">🔍</button>`:''}
       </div>
     </div>`;
   }).join('');
   document.getElementById('modal-det-body').innerHTML=`
     <div style="background:${hBg};color:#fff;padding:14px 16px;border-radius:12px;margin-bottom:14px">
-      <div style="display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:end;margin-bottom:8px">
+      <div style="display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:center;margin-bottom:8px">
         <div><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">#Num</div>
-          <input type="number" value="${o.num}" style="width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;color:#fff;outline:none" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
+          <input type="number" value="${o.num}" style="width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;color:#fff;outline:none;-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield;" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
         <div><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">Nome</div>
           <input value="${o.nome.replace(/"/g,'&quot;')}" style="width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;outline:none" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
         <div style="flex-shrink:0"><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">Data</div>
@@ -1334,8 +1334,9 @@ function detChQtyDirect(oid,idx,d){
 }
 function detFocusCerca(oid){
   const s=document.getElementById('det-search-art');
-  if(s){s.value='';s.focus();}
+  if(s){s.value='';s.style.borderColor='var(--r)';s.focus();}
   renderDetArtGrid(oid);
+  setTimeout(function(){const s2=document.getElementById('det-search-art');if(s2)s2.style.borderColor='';},2000);
 }
 function confDelItem(oid,idx){
   const o=ords.find(x=>x.id===oid);if(!o)return;
