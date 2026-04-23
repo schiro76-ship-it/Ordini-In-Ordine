@@ -1130,12 +1130,12 @@ function renderDetModal(o){
   }).join('');
   document.getElementById('modal-det-body').innerHTML=`
     <div style="background:${hBg};color:#fff;padding:14px 16px;border-radius:12px;margin-bottom:14px">
-      <div style="display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:center;margin-bottom:8px">
-        <div><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">#Num</div>
-          <input type="number" value="${o.num}" style="width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;color:#fff;outline:none;-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield;" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
-        <div><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">Nome</div>
-          <input value="${o.nome.replace(/"/g,'&quot;')}" style="width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;outline:none" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
-        <div style="flex-shrink:0"><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">Data</div>
+      <div style="display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:end;margin-bottom:8px">
+        <div style="display:flex;flex-direction:column"><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">#Num</div>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" value="${o.num}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;color:#fff;outline:none;" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
+        <div style="display:flex;flex-direction:column"><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">Nome</div>
+          <input value="${o.nome.replace(/"/g,'&quot;')}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;outline:none" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
+        <div style="display:flex;flex-direction:column;flex-shrink:0"><div style="font-size:9px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">Data</div>
           <button onclick="toggleDetCal(${o.id})" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:8px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap">
             📅 <span id="det-data-lbl">${o.data?o.data:'—'}${o.ora?' 🕐'+o.ora:o.turno?' '+(o.turno==='mattina'?'☀️':'🌆'):''}</span>
           </button>
