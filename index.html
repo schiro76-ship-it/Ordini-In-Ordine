@@ -993,6 +993,7 @@ function flipRenderOrdini(lista){
       const dy=first[oid]-lastTop;
       if(Math.abs(dy)<2)return;
       const isFlying=dy<0; // vola verso il basso (stato cambiato)
+      console.log('FLIP card', oid, 'dy=', dy, 'isFlying=', isFlying);
       el.style.transition='none';
       el.style.transform='translateY('+dy+'px)';
       if(isFlying){
