@@ -981,45 +981,106 @@ let _flipSnapshot={};
 function flipRenderOrdini(lista){
   const container=document.getElementById('ordini-list');
   const first=_flipSnapshot;
+
+  // Step 1: individua la card che cambia stato (presente in first ma non nella nuova lista alla stessa posizione)
+  const newIds=new Set(lista.map(o=>String(o.id)));
+  const movedId=Object.keys(first).find(oid=>{
+    if(!newIds.has(oid))return false; // eliminata, non è lei
+    // è lei se la sua posizione finale è molto diversa (va in basso)
+    return true; // la troviamo dopo il render
+  });
+
+  // Step 2: slide-out della card che cambia stato PRIMA del re-render
+  const changingEl=container.querySelector('[data-oid="'+Object.keys(first).find(oid=>{
+    // la card che cambia stato è quella il cui stato cambierà — la identifichiamo
+    // confrontando le posizioni: sarà quella con dy molto negativo
+    return true;
+  })+'"]');
+
   _flipLocked=true;
-  container.innerHTML=buildOcHTML(lista);
-  container.getBoundingClientRect(); // forza layout
+
+  // Anima slide-out delle card che escono (non presenti nella nuova lista)
+  const exitEls=[];
   container.querySelectorAll('[data-oid]').forEach(el=>{
-    const oid=el.dataset.oid;
-    const lastTop=el.getBoundingClientRect().top;
-    if(first[oid]!==undefined){
-      const dy=first[oid]-lastTop;
-      if(Math.abs(dy)<2)return;
-      const isFlying=dy<0; // vola verso il basso (stato cambiato)
-      el.style.transition='none';
-      el.style.transform='translateY('+dy+'px)';
-      if(isFlying){
-        el.style.boxShadow='0 16px 40px rgba(0,0,0,0.25)';
-        el.style.zIndex='10';
-        el.style.position='relative';
-        el.style.opacity='0.96';
-      }
-      requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-        const dur=isFlying?'0.55s':'0.40s';
-        el.style.transition='transform '+dur+' cubic-bezier(0.25,0.8,0.25,1), box-shadow '+dur+' ease, opacity '+dur+' ease';
-        el.style.transform='translateY(0)';
-        el.style.boxShadow='';
-        el.style.opacity='';
-        el.addEventListener('transitionend',()=>{el.style.transition='';el.style.zIndex='';el.style.position='';},{once:true});
-      });});
-    } else {
-      el.style.transition='none';
+    if(!newIds.has(el.dataset.oid)){
+      exitEls.push(el);
+      el.style.transition='transform 0.3s ease, opacity 0.3s ease';
+      el.style.transform='translateX(60px)';
       el.style.opacity='0';
-      el.style.transform='translateY(20px)';
-      requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-        el.style.transition='opacity 0.35s ease, transform 0.35s cubic-bezier(0.25,0.8,0.25,1)';
-        el.style.opacity='1';
-        el.style.transform='translateY(0)';
-        el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
-      });});
     }
   });
-  setTimeout(()=>{_flipLocked=false;},800);
+
+  // Step 3: re-render dopo breve delay per far vedere slide-out (o immediato)
+  const doRender=()=>{
+    container.innerHTML=buildOcHTML(lista);
+    container.getBoundingClientRect();
+
+    container.querySelectorAll('[data-oid]').forEach(el=>{
+      const oid=el.dataset.oid;
+      const lastTop=el.getBoundingClientRect().top;
+
+      if(first[oid]!==undefined){
+        // Card che rimane: calcola spostamento
+        const dy=first[oid]-lastTop;
+        if(Math.abs(dy)<2)return;
+        el.style.transition='none';
+        el.style.transform='translateY('+dy+'px)';
+        requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+          el.style.transition='transform 0.42s cubic-bezier(0.25,0.8,0.25,1)';
+          el.style.transform='translateY(0)';
+          el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
+        });});
+      } else {
+        // Card nuova (quella che ha cambiato stato): entra dal basso
+        el.style.transition='none';
+        el.style.opacity='0';
+        el.style.transform='translateY(30px)';
+        requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+          el.style.transition='opacity 0.38s ease, transform 0.38s cubic-bezier(0.25,0.8,0.25,1)';
+          el.style.opacity='1';
+          el.style.transform='translateY(0)';
+          el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
+        });});
+      }
+    });
+    setTimeout(()=>{_flipLocked=false;},600);
+  };
+
+  if(exitEls.length>0){
+    setTimeout(doRender, 280);
+  } else {
+    // Nessuna card esce: slide-out della card che cambia stato verso destra
+    const changedOid=Object.keys(first).find(oid=>{
+      const el=container.querySelector('[data-oid="'+oid+'"]');
+      return el && newIds.has(oid);
+    });
+    // Trova la card che cambierà posizione drasticamente — la facciamo uscire a destra
+    // Identificala: è quella il cui stato nel nuovo array è diverso
+    const newListMap={};
+    lista.forEach(o=>newListMap[String(o.id)]=o);
+    let exitCard=null;
+    container.querySelectorAll('[data-oid]').forEach(el=>{
+      const oid=el.dataset.oid;
+      const newO=newListMap[oid];
+      if(!newO)return;
+      // Se cambierà classe (stato diverso) è lei
+      const curClass=el.className;
+      const newClass='oc '+newO.stato+(isUrgente(newO)?' urgente':'');
+      if(curClass.trim()!==newClass.trim()&&!exitCard){
+        exitCard=el;
+      }
+    });
+    if(exitCard){
+      exitCard.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
+      exitCard.style.transform='translateX(80px) scale(0.95)';
+      exitCard.style.opacity='0';
+      exitCard.style.zIndex='5';
+      exitCard.style.position='relative';
+      setTimeout(doRender, 260);
+    } else {
+      doRender();
+    }
+  }
 }
 let stCalState={year:new Date().getFullYear(),month:new Date().getMonth(),field:null};
 function fmtBtnDate(iso){if(!iso)return'📅 —';return'📅 '+fmtDataByFormat(iso);}
