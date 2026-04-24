@@ -977,6 +977,11 @@ function renderOrdini(animate){
   stats();}
 
 function flipRenderOrdini(lista){
+  // TEST: colora il container per 2 secondi
+  const testEl=document.getElementById('ordini-list');
+  testEl.style.background='red';
+  setTimeout(()=>{ testEl.style.background=''; testEl.innerHTML=buildOcHTML(lista); }, 2000);
+  return;
   const container=document.getElementById('ordini-list');
 
   // FIRST: posizioni attuali di ogni card
