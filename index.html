@@ -1071,12 +1071,26 @@ function flipRenderOrdini(lista){
       }
     });
     if(exitCard){
-      exitCard.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
-      exitCard.style.transform='translateX(80px) scale(0.95)';
-      exitCard.style.opacity='0';
-      exitCard.style.zIndex='5';
-      exitCard.style.position='relative';
-      setTimeout(doRender, 260);
+      // Aggiorna subito il colore della card (cambia classe)
+      const newO=newListMap[exitCard.dataset.oid];
+      if(newO){
+        exitCard.className='oc '+newO.stato+(isUrgente(newO)?' urgente':'');
+        // Aggiorna anche il badge stato dentro la card
+        const badge=exitCard.querySelector('.stato-badge');
+        if(badge){
+          if(newO.stato==='completato'){badge.className='stato-badge sb-co';badge.textContent='Completato';}
+          else if(newO.stato==='ritirato'){badge.className='stato-badge sb-ri';badge.textContent='Ritirato';}
+        }
+      }
+      // Breve pausa per far vedere il nuovo colore, poi slide-out
+      setTimeout(()=>{
+        exitCard.style.transition='transform 0.32s cubic-bezier(0.4,0,1,1), opacity 0.32s ease';
+        exitCard.style.transform='translateX(100px) scale(0.97)';
+        exitCard.style.opacity='0';
+        exitCard.style.zIndex='5';
+        exitCard.style.position='relative';
+        setTimeout(doRender, 300);
+      }, 120);
     } else {
       doRender();
     }
