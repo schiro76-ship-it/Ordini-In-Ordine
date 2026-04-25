@@ -1063,13 +1063,14 @@ function flipRenderOrdini(lista){
       const oid=el.dataset.oid;
       const newO=newListMap[oid];
       if(!newO)return;
-      // Se cambierà classe (stato diverso) è lei
       const curClass=el.className;
       const newClass='oc '+newO.stato+(isUrgente(newO)?' urgente':'');
+      console.log('comparing', oid, 'cur:', curClass.trim(), 'new:', newClass.trim(), 'match:', curClass.trim()===newClass.trim());
       if(curClass.trim()!==newClass.trim()&&!exitCard){
         exitCard=el;
       }
     });
+    console.log('exitCard found:', !!exitCard);
     if(exitCard){
       // Aggiorna subito il colore della card (cambia classe)
       const newO=newListMap[exitCard.dataset.oid];
@@ -1085,6 +1086,16 @@ function flipRenderOrdini(lista){
           else if(newO.stato==='ritirato'){badge.className='stato-badge sb-ri';badge.textContent='Ritirato';}
           else{badge.className='stato-badge sb-ev';badge.textContent='Da evadere';}
         }
+      }
+      // Aggiorna anche i tag articoli
+      if(newO.stato==='completato'||newO.stato==='ritirato'){
+        exitCard.querySelectorAll('.itag').forEach(row=>{
+          row.classList.add('done');
+          const circle=row.querySelector('.itag-circle');
+          if(circle){circle.className='itag-circle done';circle.textContent='✓';}
+          const qty=row.querySelector('.qty');
+          if(qty)qty.style.color='var(--g)';
+        });
       }
       // Breve pausa per far vedere il nuovo colore, poi slide-out
       setTimeout(()=>{
