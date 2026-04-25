@@ -185,7 +185,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .sbox input:focus{border-color:var(--r)}
 .sbox .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:19px}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease,border-left-color 0.35s ease,box-shadow 0.2s ease}
+.oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease,box-shadow 0.2s ease}
 .oc:hover{box-shadow:var(--shl)}
 .oc.evadere{border-left-color:var(--ev)}.oc.completato{border-left-color:var(--g)}.oc.ritirato{border-left-color:var(--gr);opacity:0.85}
 .oc.ritirato .tb,.oc.ritirato .act-btn,.oc.ritirato .stato-badge{filter:grayscale(1);opacity:0.7}
@@ -1075,11 +1075,15 @@ function flipRenderOrdini(lista){
       const newO=newListMap[exitCard.dataset.oid];
       if(newO){
         exitCard.className='oc '+newO.stato+(isUrgente(newO)?' urgente':'');
-        // Aggiorna anche il badge stato dentro la card
-        const badge=exitCard.querySelector('.stato-badge');
+        // Aggiorna cerchio numero
+        const num=exitCard.querySelector('.oc-num');
+        if(num){num.className='oc-num '+(newO.stato==='completato'?'co':newO.stato==='ritirato'?'ri':'ev');}
+        // Aggiorna badge stato
+        const badge=exitCard.querySelector('.sb-ev,.sb-co,.sb-ri');
         if(badge){
           if(newO.stato==='completato'){badge.className='stato-badge sb-co';badge.textContent='Completato';}
           else if(newO.stato==='ritirato'){badge.className='stato-badge sb-ri';badge.textContent='Ritirato';}
+          else{badge.className='stato-badge sb-ev';badge.textContent='Da evadere';}
         }
       }
       // Breve pausa per far vedere il nuovo colore, poi slide-out
