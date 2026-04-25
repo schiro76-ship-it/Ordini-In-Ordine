@@ -1268,18 +1268,18 @@ function renderRiepilogo(){
     return _rpPosPreservate[a.artId]-_rpPosPreservate[b.artId];
   if(_rpPosPreservate&&aDone&&_rpPosPreservate[a.artId]!==undefined)return 1;
   if(_rpPosPreservate&&bDone&&_rpPosPreservate[b.artId]!==undefined)return -1;
-  if(aDone&&!bDone)return 1;
-  if(!aDone&&bDone)return -1;
-  // Articolo espanso: usa la posizione DOM attuale per non riordinarlo
-  const aExp=rpExpanded[a.artId],bExp=rpExpanded[b.artId];
-  if(aExp||bExp){
+  // Articolo espanso O appena completato: mantieni posizione DOM attuale
+  const aFreeze=rpExpanded[a.artId]||aDone,bFreeze=rpExpanded[b.artId]||bDone;
+  if(aFreeze||bFreeze){
     const els=document.querySelectorAll('#riepilogo-list [data-artid]');
     const posMap={};
     els.forEach((el,i)=>posMap[el.dataset.artid]=i);
     const pa=posMap[a.artId]!==undefined?posMap[a.artId]:999;
     const pb=posMap[b.artId]!==undefined?posMap[b.artId]:999;
-    return pa-pb;
+    if(pa!==pb)return pa-pb;
   }
+  if(aDone&&!bDone)return 1;
+  if(!aDone&&bDone)return -1;
   if(a.urgente&&!b.urgente)return -1;
   if(!a.urgente&&b.urgente)return 1;
   return a.minScore-b.minScore;
