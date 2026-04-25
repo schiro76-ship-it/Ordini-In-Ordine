@@ -1274,6 +1274,8 @@ function toggleRp(key){
       },260);
     } else {
       // Rimane ma si riposiziona
+      // Includi anche la riga che si chiude nel FLIP
+      if(artRow) rpFirst[String(key)]=artRow.getBoundingClientRect().top;
       renderRiepilogo();
       flipRpRows(rpFirst,container);
     }
