@@ -1235,7 +1235,7 @@ function coloreRpData(o){
   const urg=isUrgente(o);
   return urg?'var(--urg)':'var(--ev)';
 }
-function toggleRp(key){
+async function toggleRp(key){
   const staEspandendo=!rpExpanded[key];
   rpExpanded[key]=staEspandendo;
 
@@ -1249,18 +1249,24 @@ function toggleRp(key){
     const container=document.getElementById('riepilogo-list');
     const artRow=container.querySelector('[data-artid="'+key+'"]');
 
-    // Slide-up chiusura
+    // Slide-up con clone — anima il collasso senza interferire col render
     if(artRow){
       const detail=artRow.querySelector('.rp-detail');
       if(detail){
-        detail.style.overflow='hidden';
-        detail.style.maxHeight=detail.scrollHeight+'px';
+        const clone=detail.cloneNode(true);
+        clone.style.overflow='hidden';
+        clone.style.maxHeight=detail.scrollHeight+'px';
+        clone.style.transition='max-height 0.22s cubic-bezier(0.4,0,1,1)';
+        clone.style.pointerEvents='none';
+        detail.parentNode.replaceChild(clone,detail);
         requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-          detail.style.transition='max-height 0.2s cubic-bezier(0.4,0,1,1)';
-          detail.style.maxHeight='0';
+          clone.style.maxHeight='0';
         });});
       }
     }
+
+    // Aspetta slide-up poi procedi
+    await new Promise(r=>setTimeout(r,220));
 
     // Salva posizioni attuali (esclusa la riga che si chiude)
     const rpFirst={};
