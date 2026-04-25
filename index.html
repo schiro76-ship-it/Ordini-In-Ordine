@@ -1018,17 +1018,8 @@ function _updateCardColor(oid, stato){
       if(c){c.className='itag-circle done';c.textContent='✓';}
       const q=row.querySelector('.qty');if(q)q.style.color='var(--g)';
     });
-  } else {
-    el.querySelectorAll('.itag').forEach(row=>{
-      row.classList.remove('done');
-      const o=ords.find(x=>x.id===oid);
-      const urg=isUrgente(o||{});
-      row.classList.toggle('urg',urg);
-      const c=row.querySelector('.itag-circle');
-      if(c){c.className='itag-circle'+(urg?' urg':'');c.textContent='';}
-      const q=row.querySelector('.qty');if(q)q.style.color='';
-    });
   }
+  // Non toccare i cerchi articoli se evadere: li gestisce chi chiama (togItemOrdini)
 }
 
 let _changingOid=null;
