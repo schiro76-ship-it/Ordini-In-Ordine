@@ -983,9 +983,9 @@ function _updateCardColor(oid, stato){
   const el=document.querySelector('#ordini-list [data-oid="'+oid+'"]');
   if(!el)return;
   const nc=stato==='completato'?'co':stato==='ritirato'?'ri':'ev';
-  el.className='oc '+stato+(isUrgente(ords.find(x=>x.id===oid)||{})?'':' ');
-  // ripuliamo e rimettiamo la classe corretta
-  el.className=('oc '+stato+(isUrgente(ords.find(x=>x.id===oid)||{})?' urgente':'')).trim();
+  // Urgente solo se evadere, mai per completato/ritirato
+  const urg=(stato==='evadere')&&isUrgente(ords.find(x=>x.id===oid)||{});
+  el.className=('oc '+stato+(urg?' urgente':'')).trim();
   const num=el.querySelector('.oc-num');
   if(num)num.className='oc-num '+nc;
   const badge=el.querySelector('.sb-ev,.sb-co,.sb-ri');
@@ -1014,7 +1014,9 @@ function _updateCardColor(oid, stato){
   }
 }
 
-function _snapAndAnimate(){
+let _changingOid=null;
+function _snapAndAnimate(oid){
+  _changingOid=oid||null;
   _flipSnapshot={};
   document.querySelectorAll('#ordini-list [data-oid]').forEach(el=>{
     _flipSnapshot[el.dataset.oid]=el.getBoundingClientRect().top;
@@ -1102,16 +1104,10 @@ function flipRenderOrdini(lista){
     const newListMap={};
     lista.forEach(o=>newListMap[String(o.id)]=o);
     let exitCard=null;
-    container.querySelectorAll('[data-oid]').forEach(el=>{
-      const oid=el.dataset.oid;
-      const newO=newListMap[oid];
-      if(!newO)return;
-      const curClass=el.className;
-      const newClass='oc '+newO.stato+(isUrgente(newO)?' urgente':'');
-      if(curClass.trim()!==newClass.trim()&&!exitCard){
-        exitCard=el;
-      }
-    });
+    if(_changingOid){
+      exitCard=container.querySelector('[data-oid="'+_changingOid+'"]');
+      _changingOid=null;
+    }
     if(exitCard){
       // Colore già aggiornato in setStato — aspetta solo 120ms poi slide-out
       setTimeout(()=>{
@@ -1268,7 +1264,7 @@ function renderRiepilogo(){
   const _dataLabel=_fmtA.r2?'<span>'+_fmtA.r1+'</span><span>'+_fmtA.r2+'</span>':'<span>'+_fmtA.r1+'</span>';const dettaglio=exp?v.ordini.map(x=>{const q=parseFloat(x.qty)||1;const qs=q%1===0?q:q.toFixed(2).replace(/\.?0+$/,'');const isUrg=isUrgente(x.ordine);const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';const bg=x.done?'var(--gs)':isUrg?'var(--urgs)':'var(--evs)';const circleClass='itag-circle'+(x.done?' done':isUrg?' urg':'');const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});return`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'✓':''}</div><span style="flex:1;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span></span><span style="font-weight:900;color:${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};font-size:16px">${qs}${x.um?' '+x.um:''}</span></div><button onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="background:#EEF2FF;color:#4F46E5;border:none;border-radius:8px;padding:4px 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0">🖨️</button></div>`;}).join(''):'';return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;cursor:pointer" onclick="toggleRp(${v.artId})"><div style="display:flex;align-items:center;gap:12px;padding-right:14px"><div class="rp-pri" style="width:72px;min-width:72px;align-self:stretch;border-radius:11px;padding:5px 6px;font-size:14px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.3;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div class="rp-art">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="display:flex;align-items:center;gap:4px">${tuttiDone?'<span style="color:var(--g);font-weight:800;font-size:14px">✓ Tutto fatto</span>':qStr}</div><span style="font-size:15px;color:var(--sub);margin-left:4px">${exp?'▲':'▼'}</span></div>${exp?`<div style="padding-top:8px;border-top:1px solid var(--brd)">${dettaglio}</div>`:''}</div>`;}).join('');}
 async function setStato(id,stato){
   _updateCardColor(id,stato);
-  _snapAndAnimate();const o=ords.find(x=>x.id===id);if(!o)return;o.stato=stato;if(stato==='ritirato')o.ritirato_il=new Date().toISOString();if(stato==='completato')o.items.forEach(function(it){it.done=true});if(stato==='evadere')o.items.forEach(function(it){it.done=false});renderOrdini(true);toast(stato==='completato'?'Completato':stato==='ritirato'?'Ritirato':'Riaperto','v');saveData();}
+  _snapAndAnimate(id);const o=ords.find(x=>x.id===id);if(!o)return;o.stato=stato;if(stato==='ritirato')o.ritirato_il=new Date().toISOString();if(stato==='completato')o.items.forEach(function(it){it.done=true});if(stato==='evadere')o.items.forEach(function(it){it.done=false});renderOrdini(true);toast(stato==='completato'?'Completato':stato==='ritirato'?'Ritirato':'Riaperto','v');saveData();}
 function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+o.nome+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};openModal('modal-del-conf');}
 async function delOrd(id){ords=ords.filter(x=>x.id!==id);await saveData();renderOrdini();toast('Ordine eliminato');}
 function openDet(id){const o=ords.find(x=>x.id===id);if(!o)return;renderDetModal(o);openModal('modal-det')}
@@ -1464,7 +1460,7 @@ async function togItemOrdini(oid,idx,rowEl){
   await saveData();
   if(o.stato!==statoPrec){
     _updateCardColor(oid,o.stato);
-    _snapAndAnimate();
+    _snapAndAnimate(oid);
     renderOrdini(true);
   }
 }
@@ -1477,7 +1473,7 @@ async function togItemDone(oid,idx){
   if(!o.items[idx].done&&o.stato==='completato')o.stato='evadere';
   if(o.stato!==statoPrec){
     _updateCardColor(oid,o.stato);
-    _snapAndAnimate();
+    _snapAndAnimate(oid);
   }
   saveData();
   renderOrdini(o.stato!==statoPrec);
