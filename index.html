@@ -1236,15 +1236,69 @@ function coloreRpData(o){
   return urg?'var(--urg)':'var(--ev)';
 }
 function toggleRp(key){
-  rpExpanded[key]=!rpExpanded[key];
-  if(!rpExpanded[key]){
+  const staEspandendo=!rpExpanded[key];
+  rpExpanded[key]=staEspandendo;
+
+  if(!staEspandendo){
+    // Sta chiudendo — anima
     if(_rpPosPreservate&&_rpPosPreservate[key]!==undefined){
       delete _rpPosPreservate[key];
       if(!Object.keys(_rpPosPreservate).length)_rpPosPreservate=null;
     }
     if(_rpDaPreservare)_rpDaPreservare.delete(parseInt(key));
+
+    const container=document.getElementById('riepilogo-list');
+    const artRow=container.querySelector('[data-artid="'+key+'"]');
+
+    // Salva posizioni attuali di tutte le righe TRANNE quella che si chiude
+    const rpFirst={};
+    container.querySelectorAll('[data-artid]').forEach(el=>{
+      if(el.dataset.artid!==String(key))
+        rpFirst[el.dataset.artid]=el.getBoundingClientRect().top;
+    });
+
+    // La riga uscirà se tutti i suoi ordini sono done?
+    const artId=parseInt(key);
+    const ordiniArt=ords.filter(o=>(o.items||[]).some(it=>it.artId===artId));
+    const tuttiDone=ordiniArt.every(o=>o.items.filter(it=>it.artId===artId).every(it=>it.done));
+
+    if(tuttiDone&&artRow){
+      // Esce dalla lista — slide-out a destra poi FLIP
+      artRow.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
+      artRow.style.transform='translateX(100px) scale(0.97)';
+      artRow.style.opacity='0';
+      artRow.style.position='relative';artRow.style.zIndex='5';
+      setTimeout(()=>{
+        renderRiepilogo();
+        flipRpRows(rpFirst,container);
+      },260);
+    } else {
+      // Rimane ma si riposiziona
+      renderRiepilogo();
+      flipRpRows(rpFirst,container);
+    }
+  } else {
+    renderRiepilogo();
   }
-  renderRiepilogo();
+}
+
+function flipRpRows(first,container){
+  container.getBoundingClientRect();
+  container.querySelectorAll('[data-artid]').forEach(el=>{
+    const aid=el.dataset.artid;
+    const lastTop=el.getBoundingClientRect().top;
+    if(first[aid]!==undefined){
+      const dy=first[aid]-lastTop;
+      if(Math.abs(dy)<2)return;
+      el.style.transition='none';
+      el.style.transform='translateY('+dy+'px)';
+      requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+        el.style.transition='transform 0.42s cubic-bezier(0.25,0.8,0.25,1)';
+        el.style.transform='translateY(0)';
+        el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
+      });});
+    }
+  });
 }
 function setRpCat(c){rpCatFilter=c;renderRiepilogo()}
 
