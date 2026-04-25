@@ -1584,30 +1584,34 @@ async function togRpItem(oidStr,idx){
   const container=document.getElementById('riepilogo-list');
   const artRow=artId?container.querySelector('[data-artid="'+artId+'"]'):null;
 
-  // Salva posizioni PRIMA del re-render
+  // Salva posizioni e riferimento DOM PRIMA di qualsiasi render
   const rpFirst={};
   container.querySelectorAll('[data-artid]').forEach(el=>{
     rpFirst[el.dataset.artid]=el.getBoundingClientRect().top;
   });
 
-  // Controlla se la riga articolo uscirà (tutti gli ordini di quell'articolo completati)
-  // Una riga articolo esce quando non ha più ordini da fare E non è espansa
+  // Calcola se la riga articolo uscirà dopo la spunta
+  // Una riga esce se tutti gli ordini che la compongono saranno done
+  const artIdStr=String(artId);
+  const vociRp=Object.values((()=>{const map={};
+    ords.filter(o2=>o2.stato==='evadere'||(o2.stato==='completato'&&o2.items.every(it=>it.done)&&rpExpanded[artId]))
+    .forEach(o2=>(o2.items||[]).forEach(it=>{const k=String(it.artId);if(!map[k])map[k]={artId:it.artId,ordini:[]};map[k].ordini.push(Object.assign({},it,{ordine:o2}));}));
+    return map;
+  })());
+  const voceArt=vociRp.find(v=>String(v.artId)===artIdStr);
+  const artEsce=done&&voceArt&&voceArt.ordini.every(x=>x.done);
+
   saveData();
   renderOrdini();
 
-  const artIdStr=String(artId);
-  const artRimane=container.querySelector('[data-artid="'+artId+'"]');
-
-  if(done&&artRow&&!artRimane){
-    // La riga articolo uscirà — slide-out prima, poi FLIP
-    // Ripristina visivamente per fare l'animazione
+  if(artEsce&&artRow){
+    // Slide-out della riga articolo, poi FLIP delle rimaste
     artRow.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
     artRow.style.transform='translateX(100px) scale(0.97)';
     artRow.style.opacity='0';
     artRow.style.position='relative';artRow.style.zIndex='5';
     setTimeout(()=>flipRenderRiepilogo(rpFirst),260);
   } else {
-    // Rimane ma potrebbe riordinarsi
     flipRenderRiepilogo(rpFirst);
   }
 }
