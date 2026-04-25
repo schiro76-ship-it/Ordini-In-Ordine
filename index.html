@@ -1316,7 +1316,26 @@ function toggleRp(key){
       },260);
     }
   } else {
+    // Apertura: render poi slide-down del contenuto
     renderRiepilogo();
+    const container=document.getElementById('riepilogo-list');
+    const artRow=container.querySelector('[data-artid="'+key+'"]');
+    if(artRow){
+      const detail=artRow.querySelector('[style*="padding-top:8px"]');
+      if(detail){
+        const h=detail.scrollHeight;
+        detail.style.overflow='hidden';
+        detail.style.maxHeight='0';
+        detail.style.transition='none';
+        requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+          detail.style.transition='max-height 0.28s cubic-bezier(0.25,0.8,0.25,1)';
+          detail.style.maxHeight=h+'px';
+          detail.addEventListener('transitionend',()=>{
+            detail.style.maxHeight='';detail.style.overflow='';detail.style.transition='';
+          },{once:true});
+        });});
+      }
+    }
   }
 }
 
