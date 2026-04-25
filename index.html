@@ -1273,11 +1273,30 @@ function toggleRp(key){
         flipRpRows(rpFirst,container);
       },260);
     } else {
-      // Rimane ma si riposiziona
-      // Includi anche la riga che si chiude nel FLIP
-      if(artRow) rpFirst[String(key)]=artRow.getBoundingClientRect().top;
-      renderRiepilogo();
-      flipRpRows(rpFirst,container);
+      // Si riposiziona: slide-out a destra, poi riappare in basso nella nuova posizione
+      if(artRow){
+        artRow.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
+        artRow.style.transform='translateX(100px) scale(0.97)';
+        artRow.style.opacity='0';
+        artRow.style.position='relative';artRow.style.zIndex='5';
+      }
+      setTimeout(()=>{
+        renderRiepilogo();
+        // La card riappare dal basso nella nuova posizione
+        const newEl=container.querySelector('[data-artid="'+key+'"]');
+        if(newEl){
+          newEl.style.transition='none';
+          newEl.style.opacity='0';
+          newEl.style.transform='translateY(24px)';
+          requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+            newEl.style.transition='opacity 0.32s ease, transform 0.32s cubic-bezier(0.25,0.8,0.25,1)';
+            newEl.style.opacity='1';
+            newEl.style.transform='translateY(0)';
+            newEl.addEventListener('transitionend',()=>{newEl.style.transition='';},{once:true});
+          });});
+        }
+        flipRpRows(rpFirst,container);
+      },260);
     }
   } else {
     renderRiepilogo();
