@@ -1249,6 +1249,19 @@ function toggleRp(key){
     const container=document.getElementById('riepilogo-list');
     const artRow=container.querySelector('[data-artid="'+key+'"]');
 
+    // Slide-up del dettaglio prima di tutto il resto
+    if(artRow){
+      const detail=artRow.querySelector('[style*="padding-top:8px"]');
+      if(detail){
+        detail.style.overflow='hidden';
+        detail.style.maxHeight=detail.scrollHeight+'px';
+        requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+          detail.style.transition='max-height 0.22s cubic-bezier(0.4,0,1,1)';
+          detail.style.maxHeight='0';
+        });});
+      }
+    }
+
     // Salva posizioni attuali (esclusa la riga che si chiude)
     const rpFirst={};
     container.querySelectorAll('[data-artid]').forEach(el=>{
@@ -1266,15 +1279,17 @@ function toggleRp(key){
     const tuttiDone=ordiniArt.every(o=>o.items.filter(it=>it.artId===artId).every(it=>it.done));
 
     if(tuttiDone&&artRow){
-      // Esce dalla lista — slide-out a destra poi FLIP
-      artRow.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
-      artRow.style.transform='translateX(100px) scale(0.97)';
-      artRow.style.opacity='0';
-      artRow.style.position='relative';artRow.style.zIndex='5';
+      // Esce dalla lista — aspetta slide-up poi slide-out a destra poi FLIP
       setTimeout(()=>{
-        renderRiepilogo();
-        flipRpRows(rpFirst,container);
-      },260);
+        artRow.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
+        artRow.style.transform='translateX(100px) scale(0.97)';
+        artRow.style.opacity='0';
+        artRow.style.position='relative';artRow.style.zIndex='5';
+        setTimeout(()=>{
+          renderRiepilogo();
+          flipRpRows(rpFirst,container);
+        },260);
+      },200);
     } else {
       // Simula nuovo ordinamento per capire se la posizione cambierà
       // senza modificare il DOM — confronta indice attuale vs futuro
@@ -1291,16 +1306,17 @@ function toggleRp(key){
       const cambia=posAttuali[String(key)]!==posNuovaKey;
 
       if(!cambia){
-        renderRiepilogo();
+        setTimeout(()=>renderRiepilogo(),200);
         return;
       }
-      // Cambia posizione: slide-out a destra, poi render + riappare dal basso
-      if(artRow){
-        artRow.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
-        artRow.style.transform='translateX(100px) scale(0.97)';
-        artRow.style.opacity='0';
-        artRow.style.position='relative';artRow.style.zIndex='5';
-      }
+      // Cambia posizione: aspetta slide-up poi slide-out a destra + riappare dal basso
+      setTimeout(()=>{
+        if(artRow){
+          artRow.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
+          artRow.style.transform='translateX(100px) scale(0.97)';
+          artRow.style.opacity='0';
+          artRow.style.position='relative';artRow.style.zIndex='5';
+        }
       setTimeout(()=>{
         renderRiepilogo();
         const newEl=container.querySelector('[data-artid="'+key+'"]');
@@ -1314,6 +1330,7 @@ function toggleRp(key){
         }
         flipRpRows(rpFirst,container);
       },260);
+      },200);
     }
   } else {
     // Apertura: render poi slide-down del contenuto
