@@ -1399,7 +1399,9 @@ function renderRiepilogo(){if(_rpLocked)return;
   if(_rpPosPreservate&&aDone&&_rpPosPreservate[a.artId]!==undefined)return 1;
   if(_rpPosPreservate&&bDone&&_rpPosPreservate[b.artId]!==undefined)return -1;
   // Articolo espanso O appena completato: mantieni posizione DOM attuale
-  const aFreeze=rpExpanded[a.artId]||aDone,bFreeze=rpExpanded[b.artId]||bDone;
+  const aExp=!!rpExpanded[a.artId],bExp=!!rpExpanded[b.artId];
+  const aFreeze=aExp||aDone,bFreeze=bExp||bDone;
+  if((aExp||bExp)&&(aFreeze||bFreeze)){const els=document.querySelectorAll('#riepilogo-list [data-artid]');const posMap={};els.forEach((el,i)=>posMap[el.dataset.artid]=i);console.log('SORT',a.artId,'exp:',aExp,'done:',aDone,'pos:',posMap[a.artId],'vs',b.artId,'exp:',bExp,'done:',bDone,'pos:',posMap[b.artId]);}
   if(aFreeze||bFreeze){
     const els=document.querySelectorAll('#riepilogo-list [data-artid]');
     const posMap={};
