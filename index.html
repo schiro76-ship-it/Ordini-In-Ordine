@@ -1000,8 +1000,9 @@ function _updateCardColor(oid, stato){
   const el=document.querySelector('#ordini-list [data-oid="'+oid+'"]');
   if(!el)return;
   const nc=stato==='completato'?'co':stato==='ritirato'?'ri':'ev';
-  // Urgente solo se evadere, mai per completato/ritirato
-  const urg=(stato==='evadere')&&isUrgente(ords.find(x=>x.id===oid)||{});
+  // Urgente solo se evadere — controlla data senza dipendere da o.stato
+  const _o=ords.find(x=>x.id===oid)||{};
+  const urg=(stato==='evadere')&&_o.data&&_o.data<=oggi();
   el.className=('oc '+stato+(urg?' urgente':'')).trim();
   const num=el.querySelector('.oc-num');
   if(num)num.className='oc-num '+nc;
