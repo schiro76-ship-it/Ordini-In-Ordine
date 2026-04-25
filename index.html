@@ -1065,41 +1065,12 @@ function flipRenderOrdini(lista){
       if(!newO)return;
       const curClass=el.className;
       const newClass='oc '+newO.stato+(isUrgente(newO)?' urgente':'');
-      console.log('comparing', oid, 'cur:', curClass.trim(), 'new:', newClass.trim(), 'match:', curClass.trim()===newClass.trim());
       if(curClass.trim()!==newClass.trim()&&!exitCard){
         exitCard=el;
       }
     });
-    console.log('exitCard found:', !!exitCard);
     if(exitCard){
-      console.log('exitCard FOUND, oid:', exitCard.dataset.oid);
-      // Aggiorna subito il colore della card (cambia classe)
-      const newO=newListMap[exitCard.dataset.oid];
-      console.log('newO stato:', newO&&newO.stato);
-      if(newO){
-        exitCard.className='oc '+newO.stato+(isUrgente(newO)?' urgente':'');
-        // Aggiorna cerchio numero
-        const num=exitCard.querySelector('.oc-num');
-        if(num){num.className='oc-num '+(newO.stato==='completato'?'co':newO.stato==='ritirato'?'ri':'ev');}
-        // Aggiorna badge stato
-        const badge=exitCard.querySelector('.sb-ev,.sb-co,.sb-ri');
-        if(badge){
-          if(newO.stato==='completato'){badge.className='stato-badge sb-co';badge.textContent='Completato';}
-          else if(newO.stato==='ritirato'){badge.className='stato-badge sb-ri';badge.textContent='Ritirato';}
-          else{badge.className='stato-badge sb-ev';badge.textContent='Da evadere';}
-        }
-      }
-      // Aggiorna anche i tag articoli
-      if(newO.stato==='completato'||newO.stato==='ritirato'){
-        exitCard.querySelectorAll('.itag').forEach(row=>{
-          row.classList.add('done');
-          const circle=row.querySelector('.itag-circle');
-          if(circle){circle.className='itag-circle done';circle.textContent='✓';}
-          const qty=row.querySelector('.qty');
-          if(qty)qty.style.color='var(--g)';
-        });
-      }
-      // Breve pausa per far vedere il nuovo colore, poi slide-out
+      // Colore già aggiornato in setStato — aspetta solo 120ms poi slide-out
       setTimeout(()=>{
         exitCard.style.transition='transform 0.32s cubic-bezier(0.4,0,1,1), opacity 0.32s ease';
         exitCard.style.transform='translateX(100px) scale(0.97)';
@@ -1107,7 +1078,7 @@ function flipRenderOrdini(lista){
         exitCard.style.zIndex='5';
         exitCard.style.position='relative';
         setTimeout(doRender, 300);
-      }, 120);
+      }, 150);
     } else {
       doRender();
     }
@@ -1253,13 +1224,33 @@ function renderRiepilogo(){
   const _fmtA=fmtRpData(_oA);
   const _dataLabel=_fmtA.r2?'<span>'+_fmtA.r1+'</span><span>'+_fmtA.r2+'</span>':'<span>'+_fmtA.r1+'</span>';const dettaglio=exp?v.ordini.map(x=>{const q=parseFloat(x.qty)||1;const qs=q%1===0?q:q.toFixed(2).replace(/\.?0+$/,'');const isUrg=isUrgente(x.ordine);const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';const bg=x.done?'var(--gs)':isUrg?'var(--urgs)':'var(--evs)';const circleClass='itag-circle'+(x.done?' done':isUrg?' urg':'');const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});return`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'✓':''}</div><span style="flex:1;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span></span><span style="font-weight:900;color:${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};font-size:16px">${qs}${x.um?' '+x.um:''}</span></div><button onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="background:#EEF2FF;color:#4F46E5;border:none;border-radius:8px;padding:4px 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0">🖨️</button></div>`;}).join(''):'';return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;cursor:pointer" onclick="toggleRp(${v.artId})"><div style="display:flex;align-items:center;gap:12px;padding-right:14px"><div class="rp-pri" style="width:72px;min-width:72px;align-self:stretch;border-radius:11px;padding:5px 6px;font-size:14px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.3;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div class="rp-art">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="display:flex;align-items:center;gap:4px">${tuttiDone?'<span style="color:var(--g);font-weight:800;font-size:14px">✓ Tutto fatto</span>':qStr}</div><span style="font-size:15px;color:var(--sub);margin-left:4px">${exp?'▲':'▼'}</span></div>${exp?`<div style="padding-top:8px;border-top:1px solid var(--brd)">${dettaglio}</div>`:''}</div>`;}).join('');}
 async function setStato(id,stato){
-  console.log('setStato', id, stato, 'snapshot keys:', Object.keys(_flipSnapshot).length);
-  // Cattura posizioni PRIMA di qualsiasi modifica
+  // 1. Aggiorna visivamente la card IMMEDIATAMENTE prima di toccare i dati
+  const _exitEl=document.querySelector('#ordini-list [data-oid="'+id+'"]');
+  if(_exitEl){
+    const _nc=stato==='completato'?'co':stato==='ritirato'?'ri':'ev';
+    _exitEl.className='oc '+stato;
+    const _num=_exitEl.querySelector('.oc-num');
+    if(_num)_num.className='oc-num '+_nc;
+    const _badge=_exitEl.querySelector('.sb-ev,.sb-co,.sb-ri');
+    if(_badge){
+      _badge.className='stato-badge sb-'+_nc;
+      _badge.textContent=stato==='completato'?'Completato':stato==='ritirato'?'Ritirato':'Da evadere';
+    }
+    if(stato==='completato'||stato==='ritirato'){
+      _exitEl.querySelectorAll('.itag').forEach(row=>{
+        row.classList.add('done');
+        const c=row.querySelector('.itag-circle');
+        if(c){c.className='itag-circle done';c.textContent='✓';}
+        const q=row.querySelector('.qty');
+        if(q)q.style.color='var(--g)';
+      });
+    }
+  }
+  // 2. Cattura posizioni PRIMA di qualsiasi modifica ai dati
   _flipSnapshot={};
   document.querySelectorAll('#ordini-list [data-oid]').forEach(el=>{
     _flipSnapshot[el.dataset.oid]=el.getBoundingClientRect().top;
-  });
-  console.log('snapshot after:', Object.keys(_flipSnapshot).length, _flipSnapshot);const o=ords.find(x=>x.id===id);if(!o)return;o.stato=stato;if(stato==='ritirato')o.ritirato_il=new Date().toISOString();if(stato==='completato')o.items.forEach(function(it){it.done=true});if(stato==='evadere')o.items.forEach(function(it){it.done=false});renderOrdini(true);toast(stato==='completato'?'Completato':stato==='ritirato'?'Ritirato':'Riaperto','v');saveData();}
+  });const o=ords.find(x=>x.id===id);if(!o)return;o.stato=stato;if(stato==='ritirato')o.ritirato_il=new Date().toISOString();if(stato==='completato')o.items.forEach(function(it){it.done=true});if(stato==='evadere')o.items.forEach(function(it){it.done=false});renderOrdini(true);toast(stato==='completato'?'Completato':stato==='ritirato'?'Ritirato':'Riaperto','v');saveData();}
 function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+o.nome+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};openModal('modal-del-conf');}
 async function delOrd(id){ords=ords.filter(x=>x.id!==id);await saveData();renderOrdini();toast('Ordine eliminato');}
 function openDet(id){const o=ords.find(x=>x.id===id);if(!o)return;renderDetModal(o);openModal('modal-det')}
