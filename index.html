@@ -1561,17 +1561,14 @@ async function delItemFromOrd(oid,idx){const o=ords.find(x=>x.id===oid);if(!o)re
 async function togRpItem(oidStr,idx){
   const oid=parseInt(oidStr);const o=ords.find(x=>x.id===oid);
   if(!o||idx<0||!o.items[idx])return;
-
   o.items[idx].done=!o.items[idx].done;
-  const done=o.items[idx].done;
   const tuttiDone=o.items.every(function(it){return it.done});
-
   if(tuttiDone&&o.stato==='evadere'){
     o.stato='completato';
     _rpDaPreservare=_rpDaPreservare||new Set();
     (o.items||[]).forEach(function(it){_rpDaPreservare.add(it.artId);});
   }
-  if(!done&&o.stato==='completato'){
+  if(!o.items[idx].done&&o.stato==='completato'){
     if(_rpPosPreservate){
       const artIds=(o.items||[]).map(function(it){return it.artId;});
       artIds.forEach(function(aid){delete _rpPosPreservate[aid];});
@@ -1579,62 +1576,9 @@ async function togRpItem(oidStr,idx){
     }
     o.stato='evadere';
   }
-
-  const artId=o.items[idx]?o.items[idx].artId:null;
-  const container=document.getElementById('riepilogo-list');
-  const artRow=artId?container.querySelector('[data-artid="'+artId+'"]'):null;
-
-  // Salva posizioni e riferimento DOM PRIMA di qualsiasi render
-  const rpFirst={};
-  container.querySelectorAll('[data-artid]').forEach(el=>{
-    rpFirst[el.dataset.artid]=el.getBoundingClientRect().top;
-  });
-
-  // Calcola se la riga articolo uscirà dopo la spunta
-  // Una riga esce se tutti gli ordini che la compongono saranno done
-  const artIdStr=String(artId);
-  const vociRp=Object.values((()=>{const map={};
-    ords.filter(o2=>o2.stato==='evadere'||(o2.stato==='completato'&&o2.items.every(it=>it.done)&&rpExpanded[artId]))
-    .forEach(o2=>(o2.items||[]).forEach(it=>{const k=String(it.artId);if(!map[k])map[k]={artId:it.artId,ordini:[]};map[k].ordini.push(Object.assign({},it,{ordine:o2}));}));
-    return map;
-  })());
-  const voceArt=vociRp.find(v=>String(v.artId)===artIdStr);
-  const artEsce=done&&voceArt&&voceArt.ordini.every(x=>x.done);
-
-  saveData();
+  await saveData();
   renderOrdini();
-
-  if(artEsce&&artRow){
-    // Slide-out della riga articolo, poi FLIP delle rimaste
-    artRow.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
-    artRow.style.transform='translateX(100px) scale(0.97)';
-    artRow.style.opacity='0';
-    artRow.style.position='relative';artRow.style.zIndex='5';
-    setTimeout(()=>flipRenderRiepilogo(rpFirst),260);
-  } else {
-    flipRenderRiepilogo(rpFirst);
-  }
-}
-
-function flipRenderRiepilogo(first){
   renderRiepilogo();
-  const container=document.getElementById('riepilogo-list');
-  container.getBoundingClientRect();
-  container.querySelectorAll('[data-artid]').forEach(el=>{
-    const aid=el.dataset.artid;
-    const lastTop=el.getBoundingClientRect().top;
-    if(first[aid]!==undefined){
-      const dy=first[aid]-lastTop;
-      if(Math.abs(dy)<2)return;
-      el.style.transition='none';
-      el.style.transform='translateY('+dy+'px)';
-      requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-        el.style.transition='transform 0.42s cubic-bezier(0.25,0.8,0.25,1)';
-        el.style.transform='translateY(0)';
-        el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
-      });});
-    }
-  });
 }
 
 let sel=[],tNuovo=null,catS='Tutti';
