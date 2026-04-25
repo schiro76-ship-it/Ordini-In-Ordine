@@ -1457,11 +1457,13 @@ async function togItemOrdini(oid,idx,rowEl){
   const statoPrec=o.stato;
   if(tuttiFatti&&o.stato==='evadere')o.stato='completato';
   if(!done&&o.stato==='completato')o.stato='evadere';
-  await saveData();
+  saveData();
   if(o.stato!==statoPrec){
     _updateCardColor(oid,o.stato);
     _snapAndAnimate(oid);
-    renderOrdini(true);
+    // Stessa pausa dei bottoni: 150ms per vedere il colore, poi renderOrdini anima
+    setTimeout(()=>renderOrdini(true), 150);
+    toast(o.stato==='completato'?'Completato':'Da evadere','v');
   }
 }
 async function togItemDone(oid,idx){
@@ -1474,10 +1476,12 @@ async function togItemDone(oid,idx){
   if(o.stato!==statoPrec){
     _updateCardColor(oid,o.stato);
     _snapAndAnimate(oid);
+    saveData();
+    setTimeout(()=>{renderOrdini(true);const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);},150);
+  } else {
+    saveData();
+    const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);
   }
-  saveData();
-  renderOrdini(o.stato!==statoPrec);
-  const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);
 }
 async function updItem(oid,idx,field,val){const o=ords.find(x=>x.id===oid);if(!o)return;o.items[idx][field]=val;await saveData();}
 async function updOrdCampo(oid,campo,val){const o=ords.find(x=>x.id===oid);if(!o)return;o[campo]=val||null;await saveData();renderOrdini();}
