@@ -1467,21 +1467,19 @@ async function togItemOrdini(oid,idx,rowEl){
   o.items[idx].done=!o.items[idx].done;
   const done=o.items[idx].done;
   const urg=isUrgente(o);
+  // Aggiorna visivamente solo il cerchio dell'articolo
   rowEl.classList.toggle('done',done);
   rowEl.classList.toggle('urg',!done&&urg);
   const circle=rowEl.querySelector('.itag-circle');
   if(circle){circle.className='itag-circle'+(done?' done':urg?' urg':'');circle.textContent=done?'✓':'';}
   const tuttiFatti=o.items.every(function(it){return it.done});
   const statoPrec=o.stato;
-  if(tuttiFatti&&o.stato==='evadere')o.stato='completato';
-  if(!done&&o.stato==='completato')o.stato='evadere';
-  saveData();
-  if(o.stato!==statoPrec){
-    const _moves=_willChangePosition(oid,o.stato);
-    _updateCardColor(oid,o.stato);
-    if(_moves)_snapAndAnimate(oid);
-    setTimeout(()=>renderOrdini(_moves), 150);
-    toast(o.stato==='completato'?'Completato':'Da evadere','v');
+  const nuovoStato=tuttiFatti&&statoPrec==='evadere'?'completato':!done&&statoPrec==='completato'?'evadere':statoPrec;
+  if(nuovoStato!==statoPrec){
+    // Delega tutto a setStato — stesso flusso dei bottoni
+    setStato(oid,nuovoStato);
+  } else {
+    saveData();
   }
 }
 async function togItemDone(oid,idx){
