@@ -1561,16 +1561,17 @@ async function delItemFromOrd(oid,idx){const o=ords.find(x=>x.id===oid);if(!o)re
 async function togRpItem(oidStr,idx){
   const oid=parseInt(oidStr);const o=ords.find(x=>x.id===oid);
   if(!o||idx<0||!o.items[idx])return;
+
   o.items[idx].done=!o.items[idx].done;
+  const done=o.items[idx].done;
   const tuttiDone=o.items.every(function(it){return it.done});
+
   if(tuttiDone&&o.stato==='evadere'){
     o.stato='completato';
-    // Segna questo artId come "da preservare" — la posizione verrà salvata dopo il primo render
     _rpDaPreservare=_rpDaPreservare||new Set();
     (o.items||[]).forEach(function(it){_rpDaPreservare.add(it.artId);});
   }
-  if(!o.items[idx].done&&o.stato==='completato'){
-    // De-spuntata: rimuovi preservazione per questo artId
+  if(!done&&o.stato==='completato'){
     if(_rpPosPreservate){
       const artIds=(o.items||[]).map(function(it){return it.artId;});
       artIds.forEach(function(aid){delete _rpPosPreservate[aid];});
@@ -1578,10 +1579,60 @@ async function togRpItem(oidStr,idx){
     }
     o.stato='evadere';
   }
-  await saveData();
+
+  const artId=o.items[idx]?o.items[idx].artId:null;
+  const container=document.getElementById('riepilogo-list');
+  const artRow=artId?container.querySelector('[data-artid="'+artId+'"]'):null;
+
+  // Salva posizioni PRIMA del re-render
+  const rpFirst={};
+  container.querySelectorAll('[data-artid]').forEach(el=>{
+    rpFirst[el.dataset.artid]=el.getBoundingClientRect().top;
+  });
+
+  // Controlla se la riga articolo uscirà (tutti gli ordini di quell'articolo completati)
+  // Una riga articolo esce quando non ha più ordini da fare E non è espansa
+  saveData();
   renderOrdini();
-  renderRiepilogo();
+
+  const artIdStr=String(artId);
+  const artRimane=container.querySelector('[data-artid="'+artId+'"]');
+
+  if(done&&artRow&&!artRimane){
+    // La riga articolo uscirà — slide-out prima, poi FLIP
+    // Ripristina visivamente per fare l'animazione
+    artRow.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
+    artRow.style.transform='translateX(100px) scale(0.97)';
+    artRow.style.opacity='0';
+    artRow.style.position='relative';artRow.style.zIndex='5';
+    setTimeout(()=>flipRenderRiepilogo(rpFirst),260);
+  } else {
+    // Rimane ma potrebbe riordinarsi
+    flipRenderRiepilogo(rpFirst);
+  }
 }
+
+function flipRenderRiepilogo(first){
+  renderRiepilogo();
+  const container=document.getElementById('riepilogo-list');
+  container.getBoundingClientRect();
+  container.querySelectorAll('[data-artid]').forEach(el=>{
+    const aid=el.dataset.artid;
+    const lastTop=el.getBoundingClientRect().top;
+    if(first[aid]!==undefined){
+      const dy=first[aid]-lastTop;
+      if(Math.abs(dy)<2)return;
+      el.style.transition='none';
+      el.style.transform='translateY('+dy+'px)';
+      requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+        el.style.transition='transform 0.42s cubic-bezier(0.25,0.8,0.25,1)';
+        el.style.transform='translateY(0)';
+        el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
+      });});
+    }
+  });
+}
+
 let sel=[],tNuovo=null,catS='Tutti';
 function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.textContent=usati.has(v)?'⚠️ già usato':'';}
 function minNumeroLibero(){const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));let n=1;while(usati.has(n))n++;return n;}
