@@ -857,7 +857,7 @@ async function boot(){applyThemeFast();loadDateFormat();loadCalSettings();loadSt
       arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;
       refreshAll();
       const tabRep=document.getElementById('tab-riepilogo');
-      if(tabRep&&tabRep.classList.contains('active')&&!Object.values(rpExpanded).some(Boolean))renderRiepilogo();
+      if(tabRep&&tabRep.classList.contains('active'))renderRiepilogo();
     });
   }catch(e){console.warn('Realtime error',e);}
 }
@@ -1716,9 +1716,9 @@ async function togRpItem(oidStr,idx){
     }
     o.stato='evadere';
   }
-  await saveData();
+  saveData();
   renderOrdini();
-  renderRiepilogo();
+  if(!Object.values(rpExpanded).some(Boolean))renderRiepilogo();
 }
 
 let sel=[],tNuovo=null,catS='Tutti';
