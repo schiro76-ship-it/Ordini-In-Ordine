@@ -1276,26 +1276,44 @@ function toggleRp(key){
         flipRpRows(rpFirst,container);
       },260);
     } else {
-      // Render per vedere la nuova posizione
-      renderRiepilogo();
-      const posNuove={};
-      container.querySelectorAll('[data-artid]').forEach((el,i)=>posNuove[el.dataset.artid]=i);
-      const cambia=posAttuali[String(key)]!==posNuove[String(key)];
+      // Simula nuovo ordinamento per capire se la posizione cambierà
+      // senza modificare il DOM — confronta indice attuale vs futuro
+      rpExpanded[key]=false; // già false ma assicuriamoci per il sort
+      const vociSim=Object.values((()=>{
+        const map={};
+        ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&o.items.every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&o.items.some(it=>String(it.artId)===k))))
+        .forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!map[k])map[k]={artId:it.artId,ordini:[]};map[k].ordini.push(Object.assign({},it,{ordine:o}));}));
+        return map;
+      })()).filter(v=>v.ordini.some(x=>!x.done)||rpExpanded[v.artId])
+        .map(v=>({artId:v.artId,minScore:v.ordini.some(x=>!x.done)?Math.min(...v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine)),done:v.ordini.every(x=>x.done)}))
+        .sort((a,b)=>{if(a.done&&!b.done)return 1;if(!a.done&&b.done)return -1;if(a.urgente&&!b.urgente)return -1;if(!a.urgente&&b.urgente)return 1;return a.minScore-b.minScore;});
+      const posNuovaKey=vociSim.findIndex(v=>String(v.artId)===String(key));
+      const cambia=posAttuali[String(key)]!==posNuovaKey;
+
       if(!cambia){
-        // Nessun cambiamento di posizione — niente animazione
+        renderRiepilogo();
         return;
       }
-      // La card si riposiziona — già renderizzata, appare dal basso + altre salgono
-      const newEl=container.querySelector('[data-artid="'+key+'"]');
-      if(newEl){
-        newEl.style.transition='none';newEl.style.opacity='0';newEl.style.transform='translateY(24px)';
-        requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-          newEl.style.transition='opacity 0.32s ease, transform 0.32s cubic-bezier(0.25,0.8,0.25,1)';
-          newEl.style.opacity='1';newEl.style.transform='translateY(0)';
-          newEl.addEventListener('transitionend',()=>{newEl.style.transition='';},{once:true});
-        });});
+      // Cambia posizione: slide-out a destra, poi render + riappare dal basso
+      if(artRow){
+        artRow.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
+        artRow.style.transform='translateX(100px) scale(0.97)';
+        artRow.style.opacity='0';
+        artRow.style.position='relative';artRow.style.zIndex='5';
       }
-      flipRpRows(rpFirst,container);
+      setTimeout(()=>{
+        renderRiepilogo();
+        const newEl=container.querySelector('[data-artid="'+key+'"]');
+        if(newEl){
+          newEl.style.transition='none';newEl.style.opacity='0';newEl.style.transform='translateY(24px)';
+          requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+            newEl.style.transition='opacity 0.32s ease, transform 0.32s cubic-bezier(0.25,0.8,0.25,1)';
+            newEl.style.opacity='1';newEl.style.transform='translateY(0)';
+            newEl.addEventListener('transitionend',()=>{newEl.style.transition='';},{once:true});
+          });});
+        }
+        flipRpRows(rpFirst,container);
+      },260);
     }
   } else {
     renderRiepilogo();
