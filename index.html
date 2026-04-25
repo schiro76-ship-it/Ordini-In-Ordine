@@ -1240,7 +1240,6 @@ function toggleRp(key){
   rpExpanded[key]=staEspandendo;
 
   if(!staEspandendo){
-    // Sta chiudendo — anima
     if(_rpPosPreservate&&_rpPosPreservate[key]!==undefined){
       delete _rpPosPreservate[key];
       if(!Object.keys(_rpPosPreservate).length)_rpPosPreservate=null;
@@ -1250,14 +1249,18 @@ function toggleRp(key){
     const container=document.getElementById('riepilogo-list');
     const artRow=container.querySelector('[data-artid="'+key+'"]');
 
-    // Salva posizioni attuali di tutte le righe TRANNE quella che si chiude
+    // Salva posizioni attuali (esclusa la riga che si chiude)
     const rpFirst={};
     container.querySelectorAll('[data-artid]').forEach(el=>{
       if(el.dataset.artid!==String(key))
         rpFirst[el.dataset.artid]=el.getBoundingClientRect().top;
     });
 
-    // La riga uscirà se tutti i suoi ordini sono done?
+    // Salva posizione indice attuale della riga che si chiude
+    const posAttuali={};
+    container.querySelectorAll('[data-artid]').forEach((el,i)=>posAttuali[el.dataset.artid]=i);
+
+    // La riga uscirà se tutti done?
     const artId=parseInt(key);
     const ordiniArt=ords.filter(o=>(o.items||[]).some(it=>it.artId===artId));
     const tuttiDone=ordiniArt.every(o=>o.items.filter(it=>it.artId===artId).every(it=>it.done));
@@ -1273,30 +1276,26 @@ function toggleRp(key){
         flipRpRows(rpFirst,container);
       },260);
     } else {
-      // Si riposiziona: slide-out a destra, poi riappare in basso nella nuova posizione
-      if(artRow){
-        artRow.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
-        artRow.style.transform='translateX(100px) scale(0.97)';
-        artRow.style.opacity='0';
-        artRow.style.position='relative';artRow.style.zIndex='5';
+      // Render per vedere la nuova posizione
+      renderRiepilogo();
+      const posNuove={};
+      container.querySelectorAll('[data-artid]').forEach((el,i)=>posNuove[el.dataset.artid]=i);
+      const cambia=posAttuali[String(key)]!==posNuove[String(key)];
+      if(!cambia){
+        // Nessun cambiamento di posizione — niente animazione
+        return;
       }
-      setTimeout(()=>{
-        renderRiepilogo();
-        // La card riappare dal basso nella nuova posizione
-        const newEl=container.querySelector('[data-artid="'+key+'"]');
-        if(newEl){
-          newEl.style.transition='none';
-          newEl.style.opacity='0';
-          newEl.style.transform='translateY(24px)';
-          requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-            newEl.style.transition='opacity 0.32s ease, transform 0.32s cubic-bezier(0.25,0.8,0.25,1)';
-            newEl.style.opacity='1';
-            newEl.style.transform='translateY(0)';
-            newEl.addEventListener('transitionend',()=>{newEl.style.transition='';},{once:true});
-          });});
-        }
-        flipRpRows(rpFirst,container);
-      },260);
+      // La card si riposiziona — già renderizzata, appare dal basso + altre salgono
+      const newEl=container.querySelector('[data-artid="'+key+'"]');
+      if(newEl){
+        newEl.style.transition='none';newEl.style.opacity='0';newEl.style.transform='translateY(24px)';
+        requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+          newEl.style.transition='opacity 0.32s ease, transform 0.32s cubic-bezier(0.25,0.8,0.25,1)';
+          newEl.style.opacity='1';newEl.style.transform='translateY(0)';
+          newEl.addEventListener('transitionend',()=>{newEl.style.transition='';},{once:true});
+        });});
+      }
+      flipRpRows(rpFirst,container);
     }
   } else {
     renderRiepilogo();
