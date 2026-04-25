@@ -2165,8 +2165,18 @@ function checkPortrait(){
   const isPhone=window.innerWidth<=639;
   const isPortrait=window.innerHeight>window.innerWidth;
   const isLandscapePhone=isPhone&&!isPortrait;
+  const isTablet=window.innerWidth>=640&&window.innerWidth<1024;
   document.body.classList.toggle('portrait-phone',isPhone&&isPortrait);
   document.body.classList.toggle('landscape-phone',isLandscapePhone);
+  // Cover status bar tablet (portrait e landscape)
+  const _cover=document.getElementById('status-bar-cover');
+  if(_cover){
+    if(isTablet){
+      _cover.style.display='block';
+      const _sbBg=document.querySelector('.sidebar')?document.querySelector('.sidebar').style.background||'#2C3E50':'#2C3E50';
+      _cover.style.background='linear-gradient(to right, '+_sbBg+' var(--sbw), #DDE0E8 var(--sbw))';
+    }
+  }
   // Gestione bottom nav in landscape smartphone
   const nav=document.getElementById('bottom-nav');
   if(nav){
