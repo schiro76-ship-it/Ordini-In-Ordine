@@ -857,7 +857,7 @@ async function boot(){applyThemeFast();loadDateFormat();loadCalSettings();loadSt
       arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;
       refreshAll();
       const tabRep=document.getElementById('tab-riepilogo');
-      if(tabRep&&tabRep.classList.contains('active'))renderRiepilogo();
+      if(tabRep&&tabRep.classList.contains('active')&&!Object.values(rpExpanded).some(Boolean))renderRiepilogo();
     });
   }catch(e){console.warn('Realtime error',e);}
 }
@@ -977,6 +977,7 @@ function renderOrdini(animate){
   stats();}
 
 let _flipLocked=false;
+let _rpLocked=false;
 let _flipSnapshot={};
 
 function _willChangePosition(oid, newStato){
@@ -1379,7 +1380,7 @@ function setRpCat(c){rpCatFilter=c;renderRiepilogo()}
 
 
 function renderRiepilogoSenzaRiordino(){renderRiepilogo();}
-function renderRiepilogo(){
+function renderRiepilogo(){if(_rpLocked)return;
   const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nessun ordine da evadere!</p></div>';return}const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''})).filter(Boolean))].sort();const pillsEl=document.getElementById('riepilogo-cat-pills');if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" onclick="setRpCat('${c}')">${c}</span>`).join('');const map={};ev.forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!map[k])map[k]={artId:it.artId,ordini:[]};map[k].ordini.push(Object.assign({},it,{ordine:o}));}));const voci=Object.values(map).filter(v=>v.ordini.some(x=>!x.done)||rpExpanded[v.artId]).map(v=>Object.assign({},v,{minScore:v.ordini.some(x=>!x.done)?Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))})).sort((a,b)=>{
   const aDone=a.ordini.every(x=>x.done),bDone=b.ordini.every(x=>x.done);
   // Se dobbiamo preservare questo artId, prima del sort salviamo la sua posizione attuale nel DOM
