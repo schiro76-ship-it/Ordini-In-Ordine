@@ -1270,10 +1270,16 @@ function renderRiepilogo(){
   if(_rpPosPreservate&&bDone&&_rpPosPreservate[b.artId]!==undefined)return -1;
   if(aDone&&!bDone)return 1;
   if(!aDone&&bDone)return -1;
-  // Articolo espanso: non riordinare
-  if(rpExpanded[a.artId]&&!rpExpanded[b.artId])return 1;
-  if(!rpExpanded[a.artId]&&rpExpanded[b.artId])return -1;
-  if(rpExpanded[a.artId]&&rpExpanded[b.artId])return 0;
+  // Articolo espanso: usa la posizione DOM attuale per non riordinarlo
+  const aExp=rpExpanded[a.artId],bExp=rpExpanded[b.artId];
+  if(aExp||bExp){
+    const els=document.querySelectorAll('#riepilogo-list [data-artid]');
+    const posMap={};
+    els.forEach((el,i)=>posMap[el.dataset.artid]=i);
+    const pa=posMap[a.artId]!==undefined?posMap[a.artId]:999;
+    const pb=posMap[b.artId]!==undefined?posMap[b.artId]:999;
+    return pa-pb;
+  }
   if(a.urgente&&!b.urgente)return -1;
   if(!a.urgente&&b.urgente)return 1;
   return a.minScore-b.minScore;
