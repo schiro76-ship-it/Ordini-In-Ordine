@@ -1381,7 +1381,10 @@ function setRpCat(c){rpCatFilter=c;renderRiepilogo()}
 
 function renderRiepilogoSenzaRiordino(){renderRiepilogo();}
 function renderRiepilogo(){if(_rpLocked)return;
-  const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nessun ordine da evadere!</p></div>';return}const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''})).filter(Boolean))].sort();const pillsEl=document.getElementById('riepilogo-cat-pills');if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" onclick="setRpCat('${c}')">${c}</span>`).join('');const map={};ev.forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!map[k])map[k]={artId:it.artId,ordini:[]};map[k].ordini.push(Object.assign({},it,{ordine:o}));}));const voci=Object.values(map).filter(v=>v.ordini.some(x=>!x.done)||rpExpanded[v.artId]).map(v=>Object.assign({},v,{minScore:v.ordini.some(x=>!x.done)?Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))})).sort((a,b)=>{
+  const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nessun ordine da evadere!</p></div>';return}const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''})).filter(Boolean))].sort();const pillsEl=document.getElementById('riepilogo-cat-pills');if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" onclick="setRpCat('${c}')">${c}</span>`).join('');const map={};ev.forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!map[k])map[k]={artId:it.artId,ordini:[]};map[k].ordini.push(Object.assign({},it,{ordine:o}));}));const voci=Object.values(map).filter(v=>v.ordini.some(x=>!x.done)||rpExpanded[v.artId]).map(v=>Object.assign({},v,{minScore:v.ordini.some(x=>!x.done)?Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))}));
+// Leggi posizioni DOM una volta sola prima del sort
+const _domPos={};document.querySelectorAll('#riepilogo-list [data-artid]').forEach((el,i)=>_domPos[el.dataset.artid]=i);
+voci.sort((a,b)=>{
   const aDone=a.ordini.every(x=>x.done),bDone=b.ordini.every(x=>x.done);
   // Se dobbiamo preservare questo artId, prima del sort salviamo la sua posizione attuale nel DOM
   if(_rpDaPreservare&&_rpDaPreservare.size){
@@ -1401,13 +1404,9 @@ function renderRiepilogo(){if(_rpLocked)return;
   // Articolo espanso O appena completato: mantieni posizione DOM attuale
   const aExp=!!rpExpanded[a.artId],bExp=!!rpExpanded[b.artId];
   const aFreeze=aExp||aDone,bFreeze=bExp||bDone;
-  if((aExp||bExp)&&(aFreeze||bFreeze)){const els=document.querySelectorAll('#riepilogo-list [data-artid]');const posMap={};els.forEach((el,i)=>posMap[el.dataset.artid]=i);console.log('SORT',a.artId,'exp:',aExp,'done:',aDone,'pos:',posMap[a.artId],'vs',b.artId,'exp:',bExp,'done:',bDone,'pos:',posMap[b.artId]);}
   if(aFreeze||bFreeze){
-    const els=document.querySelectorAll('#riepilogo-list [data-artid]');
-    const posMap={};
-    els.forEach((el,i)=>posMap[el.dataset.artid]=i);
-    const pa=posMap[a.artId]!==undefined?posMap[a.artId]:999;
-    const pb=posMap[b.artId]!==undefined?posMap[b.artId]:999;
+    const pa=_domPos[String(a.artId)]!==undefined?_domPos[String(a.artId)]:999;
+    const pb=_domPos[String(b.artId)]!==undefined?_domPos[String(b.artId)]:999;
     if(pa!==pb)return pa-pb;
   }
   if(aDone&&!bDone)return 1;
