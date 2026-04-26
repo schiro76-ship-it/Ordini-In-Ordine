@@ -2175,7 +2175,14 @@ function checkPortrait(){
   if(nav){
     if(isLandscapePhone) nav.style.display='none';
     else if(!isPhone) nav.style.display='';
-    // portrait-phone gestisce il proprio caso
+  }
+  // Aggiorna cover tablet ad ogni rotazione (senza toccare smartphone)
+  if(!isPhone){
+    const cover=document.getElementById('status-bar-cover');
+    if(cover&&cover.style.background&&cover.style.background.indexOf('gradient')===-1){
+      // Il cover è impostato a colore pieno — riapplica il gradient
+      applyThemeFast();
+    }
   }
 }
 window.addEventListener('resize',checkPortrait);
