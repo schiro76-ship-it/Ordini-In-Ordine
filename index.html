@@ -138,7 +138,6 @@ body.portrait-phone .sc .sl{font-size:10px;margin-top:2px}
 body.portrait-phone .pcontent{padding-top:0}
 body.portrait-phone{background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
-#tablet-bg{display:none;position:fixed;inset:0;z-index:-1;background:linear-gradient(to right, #2C3E50 var(--sbw), transparent var(--sbw))}
 #status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
 body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
@@ -149,22 +148,18 @@ body.portrait-phone .phdr{padding:14px 16px 0}
 body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!important}
 @media(min-width:640px) and (max-width:1023px){
   body{background:#DDE0E8}
-  #tablet-bg{display:block}
   :root{--sbw:200px}
   .phdr{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .phdr h2{font-size:23px;font-weight:900}
   .pbody{padding:14px 24px 32px}
   .pcontent{padding-top:0}
-  .sidebar{padding-top:env(safe-area-inset-top,20px)!important}
   .page-wrap{padding-top:env(safe-area-inset-top,20px)}
-  #status-bar-cover{display:block;left:0;right:0;height:env(safe-area-inset-top,20px);background:linear-gradient(to right, #2C3E50 var(--sbw), #DDE0E8 var(--sbw));z-index:9999}
   #sc-nuovo{display:block!important}
   .sb-nav .ni-nuovo{display:none!important}
   #tab-ordini .stats-row{grid-template-columns:repeat(5,1fr)}
 }
 @media(min-width:1024px){
   body{background:#DDE0E8}
-  #tablet-bg{display:block}
   .phdr{padding:28px 32px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .phdr h2{font-size:26px;font-weight:900}
   .pbody{padding:16px 32px 40px}
@@ -303,7 +298,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .art-det-inputs input,.art-det-inputs select{padding:9px 10px;border:1.5px solid var(--brd);border-radius:8px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none;width:100%}
 .art-det-inputs label{font-size:12px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:3px}
 .rp-row{display:flex;align-items:center;gap:12px;padding:0;overflow:hidden;background:#fff;border-radius:11px;margin-bottom:8px;box-shadow:var(--sh);transition:background 0.2s ease}
-.rp-row-detail{padding:0 14px 10px;background:#fff;border-radius:0 0 11px 11px;margin-top:0;margin-bottom:8px;box-shadow:var(--sh)}
+.rp-row-detail{padding:0 14px 10px;background:#fff;border-radius:0 0 11px 11px;margin-top:-8px;margin-bottom:8px;box-shadow:var(--sh)}
 .rp-pri{background:var(--ev);color:#fff;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
 .rp-art{flex:1;font-size:16px;font-weight:800;padding:14px 0}
 .rp-qty{font-size:16px;font-weight:900;color:var(--ev)}
@@ -376,7 +371,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 </style>
 </head>
 <body>
-<div id="status-bar-cover"></div><div id="tablet-bg"></div>
+<div id="status-bar-cover"></div>
 <div id="login-screen" style="display:none">
     <div class="login-logo">
       <div style="display:flex;justify-content:center;margin-bottom:8px">
@@ -1223,7 +1218,7 @@ function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&d
     if(_inp){_inp.focus();const l=_inp.value.length;_inp.setSelectionRange(l,l);}
   }
 }
-let rpExpanded={},rpCatFilter='Tutte',_rpPosPreservate=null,_rpDaPreservare=null,_rpPreOpenPos=null;
+let rpExpanded={},rpCatFilter='Tutte',_rpPosPreservate=null,_rpDaPreservare=null;
 function fmtRpData(o){
   if(!o||!o.data)return{r1:'—',r2:''};
   const r1=fmtDataByFormat(o.data);
@@ -1424,7 +1419,7 @@ voci.sort((a,b)=>{
   const _oA=_ordA[0]||(v.ordini[0]&&v.ordini[0].ordine);
   const _bgA=v.urgente?'var(--urg)':tuttiDone?'var(--g)':'var(--ev)';
   const _fmtA=fmtRpData(_oA);
-  const _dataLabel=_fmtA.r2?'<span>'+_fmtA.r1+'</span><span>'+_fmtA.r2+'</span>':'<span>'+_fmtA.r1+'</span>';const dettaglio=exp?v.ordini.map(x=>{const q=parseFloat(x.qty)||1;const qs=q%1===0?q:q.toFixed(2).replace(/\.?0+$/,'');const isUrg=isUrgente(x.ordine);const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';const bg=x.done?'var(--gs)':isUrg?'var(--urgs)':'var(--evs)';const circleClass='itag-circle'+(x.done?' done':isUrg?' urg':'');const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});return`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'✓':''}</div><span style="flex:1;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span></span><span style="font-weight:900;color:${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};font-size:16px">${qs}${x.um?' '+x.um:''}</span></div><button onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="background:#EEF2FF;color:#4F46E5;border:none;border-radius:8px;padding:4px 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0">🖨️</button></div>`;}).join(''):'';return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;cursor:pointer;gap:0" onclick="toggleRp(${v.artId})"><div style="display:flex;align-items:center;gap:12px;padding-right:14px"><div class="rp-pri" style="width:72px;min-width:72px;align-self:stretch;border-radius:11px;padding:5px 6px;font-size:14px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.3;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div class="rp-art">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="display:flex;align-items:center;gap:4px">${tuttiDone?'<span style="color:var(--g);font-weight:800;font-size:14px">✓ Tutto fatto</span>':qStr}</div><span style="font-size:15px;color:var(--sub);margin-left:4px">${exp?'▲':'▼'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden">${dettaglio}</div>`:''}</div>`;}).join('');}
+  const _dataLabel=_fmtA.r2?'<span>'+_fmtA.r1+'</span><span>'+_fmtA.r2+'</span>':'<span>'+_fmtA.r1+'</span>';const dettaglio=exp?v.ordini.map(x=>{const q=parseFloat(x.qty)||1;const qs=q%1===0?q:q.toFixed(2).replace(/\.?0+$/,'');const isUrg=isUrgente(x.ordine);const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';const bg=x.done?'var(--gs)':isUrg?'var(--urgs)':'var(--evs)';const circleClass='itag-circle'+(x.done?' done':isUrg?' urg':'');const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});return`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'✓':''}</div><span style="flex:1;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span></span><span style="font-weight:900;color:${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};font-size:16px">${qs}${x.um?' '+x.um:''}</span></div><button onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="background:#EEF2FF;color:#4F46E5;border:none;border-radius:8px;padding:4px 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0">🖨️</button></div>`;}).join(''):'';return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;cursor:pointer" onclick="toggleRp(${v.artId})"><div style="display:flex;align-items:center;gap:12px;padding-right:14px"><div class="rp-pri" style="width:72px;min-width:72px;align-self:stretch;border-radius:11px;padding:5px 6px;font-size:14px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.3;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div class="rp-art">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="display:flex;align-items:center;gap:4px">${tuttiDone?'<span style="color:var(--g);font-weight:800;font-size:14px">✓ Tutto fatto</span>':qStr}</div><span style="font-size:15px;color:var(--sub);margin-left:4px">${exp?'▲':'▼'}</span></div>${exp?`<div class="rp-detail" style="padding-top:8px;border-top:1px solid var(--brd)">${dettaglio}</div>`:''}</div>`;}).join('');}
 async function setStato(id,stato,skipItemReset){
   const _moves=_willChangePosition(id,stato);
   _updateCardColor(id,stato);
@@ -2168,18 +2163,8 @@ function checkPortrait(){
   const isPhone=window.innerWidth<=639;
   const isPortrait=window.innerHeight>window.innerWidth;
   const isLandscapePhone=isPhone&&!isPortrait;
-  const isTablet=window.innerWidth>=640&&window.innerWidth<1024;
   document.body.classList.toggle('portrait-phone',isPhone&&isPortrait);
   document.body.classList.toggle('landscape-phone',isLandscapePhone);
-  // Cover status bar tablet (portrait e landscape)
-  const _cover=document.getElementById('status-bar-cover');
-  if(_cover){
-    if(isTablet){
-      _cover.style.display='block';
-      const _sbBg=document.querySelector('.sidebar')?document.querySelector('.sidebar').style.background||'#2C3E50':'#2C3E50';
-      _cover.style.background='linear-gradient(to right, '+_sbBg+' var(--sbw), #DDE0E8 var(--sbw))';
-    }
-  }
   // Gestione bottom nav in landscape smartphone
   const nav=document.getElementById('bottom-nav');
   if(nav){
