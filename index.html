@@ -139,6 +139,7 @@ body.portrait-phone .pcontent{padding-top:0}
 body.portrait-phone{background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
 #status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
+#tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39}
 body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
@@ -147,22 +148,29 @@ body.portrait-phone .phdr{padding:14px 16px 0}
 /* Spazio extra sotto la ricerca solo quando la tastiera è aperta */
 body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!important}
 @media(min-width:640px) and (max-width:1023px){
+  html{background:#DDE0E8}
   body{background:#DDE0E8}
   :root{--sbw:200px}
   .phdr{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .phdr h2{font-size:23px;font-weight:900}
   .pbody{padding:14px 24px 32px}
   .pcontent{padding-top:0}
-  .page-wrap{padding-top:env(safe-area-inset-top,20px)}
+  .sidebar{position:fixed;top:0;bottom:0;height:100vh;overflow-y:auto}
+  .page-wrap{margin-left:var(--sbw);padding-top:env(safe-area-inset-top,20px)}
+  #tablet-top-bar{display:block}
   #sc-nuovo{display:block!important}
   .sb-nav .ni-nuovo{display:none!important}
   #tab-ordini .stats-row{grid-template-columns:repeat(5,1fr)}
 }
 @media(min-width:1024px){
+  html{background:#DDE0E8}
   body{background:#DDE0E8}
   .phdr{padding:28px 32px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .phdr h2{font-size:26px;font-weight:900}
   .pbody{padding:16px 32px 40px}
+  .sidebar{position:fixed;top:0;bottom:0;height:100vh;overflow-y:auto}
+  .page-wrap{margin-left:var(--sbw);padding-top:env(safe-area-inset-top,20px)}
+  #tablet-top-bar{display:block}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
   #sc-nuovo{display:block!important}
   .sb-nav .ni-nuovo{display:none!important}
@@ -371,7 +379,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 </style>
 </head>
 <body>
-<div id="status-bar-cover"></div>
+<div id="status-bar-cover"></div><div id="tablet-top-bar"></div>
 <div id="login-screen" style="display:none">
     <div class="login-logo">
       <div style="display:flex;justify-content:center;margin-bottom:8px">
