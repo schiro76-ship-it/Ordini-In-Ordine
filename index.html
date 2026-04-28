@@ -1842,8 +1842,12 @@ async function addArtRapido(){
   } else {
     sel.push({id:id,qty:'',um:'',nota:'',done:false});
     catS='Tutti';renderPills();renderArtS();renderSP();
-    const inp=document.getElementById('qin-'+id);
-    if(inp)inp.focus();
+    setTimeout(function(){
+      const card=document.querySelector('[data-sp-id="'+id+'"]')||document.getElementById('qin-'+id);
+      if(card)card.scrollIntoView({behavior:'smooth',block:'center'});
+      const inp=document.getElementById('qin-'+id);
+      if(inp)inp.focus();
+    },80);
     saveData();
     toast('"'+n+'" aggiunto ✅','v');
   }
