@@ -10,7 +10,6 @@
 <meta name="apple-mobile-web-app-title" content="OrdinInOrdine">
 <meta name="theme-color" content="#2C3E50">
 <link rel="apple-touch-icon" sizes="1024x1024" href="icon.png">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20180%20180%22%3E%0A%0A%20%20%3Crect%20width%3D%22180%22%20height%3D%22180%22%20rx%3D%2236%22%20fill%3D%22%235B2D8E%22%2F%3E%0A%0A%20%20%3Crect%20x%3D%2228%22%20y%3D%22148%22%20width%3D%22124%22%20height%3D%2218%22%20rx%3D%226%22%20fill%3D%22%23FFE033%22%2F%3E%0A%0A%20%20%3Crect%20x%3D%2287%22%20y%3D%2220%22%20width%3D%226%22%20height%3D%22130%22%20rx%3D%223%22%20fill%3D%22%23FFE033%22%2F%3E%0A%0A%20%20%3Cpath%20d%3D%22M30%2C62%20Q58%2C48%2090%2C58%20Q122%2C68%20150%2C52%20Q146%2C72%2090%2C70%20Q40%2C78%2030%2C62%20Z%22%20fill%3D%22%23FFE033%22%2F%3E%0A%0A%20%20%3Cpath%20d%3D%22M30%2C94%20Q56%2C80%2090%2C88%20Q124%2C98%20150%2C82%20Q146%2C102%2090%2C100%20Q42%2C108%2030%2C94%20Z%22%20fill%3D%22%23FFE033%22%2F%3E%0A%0A%20%20%3Cpath%20d%3D%22M30%2C124%20Q56%2C110%2090%2C118%20Q124%2C128%20150%2C112%20Q146%2C132%2090%2C130%20Q42%2C138%2030%2C124%20Z%22%20fill%3D%22%23FFE033%22%2F%3E%0A%0A%3C%2Fsvg%3E">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
 <link rel="icon" type="image/png" sizes="1024x1024" href="icon.png">
 <style>
@@ -1524,7 +1523,7 @@ function renderDetModal(o){
       ${o.stato!=='completato'?`<button class="btn bgg" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'completato')">Completato</button>`:''}
       ${o.stato!=='ritirato'?`<button class="btn" style="flex:1;min-width:90px;font-size:13px;padding:9px;background:var(--gr);color:#fff" onclick="setStatoD(${o.id},'ritirato')">Ritirato</button>`:''}
     </div>
-    <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-det')">Chiudi</button></div>`;
+    <div class="ma"><button class="btn btn-full" style="background:#4B5563;color:#fff" onclick="closeModal('modal-det')">Chiudi</button></div>`;
   setTimeout(function(){renderDetArtGrid(o.id);initDetCal(o);},0);
 }
 let detCalYear=0,detCalMonth=0,detCalSelDate=null,detCalOid=null;
