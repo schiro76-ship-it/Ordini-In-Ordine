@@ -139,7 +139,7 @@ body.portrait-phone .pcontent{padding-top:0}
 body.portrait-phone{background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
 #status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
-#tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39}
+#tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:var(--sat-fixed,env(safe-area-inset-top,20px));background:#DDE0E8;z-index:39}
 #sidebar-extender{display:none;position:fixed;bottom:-500px;left:0;width:var(--sbw);height:500px;background:#2C3E50;z-index:39}
 body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
@@ -160,7 +160,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   .pcontent{padding-top:0}
   .sidebar{position:fixed;top:0;bottom:0;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,34px);z-index:100}
   #sidebar-extender{display:block;z-index:100}
-  .page-wrap{margin-left:var(--sbw);padding-top:env(safe-area-inset-top,20px)}
+  .page-wrap{margin-left:var(--sbw);padding-top:var(--sat-fixed,env(safe-area-inset-top,20px))}
   #tablet-top-bar{display:block}
   #sc-nuovo{display:block!important}
   .sb-nav .ni-nuovo{display:none!important}
@@ -176,7 +176,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   .pbody{padding:16px 32px 40px}
   .sidebar{position:fixed;top:0;bottom:0;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,34px);z-index:100}
   #sidebar-extender{display:block;z-index:100}
-  .page-wrap{margin-left:var(--sbw);padding-top:env(safe-area-inset-top,20px)}
+  .page-wrap{margin-left:var(--sbw);padding-top:var(--sat-fixed,env(safe-area-inset-top,20px))}
   #tablet-top-bar{display:block}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
   #sc-nuovo{display:block!important}
@@ -2196,20 +2196,20 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
-// Fissa l'altezza della banda tablet una volta sola al load, così non sparisce con la tastiera
+// Fissa --sat-fixed una volta sola al load così la banda tablet non sparisce con la tastiera
 (function fixTabletTopBar(){
-  const bar=document.getElementById('tablet-top-bar');
-  if(!bar)return;
-  const tmp=document.createElement('div');
-  tmp.style.cssText='position:fixed;top:0;left:0;height:env(safe-area-inset-top,20px);visibility:hidden;pointer-events:none';
-  document.body.appendChild(tmp);
-  const realH=tmp.getBoundingClientRect().height||20;
-  document.body.removeChild(tmp);
-  bar.style.height=realH+'px';
-  if(window.innerWidth>=640&&window.innerWidth<=1023){
-    const pw=document.querySelector('.page-wrap');
-    if(pw)pw.style.paddingTop=realH+'px';
+  function apply(){
+    const tmp=document.createElement('div');
+    tmp.style.cssText='position:fixed;top:0;left:0;width:1px;height:env(safe-area-inset-top,20px);visibility:hidden;pointer-events:none;z-index:-1';
+    document.body.appendChild(tmp);
+    const h=tmp.getBoundingClientRect().height;
+    document.body.removeChild(tmp);
+    const val=(h>0?h:20)+'px';
+    document.documentElement.style.setProperty('--sat-fixed',val);
   }
+  // Subito e dopo 500ms per sicurezza (iOS a volte è lento)
+  apply();
+  setTimeout(apply,500);
 })();
 
 
