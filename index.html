@@ -2193,10 +2193,24 @@ function checkPortrait(){
   }
 }
 window.addEventListener('resize',checkPortrait);
-
-
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
+
+// Fissa l'altezza della banda tablet una volta sola al load, così non sparisce con la tastiera
+(function fixTabletTopBar(){
+  const bar=document.getElementById('tablet-top-bar');
+  if(!bar)return;
+  const tmp=document.createElement('div');
+  tmp.style.cssText='position:fixed;top:0;left:0;height:env(safe-area-inset-top,20px);visibility:hidden;pointer-events:none';
+  document.body.appendChild(tmp);
+  const realH=tmp.getBoundingClientRect().height||20;
+  document.body.removeChild(tmp);
+  bar.style.height=realH+'px';
+  if(window.innerWidth>=640&&window.innerWidth<=1023){
+    const pw=document.querySelector('.page-wrap');
+    if(pw)pw.style.paddingTop=realH+'px';
+  }
+})();
 
 
 function stampaEtichettaRp(oidStr,artId){
