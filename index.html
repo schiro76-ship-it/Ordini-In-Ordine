@@ -2196,18 +2196,22 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
-// Fissa --sat-fixed una volta sola al load così la banda tablet non sparisce con la tastiera
-(function fixTabletTopBar(){
+// Fissa altezza sidebar e banda tablet al valore iniziale — così la tastiera non sposta nulla
+(function fixTabletLayout(){
+  if(window.innerWidth<640||window.innerWidth>1023)return;
   function apply(){
+    const h=window.innerHeight;
+    // Blocca sidebar ad altezza fissa
+    const sidebar=document.querySelector('.sidebar');
+    if(sidebar)sidebar.style.height=h+'px';
+    // Legge safe-area-inset-top reale
     const tmp=document.createElement('div');
     tmp.style.cssText='position:fixed;top:0;left:0;width:1px;height:env(safe-area-inset-top,20px);visibility:hidden;pointer-events:none;z-index:-1';
     document.body.appendChild(tmp);
-    const h=tmp.getBoundingClientRect().height;
+    const sat=tmp.getBoundingClientRect().height||20;
     document.body.removeChild(tmp);
-    const val=(h>0?h:20)+'px';
-    document.documentElement.style.setProperty('--sat-fixed',val);
+    document.documentElement.style.setProperty('--sat-fixed',sat+'px');
   }
-  // Subito e dopo 500ms per sicurezza (iOS a volte è lento)
   apply();
   setTimeout(apply,500);
 })();
