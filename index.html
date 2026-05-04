@@ -3,7 +3,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <title>OrdinInOrdine</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -139,7 +139,7 @@ body.portrait-phone .pcontent{padding-top:0}
 body.portrait-phone{background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
 #status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
-#top-cover-always{position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:99999;pointer-events:none}
+#top-cover-always{position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);min-height:44px;background:#2C3E50;z-index:99999;pointer-events:none;will-change:transform}
 #tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39}
 #sidebar-extender{display:none;position:fixed;bottom:-500px;left:0;width:var(--sbw);height:500px;background:#2C3E50;z-index:39}
 body.portrait-phone #status-bar-cover{display:block}
