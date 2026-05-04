@@ -2221,22 +2221,36 @@ document.addEventListener('touchstart',function(e){
 
 // Fix tastiera iOS PWA: focusin/focusout semplice
 document.addEventListener('focusin',function(e){
-  if(!document.body.classList.contains('portrait-phone'))return;
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'){
-    document.getElementById('bottom-nav').style.display='none';
-    document.body.classList.add('keyboard-open');
+    // Smartphone: nascondi bottom nav
+    if(document.body.classList.contains('portrait-phone')){
+      document.getElementById('bottom-nav').style.display='none';
+      document.body.classList.add('keyboard-open');
+    }
+    // Tutti: blocca sidebar e banda alla posizione attuale
+    var sb=document.querySelector('.sidebar');
+    var band=document.getElementById('tablet-top-bar');
+    if(sb){var h=window.innerHeight;sb.style.height=h+'px';sb.style.minHeight=h+'px';}
+    if(band){band.style.height=band.getBoundingClientRect().height+'px';}
   }
 });
 document.addEventListener('focusout',function(e){
-  if(!document.body.classList.contains('portrait-phone'))return;
   setTimeout(function(){
     var a=document.activeElement;
     if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;
-    var bar=document.getElementById('nuovo-bottom-bar');
-    var nav=document.getElementById('bottom-nav');
-    if(bar&&bar.classList.contains('visible')&&!document.body.classList.contains('portrait-phone'))bar.style.display='';
-    if(nav)nav.style.display='flex';
-    document.body.classList.remove('keyboard-open');
+    // Smartphone: ripristina bottom nav
+    if(document.body.classList.contains('portrait-phone')){
+      var bar=document.getElementById('nuovo-bottom-bar');
+      var nav=document.getElementById('bottom-nav');
+      if(bar&&bar.classList.contains('visible')&&!document.body.classList.contains('portrait-phone'))bar.style.display='';
+      if(nav)nav.style.display='flex';
+      document.body.classList.remove('keyboard-open');
+    }
+    // Tutti: ripristina sidebar e banda
+    var sb=document.querySelector('.sidebar');
+    var band=document.getElementById('tablet-top-bar');
+    if(sb){sb.style.height='';sb.style.minHeight='';}
+    if(band){band.style.height='';}
   },300);
 });
 </script>
