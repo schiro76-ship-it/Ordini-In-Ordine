@@ -2009,7 +2009,7 @@ function calSelGiorno(iso){
   _aggiornaTriggerLabel();
   // Se modalità niente → focus su nome subito (sincrono per iOS)
   if(_calMode==='niente'){
-    const nn=document.getElementById('nn');if(nn){nn.focus();nn.scrollIntoView({behavior:'smooth',block:'center'});}
+    const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
   }
 }
 function calSceglTurno(t){
@@ -2018,7 +2018,7 @@ function calSceglTurno(t){
   renderCal();
   _aggiornaTriggerLabel();
   // Focus su nome dopo selezione M/P (sincrono per iOS)
-  const nn=document.getElementById('nn');if(nn){nn.focus();nn.scrollIntoView({behavior:'smooth',block:'center'});}
+  const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
 }
 function calSceglOra(v){
   calOra=v||null;
