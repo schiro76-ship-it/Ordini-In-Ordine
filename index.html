@@ -1492,9 +1492,7 @@ function renderDetModal(o){
         <div class="cal-compact" id="det-cal-compact">
           <div class="cal-nav"><button onclick="detCalNav(${o.id},-1)">‹</button><span class="cn-lbl" id="det-cal-lbl"></span><button onclick="detCalNav(${o.id},+1)">›</button></div>
           <div class="cal-grid" id="det-cal-grid"></div>
-          <div id="det-cal-salva-solo" style="display:none;padding:6px 8px;border-top:1px solid var(--brd)">
-            <button onclick="detCalSalva(${o.id})" style="width:100%;padding:8px;background:var(--r);color:#fff;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;cursor:pointer">✓ Conferma data</button>
-          </div>
+          <div id="det-cal-salva-solo" style="display:none"></div>
           <div id="det-cal-row-extra" class="cal-row-mp" style="display:none">
             <button id="det-cal-btn-mat" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'mattina')">☀️ Mat.</button>
             <button id="det-cal-btn-pom" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'pomeriggio')">🌆 Pom.</button>
@@ -1502,7 +1500,7 @@ function renderDetModal(o){
               <span style="font-size:13px;color:var(--sub)">🕐</span>
               <input type="time" id="det-cal-time-inp" class="cal-time-inp" onchange="detCalSceglOra(${o.id},this.value)">
             </div>
-            <button onclick="detCalSalva(${o.id})" style="padding:6px 10px;background:var(--r);color:#fff;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;cursor:pointer;margin-left:4px">✓</button>
+
           </div>
         </div>
       </div>
@@ -1556,7 +1554,7 @@ function renderDetCalGrid(){
   const timeInp=document.getElementById('det-cal-time-inp');
   // Pulsante "Conferma data" quando non c'è riga M/P
   const salvaSolo=document.getElementById('det-cal-salva-solo');
-  if(salvaSolo)salvaSolo.style.display=(detCalSelDate&&!(_calSetMP||_calSetOra))?'block':'none';
+  if(salvaSolo)salvaSolo.style.display='none';
   if(rowExtra){
     const showRow=detCalSelDate&&(_calSetMP||_calSetOra);
     rowExtra.style.display=showRow?'flex':'none';
@@ -1571,12 +1569,13 @@ function renderDetCalGrid(){
     if(btnPom)btnPom.className='cal-btn-mp'+(detCalTurno==='pomeriggio'&&!detCalOra?' sel-pom':'');
   }
 }
-function detCalSelGiorno(iso){detCalSelDate=iso;renderDetCalGrid();}
+function detCalSelGiorno(iso){detCalSelDate=iso;renderDetCalGrid();if(_calMode==='niente'&&detCalOid){detCalSalva(detCalOid);}}
 async function detCalSceglTurno(oid,turno){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   if(detCalTurno===turno&&!detCalOra){detCalTurno=null;}
   else{detCalTurno=turno;detCalOra=null;const ti=document.getElementById('det-cal-time-inp');if(ti)ti.value='';}
   renderDetCalGrid();
+  if(_calMode==='mp')detCalSalva(oid);
 }
 async function detCalSalva(oid){
   const o=ords.find(x=>x.id===oid);if(!o)return;
@@ -1591,6 +1590,7 @@ async function detCalSceglOra(oid,val){
   detCalOra=val||null;
   if(detCalOra)detCalTurno=null;
   renderDetCalGrid();
+  if(detCalOra)detCalSalva(oid);
 }
 let detQArtOid=null;
 function openDetQArt(oid){
