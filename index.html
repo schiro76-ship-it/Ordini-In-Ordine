@@ -2219,6 +2219,36 @@ document.addEventListener('touchstart',function(e){
   if(_screenOff){e.preventDefault();e.stopPropagation();}
 },{capture:true,passive:false});
 
+// Fix tastiera iOS PWA: visualViewport API per tenere sidebar e banda ferme
+(function initVisualViewportFix(){
+  if(!window.visualViewport)return;
+  var sidebar=document.querySelector('.sidebar');
+  var band=document.getElementById('tablet-top-bar');
+  var cover=document.getElementById('status-bar-cover');
+
+  function applyFix(){
+    var offsetY=window.innerHeight-window.visualViewport.height-window.visualViewport.offsetTop;
+    if(offsetY<0)offsetY=0;
+    var transform=offsetY>0?'translateY('+offsetY+'px)':'';
+    if(sidebar)sidebar.style.transform=transform;
+    if(band)band.style.transform=transform;
+    if(cover)cover.style.transform=transform;
+  }
+
+  function resetFix(){
+    if(sidebar)sidebar.style.transform='';
+    if(band)band.style.transform='';
+    if(cover)cover.style.transform='';
+  }
+
+  window.visualViewport.addEventListener('resize',applyFix);
+  window.visualViewport.addEventListener('scroll',applyFix);
+
+  window.addEventListener('orientationchange',function(){
+    setTimeout(resetFix,300);
+  });
+})();
+
 // Fix tastiera iOS PWA: focusin/focusout semplice
 document.addEventListener('focusin',function(e){
   if(!document.body.classList.contains('portrait-phone'))return;
