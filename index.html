@@ -1311,53 +1311,22 @@ async function toggleRp(key){
         renderRiepilogo();
         return;
       }
-      // Ultima card chiusa: slide-out di tutte le card che cambiano posizione
-      // Prima calcola il nuovo ordine per sapere chi si sposta
+      // Ultima card chiusa: riordina con FLIP
       _rpOrdineCongelato=null;
-      // Calcola nuovo ordine senza renderizzare
-      const map2={};
-      ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k))))).forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!map2[k])map2[k]={artId:it.artId,ordini:[]};map2[k].ordini.push(Object.assign({},it,{ordine:o}));}));
-      const voci2=Object.values(map2).filter(v=>v.ordini.some(x=>!x.done)).map(v=>Object.assign({},v,{minScore:Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))),urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))}));
-      voci2.sort((a,b)=>{if(a.urgente&&!b.urgente)return -1;if(!a.urgente&&b.urgente)return 1;return a.minScore-b.minScore;});
-      const nuovoOrdine=voci2.map(v=>String(v.artId));
-      // Determina quali card cambiano posizione
-      // Confronta solo le card che restano (escluse le "tutto fatto" che spariscono)
-      const cardRimaste=[];
+      renderRiepilogo();
       container.querySelectorAll('[data-artid]').forEach(el=>{
-        if(!tuttiDoneIds.has(el.dataset.artid))cardRimaste.push(el.dataset.artid);
+        const aid=el.dataset.artid;
+        if(rpFirst[aid]===undefined||tuttiDoneIds.has(aid))return;
+        const dy=rpFirst[aid]-el.getBoundingClientRect().top;
+        if(Math.abs(dy)<2)return;
+        el.style.transition='none';
+        el.style.transform='translateY('+dy+'px)';
+        requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+          el.style.transition='transform 0.42s cubic-bezier(0.25,0.8,0.25,1)';
+          el.style.transform='translateY(0)';
+          el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
+        });});
       });
-      const daAnimare=new Set();
-      nuovoOrdine.forEach((aid,newIdx)=>{
-        const oldIdx=cardRimaste.indexOf(aid);
-        if(oldIdx!==-1&&oldIdx!==newIdx)daAnimare.add(aid);
-      });
-      // Slide-out di tutte le card che si spostano (incluse le verdi già in uscita)
-      daAnimare.forEach(aid=>{
-        if(tuttiDoneIds.has(aid))return; // già in slide-out
-        const el=container.querySelector('[data-artid="'+aid+'"]');
-        if(el){
-          el.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
-          el.style.transform='translateX(100px)';el.style.opacity='0';
-        }
-      });
-      const delay=daAnimare.size>0?280:0;
-      setTimeout(()=>{
-        renderRiepilogo();
-        // Card nuove o che rientrano: entrano dal basso
-        container.querySelectorAll('[data-artid]').forEach(el=>{
-          const aid=el.dataset.artid;
-          if(!daAnimare.has(aid)&&rpFirst[aid]===undefined)return;
-          if(daAnimare.has(aid)||tuttiDoneIds.has(aid)){
-            el.style.transition='none';el.style.opacity='0';el.style.transform='translateY(20px)';
-            requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-              el.style.transition='opacity 0.35s ease, transform 0.35s cubic-bezier(0.25,0.8,0.25,1)';
-              el.style.opacity='1';el.style.transform='translateY(0)';
-              el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
-            });});
-          }
-        });
-      },delay);
-      return;
     };
 
     if(slideOutEls.length>0){
