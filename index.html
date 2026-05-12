@@ -1321,11 +1321,15 @@ async function toggleRp(key){
       voci2.sort((a,b)=>{if(a.urgente&&!b.urgente)return -1;if(!a.urgente&&b.urgente)return 1;return a.minScore-b.minScore;});
       const nuovoOrdine=voci2.map(v=>String(v.artId));
       // Determina quali card cambiano posizione
-      const posAttuali={};
-      container.querySelectorAll('[data-artid]').forEach((el,i)=>posAttuali[el.dataset.artid]=i);
+      // Confronta solo le card che restano (escluse le "tutto fatto" che spariscono)
+      const cardRimaste=[];
+      container.querySelectorAll('[data-artid]').forEach(el=>{
+        if(!tuttiDoneIds.has(el.dataset.artid))cardRimaste.push(el.dataset.artid);
+      });
       const daAnimare=new Set();
       nuovoOrdine.forEach((aid,newIdx)=>{
-        if(posAttuali[aid]!==undefined&&posAttuali[aid]!==newIdx)daAnimare.add(aid);
+        const oldIdx=cardRimaste.indexOf(aid);
+        if(oldIdx!==-1&&oldIdx!==newIdx)daAnimare.add(aid);
       });
       // Slide-out di tutte le card che si spostano (incluse le verdi già in uscita)
       daAnimare.forEach(aid=>{
