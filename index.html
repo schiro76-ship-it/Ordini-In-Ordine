@@ -1287,7 +1287,7 @@ async function toggleRp(key){
     _rpOrdineCongelato=null;
     renderRiepilogo();
 
-    // FLIP con slide-out a destra per le card che cambiano posizione
+    // FLIP: card esistenti si spostano fluidamente, card nuove entrano dal basso
     container.querySelectorAll('[data-artid]').forEach(el=>{
       const aid=el.dataset.artid;
       if(rpFirst[aid]===undefined){
@@ -1302,20 +1302,13 @@ async function toggleRp(key){
       }
       const dy=rpFirst[aid]-el.getBoundingClientRect().top;
       if(Math.abs(dy)<2)return;
-      // Card che si sposta: slide-out a destra poi rientra nella nuova posizione
-      const clone=container.querySelector('[data-artid="'+aid+'"]');
-      if(clone){
-        clone.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
-        clone.style.transform='translateX(80px)';clone.style.opacity='0';
-        setTimeout(()=>{
-          clone.style.transition='none';clone.style.transform='translateY('+dy+'px)';clone.style.opacity='1';
-          requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-            clone.style.transition='transform 0.38s cubic-bezier(0.25,0.8,0.25,1)';
-            clone.style.transform='translateY(0)';
-            clone.addEventListener('transitionend',()=>{clone.style.transition='';},{once:true});
-          });});
-        },260);
-      }
+      el.style.transition='none';
+      el.style.transform='translateY('+dy+'px)';
+      requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+        el.style.transition='transform 0.42s cubic-bezier(0.25,0.8,0.25,1)';
+        el.style.transform='translateY(0)';
+        el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
+      });});
     });
 
   } else {
