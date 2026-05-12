@@ -1258,7 +1258,7 @@ async function toggleRp(key){
   rpExpanded[key]=staEspandendo;
 
   if(!staEspandendo){
-    // CHIUSURA: anima slide-up, poi ricalcola e ricongela
+    // CHIUSURA: anima slide-up del dettaglio
     const container=document.getElementById('riepilogo-list');
     const artRow=container.querySelector('[data-artid="'+key+'"]');
 
@@ -1277,39 +1277,63 @@ async function toggleRp(key){
 
     await new Promise(r=>setTimeout(r,230));
 
-    // Salva posizioni per FLIP
+    // Controlla se ci sono ancora altre card espanse
+    const altreEspanse=Object.values(rpExpanded).some(Boolean);
+    if(altreEspanse){
+      // Non è l'ultima — rirender senza riordinare
+      renderRiepilogo();
+      return;
+    }
+
+    // È l'ultima card chiusa — salva posizioni per FLIP
     const rpFirst={};
     container.querySelectorAll('[data-artid]').forEach(el=>{
       rpFirst[el.dataset.artid]=el.getBoundingClientRect().top;
     });
 
-    // Ricongela dopo chiusura
-    _rpOrdineCongelato=null;
-    renderRiepilogo();
-
-    // FLIP: card esistenti si spostano fluidamente, card nuove entrano dal basso
+    // Identifica card "tutto fatto" che spariranno dopo il riordino
+    const tuttiDoneIds=new Set();
     container.querySelectorAll('[data-artid]').forEach(el=>{
-      const aid=el.dataset.artid;
-      if(rpFirst[aid]===undefined){
-        // Card nuova: entra dal basso
-        el.style.transition='none';el.style.opacity='0';el.style.transform='translateY(30px)';
+      const aid=parseInt(el.dataset.artid);
+      const v=Object.values((()=>{const m={};ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done))).forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!m[k])m[k]={artId:it.artId,ordini:[]};m[k].ordini.push(Object.assign({},it,{ordine:o}));}));return m;})()).find(v=>v.artId===aid);
+      if(v&&v.ordini.every(x=>x.done))tuttiDoneIds.add(el.dataset.artid);
+    });
+
+    // Slide-out a destra delle card "tutto fatto" prima del riordino
+    const slideOutEls=[];
+    tuttiDoneIds.forEach(aid=>{
+      const el=container.querySelector('[data-artid="'+aid+'"]');
+      if(el){
+        el.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
+        el.style.transform='translateX(100px)';el.style.opacity='0';
+        slideOutEls.push(aid);
+      }
+    });
+
+    const doReorder=()=>{
+      _rpOrdineCongelato=null;
+      renderRiepilogo();
+      // FLIP per le card rimaste
+      container.querySelectorAll('[data-artid]').forEach(el=>{
+        const aid=el.dataset.artid;
+        if(rpFirst[aid]===undefined||tuttiDoneIds.has(aid))return;
+        const dy=rpFirst[aid]-el.getBoundingClientRect().top;
+        if(Math.abs(dy)<2)return;
+        el.style.transition='none';
+        el.style.transform='translateY('+dy+'px)';
         requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-          el.style.transition='opacity 0.38s ease, transform 0.38s cubic-bezier(0.25,0.8,0.25,1)';
-          el.style.opacity='1';el.style.transform='translateY(0)';
+          el.style.transition='transform 0.42s cubic-bezier(0.25,0.8,0.25,1)';
+          el.style.transform='translateY(0)';
           el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
         });});
-        return;
-      }
-      const dy=rpFirst[aid]-el.getBoundingClientRect().top;
-      if(Math.abs(dy)<2)return;
-      el.style.transition='none';
-      el.style.transform='translateY('+dy+'px)';
-      requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-        el.style.transition='transform 0.42s cubic-bezier(0.25,0.8,0.25,1)';
-        el.style.transform='translateY(0)';
-        el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
-      });});
-    });
+      });
+    };
+
+    if(slideOutEls.length>0){
+      setTimeout(doReorder,280);
+    } else {
+      doReorder();
+    }
 
   } else {
     // APERTURA: mantieni ordine congelato esistente, render + slide-down
