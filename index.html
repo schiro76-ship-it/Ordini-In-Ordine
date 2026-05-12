@@ -1279,11 +1279,6 @@ async function toggleRp(key){
 
     // Controlla se ci sono ancora altre card espanse
     const altreEspanse=Object.values(rpExpanded).some(Boolean);
-    if(altreEspanse){
-      // Non è l'ultima — rirender senza riordinare
-      renderRiepilogo();
-      return;
-    }
 
     // È l'ultima card chiusa — salva posizioni per FLIP
     const rpFirst={};
@@ -1311,9 +1306,14 @@ async function toggleRp(key){
     });
 
     const doReorder=()=>{
+      if(altreEspanse){
+        // Altre card ancora aperte: rirender senza riordinare
+        renderRiepilogo();
+        return;
+      }
+      // Ultima card chiusa: riordina con FLIP
       _rpOrdineCongelato=null;
       renderRiepilogo();
-      // FLIP per le card rimaste
       container.querySelectorAll('[data-artid]').forEach(el=>{
         const aid=el.dataset.artid;
         if(rpFirst[aid]===undefined||tuttiDoneIds.has(aid))return;
