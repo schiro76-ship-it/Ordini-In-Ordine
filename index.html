@@ -1293,9 +1293,13 @@ async function toggleRp(key){
       if(v&&v.ordini.every(x=>x.done))tuttiDoneIds.add(el.dataset.artid);
     });
 
-    // Slide-out delle card "tutto fatto" — avviene sempre, indipendentemente da altre espanse
+    // Slide-out delle card "tutto fatto":
+    // - sempre per la card appena chiusa (key)
+    // - per le altre solo se non ci sono altre card espanse
     const slideOutEls=[];
     tuttiDoneIds.forEach(aid=>{
+      const isChiusa=aid===String(key);
+      if(!isChiusa&&altreEspanse)return;
       const el=container.querySelector('[data-artid="'+aid+'"]');
       if(el){
         el.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
