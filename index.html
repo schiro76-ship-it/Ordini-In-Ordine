@@ -317,7 +317,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .rp-pri{background:var(--ev);color:#fff;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
 .rp-art{flex:1;font-size:16px;font-weight:800;padding:14px 0}
 .rp-qty{font-size:16px;font-weight:900;color:var(--ev)}
-.rp-um{font-size:16px;color:var(--ev);font-weight:700}
+.rp-um{font-size:16px;font-weight:900;color:var(--ev)}
 .rp-urgente{border-left-color:var(--urg)!important}.rp-urgente .rp-pri{background:var(--urg)}.rp-urgente .rp-qty{color:var(--urg)}
 .rp-completato{border-left-color:var(--g)!important}.rp-completato .rp-pri{background:var(--g)}.rp-completato .rp-qty{color:var(--g)}
 #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--txt);color:#fff;padding:12px 22px;border-radius:28px;font-size:16px;font-weight:800;box-shadow:var(--shl);opacity:0;transition:all 0.25s ease;z-index:400;white-space:nowrap}
@@ -1259,7 +1259,6 @@ async function toggleRp(key){
   if(!staEspandendo){
     const container=document.getElementById('riepilogo-list');
     const artRow=container.querySelector('[data-artid="'+key+'"]');
-
     if(artRow){
       const detail=artRow.querySelector('.rp-detail');
       if(detail){
@@ -1272,18 +1271,12 @@ async function toggleRp(key){
         requestAnimationFrame(()=>{requestAnimationFrame(()=>{clone.style.maxHeight='0';});});
       }
     }
-
     await new Promise(r=>setTimeout(r,230));
-
     const altreEspanse=Object.values(rpExpanded).some(Boolean);
-
-    // Salva posizioni per FLIP
     const rpFirst={};
     container.querySelectorAll('[data-artid]').forEach(el=>{
       rpFirst[el.dataset.artid]=el.getBoundingClientRect().top;
     });
-
-    // Identifica card "tutto fatto" che spariranno dopo il riordino
     const tuttiDoneIds=new Set();
     container.querySelectorAll('[data-artid]').forEach(el=>{
       const aid=parseInt(el.dataset.artid);
@@ -1292,10 +1285,8 @@ async function toggleRp(key){
       const v=Object.values(m).find(v=>v.artId===aid);
       if(v&&v.ordini.every(x=>x.done))tuttiDoneIds.add(el.dataset.artid);
     });
-
     const doReorder=()=>{
       if(altreEspanse){
-        // Slide-out solo per la card appena chiusa se è verde
         if(tuttiDoneIds.has(String(key))){
           const el=container.querySelector('[data-artid="'+key+'"]');
           if(el){
@@ -1306,7 +1297,6 @@ async function toggleRp(key){
         } else { renderRiepilogo(); }
         return;
       }
-      // Ultima card chiusa: slide-out delle verdi poi FLIP
       const slideOutEls=[];
       tuttiDoneIds.forEach(aid=>{
         const el=container.querySelector('[data-artid="'+aid+'"]');
@@ -1335,11 +1325,8 @@ async function toggleRp(key){
       };
       if(slideOutEls.length>0){setTimeout(doFlip,280);}else{doFlip();}
     };
-
     doReorder();
-
   } else {
-    // APERTURA: mantieni ordine congelato, render + slide-down
     renderRiepilogo();
     const container=document.getElementById('riepilogo-list');
     const artRow=container.querySelector('[data-artid="'+key+'"]');
@@ -1424,8 +1411,9 @@ function renderRiepilogo(){if(_rpLocked)return;
       const isUrg=isUrgente(x.ordine);
       const bg=x.done?'var(--gs)':isUrg?'var(--urgs)':'var(--evs)';
       const circleClass='itag-circle'+(x.done?' done':isUrg?' urg':'');
+      const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';
       const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});
-      return`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'✓':''}</div><span style="flex:1;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?`<span style=\"color:var(--sub);font-style:italic;font-weight:700;font-size:15px;margin-left:6px\">\"${x.nota}\"</span>`:""}</span<span class=\"rp-qty\" style=\"color:${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'}\">${qs}</span>${x.um?`<span class=\"rp-um\" style=\"color:${x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)'}\"> ${x.um}</span>`:""}</span></div><button onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="background:#EEF2FF;color:#4F46E5;border:none;border-radius:8px;padding:4px 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0">🖨️</button></div>`;
+      return`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'✓':''}</div><span style="flex:1;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?`<span style=\"color:var(--sub);font-style:italic;font-weight:700;font-size:15px;margin-left:6px\">\"${x.nota}\"</span>`:""}</span><span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}</div><button onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="background:#EEF2FF;color:#4F46E5;border:none;border-radius:8px;padding:4px 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0">🖨️</button></div>`;
     }).join(''):'';
     return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;cursor:pointer;gap:0" onclick="toggleRp(${v.artId})"><div style="display:flex;align-items:center;gap:12px;padding-right:14px"><div class="rp-pri" style="width:72px;min-width:72px;align-self:stretch;border-radius:11px;padding:5px 6px;font-size:14px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.3;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div class="rp-art">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="display:flex;align-items:center;gap:4px">${tuttiDone?'<span style="color:var(--g);font-weight:800;font-size:14px">✓ Tutto fatto</span>':qStr}</div><span style="font-size:15px;color:var(--sub);margin-left:4px">${exp?'▲':'▼'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden">${dettaglio}</div>`:''}</div>`;
   }).join('');
