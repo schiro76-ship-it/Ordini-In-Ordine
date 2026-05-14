@@ -944,9 +944,7 @@ function buildOcHTML(lista){
     const ocClass=`oc ${o.stato}${urg?' urgente':''}`;
     const sb2={evadere:urg?`<span class="stato-badge" style="background:var(--urgs);color:var(--urg)">⚡ Da evadere</span>`:`<span class="stato-badge sb-ev">Da evadere</span>`,completato:`<span class="stato-badge sb-co">Completato</span>`,ritirato:`<span class="stato-badge sb-ri">Ritirato</span>`}[o.stato];
     const tbTxt=o.ora?` 🕐 ${o.ora}`:o.turno==='mattina'?' ☀️ Mat.':o.turno==='pomeriggio'?' 🌆 Pom.':'';
-    const dsTxt=o.data?`${fmtD(o.data)}${tbTxt}`:'';
-    const dsColor=isUrgente(o)?'var(--urg)':o.stato==='completato'?'var(--g)':o.stato==='ritirato'?'var(--gr)':'var(--ev)';
-    const ds=dsTxt?`<span style="display:inline-flex;align-items:center;background:${dsColor}15;color:${dsColor};font-size:14px;font-weight:900;padding:3px 10px;border-radius:20px;border:1.5px solid ${dsColor}40">${dsTxt}</span>`:'';
+    const ds=o.data?`<span style="font-size:14px;font-weight:700;color:var(--txt)">${fmtD(o.data)}${tbTxt}</span>`:'';
     const pr='';
     const tags=(o.items||[]).map((it,idx)=>{
       const a=arts.find(x=>x.id===it.artId);if(!a)return'';
@@ -974,7 +972,7 @@ function buildOcHTML(lista){
         <div class="oc-num ${nc}" style="margin-top:2px;flex-shrink:0">#${o.num}</div>
         <div class="oc-info" style="flex:1;min-width:0">
           <div class="oc-nome">${o.nome}</div>
-          ${ds?`<div style="margin-top:3px">${ds}</div>`:''}
+          ${ds?`<div style="margin-top:2px">${ds}</div>`:''}
           <div class="oc-meta">${sb2}${pr}</div>
         </div>
         <div class="oc-acts" style="margin-top:2px;flex-shrink:0;flex-direction:column;gap:5px" onclick="event.stopPropagation()">
