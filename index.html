@@ -943,8 +943,8 @@ function buildOcHTML(lista){
     const nc={evadere:urg?'urg':'ev',completato:'co',ritirato:'ri'}[o.stato];
     const ocClass=`oc ${o.stato}${urg?' urgente':''}`;
     const sb2={evadere:urg?`<span class="stato-badge" style="background:var(--urgs);color:var(--urg)">⚡ Da evadere</span>`:`<span class="stato-badge sb-ev">Da evadere</span>`,completato:`<span class="stato-badge sb-co">Completato</span>`,ritirato:`<span class="stato-badge sb-ri">Ritirato</span>`}[o.stato];
-    const tb=o.ora?`<span class="tb m">🕐 ${o.ora}</span>`:o.turno==='mattina'?`<span class="tb m">☀️ Mat.</span>`:o.turno==='pomeriggio'?`<span class="tb p">🌆 Pom.</span>`:'';
-    const ds=o.data?`<span style="font-size:16px;font-weight:900;color:var(--txt)">${fmtD(o.data)}</span>`:'';
+    const tbTxt=o.ora?` 🕐 ${o.ora}`:o.turno==='mattina'?' ☀️ Mat.':o.turno==='pomeriggio'?' 🌆 Pom.':'';
+    const ds=o.data?`<span style="font-size:16px;font-weight:900;color:var(--txt)">${fmtD(o.data)}<span style="font-size:14px;font-weight:700;color:var(--sub)">${tbTxt}</span></span>`:'';
     const pr='';
     const tags=(o.items||[]).map((it,idx)=>{
       const a=arts.find(x=>x.id===it.artId);if(!a)return'';
@@ -972,8 +972,8 @@ function buildOcHTML(lista){
         <div class="oc-num ${nc}" style="margin-top:2px;flex-shrink:0">#${o.num}</div>
         <div class="oc-info" style="flex:1;min-width:0">
           <div class="oc-nome">${o.nome}</div>
-          ${ds?`<div style="margin-top:3px">${ds}${tb?'&nbsp;'+tb:''}</div>`:''}
-          <div class="oc-meta">${sb2}${!ds&&tb?tb:''}${pr}</div>
+          ${ds?`<div style="margin-top:3px">${ds}</div>`:''}
+          <div class="oc-meta">${sb2}${pr}</div>
         </div>
         <div class="oc-acts" style="margin-top:2px;flex-shrink:0;flex-direction:column;gap:5px" onclick="event.stopPropagation()">
           ${o.stato==='evadere'?`<button class="act-btn act-green" style="width:100%" onclick="event.stopPropagation();setStato(${o.id},'completato')">Completato</button>`:o.stato==='completato'?`<button class="act-btn act-grey" style="width:100%" onclick="event.stopPropagation();setStato(${o.id},'ritirato')">Ritirato</button>`:'<div style="height:0"></div>'}
@@ -1257,7 +1257,6 @@ async function toggleRp(key){
   rpExpanded[key]=staEspandendo;
 
   if(!staEspandendo){
-    // CHIUSURA: anima slide-up del dettaglio
     const container=document.getElementById('riepilogo-list');
     const artRow=container.querySelector('[data-artid="'+key+'"]');
 
@@ -1276,10 +1275,9 @@ async function toggleRp(key){
 
     await new Promise(r=>setTimeout(r,230));
 
-    // Controlla se ci sono ancora altre card espanse
     const altreEspanse=Object.values(rpExpanded).some(Boolean);
 
-    // È l'ultima card chiusa — salva posizioni per FLIP
+    // Salva posizioni per FLIP
     const rpFirst={};
     container.querySelectorAll('[data-artid]').forEach(el=>{
       rpFirst[el.dataset.artid]=el.getBoundingClientRect().top;
@@ -1289,51 +1287,36 @@ async function toggleRp(key){
     const tuttiDoneIds=new Set();
     container.querySelectorAll('[data-artid]').forEach(el=>{
       const aid=parseInt(el.dataset.artid);
-      const v=Object.values((()=>{const m={};ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done))).forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!m[k])m[k]={artId:it.artId,ordini:[]};m[k].ordini.push(Object.assign({},it,{ordine:o}));}));return m;})()).find(v=>v.artId===aid);
+      const m={};
+      ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done))).forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!m[k])m[k]={artId:it.artId,ordini:[]};m[k].ordini.push(Object.assign({},it,{ordine:o}));}));
+      const v=Object.values(m).find(v=>v.artId===aid);
       if(v&&v.ordini.every(x=>x.done))tuttiDoneIds.add(el.dataset.artid);
-    });
-
-    // Slide-out delle card "tutto fatto":
-    // - sempre per la card appena chiusa (key)
-    // - per le altre solo se non ci sono altre card espanse
-    const slideOutEls=[];
-    tuttiDoneIds.forEach(aid=>{
-      const isChiusa=aid===String(key);
-      if(!isChiusa&&altreEspanse)return;
-      const el=container.querySelector('[data-artid="'+aid+'"]');
-      if(el){
-        el.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
-        el.style.transform='translateX(100px)';el.style.opacity='0';
-        slideOutEls.push(aid);
-      }
     });
 
     const doReorder=()=>{
       if(altreEspanse){
-        // Altre card ancora aperte: rirender senza riordinare
-        renderRiepilogo();
+        // Slide-out solo per la card appena chiusa se è verde
+        if(tuttiDoneIds.has(String(key))){
+          const el=container.querySelector('[data-artid="'+key+'"]');
+          if(el){
+            el.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
+            el.style.transform='translateX(100px)';el.style.opacity='0';
+            setTimeout(()=>renderRiepilogo(),280);
+          } else { renderRiepilogo(); }
+        } else { renderRiepilogo(); }
         return;
       }
-      // Ultima card chiusa: riordina con FLIP dopo slide-out delle verdi
-      if(slideOutEls.length>0){
-        setTimeout(()=>{
-          _rpOrdineCongelato=null;
-          renderRiepilogo();
-          container.querySelectorAll('[data-artid]').forEach(el=>{
-            const aid=el.dataset.artid;
-            if(rpFirst[aid]===undefined||tuttiDoneIds.has(aid))return;
-            const dy=rpFirst[aid]-el.getBoundingClientRect().top;
-            if(Math.abs(dy)<2)return;
-            el.style.transition='none';
-            el.style.transform='translateY('+dy+'px)';
-            requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-              el.style.transition='transform 0.42s cubic-bezier(0.25,0.8,0.25,1)';
-              el.style.transform='translateY(0)';
-              el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
-            });});
-          });
-        },280);
-      } else {
+      // Ultima card chiusa: slide-out delle verdi poi FLIP
+      const slideOutEls=[];
+      tuttiDoneIds.forEach(aid=>{
+        const el=container.querySelector('[data-artid="'+aid+'"]');
+        if(el){
+          el.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
+          el.style.transform='translateX(100px)';el.style.opacity='0';
+          slideOutEls.push(aid);
+        }
+      });
+      const doFlip=()=>{
         _rpOrdineCongelato=null;
         renderRiepilogo();
         container.querySelectorAll('[data-artid]').forEach(el=>{
@@ -1349,13 +1332,14 @@ async function toggleRp(key){
             el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
           });});
         });
-      }
+      };
+      if(slideOutEls.length>0){setTimeout(doFlip,280);}else{doFlip();}
     };
 
-    if(slideOutEls.length>0){setTimeout(doReorder,280);}else{doReorder();}
+    doReorder();
 
   } else {
-    // APERTURA: mantieni ordine congelato esistente, render + slide-down
+    // APERTURA: mantieni ordine congelato, render + slide-down
     renderRiepilogo();
     const container=document.getElementById('riepilogo-list');
     const artRow=container.querySelector('[data-artid="'+key+'"]');
@@ -1446,6 +1430,19 @@ function renderRiepilogo(){if(_rpLocked)return;
     return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;cursor:pointer;gap:0" onclick="toggleRp(${v.artId})"><div style="display:flex;align-items:center;gap:12px;padding-right:14px"><div class="rp-pri" style="width:72px;min-width:72px;align-self:stretch;border-radius:11px;padding:5px 6px;font-size:14px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.3;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div class="rp-art">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="display:flex;align-items:center;gap:4px">${tuttiDone?'<span style="color:var(--g);font-weight:800;font-size:14px">✓ Tutto fatto</span>':qStr}</div><span style="font-size:15px;color:var(--sub);margin-left:4px">${exp?'▲':'▼'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden">${dettaglio}</div>`:''}</div>`;
   }).join('');
 }
+
+async function togRpItem(oidStr,idx){
+  const oid=parseInt(oidStr);const o=ords.find(x=>x.id===oid);
+  if(!o||idx<0||!o.items[idx])return;
+  o.items[idx].done=!o.items[idx].done;
+  const tuttiDone=o.items.every(function(it){return it.done});
+  if(tuttiDone&&o.stato==='evadere')o.stato='completato';
+  if(!o.items[idx].done&&o.stato==='completato')o.stato='evadere';
+  saveData();
+  renderOrdini();
+  renderRiepilogo();
+}
+
 
 async function setStato(id,stato,skipItemReset){
   const _moves=_willChangePosition(id,stato);
@@ -1726,18 +1723,6 @@ function confDelItem(oid,idx){
   openModal('modal-del-conf');
 }
 async function delItemFromOrd(oid,idx){const o=ords.find(x=>x.id===oid);if(!o)return;o.items.splice(idx,1);await saveData();renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso');}
-async function togRpItem(oidStr,idx){
-  const oid=parseInt(oidStr);const o=ords.find(x=>x.id===oid);
-  if(!o||idx<0||!o.items[idx])return;
-  o.items[idx].done=!o.items[idx].done;
-  const tuttiDone=o.items.every(function(it){return it.done});
-  if(tuttiDone&&o.stato==='evadere')o.stato='completato';
-  if(!o.items[idx].done&&o.stato==='completato')o.stato='evadere';
-  saveData();
-  renderOrdini();
-  renderRiepilogo();
-}
-
 let sel=[],tNuovo=null,catS='Tutti';
 function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.textContent=usati.has(v)?'⚠️ già usato':'';}
 function minNumeroLibero(){const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));let n=1;while(usati.has(n))n++;return n;}
