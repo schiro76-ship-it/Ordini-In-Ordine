@@ -945,8 +945,7 @@ function buildOcHTML(lista){
     const sb2={evadere:urg?`<span class="stato-badge" style="background:var(--urgs);color:var(--urg)">⚡ Da evadere</span>`:`<span class="stato-badge sb-ev">Da evadere</span>`,completato:`<span class="stato-badge sb-co">Completato</span>`,ritirato:`<span class="stato-badge sb-ri">Ritirato</span>`}[o.stato];
     const tb=o.ora?`<span class="tb m">🕐 ${o.ora}</span>`:o.turno==='mattina'?`<span class="tb m">☀️ Mat.</span>`:o.turno==='pomeriggio'?`<span class="tb p">🌆 Pom.</span>`:'';
     const ds=o.data?`<span style="font-size:16px;font-weight:900;color:var(--txt)">${fmtD(o.data)}</span>`:'';
-    const nd=(o.items||[]).filter(i=>i.done).length,nt=(o.items||[]).length;
-    const pr=nt?`<span style="font-size:14px;color:var(--sub);font-weight:800">${nd}/${nt} ✓</span>`:'';
+    const pr='';
     const tags=(o.items||[]).map((it,idx)=>{
       const a=arts.find(x=>x.id===it.artId);if(!a)return'';
       const um=it.um?` ${it.um}`:'';
@@ -1294,22 +1293,23 @@ async function toggleRp(key){
       if(v&&v.ordini.every(x=>x.done))tuttiDoneIds.add(el.dataset.artid);
     });
 
+    // Slide-out delle card "tutto fatto" — avviene sempre, indipendentemente da altre espanse
+    const slideOutEls=[];
+    tuttiDoneIds.forEach(aid=>{
+      const el=container.querySelector('[data-artid="'+aid+'"]');
+      if(el){
+        el.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
+        el.style.transform='translateX(100px)';el.style.opacity='0';
+        slideOutEls.push(aid);
+      }
+    });
+
     const doReorder=()=>{
       if(altreEspanse){
         // Altre card ancora aperte: rirender senza riordinare
         renderRiepilogo();
         return;
       }
-      // Slide-out a destra delle card "tutto fatto" prima del riordino
-      const slideOutEls=[];
-      tuttiDoneIds.forEach(aid=>{
-        const el=container.querySelector('[data-artid="'+aid+'"]');
-        if(el){
-          el.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
-          el.style.transform='translateX(100px)';el.style.opacity='0';
-          slideOutEls.push(aid);
-        }
-      });
       // Ultima card chiusa: riordina con FLIP dopo slide-out delle verdi
       if(slideOutEls.length>0){
         setTimeout(()=>{
@@ -1348,7 +1348,7 @@ async function toggleRp(key){
       }
     };
 
-    doReorder();
+    if(slideOutEls.length>0){setTimeout(doReorder,280);}else{doReorder();}
 
   } else {
     // APERTURA: mantieni ordine congelato esistente, render + slide-down
