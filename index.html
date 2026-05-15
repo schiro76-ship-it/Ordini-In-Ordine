@@ -934,7 +934,7 @@ const fmtD=d=>{if(!d)return'';return fmtDataByFormat(d);};
 const oggi=()=>new Date().toISOString().slice(0,10);
 const nowMin=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
 function isUrgente(o){if(!o.data||o.stato!=='evadere')return false;return o.data<=oggi()}
-function priScore(o){if(!o.data)return 99999;const base=new Date(o.data+'T00:00:00').getTime();if(o.ora){const parts=o.ora.split(':');return base+(parseInt(parts[0])||0)*3600000+(parseInt(parts[1])||0)*60000;}return base+(o.turno==='pomeriggio'?43200000:0);}
+function priScore(o){if(!o.data)return Number.MAX_SAFE_INTEGER;const base=new Date(o.data+'T00:00:00').getTime();if(o.ora){const parts=o.ora.split(':');return base+(parseInt(parts[0])||0)*3600000+(parseInt(parts[1])||0)*60000;}return base+(o.turno==='pomeriggio'?43200000:0);}
 function isRitiratoVecchio(o){if(o.stato!=='ritirato')return false;const ref=o.ritirato_il||o.creato;if(!ref)return false;return(Date.now()-new Date(ref).getTime())>24*60*60*1000;}
 function buildOcHTML(lista){
   if(!lista.length)return`<div class="empty"><div class="ei">📭</div><p>Nessun ordine trovato.</p></div>`;
@@ -1744,11 +1744,11 @@ function togArt(id){
     const agrid=document.getElementById('agrid');
     if(agrid)agrid.innerHTML='';
     renderSP();
-    // Focus sull'input quantità dell'articolo appena aggiunto
+    // Focus e scroll sull'input quantità dell'articolo appena aggiunto
     setTimeout(function(){
       const inp=document.getElementById('qin-'+id);
-      if(inp)inp.focus();
-    },50);
+      if(inp){inp.focus();inp.scrollIntoView({behavior:'smooth',block:'center'});}
+    },80);
   }
 }
 function chQty(id,d){const s=sel.find(x=>x.id===id);if(!s)return;s.qty=Math.max(0,parseFloat(((parseFloat(s.qty)||0)+d).toFixed(4)));const inp=document.getElementById('qin-'+id);if(inp)inp.value=s.qty}
