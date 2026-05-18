@@ -922,7 +922,7 @@ function isUrgente(o){if(!o.data||o.stato!=='evadere')return false;return o.data
 function priScore(o){if(!o.data)return Number.MAX_SAFE_INTEGER;const base=new Date(o.data+'T00:00:00').getTime();if(o.ora){const parts=o.ora.split(':');return base+(parseInt(parts[0])||0)*3600000+(parseInt(parts[1])||0)*60000;}return base+(o.turno==='pomeriggio'?43200000:0);}
 function isRitiratoVecchio(o){if(o.stato!=='ritirato')return false;const ref=o.ritirato_il||o.creato;if(!ref)return false;return(Date.now()-new Date(ref).getTime())>24*60*60*1000;}
 function buildOcHTML(lista){
-  if(!lista.length)return`<div class="empty"><div class="ei">📭</div><p>Nessun ordine trovato.</p></div>`;
+  if(!lista.length)return`<div class="empty"><div class="ei">📭</div><p>Nessun ordine trovato.</p>${ords.length===0?'<p style="font-size:14px;color:var(--sub);font-weight:600;margin-top:12px;line-height:1.6">Trovi già alcuni articoli preimpostati.<br>Puoi aggiungerne altri da <b>Impostazioni → Articoli</b><br>o direttamente quando crei un nuovo ordine.</p>':''}</div>`;
   return lista.map(o=>{
     const urg=isUrgente(o);
     const nc={evadere:urg?'urg':'ev',completato:'co',ritirato:'ri'}[o.stato];
