@@ -363,11 +363,12 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 @media(max-width:639px){.logo-text{font-size:17px}.logo-sub{font-size:10px}}
 #onboarding-screen{position:fixed;inset:0;background:#fff;z-index:9998;display:none;flex-direction:column;overflow-y:auto}
 #onboarding-screen.visible{display:flex}
-.ob-header{background:#FFE033;padding:24px 20px 20px;text-align:center}
-.ob-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
-.ob-title{font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:rgba(91,45,142,0.7)}
+.ob-header{background:#2C3E50;padding:32px 20px 24px;text-align:center}
+.ob-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px}
+.ob-tagline{font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:rgba(255,255,255,0.75);max-width:340px;margin:0 auto;line-height:1.5}
+.ob-title{font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:rgba(255,255,255,0.7)}
 .ob-step{padding:24px 20px;flex:1}
-.ob-step h2{font-size:22px;font-weight:900;color:#1A1A2E;margin-bottom:6px}
+.ob-step h2{font-size:22px;font-weight:900;color:#1A1A2E;margin-bottom:16px}
 .ob-step p{font-size:15px;font-weight:600;color:#6B7280;margin-bottom:20px}
 .ob-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}
 @media(min-width:480px){.ob-grid{grid-template-columns:repeat(3,1fr)}}
@@ -421,25 +422,35 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 <div id="onboarding-screen">
   <div class="ob-header">
     <div class="ob-logo">
-      <svg width="40" height="40" viewBox="0 0 180 180"><rect width="180" height="180" rx="36" fill="#5B2D8E"/><rect x="28" y="148" width="124" height="18" rx="6" fill="#FFE033"/><rect x="87" y="20" width="6" height="130" rx="3" fill="#FFE033"/><path d="M30,62 Q58,48 90,58 Q122,68 150,52 Q146,72 90,70 Q40,78 30,62 Z" fill="#FFE033"/><path d="M30,94 Q56,80 90,88 Q124,98 150,82 Q146,102 90,100 Q42,108 30,94 Z" fill="#FFE033"/><path d="M30,124 Q56,110 90,118 Q124,128 150,112 Q146,132 90,130 Q42,138 30,124 Z" fill="#FFE033"/></svg>
-      <div style="font-family:'Nunito',sans-serif;font-size:22px;font-weight:900">
-        <span style="color:#5B2D8E">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#5B2D8E">nOrdine</span>
+      <svg width="44" height="44" viewBox="0 0 180 180"><rect width="180" height="180" rx="36" fill="#5B2D8E"/><rect x="28" y="148" width="124" height="18" rx="6" fill="#FFE033"/><rect x="87" y="20" width="6" height="130" rx="3" fill="#FFE033"/><path d="M30,62 Q58,48 90,58 Q122,68 150,52 Q146,72 90,70 Q40,78 30,62 Z" fill="#FFE033"/><path d="M30,94 Q56,80 90,88 Q124,98 150,82 Q146,102 90,100 Q42,108 30,94 Z" fill="#FFE033"/><path d="M30,124 Q56,110 90,118 Q124,128 150,112 Q146,132 90,130 Q42,138 30,124 Z" fill="#FFE033"/></svg>
+      <div style="font-family:'Nunito',sans-serif;font-size:24px;font-weight:900">
+        <span style="color:#FFE033">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#FFE033">nOrdine</span>
       </div>
     </div>
+    <p class="ob-tagline">Niente più foglietti o taccuini. Tutti gli ordini in un unico posto — e un riepilogo che ti dice esattamente cosa preparare e quando.</p>
   </div>
   <div class="ob-step" id="ob-step1">
     <h2>Qual è la tua attività?</h2>
     <div class="ob-grid" id="ob-attivita-grid"></div>
-    <button class="btn br btn-full" onclick="obNext()" id="ob-btn1" disabled style="opacity:0.4;background:#FFE033;color:#5B2D8E;border:none">Inizia! 🎉</button>
+    <button class="btn br btn-full" onclick="obNext()" id="ob-btn1" disabled style="opacity:0.4">Avanti →</button>
   </div>
   <div class="ob-step" id="ob-step2" style="display:none">
-    <h2>Scegli il tuo tema</h2>
-    <p>Puoi cambiarlo in qualsiasi momento dalle impostazioni</p>
-    <div class="ob-themes" id="ob-themes-grid"></div>
-    <div style="display:flex;gap:10px">
-      <button class="btn bg2" style="flex:1" onclick="obBack()">← Indietro</button>
-      <button class="btn br" style="flex:2" onclick="obConfirm()" id="ob-btn2" disabled style="opacity:0.4">Inizia! 🎉</button>
+    <h2>Tutto pronto! 🎉</h2>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px">
+      <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+        <span style="font-size:28px">📋</span>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Registra gli ordini</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Crea un ordine per ogni cliente con articoli, quantità e data di ritiro</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+        <span style="font-size:28px">📊</span>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Gestisci la produzione dal Riepilogo</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Vedi tutto ciò che devi preparare, raggruppato per articolo e priorità</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+        <span style="font-size:28px">📅</span>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Consulta lo storico</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Trova ogni ordine passato e analizza le quantità nel tempo</div></div>
+      </div>
     </div>
+    <button class="btn br btn-full" onclick="obConfirm()" style="font-size:17px;padding:16px">Inizia ad usare l'app →</button>
   </div>
 </div>
 
@@ -820,7 +831,12 @@ let obSelectedAttivita=null,obSelectedTheme=null;
 function showOnboarding(){obSelectedAttivita=null;obSelectedTheme=null;const el=document.getElementById('onboarding-screen');el.style.display='flex';el.style.zIndex='99999';renderObAttivita();}
 function renderObAttivita(){const grid=document.getElementById('ob-attivita-grid');if(!grid||!ATTIVITA_TYPES)return;grid.innerHTML='';ATTIVITA_TYPES.forEach(function(a){const sel=(obSelectedAttivita&&obSelectedAttivita===a.id)?' selected':'';const div=document.createElement('div');div.className='ob-card'+sel;div.innerHTML='<div class="ob-emoji">'+a.emoji+'</div><div class="ob-label">'+a.label+'</div>';div.onclick=function(){selectAttivita(a.id);};grid.appendChild(div);});}
 function selectAttivita(id){obSelectedAttivita=id;obSelectedTheme=id;renderObAttivita();const btn=document.getElementById('ob-btn1');if(btn){btn.disabled=false;btn.style.opacity='1';}}
-function obNext(){if(!obSelectedAttivita)return;obSelectedTheme=obSelectedAttivita;obConfirm();}
+function obNext(){
+  if(!obSelectedAttivita)return;
+  obSelectedTheme=obSelectedAttivita;
+  document.getElementById('ob-step1').style.display='none';
+  document.getElementById('ob-step2').style.display='block';
+}
 function obBack(){document.getElementById('ob-step2').style.display='none';document.getElementById('ob-step1').style.display='block';}
 function renderObThemes(){const grid=document.getElementById('ob-themes-grid');if(!grid||!ATTIVITA_TYPES)return;let out='';for(let i=0;i<ATTIVITA_TYPES.length;i++){const a=ATTIVITA_TYPES[i];const sel=obSelectedTheme===a.id?' selected':'';out+='<div class="ob-theme'+sel+'" onclick="selectTheme(\''+a.id+'\')">';out+='<div class="ob-theme-preview" style="background:'+a.theme.sb+'">';out+='<div class="ob-theme-dot" style="background:'+a.theme.r+'"></div>';out+='<div class="ob-theme-dot" style="background:'+a.theme.g+'"></div>';out+='<div class="ob-theme-dot" style="background:#FFE033"></div>';out+='</div>';out+='<div class="ob-theme-label">'+a.emoji+' '+a.label+'</div>';out+='</div>';}grid.innerHTML=out;const btn=document.getElementById('ob-btn2');if(btn){btn.disabled=false;btn.style.opacity='1';}}
 function selectTheme(id){obSelectedTheme=id;renderObThemes();}
@@ -858,7 +874,7 @@ const DEFAULT_UM=['kg','g','fette','pezzi','numero','vaschette','bustine'];
 const DEFAULT_ARTS=[{id:1,nome:'Costata di manzo',cat:'Bovino'},{id:2,nome:'Filetto di manzo',cat:'Bovino'},{id:3,nome:'Bistecca T-bone',cat:'Bovino'},{id:4,nome:'Macinato di manzo',cat:'Bovino'},{id:5,nome:'Roast beef',cat:'Bovino'},{id:6,nome:'Ossobuco',cat:'Bovino'},{id:7,nome:'Braciola di maiale',cat:'Suino'},{id:8,nome:'Salsiccia fresca',cat:'Suino'},{id:9,nome:'Arista di maiale',cat:'Suino'},{id:10,nome:'Pancetta',cat:'Suino'},{id:11,nome:'Coscia di agnello',cat:'Agnello'},{id:12,nome:'Costolette di agnello',cat:'Agnello'},{id:13,nome:'Petto di pollo',cat:'Pollame'},{id:14,nome:'Cosce di pollo',cat:'Pollame'},{id:15,nome:'Tacchino intero',cat:'Pollame'},{id:16,nome:'Prosciutto crudo',cat:'Salumi'},{id:17,nome:'Salame Milano',cat:'Salumi'}];
 async function saveData(){const payload={arts,ords,unitaMisura,cats,nextNum};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload);}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
 async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;}
-async function boot(){applyThemeFast();loadDateFormat();loadCalSettings();loadStoricoSettings();try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();if(isNewUser){isNewUser=false;obSelectedAttivita=null;obSelectedTheme=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyThemeFast();loadDateFormat();loadCalSettings();loadStoricoSettings();try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();if(isNewUser){isNewUser=false;obSelectedAttivita=null;obSelectedTheme=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='block';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
   try{
     db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
