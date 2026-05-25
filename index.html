@@ -2169,6 +2169,7 @@ function doRegister(){isNewUser=true;const attivita=document.getElementById('reg
 function doResetPwd(){const email=document.getElementById('login-email').value.trim();if(!email){loginErr('Inserisci prima la tua email');return;}auth.sendPasswordResetEmail(email).then(function(){loginErr('Email di recupero inviata! Controlla la posta.');}).catch(function(e){loginErr('Email non trovata');});}
 function doFacebookLogin(){
   const provider=new firebase.auth.FacebookAuthProvider();
+  provider.addScope('public_profile');
   auth.signInWithPopup(provider).then(function(result){
     const user=result.user;
     const isNew=result.additionalUserInfo&&result.additionalUserInfo.isNewUser;
