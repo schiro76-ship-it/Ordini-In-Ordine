@@ -2218,6 +2218,8 @@ document.addEventListener('visibilitychange',function(){
   } else {
     // Schermo riacceso: aspetta che il ciclo eventi finisca, poi sblocca
     setTimeout(function(){_screenOff=false;},0);
+    // Ricalcola layout portrait/landscape
+    setTimeout(checkPortrait,50);
   }
 });
 document.addEventListener('touchstart',function(e){
