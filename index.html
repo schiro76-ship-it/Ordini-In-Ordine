@@ -281,7 +281,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .ac{padding:11px 10px;border-radius:11px;border:2px solid var(--brd);background:#fff;cursor:pointer;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--txt);text-align:left;position:relative}
 .ac .acat{display:block;font-size:12px;color:var(--sub);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
 .ac.sel{border-color:var(--r);background:var(--rs);color:var(--r)}
-.ac.sel::after{content:'✓';position:absolute;top:6px;right:8px;font-size:13px;color:var(--r)}
+
 .ar{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--brd)}.ar:last-child{border-bottom:none}
 .ar-name{flex:1;font-weight:700;font-size:16px}
 .ar-cat{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;background:var(--bg);padding:3px 9px;border-radius:6px;color:var(--sub)}
@@ -1733,7 +1733,7 @@ function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getE
 function getCats(){return['Tutti',...cats.sort()]}
 function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" onclick="setC('${c}')">${c}</span>`).join('')}
 function setC(c){catS=c;renderPills();renderArtS()}
-function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c))).sort((a,b)=>a.nome.localeCompare(b.nome));agrid.innerHTML=l.length?l.map(a=>{const s=sel.find(x=>x.id===a.id);return`<button class="ac ${s?'sel':''}" onclick="togArt(${a.id})">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun articolo trovato.</p>';}
+function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c))).sort((a,b)=>a.nome.localeCompare(b.nome));agrid.innerHTML=l.length?l.map(a=>{const s=sel.find(x=>x.id===a.id);return`<button class="ac ${s?'sel':''}" onclick="togArt(${a.id})" style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">${a.cat?`<span class="acat">${a.cat}</span>`:''}<span style="flex:1;text-align:left">${a.nome}</span>${s?'<span style="color:var(--r);font-size:13px;font-weight:900;flex-shrink:0;align-self:flex-end">✓</span>':''}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun articolo trovato.</p>';}
 function tornaRicerca(){
   const can=document.getElementById('can');
   if(can){can.value='';can.focus();}
