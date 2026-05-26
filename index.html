@@ -2188,14 +2188,20 @@ var _deviceType=null; // 'phone' | 'tablet' | null
 function checkPortrait(){
   const w=window.innerWidth;
   const h=window.innerHeight;
-  const isPortrait=h>w;
 
-  // Prima volta: salva il tipo di dispositivo
+  // Prima volta: salva il tipo di dispositivo dalle dimensioni reali
   if(!_deviceType){
     _deviceType=w<=639?'phone':'tablet';
   }
 
-  // Usa sempre il tipo salvato, non le dimensioni correnti
+  // Orientamento: usa screen.orientation se disponibile, altrimenti innerWidth/Height
+  var isPortrait;
+  if(window.screen&&window.screen.orientation&&window.screen.orientation.type){
+    isPortrait=window.screen.orientation.type.indexOf('portrait')!==-1;
+  } else {
+    isPortrait=h>=w;
+  }
+
   const isPhone=_deviceType==='phone';
   const isLandscapePhone=isPhone&&!isPortrait;
   document.body.classList.toggle('portrait-phone',isPhone&&isPortrait);
@@ -2203,8 +2209,8 @@ function checkPortrait(){
   const nav=document.getElementById('bottom-nav');
   if(nav){
     if(isLandscapePhone)nav.style.display='none';
-    else if(!isPhone)nav.style.display='';
-    else nav.style.display=''; // portrait phone: ripristina sempre
+    else if(isPhone&&isPortrait)nav.style.display='flex';
+    else nav.style.display='';
   }
 }
 window.addEventListener('resize',checkPortrait);
