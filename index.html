@@ -2204,6 +2204,7 @@ function checkPortrait(){
   if(nav){
     if(isLandscapePhone)nav.style.display='none';
     else if(!isPhone)nav.style.display='';
+    else nav.style.display=''; // portrait phone: ripristina sempre
   }
 }
 window.addEventListener('resize',checkPortrait);
