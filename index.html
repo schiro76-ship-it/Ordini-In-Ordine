@@ -2184,17 +2184,23 @@ function doGoogleLogin(){
 function doLogout(){auth.signOut();}
 
 function checkPortrait(){
-  const isPhone=window.innerWidth<=639;
-  const isPortrait=window.innerHeight>window.innerWidth;
+  // Su iOS dopo ripristino, innerWidth può essere temporaneamente sbagliato.
+  // screen.width è sempre affidabile e non cambia con il viewport.
+  const sw=window.screen?window.screen.width:window.innerWidth;
+  const sh=window.screen?window.screen.height:window.innerHeight;
+  // La dimensione minore tra screen W e H indica l'orientamento reale
+  const screenMin=Math.min(sw,sh);
+  const screenMax=Math.max(sw,sh);
+  const isPortrait=window.innerHeight>=window.innerWidth;
+  const physicalWidth=isPortrait?screenMin:screenMax;
+  const isPhone=physicalWidth<=639;
   const isLandscapePhone=isPhone&&!isPortrait;
   document.body.classList.toggle('portrait-phone',isPhone&&isPortrait);
   document.body.classList.toggle('landscape-phone',isLandscapePhone);
-  // Gestione bottom nav in landscape smartphone
   const nav=document.getElementById('bottom-nav');
   if(nav){
     if(isLandscapePhone) nav.style.display='none';
     else if(!isPhone) nav.style.display='';
-    // portrait-phone gestisce il proprio caso
   }
 }
 window.addEventListener('resize',checkPortrait);
