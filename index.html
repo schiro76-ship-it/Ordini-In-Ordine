@@ -2203,6 +2203,24 @@ window.addEventListener('resize',checkPortrait);
 window.addEventListener('orientationchange',function(){setTimeout(checkPortrait,100)});
 checkPortrait();
 
+// Fix PWA fullscreen: ripristino layout dopo ibernazione iOS
+window.addEventListener('pageshow',function(e){
+  if(e.persisted){
+    // Pagina ripristinata dalla cache iOS (bfcache)
+    setTimeout(function(){
+      document.body.style.display='none';
+      document.body.offsetHeight;
+      document.body.style.display='';
+      checkPortrait();
+    },100);
+  }
+});
+window.addEventListener('focus',function(){
+  setTimeout(function(){
+    checkPortrait();
+  },200);
+});
+
 
 function stampaEtichettaRp(oidStr,artId){
   const oid=parseInt(oidStr);
