@@ -2183,12 +2183,20 @@ function doGoogleLogin(){
 }
 function doLogout(){auth.signOut();}
 
+var _deviceType=null; // 'phone' | 'tablet' | null
+
 function checkPortrait(){
-  const rect=document.documentElement.getBoundingClientRect();
-  const w=rect.width||document.documentElement.clientWidth||window.innerWidth;
-  const h=rect.height||document.documentElement.clientHeight||window.innerHeight;
-  const isPhone=w<=639;
+  const w=window.innerWidth;
+  const h=window.innerHeight;
   const isPortrait=h>w;
+
+  // Prima volta: salva il tipo di dispositivo
+  if(!_deviceType){
+    _deviceType=w<=639?'phone':'tablet';
+  }
+
+  // Usa sempre il tipo salvato, non le dimensioni correnti
+  const isPhone=_deviceType==='phone';
   const isLandscapePhone=isPhone&&!isPortrait;
   document.body.classList.toggle('portrait-phone',isPhone&&isPortrait);
   document.body.classList.toggle('landscape-phone',isLandscapePhone);
