@@ -2184,8 +2184,9 @@ function doGoogleLogin(){
 function doLogout(){auth.signOut();}
 
 function checkPortrait(){
-  const w=document.documentElement.clientWidth||window.innerWidth;
-  const h=document.documentElement.clientHeight||window.innerHeight;
+  const rect=document.documentElement.getBoundingClientRect();
+  const w=rect.width||document.documentElement.clientWidth||window.innerWidth;
+  const h=rect.height||document.documentElement.clientHeight||window.innerHeight;
   const isPhone=w<=639;
   const isPortrait=h>w;
   const isLandscapePhone=isPhone&&!isPortrait;
