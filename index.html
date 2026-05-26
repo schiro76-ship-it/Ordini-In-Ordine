@@ -2218,10 +2218,16 @@ document.addEventListener('visibilitychange',function(){
   } else {
     // Schermo riacceso: aspetta che il ciclo eventi finisca, poi sblocca
     setTimeout(function(){_screenOff=false;},0);
-    // Ricalcola layout portrait/landscape
-    setTimeout(checkPortrait,50);
-    setTimeout(checkPortrait,300);
-    setTimeout(checkPortrait,600);
+    // Ricalcola layout portrait/landscape (PWA fullscreen fix)
+    setTimeout(function(){
+      checkPortrait();
+      // Forza reflow del body per PWA in modalità a tutto schermo
+      document.body.style.display='none';
+      document.body.offsetHeight; // trigger reflow
+      document.body.style.display='';
+      checkPortrait();
+    },100);
+    setTimeout(checkPortrait,500);
   }
 });
 document.addEventListener('touchstart',function(e){
