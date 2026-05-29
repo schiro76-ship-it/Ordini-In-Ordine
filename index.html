@@ -528,6 +528,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
         <div class="phdr"><h2>Riepilogo</h2></div>
         <div class="pbody">
           <div class="sbox"><span class="si">🔍</span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo()"></div>
+          <div class="cp" id="riepilogo-day-pills"></div>
           <div class="cp" id="riepilogo-cat-pills"></div>
           <div id="riepilogo-list"></div>
         </div>
@@ -917,7 +918,7 @@ function goTab(name){
   if(nav&&document.body.classList.contains('portrait-phone'))nav.style.display='flex';
   if(name==='impostazioni'){renderArtM();renderUMDisplay();applyDateFormatUI();applyCalSettings();}
   if(name==='ordini')renderOrdini();
-  if(name==='riepilogo'){_rpOrdineCongelato=null;rpExpanded={};renderRiepilogo();}
+  if(name==='riepilogo'){_rpOrdineCongelato=null;rpExpanded={};rpDayFilter=null;renderRiepilogo();}
   if(name==='storico'){renderStoricoRiepilogo();}
 }
 function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open')}
@@ -1249,7 +1250,7 @@ function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&d
     if(_inp){_inp.focus();const l=_inp.value.length;_inp.setSelectionRange(l,l);}
   }
 }
-let rpExpanded={},rpCatFilter='Tutte',_rpOrdineCongelato=null;
+let rpExpanded={},rpCatFilter='Tutte',rpDayFilter=null,_rpOrdineCongelato=null;
 function fmtRpData(o){
   if(!o||!o.data)return{r1:'—',r2:''};
   const r1=fmtDataByFormat(o.data);
@@ -1364,12 +1365,23 @@ async function toggleRp(key){
   }
 }
 
+function setRpDay(d){rpDayFilter=d;_rpOrdineCongelato=null;renderRiepilogo()}
 function setRpCat(c){rpCatFilter=c;_rpOrdineCongelato=null;renderRiepilogo()}
 
 function renderRiepilogo(){if(_rpLocked)return;
   const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));
   if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nessun ordine da evadere!</p></div>';return}
   const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''}).filter(Boolean)))].sort();
+  // Day pills: giorni con ordini pendenti, filtro "fino a"
+  const dayPillsEl=document.getElementById('riepilogo-day-pills');
+  if(dayPillsEl){
+    const giorniConOrdini=[...new Set(ev.filter(o=>o.data).map(o=>o.data))].sort();
+    if(giorniConOrdini.length>1){
+      dayPillsEl.innerHTML='<span class="pill'+(rpDayFilter===null?' active':'')+'" onclick="setRpDay(null)">Tutti i giorni</span>'+
+        giorniConOrdini.map(d=>`<span class="pill${rpDayFilter===d?' active':''}" onclick="setRpDay('${d}')">${fmtD(d)}</span>`).join('');
+      dayPillsEl.style.display='';
+    } else { dayPillsEl.innerHTML=''; dayPillsEl.style.display='none'; }
+  }
   const pillsEl=document.getElementById('riepilogo-cat-pills');
   if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" onclick="setRpCat('${c}')">${c}</span>`).join('');
   const map={};
@@ -1405,6 +1417,11 @@ function renderRiepilogo(){if(_rpLocked)return;
   document.getElementById('riepilogo-list').innerHTML=voci.filter(v=>{
     const a=arts.find(x=>x.id===v.artId);
     if(rpCatFilter!=='Tutte'&&(a&&a.cat||'')!==rpCatFilter)return false;
+    if(rpDayFilter!==null){
+      // Mostra solo articoli con ordini in scadenza fino alla data selezionata
+      const haOrdiniEntro=v.ordini.filter(x=>!x.done).some(x=>!x.ordine.data||x.ordine.data<=rpDayFilter);
+      if(!haOrdiniEntro)return false;
+    }
     if(!cerca)return true;
     return a&&a.nome.toLowerCase().includes(cerca);
   }).map((v,i)=>{
@@ -1412,7 +1429,8 @@ function renderRiepilogo(){if(_rpLocked)return;
     const nome=a?a.nome:'?';
     const righeDaFare={};
     v.ordini.filter(x=>!x.done).forEach(x=>{const um=x.um||'';if(!righeDaFare[um])righeDaFare[um]=0;righeDaFare[um]+=(parseFloat(x.qty)||1);});
-    const qStr=Object.entries(righeDaFare).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span class="rp-qty">${q}</span><span class="rp-um">${um?' '+um:''}</span>`;}).join(' + ');
+    const _rpCol=v.urgente?'var(--urg)':tuttiDone?'var(--g)':'var(--ev)';
+    const qStr=Object.entries(righeDaFare).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span class="rp-qty" style="color:${_rpCol}">${q}</span><span class="rp-um" style="color:${_rpCol}">${um?' '+um:''}</span>`;}).join(' + ');
     const tuttiDone=v.ordini.every(x=>x.done);
     const rowClass=`rp-row ${v.urgente?'rp-urgente':tuttiDone?'rp-completato':''}`;
     const exp=rpExpanded[v.artId];
