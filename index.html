@@ -1425,6 +1425,8 @@ function renderRiepilogo(){if(_rpLocked)return;
     const a=arts.find(x=>x.id===v.artId);
     if(rpCatFilter!=='Tutte'&&(a&&a.cat||'')!==rpCatFilter)return false;
     if(rpDayFilter!==null){
+      // Se la card è espansa, non filtrarla (stesso comportamento di "tutti i giorni")
+      if(rpExpanded[v.artId])return true;
       // Mostra solo articoli con almeno un ordine in scadenza entro la data selezionata
       const haOrdiniEntro=v.ordini.some(x=>!x.done&&(!x.ordine.data||x.ordine.data<=rpDayFilter));
       if(!haOrdiniEntro)return false;
