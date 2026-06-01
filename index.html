@@ -1372,8 +1372,8 @@ async function toggleRp(key){
   }
 }
 
-function setRpDay(d){rpDayFilter=d;_rpOrdineCongelato=null;renderRiepilogo()}
-function setRpCat(c){rpCatFilter=c;_rpOrdineCongelato=null;renderRiepilogo()}
+function setRpDay(d){rpDayFilter=d;if(!Object.values(rpExpanded).some(Boolean))_rpOrdineCongelato=null;renderRiepilogo()}
+function setRpCat(c){rpCatFilter=c;if(!Object.values(rpExpanded).some(Boolean))_rpOrdineCongelato=null;renderRiepilogo()}
 
 function renderRiepilogo(){if(_rpLocked)return;
   const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));
