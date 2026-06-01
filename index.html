@@ -1372,7 +1372,7 @@ async function toggleRp(key){
   }
 }
 
-function setRpDay(d){rpDayFilter=d;if(!Object.values(rpExpanded).some(Boolean))_rpOrdineCongelato=null;renderRiepilogo()}
+function setRpDay(d){rpDayFilter=d;_rpOrdineCongelato=null;renderRiepilogo()}
 function setRpCat(c){rpCatFilter=c;if(!Object.values(rpExpanded).some(Boolean))_rpOrdineCongelato=null;renderRiepilogo()}
 
 function renderRiepilogo(){if(_rpLocked)return;
@@ -1425,8 +1425,8 @@ function renderRiepilogo(){if(_rpLocked)return;
     const a=arts.find(x=>x.id===v.artId);
     if(rpCatFilter!=='Tutte'&&(a&&a.cat||'')!==rpCatFilter)return false;
     if(rpDayFilter!==null){
-      // Mostra solo articoli con ordini in scadenza fino alla data selezionata
-      const haOrdiniEntro=v.ordini.filter(x=>!x.done).some(x=>!x.ordine.data||x.ordine.data<=rpDayFilter);
+      // Mostra solo articoli con almeno un ordine in scadenza entro la data selezionata
+      const haOrdiniEntro=v.ordini.some(x=>!x.done&&(!x.ordine.data||x.ordine.data<=rpDayFilter));
       if(!haOrdiniEntro)return false;
     }
     if(!cerca)return true;
