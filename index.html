@@ -1388,7 +1388,7 @@ function setRpCat(c){rpCatFilter=c;if(!Object.values(rpExpanded).some(Boolean))_
 
 function renderRiepilogo(){if(_rpLocked)return;
   const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));
-  if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><div class="ei">🎉</div><p>Nessun ordine da evadere!</p></div>';return}
+  if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><p>Nessun ordine da evadere!</p></div>';return}
   const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''}).filter(Boolean)))].sort();
   // Day pills: giorni con ordini pendenti, filtro "fino a"
   const dayPillsEl=document.getElementById('riepilogo-day-pills');
@@ -2139,11 +2139,11 @@ function _disegnaEtichetta(o,artIdEvidenziato){
     const isEv=artIdEvidenziato&&it.artId===artIdEvidenziato;
     if(isEv){
       const maxN=W-pad*2-16;
-      const nR=misuraRighe('★ '+a.nome,'900 48px sans-serif',maxN);
+      const nR=misuraRighe(a.nome,'900 48px sans-serif',maxN);
       const boxH=nR*60+56+16;
       ctx.fillStyle='#FEF3E2';ctx.fillRect(pad-6,y-4,W-pad*2+12,boxH);
       ctx.strokeStyle='#C0392B';ctx.lineWidth=3;ctx.strokeRect(pad-6,y-4,W-pad*2+12,boxH);
-      scriviWrap('★ '+a.nome,'900 48px sans-serif','#C0392B',pad+8,y+48,maxN,60,'left');
+      scriviWrap(a.nome,'900 48px sans-serif','#C0392B',pad+8,y+48,maxN,60,'left');
       ctx.fillStyle='#C0392B';ctx.font='900 44px sans-serif';ctx.textAlign='right';
       ctx.fillText(qty,W-pad-8,y+nR*60+50);
       ctx.textAlign='left';y+=boxH+10;
