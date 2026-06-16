@@ -26,7 +26,7 @@
   --sh:0 2px 10px rgba(0,0,0,0.07);--shl:0 8px 30px rgba(0,0,0,0.13);
   --rad:14px;--sbw:240px;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}button:active,a:active{opacity:0.7;transform:scale(0.97);transition:opacity 0.08s,transform 0.08s}
 body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
 #loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:16px}
 #loading.hidden{display:none}
@@ -2150,8 +2150,8 @@ function _disegnaEtichetta(o,artIdEvidenziato){
     } else {
       const maxN=W-pad*2-100;
       const nR=misuraRighe(a.nome,'500 34px sans-serif',maxN);
-      scriviWrap(a.nome,'500 34px sans-serif','#999999',pad,y+36,maxN,42,'left');
-      ctx.fillStyle='#BBBBBB';ctx.font='700 32px sans-serif';ctx.textAlign='right';
+      scriviWrap(a.nome,'500 34px sans-serif','#333333',pad,y+36,maxN,42,'left');
+      ctx.fillStyle='#444444';ctx.font='700 32px sans-serif';ctx.textAlign='right';
       ctx.fillText(qty,W-pad,y+36);ctx.textAlign='left';
       ctx.strokeStyle='#F0F0F0';ctx.lineWidth=1;
       ctx.beginPath();ctx.moveTo(pad,y+nR*42+10);ctx.lineTo(W-pad,y+nR*42+10);ctx.stroke();
