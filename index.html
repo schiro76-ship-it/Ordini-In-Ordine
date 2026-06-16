@@ -684,6 +684,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                 </div>
               </div>
               <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#1A1A2E;margin-top:4px" onclick="resetOnboarding()"><span style="font-size:20px">🔄</span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Cambia tipo attività</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Riavvia la configurazione iniziale</div></div></button>
+              <button class="btn btn-full" style="justify-content:flex-start;gap:12px;color:#fff;background:#1565C0;margin-top:4px" onclick="svuotaLocalStorage()"><span style="font-size:20px">🔃</span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Svuota cache locale</div><div style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">Ricarica dati da Firestore</div></div></button>
               <button class="btn btn-full" style="justify-content:flex-start;gap:12px;color:#fff;background:#e53935;margin-top:4px" onclick="recuperaDatiLegacy()"><span style="font-size:20px">⚠️</span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Recupera dati precedenti</div><div style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">Importa dati da sessione senza login</div></div></button>
               <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#1A1A2E;margin-top:4px" onclick="doLogout()"><span style="font-size:20px">🚪</span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Esci</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Disconnetti questo dispositivo</div></div></button>
             </div>
@@ -2221,6 +2222,11 @@ function doGoogleLogin(){
   }).catch(function(e){loginErr('Errore Google: '+e.message);});
 }
 function doLogout(){auth.signOut();}
+async function svuotaLocalStorage(){
+  try{localStorage.removeItem('mac-data');}catch{}
+  toast('Cache locale svuotata, ricarico...','v');
+  setTimeout(()=>location.reload(),1200);
+}
 async function recuperaDatiLegacy(){
   if(!currentUser){toast('Devi essere loggato','e');return;}
   try{
