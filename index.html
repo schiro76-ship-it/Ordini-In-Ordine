@@ -1567,9 +1567,9 @@ function renderDetModal(o){
     <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:14px;margin-bottom:8px">Nessun articolo.</p>'}</div>
     <div style="font-size:12px;font-weight:800;color:var(--sub);text-transform:uppercase;margin-top:8px;margin-bottom:4px">Articoli <span style="background:var(--bg);border-radius:10px;padding:1px 7px;color:var(--txt)">${(o.items||[]).length}</span></div>
     <div style="display:flex;gap:7px;margin-top:14px;border-top:1px solid var(--brd);padding-top:12px;flex-wrap:wrap">
-      ${o.stato!=='evadere'?`<button class="btn br" style="flex:1;min-width:90px;font-size:13px;padding:9px" ontouchstart="event.stopPropagation()" onclick="setStatoD(${o.id},'evadere')">Da evadere</button>`:''}
-      ${o.stato!=='completato'?`<button class="btn bgg" style="flex:1;min-width:90px;font-size:13px;padding:9px" ontouchstart="event.stopPropagation()" onclick="setStatoD(${o.id},'completato')">Completato</button>`:''}
-      ${o.stato!=='ritirato'?`<button class="btn" style="flex:1;min-width:90px;font-size:13px;padding:9px;background:var(--gr);color:#fff" ontouchstart="event.stopPropagation()" onclick="setStatoD(${o.id},'ritirato')">Ritirato</button>`:''}
+      ${o.stato!=='evadere'?`<button class="btn br" style="flex:1;min-width:90px;font-size:13px;padding:9px" ontouchstart="this.style.opacity='1'" ontouchend="event.preventDefault();this.style.opacity='';setStatoD(${o.id},'evadere')" onclick="setStatoD(${o.id},'evadere')">Da evadere</button>`:''}
+      ${o.stato!=='completato'?`<button class="btn bgg" style="flex:1;min-width:90px;font-size:13px;padding:9px" ontouchstart="this.style.opacity='1'" ontouchend="event.preventDefault();this.style.opacity='';setStatoD(${o.id},'completato')" onclick="setStatoD(${o.id},'completato')">Completato</button>`:''}
+      ${o.stato!=='ritirato'?`<button class="btn" style="flex:1;min-width:90px;font-size:13px;padding:9px;background:var(--gr);color:#fff" ontouchstart="this.style.opacity='1'" ontouchend="event.preventDefault();this.style.opacity='';setStatoD(${o.id},'ritirato')" onclick="setStatoD(${o.id},'ritirato')">Ritirato</button>`:''}
     </div>
     <div class="ma"><button class="btn btn-full" style="background:#4B5563;color:#fff" onclick="closeModal('modal-det')">Chiudi</button></div>`;
   setTimeout(function(){renderDetArtGrid(o.id);initDetCal(o);},0);
