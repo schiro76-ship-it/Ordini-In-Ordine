@@ -1511,7 +1511,7 @@ function renderDetModal(o){
     return `<div class="sel-card" style="${cardStyle}">
       <div class="sel-card-top">
         <div class="sel-card-name">${nome}</div>
-        ${!isRitirato?`<button class="sel-rm" onclick="confDelItem(${o.id},${idx})">🗑️</button>`:''}
+        <button class="sel-rm" style="${isRitirato?'visibility:hidden':''}" onclick="confDelItem(${o.id},${idx})">🗑️</button>
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
         <button ${isRitirato?'disabled':''} style="background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="detChQtyDirect(${o.id},${idx},-1)">−</button>
@@ -1521,7 +1521,7 @@ function renderDetModal(o){
       </div>
       <div style="display:flex;align-items:center;gap:6px">
         <input class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(it.nota||'').replace(/"/g,'&quot;')}" ${isRitirato?'disabled':''} oninput="updItem(${o.id},${idx},'nota',this.value)" style="flex:1">
-        ${!isRitirato?`<button onmousedown="event.preventDefault()" onclick="detFocusCerca(${o.id})" style="width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">🔍</button>`:''}
+        <button onmousedown="event.preventDefault()" onclick="detFocusCerca(${o.id})" style="width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;${isRitirato?'visibility:hidden':''}">🔍</button>
       </div>
     </div>`;
   }).join('');
