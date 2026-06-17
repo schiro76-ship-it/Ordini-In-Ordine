@@ -26,7 +26,7 @@
   --sh:0 2px 10px rgba(0,0,0,0.07);--shl:0 8px 30px rgba(0,0,0,0.13);
   --rad:14px;--sbw:240px;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}button:active,a:active{opacity:0.7;transition:opacity 0.08s}.ov button:active{transform:none;opacity:0.7}.bn-item:active{opacity:0.6;transition:opacity 0.08s}.tb-menu:active{opacity:0.5}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}button:active,a:active{opacity:0.7;transition:opacity 0.08s}.ov button:active{transform:none;opacity:0.7}.bn-item:active{opacity:0.6;transition:opacity 0.08s}.tb-menu:active{opacity:0.5}.no-fade:active{opacity:1!important}
 body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
 #loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:16px}
 #loading.hidden{display:none}
@@ -1567,9 +1567,9 @@ function renderDetModal(o){
     <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:14px;margin-bottom:8px">Nessun articolo.</p>'}</div>
     <div style="font-size:12px;font-weight:800;color:var(--sub);text-transform:uppercase;margin-top:8px;margin-bottom:4px">Articoli <span style="background:var(--bg);border-radius:10px;padding:1px 7px;color:var(--txt)">${(o.items||[]).length}</span></div>
     <div style="display:flex;gap:7px;margin-top:14px;border-top:1px solid var(--brd);padding-top:12px;flex-wrap:wrap">
-      ${o.stato!=='evadere'?`<button class="btn br" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'evadere')">Da evadere</button>`:''}
-      ${o.stato!=='completato'?`<button class="btn bgg" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'completato')">Completato</button>`:''}
-      ${o.stato!=='ritirato'?`<button class="btn" style="flex:1;min-width:90px;font-size:13px;padding:9px;background:var(--gr);color:#fff" onclick="setStatoD(${o.id},'ritirato')">Ritirato</button>`:''}
+      ${o.stato!=='evadere'?`<button class="btn br no-fade" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'evadere')">Da evadere</button>`:''}
+      ${o.stato!=='completato'?`<button class="btn bgg no-fade" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'completato')">Completato</button>`:''}
+      ${o.stato!=='ritirato'?`<button class="btn no-fade" style="flex:1;min-width:90px;font-size:13px;padding:9px;background:var(--gr);color:#fff" onclick="setStatoD(${o.id},'ritirato')">Ritirato</button>`:''}
     </div>
     <div class="ma"><button class="btn btn-full" style="background:#4B5563;color:#fff" onclick="closeModal('modal-det')">Chiudi</button></div>`;
   setTimeout(function(){renderDetArtGrid(o.id);initDetCal(o);},0);
@@ -2298,15 +2298,15 @@ document.addEventListener('visibilitychange',function(){
 // Feedback visivo touch su tutti i bottoni
 document.addEventListener('touchstart',function(e){
   const btn=e.target.closest('button');
-  if(btn&&!btn.disabled){btn.style.opacity='0.65';}
+  if(btn&&!btn.disabled&&!btn.classList.contains('no-fade')){btn.style.opacity='0.65';}
 },{passive:true,capture:false});
 document.addEventListener('touchend',function(e){
   const btn=e.target.closest('button');
-  if(btn){setTimeout(function(){btn.style.opacity='';},150);}
+  if(btn&&!btn.classList.contains('no-fade')){setTimeout(function(){btn.style.opacity='';},150);}
 },{passive:true,capture:false});
 document.addEventListener('touchcancel',function(e){
   const btn=e.target.closest('button');
-  if(btn){btn.style.opacity='';}
+  if(btn&&!btn.classList.contains('no-fade')){btn.style.opacity='';}
 },{passive:true,capture:false});
 
 document.addEventListener('touchstart',function(e){
