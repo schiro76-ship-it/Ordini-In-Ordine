@@ -307,7 +307,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .ov.open{display:flex}
 @media(min-width:640px){.ov{align-items:center;padding:20px}}
 .modal{background:#fff;border-radius:20px 20px 16px 16px;padding:22px 18px 30px;width:100%;max-width:540px;box-shadow:var(--shl);animation:su 0.2s ease;max-height:90vh;overflow-y:auto;will-change:transform;touch-action:pan-y}
-@media(min-width:640px){.modal{border-radius:18px;max-height:88vh}}
+@media(min-width:640px){.modal{border-radius:18px;max-height:88vh}.modal-etichetta-box{border-radius:18px!important}}
 @keyframes su{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
 .mta{font-size:20px;font-weight:900;margin-bottom:16px}
 .ma{display:flex;gap:8px;margin-top:16px}
@@ -827,7 +827,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
   </div>
 </div>
 <div class="ov" id="modal-etichetta" style="background:rgba(0,0,0,0.85);z-index:500">
-  <div style="background:#fff;width:100%;max-width:420px;border-radius:20px 20px 0 0;max-height:95vh;overflow-y:auto;padding:0 0 28px 0">
+  <div class="modal-etichetta-box" style="background:#fff;width:100%;max-width:420px;border-radius:20px 20px 0 0;max-height:95vh;overflow-y:auto;padding:0 0 28px 0">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #E5E7EB">
       <div style="font-size:16px;font-weight:900">🖨️ Etichetta ordine</div>
       <button onclick="closeModal('modal-etichetta')" style="background:#E5E7EB;border:none;width:38px;height:38px;border-radius:50%;font-size:19px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;color:#1A1A2E">✕</button>
