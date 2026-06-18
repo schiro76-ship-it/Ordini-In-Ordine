@@ -1013,7 +1013,7 @@ function buildOcHTML(lista){
         <div class="oc-info" style="flex:1;min-width:0">
           <div class="oc-nome">${o.nome}</div>
           ${ds?`<div style="margin-top:2px">${ds}</div>`:''}
-          ${o.note?`<div style="font-size:15px;color:var(--sub);font-style:italic;font-weight:700;margin-top:4px">${o.note}</div>`:''}
+          ${o.note?`<div style="font-size:15px;color:var(--sub);font-style:italic;font-weight:700;margin-top:4px">"${o.note}"</div>`:''}
           <div class="oc-meta">${sb2}${pr}</div>
         </div>
         <div class="oc-acts" style="margin-top:2px;flex-shrink:0;flex-direction:column;gap:5px" onclick="event.stopPropagation()">
