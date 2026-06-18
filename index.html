@@ -2168,6 +2168,18 @@ function _disegnaEtichetta(o,artIdEvidenziato){
     }
   });
 
+  // Nota ordine
+  if(o.note){
+    y+=10;
+    ctx.strokeStyle='#CCCCCC';ctx.lineWidth=2;ctx.setLineDash([10,6]);
+    ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();
+    ctx.setLineDash([]);y+=30;
+    const maxNote=W-pad*2;
+    const nNote=misuraRighe(o.note,'italic 600 34px sans-serif',maxNote);
+    scriviWrap(o.note,'italic 600 34px sans-serif','#6B7280',pad,y+34,maxNote,42,'left');
+    y+=nNote*42+10;
+  }
+
   return canvas;
 }
 function _mostraCanvasNelModal(canvas){
