@@ -2100,7 +2100,45 @@ function importaDati(input){const file=input.files[0];if(!file)return;const read
 function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.className='show'+(t?' '+t:'');clearTimeout(e._t);e._t=setTimeout(function(){e.className=''},2700)}
 
 function _disegnaEtichetta(o,artIdEvidenziato){
-  const W=591,H=945,pad=28;
+  const W=591,pad=28;
+  const tmpCanvas=document.createElement('canvas');
+  tmpCanvas.width=W;tmpCanvas.height=10;
+  const tmpCtx=tmpCanvas.getContext('2d');
+  function misuraRigheTmp(testo,font,maxW){
+    tmpCtx.font=font;
+    const p=testo.split(' ');let r='',n=1;
+    for(let i=0;i<p.length;i++){const t=r+(r?' ':'')+p[i];if(tmpCtx.measureText(t).width>maxW&&r){n++;r=p[i];}else r=t;}
+    return n;
+  }
+  const turnoLabelTmp=o.ora?'🕐 '+o.ora:o.turno==='mattina'?'Mattina':o.turno==='pomeriggio'?'Pomeriggio':'';
+  const dataStrTmp=o.data?fmtD(o.data):'';
+  const metaStrTmp=[dataStrTmp,turnoLabelTmp].filter(Boolean).join(' · ');
+  let yTmp=pad+16;
+  yTmp+=155;
+  const nNomeTmp=misuraRigheTmp(o.nome,'900 54px sans-serif',W-pad*2);
+  yTmp+=nNomeTmp*62+8;
+  if(metaStrTmp)yTmp+=52;
+  yTmp+=28;
+  (o.items||[]).forEach(function(it){
+    const a=arts.find(x=>x.id===it.artId);if(!a)return;
+    const isEv=artIdEvidenziato&&it.artId===artIdEvidenziato;
+    if(isEv){
+      const maxN=W-pad*2-16;
+      const nR=misuraRigheTmp(a.nome,'900 48px sans-serif',maxN);
+      yTmp+=nR*60+56+16+10;
+    } else {
+      const maxN=W-pad*2-100;
+      const nR=misuraRigheTmp(a.nome,'500 34px sans-serif',maxN);
+      yTmp+=nR*42+18;
+    }
+  });
+  if(o.note){
+    yTmp+=10+30;
+    const maxNote=W-pad*2;
+    const nNoteTmp=misuraRigheTmp(o.note,'italic 600 34px sans-serif',maxNote);
+    yTmp+=nNoteTmp*42+10;
+  }
+  const H=Math.max(280,Math.round(yTmp+pad+16));
   const canvas=document.createElement('canvas');
   canvas.width=W;canvas.height=H;
   const ctx=canvas.getContext('2d');
