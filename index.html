@@ -533,8 +533,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </nav>
   </aside>
   <div class="pcontent">
-    <div id="verify-banner" style="display:none;background:#FEF3E2;border-bottom:1px solid #F5D9A8;padding:10px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#92400E;text-align:center;flex-shrink:0">
-      ⚠️ Verifica la tua email per proteggere il tuo account — <span onclick="reinviaVerificaEmail()" style="text-decoration:underline;cursor:pointer;font-weight:900">Reinvia</span>
+    <div id="verify-banner" style="display:none;background:#FEF3E2;border-bottom:1px solid #F5D9A8;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#92400E;flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap">
+      <span>⚠️ Verifica la tua email per proteggere il tuo account</span>
+      <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="reinviaVerificaEmail()">Reinvia</button>
     </div>
     <div class="topbar">
       <button class="tb-menu" onclick="openSidebar()">☰</button>
@@ -932,7 +933,7 @@ async function boot(){applyTheme(DEFAULT_THEME);loadDateFormat();loadCalSettings
     });
   }catch(e){console.warn('Realtime error',e);}
 }
-function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');if(vb)vb.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'block':'none';const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');}
+function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');if(vb)vb.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');}
 const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni'};
 const tabIdx={ordini:0,riepilogo:1,storico:2,nuovo:3,impostazioni:4};
 function goTab(name){
