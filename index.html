@@ -503,6 +503,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Consulta lo storico</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Consulta lo storico per programmare meglio il lavoro. Ritrova ogni ordine precedente.</div></div>
       </div>
     </div>
+    <div id="ob-verify-email" style="display:none;text-align:center;font-size:13px;font-weight:700;color:#92400E;background:#FEF3E2;border-radius:10px;padding:10px;margin-bottom:20px">✉️ Verifica la tua email</div>
     <button class="btn br btn-full" onclick="obConfirm()" style="font-size:17px;padding:16px">Inizia ad usare l'app →</button>
   </div>
 </div>
@@ -900,6 +901,8 @@ function obNext(){
   if(!obSelectedAttivita)return;
   document.getElementById('ob-step1').style.display='none';
   document.getElementById('ob-step2').style.display='block';
+  const obVerifyEl=document.getElementById('ob-verify-email');
+  if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'block':'none';
 }
 
 
