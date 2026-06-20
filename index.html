@@ -503,7 +503,10 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Consulta lo storico</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Consulta lo storico per programmare meglio il lavoro. Ritrova ogni ordine precedente.</div></div>
       </div>
     </div>
-    <div id="ob-verify-email" style="display:none;text-align:center;font-size:13px;font-weight:700;color:#92400E;background:#FEF3E2;border-radius:10px;padding:10px;margin-bottom:20px">✉️ Verifica la tua email</div>
+    <div id="ob-verify-email" style="display:none;border-top:1px solid #F0F0F0;padding-top:16px;margin-bottom:20px;align-items:center;gap:10px;justify-content:center">
+      <span style="font-size:18px">✉️</span>
+      <span style="font-size:13px;font-weight:700;color:#92400E">Verifica la tua email — clicca sul link che ti abbiamo inviato</span>
+    </div>
     <button class="btn br btn-full" onclick="obConfirm()" style="font-size:17px;padding:16px">Inizia ad usare l'app →</button>
   </div>
 </div>
@@ -534,7 +537,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </nav>
   </aside>
   <div class="pcontent">
-    <div id="verify-banner" style="display:none;background:#FEF3E2;border-bottom:1px solid #F5D9A8;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#92400E;flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap">
+    <div id="verify-banner" style="display:none;background:#FEF3E2;border-bottom:1px solid #F5D9A8;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#92400E;flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
       <span>⚠️ Verifica la tua email per proteggere il tuo account</span>
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="reinviaVerificaEmail()">Reinvia</button>
     </div>
@@ -902,12 +905,12 @@ function obNext(){
   document.getElementById('ob-step1').style.display='none';
   document.getElementById('ob-step2').style.display='block';
   const obVerifyEl=document.getElementById('ob-verify-email');
-  if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'block':'none';
+  if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';
 }
 
 
 
-async function obConfirm(){if(!obSelectedAttivita)return;const attivita=getAttivitaById(obSelectedAttivita);const defaultTheme=getAttivitaById('macelleria');cats=[...attivita.cats];arts=attivita.arts.map((a,i)=>({id:i+1,...a}));unitaMisura=['kg','g','pezzi','numero','fette','vaschette','bustine'];ords=[];await saveData();if(currentUser){await db.collection('profili').doc(currentUser.uid).set({attivita:currentUser.displayName||'',email:currentUser.email,tipoAttivita:obSelectedAttivita,tema:'macelleria',onboardingCompleto:true,creato:new Date().toISOString()},{merge:true});}applyTheme(DEFAULT_THEME);document.getElementById('onboarding-screen').style.display='none';refreshAll();toast('Benvenuto! La tua attività è pronta','v');}
+async function obConfirm(){if(!obSelectedAttivita)return;const attivita=getAttivitaById(obSelectedAttivita);const defaultTheme=getAttivitaById('macelleria');cats=[...attivita.cats];arts=attivita.arts.map((a,i)=>({id:i+1,...a}));unitaMisura=['kg','g','pezzi','numero','fette','vaschette','bustine'];ords=[];await saveData();if(currentUser){await db.collection('profili').doc(currentUser.uid).set({attivita:currentUser.displayName||'',email:currentUser.email,tipoAttivita:obSelectedAttivita,tema:'macelleria',onboardingCompleto:true,creato:new Date().toISOString()},{merge:true});}applyTheme(DEFAULT_THEME);document.getElementById('onboarding-screen').style.display='none';refreshAll();toast('Benvenuto!','v');}
 function applyTheme(theme){const root=document.documentElement;root.style.setProperty('--r',theme.r);root.style.setProperty('--rs',theme.rs);root.style.setProperty('--g',theme.g);root.style.setProperty('--gs',theme.gs);root.style.setProperty('--bg',theme.bg);const sb=document.querySelector('.sidebar');if(sb)sb.style.background=theme.sb;const ext=document.getElementById('sidebar-extender');if(ext)ext.style.background=theme.sb;const cover=document.getElementById('status-bar-cover');if(cover)cover.style.background=theme.sb;}
 
 async function checkOnboarding(){if(!currentUser)return;try{const snap=await db.collection('profili').doc(currentUser.uid).get();if(snap.exists&&snap.data().onboardingCompleto){applyTheme(DEFAULT_THEME);}else{showOnboarding();}}catch(e){showOnboarding();}}
@@ -936,7 +939,7 @@ async function boot(){applyTheme(DEFAULT_THEME);loadDateFormat();loadCalSettings
     });
   }catch(e){console.warn('Realtime error',e);}
 }
-function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');if(vb)vb.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');}
+function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';if(document.body.classList.contains('portrait-phone')){const pc=document.querySelector('.pcontent');if(pc)pc.style.paddingTop=showVb?'env(safe-area-inset-top,44px)':'0';}const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');}
 const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni'};
 const tabIdx={ordini:0,riepilogo:1,storico:2,nuovo:3,impostazioni:4};
 function goTab(name){
