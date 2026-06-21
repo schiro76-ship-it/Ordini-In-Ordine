@@ -2282,6 +2282,7 @@ function stampaEtichetta(id){
 
 // ── AUTH ──
 const auth=firebase.auth();
+auth.languageCode='it';
 let currentUser=null;
 auth.onAuthStateChanged(function(user){if(user){currentUser=user;document.getElementById('login-screen').style.display='none';boot();if(!user.emailVerified&&user.providerData&&user.providerData[0]&&user.providerData[0].providerId==='password'){setInterval(function(){if(!currentUser)return;currentUser.reload().then(function(){if(currentUser.emailVerified)refreshAll();});},20000);}}else{currentUser=null;document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';}});
 function salvaAttivita(){const nome=document.getElementById('input-attivita').value.trim();if(!nome){toast('Inserisci il nome attività!','err');return;}if(!currentUser){toast('Non sei loggato','err');return;}currentUser.updateProfile({displayName:nome}).then(function(){return db.collection('profili').doc(currentUser.uid).set({attivita:nome,email:currentUser.email,aggiornato:new Date().toISOString()},{merge:true});}).then(function(){const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita)sbAttivita.textContent=nome;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita)inputAttivita.value=nome;toast('Nome attività salvato ✅','v');}).catch(function(e){toast('Errore: '+e.message,'err');});}
