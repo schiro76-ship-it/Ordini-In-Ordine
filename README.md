@@ -1,3 +1,4 @@
+[README.md](https://github.com/user-attachments/files/29176456/README.md)
 # OrdinInOrdine
 
 PWA single-file (HTML/CSS/JS) per la gestione ordini di piccole attività artigiane: macellerie, pescherie, panifici, pasticcerie, gelaterie e simili.
