@@ -591,12 +591,12 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
                 <div style="display:flex;align-items:center;gap:6px">
                   <label style="font-size:13px;font-weight:800;color:var(--sub)">Dal</label>
-                  <button id="st-dal-btn" onclick="toggleStCal('dal')" style="padding:8px 14px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">📅 —</button>
+                  <button id="st-dal-btn" onclick="toggleStCal('dal')" style="padding:8px 14px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer"><i class="ti ti-calendar"></i> —</button>
                   <input type="hidden" id="st-dal">
                 </div>
                 <div style="display:flex;align-items:center;gap:6px">
                   <label style="font-size:13px;font-weight:800;color:var(--sub)">Al</label>
-                  <button id="st-al-btn" onclick="toggleStCal('al')" style="padding:8px 14px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">📅 —</button>
+                  <button id="st-al-btn" onclick="toggleStCal('al')" style="padding:8px 14px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer"><i class="ti ti-calendar"></i> —</button>
                   <input type="hidden" id="st-al">
                 </div>
                 <button class="btn bg2" style="font-size:13px;padding:8px 14px" onclick="clearStDates()">Tutto</button>
@@ -625,15 +625,15 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <div class="cal-nav"><button onclick="calNavMese(-1)">‹</button><span class="cn-lbl" id="cal-mese-lbl"></span><button onclick="calNavMese(+1)">›</button></div>
                   <div class="cal-grid" id="cal-grid"></div>
                   <div id="cal-row-extra" style="display:none" class="cal-row-mp">
-                    <button id="cal-btn-mat" class="cal-btn-mp" onclick="calSceglTurno('mattina')">☀️ Mattina</button>
-                    <button id="cal-btn-pom" class="cal-btn-mp" onclick="calSceglTurno('pomeriggio')">🌆 Pom.</button>
+                    <button id="cal-btn-mat" class="cal-btn-mp" onclick="calSceglTurno('mattina')"><i class="ti ti-sun"></i> Mattina</button>
+                    <button id="cal-btn-pom" class="cal-btn-mp" onclick="calSceglTurno('pomeriggio')"><i class="ti ti-sunset-2"></i> Pom.</button>
                     <div id="cal-time-wrap" class="cal-time-wrap" style="display:none">
-                      <span style="font-size:13px;color:var(--sub)">🕐</span>
+                      <span style="font-size:13px;color:var(--sub)"><i class="ti ti-clock"></i></span>
                       <input type="time" id="cal-time-inp" class="cal-time-inp" onchange="calSceglOra(this.value)">
                     </div>
                   </div>
                 </div>
-                <div id="cal-hint" style="font-size:12px;color:var(--sub);font-weight:600;margin-top:6px;display:none">💡 Puoi usare Mattina/Pomeriggio invece dell'orario dalle Impostazioni → Calendario</div>
+                <div id="cal-hint" style="font-size:12px;color:var(--sub);font-weight:600;margin-top:6px;display:none"><i class="ti ti-bulb"></i> Puoi usare Mattina/Pomeriggio invece dell'orario dalle Impostazioni → Calendario</div>
               </div>
             </div>
           </div>
@@ -744,11 +744,11 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div style="display:flex;flex-direction:column;gap:2px">
                 <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveCalMode('ora')">
                   <span id="cal-radio-ora" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
-                  <div><div style="font-size:16px;font-weight:700">🕐 Orario</div><div style="font-size:13px;color:var(--sub);font-weight:600">Inserisci un orario preciso</div></div>
+                  <div><div style="font-size:16px;font-weight:700"><i class="ti ti-clock"></i> Orario</div><div style="font-size:13px;color:var(--sub);font-weight:600">Inserisci un orario preciso</div></div>
                 </label>
                 <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveCalMode('mp')">
                   <span id="cal-radio-mp" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
-                  <div><div style="font-size:16px;font-weight:700">☀️🌆 Mattina / Pomeriggio</div><div style="font-size:13px;color:var(--sub);font-weight:600">Scegli il turno di consegna</div></div>
+                  <div><div style="font-size:16px;font-weight:700"><i class="ti ti-sun"></i><i class="ti ti-sunset-2"></i> Mattina / Pomeriggio</div><div style="font-size:13px;color:var(--sub);font-weight:600">Scegli il turno di consegna</div></div>
                 </label>
                 <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveCalMode('niente')">
                   <span id="cal-radio-niente" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
@@ -1247,12 +1247,12 @@ function flipRenderOrdini(lista){
   }
 }
 let stCalState={year:new Date().getFullYear(),month:new Date().getMonth(),field:null};
-function fmtBtnDate(iso){if(!iso)return'📅 —';return'📅 '+fmtDataByFormat(iso);}
+function fmtBtnDate(iso){if(!iso)return'<i class="ti ti-calendar"></i> —';return'<i class="ti ti-calendar"></i> '+fmtDataByFormat(iso);}
 function toggleStCal(field){const w=document.getElementById('st-cal-wrap');if(stCalState.field===field&&w.style.display!=='none'){w.style.display='none';stCalState.field=null;return;}stCalState.field=field;w.style.display='block';renderStCal();}
 function stCalNav(d){stCalState.month+=d;if(stCalState.month<0){stCalState.month=11;stCalState.year--}if(stCalState.month>11){stCalState.month=0;stCalState.year++}renderStCal();}
 function renderStCal(){const s=stCalState;const mesi=['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];document.getElementById('st-cal-lbl').textContent=mesi[s.month]+' '+s.year;const primo=new Date(s.year,s.month,1),sd=(primo.getDay()+6)%7;const gm=new Date(s.year,s.month+1,0).getDate(),gmp=new Date(s.year,s.month,0).getDate();const dow=['Lu','Ma','Me','Gi','Ve','Sa','Do'];const dal=document.getElementById('st-dal').value,al=document.getElementById('st-al').value;let h=dow.map(d=>`<div class="cal-dow">${d}</div>`).join('');for(let i=sd-1;i>=0;i--)h+=`<button class="cal-day other-month" disabled>${gmp-i}</button>`;for(let g=1;g<=gm;g++){const iso=`${s.year}-${String(s.month+1).padStart(2,'0')}-${String(g).padStart(2,'0')}`;const isSel=(s.field==='dal'&&iso===dal)||(s.field==='al'&&iso===al);const inRange=dal&&al&&iso>=dal&&iso<=al;h+=`<button class="cal-day${isSel?' sel':''}${inRange&&!isSel?' today':''}" onclick="selStCalDay('${iso}')">${g}</button>`;}const rest=(7-(sd+gm)%7)%7;for(let i=1;i<=rest;i++)h+=`<button class="cal-day other-month" disabled>${i}</button>`;document.getElementById('st-cal-grid').innerHTML=h;}
-function selStCalDay(iso){document.getElementById('st-'+stCalState.field).value=iso;document.getElementById('st-'+stCalState.field+'-btn').textContent=fmtBtnDate(iso);document.getElementById('st-cal-wrap').style.display='none';stCalState.field=null;renderStoricoRiepilogo();}
-function clearStDates(){['st-dal','st-al'].forEach(id=>{document.getElementById(id).value='';});document.getElementById('st-dal-btn').textContent='📅 —';document.getElementById('st-al-btn').textContent='📅 —';document.getElementById('st-cal-wrap').style.display='none';stCalState.field=null;renderStoricoRiepilogo();}
+function selStCalDay(iso){document.getElementById('st-'+stCalState.field).value=iso;document.getElementById('st-'+stCalState.field+'-btn').innerHTML=fmtBtnDate(iso);document.getElementById('st-cal-wrap').style.display='none';stCalState.field=null;renderStoricoRiepilogo();}
+function clearStDates(){['st-dal','st-al'].forEach(id=>{document.getElementById(id).value='';});document.getElementById('st-dal-btn').innerHTML='<i class="ti ti-calendar"></i> —';document.getElementById('st-al-btn').innerHTML='<i class="ti ti-calendar"></i> —';document.getElementById('st-cal-wrap').style.display='none';stCalState.field=null;renderStoricoRiepilogo();}
 let stCatFilter='Tutte';
 function setStCat(c){stCatFilter=c;renderStoricoRiepilogo()}
 function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&document.getElementById('st-dal').value||'';const al=document.getElementById('st-al')&&document.getElementById('st-al').value||'';const cerca=(document.getElementById('st-art-cerca')&&document.getElementById('st-art-cerca').value||'').toLowerCase().trim();const ordsF=ords.filter(o=>{if(o.stato!=='ritirato')return false;if(!o.data)return!dal&&!al;if(dal&&o.data<dal)return false;if(al&&o.data>al)return false;return true;});const map={};ordsF.forEach(o=>(o.items||[]).forEach(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return;const k=`${it.artId}`;if(!map[k])map[k]={artId:it.artId,nome:a.nome,cat:a.cat||'',ums:{},nOrdini:0};const um=it.um||'';map[k].ums[um]=(map[k].ums[um]||0)+(parseFloat(it.qty)||1);map[k].nOrdini++;}));const voci=Object.values(map).sort((a,b)=>a.nome.localeCompare(b.nome));const catsP=['Tutte',...[...new Set(voci.map(v=>v.cat).filter(Boolean))].sort()];if(!catsP.includes(stCatFilter))stCatFilter='Tutte';const pillsEl=document.getElementById('st-cat-pills');if(pillsEl)pillsEl.innerHTML=catsP.map(c=>`<span class="pill ${c===stCatFilter?'active':''}" onclick="setStCat('${c}')">${c}</span>`).join('');const filtrate=voci.filter(v=>{if(stCatFilter!=='Tutte'&&v.cat!==stCatFilter)return false;if(cerca&&!v.nome.toLowerCase().includes(cerca))return false;return true;});const el=document.getElementById('storico-riepilogo');if(!el)return;if(!ordsF.length){el.innerHTML='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun ordine ritirato nel periodo selezionato.</p>';return}// Riepilogo articoli
@@ -1288,11 +1288,11 @@ function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&d
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:5px">
           <label style="font-size:13px;font-weight:800;color:var(--sub)">Dal</label>
-          <button onclick="toggleStDetCal('dal')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetDal?'📅 '+fmtD(stDetDal):'📅 —'}</button>
+          <button onclick="toggleStDetCal('dal')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetDal?'<i class="ti ti-calendar"></i> '+fmtD(stDetDal):'<i class="ti ti-calendar"></i> —'}</button>
         </div>
         <div style="display:flex;align-items:center;gap:5px">
           <label style="font-size:13px;font-weight:800;color:var(--sub)">Al</label>
-          <button onclick="toggleStDetCal('al')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetAl?'📅 '+fmtD(stDetAl):'📅 —'}</button>
+          <button onclick="toggleStDetCal('al')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetAl?'<i class="ti ti-calendar"></i> '+fmtD(stDetAl):'<i class="ti ti-calendar"></i> —'}</button>
         </div>
         <button onclick="_stDetDal='';_stDetAl='';renderStoricoRiepilogo()" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;background:var(--bg);color:var(--txt);cursor:pointer">Tutto</button>
       </div>
@@ -1308,7 +1308,7 @@ function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&d
       </div>
       <div class="cp" style="margin-bottom:10px">${stDetPills}</div>`;
     html+=ordsFiltered.sort((a,b)=>new Date(a.data+'T00:00:00')-new Date(b.data+'T00:00:00')).map(o=>{
-      const turnoLabel=o.ora?'🕐 '+o.ora:o.turno==='mattina'?'☀️ Mat.':o.turno==='pomeriggio'?'🌆 Pom.':'';
+      const turnoLabel=o.ora?'<i class="ti ti-clock"></i> '+o.ora:o.turno==='mattina'?'<i class="ti ti-sun"></i> Mat.':o.turno==='pomeriggio'?'<i class="ti ti-sunset-2"></i> Pom.':'';
       const items=(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return'';const qty=(it.qty?(parseFloat(it.qty)||''):'—')+(it.um?' '+it.um:'');return`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:14px"><span style="color:var(--txt);font-weight:600">${a.nome}</span><span style="font-weight:800;color:var(--sub)">${qty}</span></div>`;}).join('');
       return`<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px;font-weight:900;color:var(--r)">#${o.num}</span><span style="font-size:16px;font-weight:800;flex:1">${o.nome}</span></div><div style="font-size:13px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
     }).join('');
@@ -1589,7 +1589,7 @@ function renderDetModal(o){
           <input value="${o.nome.replace(/"/g,'&quot;')}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
         <div style="display:flex;flex-direction:column;flex-shrink:0"><div style="font-size:10px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">Data</div>
           <button onclick="toggleDetCal(${o.id})" style="height:36px;box-sizing:border-box;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px">
-            📅 <span id="det-data-lbl">${o.data?o.data:'—'}${o.ora?' 🕐'+o.ora:o.turno?' '+(o.turno==='mattina'?'☀️':'🌆'):''}</span>
+            <i class="ti ti-calendar"></i> <span id="det-data-lbl">${o.data?o.data:'—'}${o.ora?' <i class="ti ti-clock"></i>'+o.ora:o.turno?' '+(o.turno==='mattina'?'<i class="ti ti-sun"></i>':'<i class="ti ti-sunset-2"></i>'):''}</span>
           </button>
         </div>
       </div>
@@ -1601,10 +1601,10 @@ function renderDetModal(o){
           <div class="cal-grid" id="det-cal-grid"></div>
           <div id="det-cal-salva-solo" style="display:none"></div>
           <div id="det-cal-row-extra" class="cal-row-mp" style="display:none">
-            <button id="det-cal-btn-mat" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'mattina')">☀️ Mat.</button>
-            <button id="det-cal-btn-pom" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'pomeriggio')">🌆 Pom.</button>
+            <button id="det-cal-btn-mat" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'mattina')"><i class="ti ti-sun"></i> Mat.</button>
+            <button id="det-cal-btn-pom" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'pomeriggio')"><i class="ti ti-sunset-2"></i> Pom.</button>
             <div id="det-cal-time-wrap" class="cal-time-wrap" style="display:none">
-              <span style="font-size:13px;color:var(--sub)">🕐</span>
+              <span style="font-size:13px;color:var(--sub)"><i class="ti ti-clock"></i></span>
               <input type="time" id="det-cal-time-inp" class="cal-time-inp" onchange="detCalSceglOra(${o.id},this.value)">
             </div>
 
@@ -1689,7 +1689,7 @@ async function detCalSalva(oid){
   o.data=detCalSelDate;o.turno=detCalOra?null:detCalTurno;o.ora=detCalOra||null;
   await saveData();
   const lbl=document.getElementById('det-data-lbl');
-  if(lbl)lbl.textContent=fmtD(detCalSelDate)+(o.ora?' 🕐'+o.ora:o.turno?' · '+(o.turno==='mattina'?'☀️ Mattina':'🌆 Pomeriggio'):'');
+  if(lbl)lbl.innerHTML=fmtD(detCalSelDate)+(o.ora?' <i class="ti ti-clock"></i>'+o.ora:o.turno?' · '+(o.turno==='mattina'?'<i class="ti ti-sun"></i> Mattina':'<i class="ti ti-sunset-2"></i> Pomeriggio'):'');
   const w=document.getElementById('det-cal-wrap');if(w)w.style.display='none';
   renderOrdini();toast('Data aggiornata','v');
 }
@@ -2147,7 +2147,7 @@ function _disegnaEtichetta(o,artIdEvidenziato){
     for(let i=0;i<p.length;i++){const t=r+(r?' ':'')+p[i];if(tmpCtx.measureText(t).width>maxW&&r){n++;r=p[i];}else r=t;}
     return n;
   }
-  const turnoLabelTmp=o.ora?'🕐 '+o.ora:o.turno==='mattina'?'Mattina':o.turno==='pomeriggio'?'Pomeriggio':'';
+  const turnoLabelTmp=o.ora?'Ore '+o.ora:o.turno==='mattina'?'Mattina':o.turno==='pomeriggio'?'Pomeriggio':'';
   const dataStrTmp=o.data?fmtD(o.data):'';
   const metaStrTmp=[dataStrTmp,turnoLabelTmp].filter(Boolean).join(' · ');
   let yTmp=pad+16;
@@ -2195,7 +2195,7 @@ function _disegnaEtichetta(o,artIdEvidenziato){
     return n;
   }
 
-  const turnoLabel=o.ora?'🕐 '+o.ora:o.turno==='mattina'?'Mattina':o.turno==='pomeriggio'?'Pomeriggio':'';
+  const turnoLabel=o.ora?'Ore '+o.ora:o.turno==='mattina'?'Mattina':o.turno==='pomeriggio'?'Pomeriggio':'';
   const dataStr=o.data?fmtD(o.data):'';
   const metaStr=[dataStr,turnoLabel].filter(Boolean).join(' · ');
 
