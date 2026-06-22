@@ -499,15 +499,15 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     
     <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px">
       <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <span style="font-size:28px">📋</span>
+        <span style="font-size:28px"><i class="ti ti-clipboard-list"></i></span>
         <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Registra gli ordini</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Crea un ordine per ogni cliente con articoli, quantità e data di ritiro</div></div>
       </div>
       <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <span style="font-size:28px">📊</span>
+        <span style="font-size:28px"><i class="ti ti-chart-bar"></i></span>
         <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Gestisci la produzione dal Riepilogo</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Vedi tutto ciò che devi preparare, raggruppato per articolo e priorità</div></div>
       </div>
       <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <span style="font-size:28px">📅</span>
+        <span style="font-size:28px"><i class="ti ti-calendar"></i></span>
         <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Consulta lo storico</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Consulta lo storico per programmare meglio il lavoro. Ritrova ogni ordine precedente.</div></div>
       </div>
     </div>
@@ -615,7 +615,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="phdr"><h2>Nuovo Ordine <span id="nuovo-num-badge" style="font-size:13px;color:var(--urg)"></span></h2><div style="display:flex;align-items:center;gap:12px"><div style="display:flex;align-items:center;gap:4px"><span style="font-size:19px;font-weight:900;color:var(--txt)">#</span><input type="number" id="nuovo-num-top" min="1" style="width:64px;font-size:20px;font-weight:900;color:var(--txt);border:none;border-bottom:2px solid var(--r);background:transparent;font-family:'Nunito',sans-serif;outline:none;text-align:center" oninput="sincNuovoNum(this.value)"></div><button onclick="goTab('ordini')" style="padding:8px 16px;background:#2C3E50;color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Annulla</button></div></div>
         <div class="pbody has-bottom-bar">
           <div class="card" style="margin-bottom:14px">
-            <div class="ch"><div class="ct">📅 Ritiro</div></div>
+            <div class="ch"><div class="ct"><i class="ti ti-calendar"></i> Ritiro</div></div>
             <div class="cb">
               <div class="fg">
                 <div class="cal-compact" id="cal-nuovo">
@@ -635,19 +635,19 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card" style="margin-bottom:14px">
-            <div class="ch"><div class="ct">👤 Cliente</div></div>
+            <div class="ch"><div class="ct"><i class="ti ti-user"></i> Cliente</div></div>
             <div class="cb">
               <div class="fg"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi"></div>
             </div>
           </div>
           <div class="card" style="margin-bottom:14px">
-            <div class="ch"><div class="ct">📝 Note</div></div>
+            <div class="ch"><div class="ct"><i class="ti ti-notes"></i> Note</div></div>
             <div class="cb">
               <div class="fg"><input class="fi" type="text" id="note-ordine" placeholder="Es. Pagato, consegnare a domicilio…"></div>
             </div>
           </div>
           <div class="card" style="margin-bottom:14px">
-            <div class="ch"><div class="ct">🗂️ Aggiungi articoli</div><button class="btn-outline-r" onclick="openQArt()">✏️ Nuovo</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Aggiungi articoli</div><button class="btn-outline-r" onclick="openQArt()">✏️ Nuovo</button></div>
             <div class="cb" style="padding-bottom:8px">
               <div class="cp" id="pills" style="margin-bottom:8px"></div>
               <div class="sbox" style="margin-bottom:6px"><span class="si">🔍</span><input type="text" id="can" placeholder="Cerca articolo…" oninput="renderArtS()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
@@ -665,7 +665,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="phdr"><h2>Impostazioni</h2></div>
         <div class="pbody">
           <div class="card">
-            <div class="ch"><div class="ct">🗂️ Articoli</div></div>
+            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Articoli</div></div>
             <div class="cb" style="padding-bottom:8px">
               <div class="two-col">
                 <div>
@@ -692,11 +692,11 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct">📏 Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-um')">Gestisci</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-ruler-2"></i> Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-um')">Gestisci</button></div>
             <div class="cb"><div class="um-list" id="um-display"></div></div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct">🏷️ Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderCatList();openModal('modal-cat')">Gestisci</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-tag"></i> Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderCatList();openModal('modal-cat')">Gestisci</button></div>
             <div class="cb"><div class="um-list" id="cat-display"></div></div>
           </div>
           <div class="card">
@@ -707,7 +707,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct">👤 Account</div></div>
+            <div class="ch"><div class="ct"><i class="ti ti-user"></i> Account</div></div>
             <div class="cb">
               <div style="font-size:14px;font-weight:600;color:var(--sub);margin-bottom:14px" id="account-email"></div>
               <div class="fg">
@@ -735,7 +735,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct">📅 Calendario</div></div>
+            <div class="ch"><div class="ct"><i class="ti ti-calendar"></i> Calendario</div></div>
             <div class="cb">
               <div style="padding:6px 0 4px;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px">Tipo di orario</div>
               <div style="display:flex;flex-direction:column;gap:2px">
@@ -838,14 +838,14 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 <div class="ov" id="modal-det"><div class="modal" id="modal-det-body"></div></div>
 <div class="ov" id="modal-cat">
   <div class="modal">
-    <div class="mta">🏷️ Gestisci categorie</div>
+    <div class="mta"><i class="ti ti-tag"></i> Gestisci categorie</div>
     <div id="cat-modal-list" class="slist"></div>
     <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-cat')">Chiudi</button></div>
   </div>
 </div>
 <div class="ov" id="modal-um">
   <div class="modal">
-    <div class="mta">📏 Unità di misura</div>
+    <div class="mta"><i class="ti ti-ruler-2"></i> Unità di misura</div>
     <div class="um-list" id="um-modal-list"></div>
     <div style="display:flex;gap:8px;margin-top:8px"><input class="fi" type="text" id="um-new" placeholder="Nuova unità…" style="flex:1"><button class="btn br" onclick="addUM()" style="font-size:17px;font-weight:900">+</button></div>
     <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-um')">Chiudi</button></div>
@@ -2445,19 +2445,19 @@ document.addEventListener('focusout',function(e){
 
 <nav id="bottom-nav">
   <button class="bn-item active" id="bn-ordini" onclick="goTab('ordini')">
-    <span class="bn-ic">📋</span><span>Ordini</span>
+    <span class="bn-ic"><i class="ti ti-clipboard-list"></i></span><span>Ordini</span>
   </button>
   <button class="bn-item" id="bn-riepilogo" onclick="goTab('riepilogo')">
-    <span class="bn-ic">📊</span><span>Riepilogo</span>
+    <span class="bn-ic"><i class="ti ti-chart-bar"></i></span><span>Riepilogo</span>
   </button>
   <button class="bn-item bn-new" id="bn-nuovo" onclick="goTab('nuovo')">
     <span class="bn-ic-wrap">+</span>
   </button>
   <button class="bn-item" id="bn-storico" onclick="goTab('storico')">
-    <span class="bn-ic">📅</span><span>Storico</span>
+    <span class="bn-ic"><i class="ti ti-calendar"></i></span><span>Storico</span>
   </button>
   <button class="bn-item" id="bn-impostazioni" onclick="goTab('impostazioni')">
-    <span class="bn-ic">⚙️</span><span>Impost.</span>
+    <span class="bn-ic"><i class="ti ti-settings"></i></span><span>Impost.</span>
   </button>
 </nav>
 </body>
