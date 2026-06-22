@@ -550,7 +550,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
   </aside>
   <div class="pcontent">
     <div id="verify-banner" style="display:none;background:#FEF3E2;border-bottom:1px solid #F5D9A8;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#92400E;flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
-      <span>⚠️ Verifica la tua email per proteggere il tuo account</span>
+      <span><i class="ti ti-alert-triangle"></i> Verifica la tua email per proteggere il tuo account</span>
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="reinviaVerificaEmail()">Reinvia email di verifica</button>
     </div>
     <div class="topbar">
@@ -568,7 +568,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="sc sc-filt" id="sf-completato" onclick="setFT('completato','sf-completato')" style="background:var(--gs)"><div class="sn" id="st-co" style="color:var(--g)">0</div><div class="sl" style="color:var(--g)">Completati</div></div>
             <div class="sc sc-filt" id="sf-ritirato" onclick="setFT('ritirato','sf-ritirato')" style="background:var(--grs)"><div class="sn" id="st-ri" style="color:var(--gr)">0</div><div class="sl" style="color:var(--gr)">Ritirati</div></div>
           </div>
-          <div class="sbox"><span class="si">🔍</span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini()"></div>
+          <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini()"></div>
           <div class="cp" id="ordini-date-pills"></div>
           <div id="ordini-list"></div>
         </div>
@@ -576,7 +576,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div class="sec" id="tab-riepilogo">
         <div class="phdr"><h2>Riepilogo</h2></div>
         <div class="pbody">
-          <div class="sbox"><span class="si">🔍</span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo()"></div>
+          <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo()"></div>
           <div class="cp" id="riepilogo-day-pills"></div>
           <div class="cp" id="riepilogo-cat-pills"></div>
           <div id="riepilogo-list"></div>
@@ -607,7 +607,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <div class="cal-grid" id="st-cal-grid"></div>
                 </div>
               </div>
-              <div class="sbox" style="margin-bottom:8px"><span class="si">🔍</span><input type="text" id="st-art-cerca" placeholder="Cerca articolo…" oninput="renderStoricoRiepilogo()"></div>
+              <div class="sbox" style="margin-bottom:8px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="st-art-cerca" placeholder="Cerca articolo…" oninput="renderStoricoRiepilogo()"></div>
               <div class="cp" id="st-cat-pills"></div>
               <div id="storico-riepilogo"></div>
             </div>
@@ -653,14 +653,14 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Aggiungi articoli</div><button class="btn-outline-r" onclick="openQArt()"><i class="ti ti-pencil"></i> Nuovo</button></div>
             <div class="cb" style="padding-bottom:8px">
               <div class="cp" id="pills" style="margin-bottom:8px"></div>
-              <div class="sbox" style="margin-bottom:6px"><span class="si">🔍</span><input type="text" id="can" placeholder="Cerca articolo…" oninput="renderArtS()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
+              <div class="sbox" style="margin-bottom:6px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="can" placeholder="Cerca articolo…" oninput="renderArtS()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
               <div id="agrid"></div>
             </div>
           </div>
           <div id="card-sel" style="display:none;margin-bottom:10px"><div id="sp"></div><div id="sel-count" style="font-size:12px;font-weight:800;color:var(--txt);text-transform:uppercase;margin-top:8px;margin-bottom:4px"></div></div>
         <div id="nuovo-bottom-bar" style="display:none;padding:10px 0 8px">
           <div id="bottom-bar-count" style="font-size:14px;font-weight:800;color:var(--sub);text-align:center;margin-bottom:8px;display:none"></div>
-          <button class="btn br btn-full" onclick="salvaOrdine()" style="border-radius:14px;font-size:18px;padding:15px">✅ Aggiungi ordine</button>
+          <button class="btn br btn-full" onclick="salvaOrdine()" style="border-radius:14px;font-size:18px;padding:15px"><i class="ti ti-circle-check"></i> Aggiungi ordine</button>
         </div>
         </div>
       </div>
@@ -687,7 +687,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <button class="btn br" onclick="addArt()">+ Aggiungi articolo</button>
                 </div>
                 <div>
-                  <div class="sbox"><span class="si">🔍</span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
+                  <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
                   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span id="acb" style="background:var(--r);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
                   <div class="slist" id="aml"></div>
                 </div>
@@ -890,7 +890,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 </div>
 <div id="nuovo-bottom-bar">
   <div id="bottom-bar-count" style="font-size:14px;font-weight:800;color:var(--sub);text-align:center;margin-bottom:8px;display:none"></div>
-  <button class="btn br btn-full" onclick="salvaOrdine()" style="border-radius:14px;box-shadow:0 4px 16px rgba(192,57,43,0.35)">✅ Aggiungi ordine</button>
+  <button class="btn br btn-full" onclick="salvaOrdine()" style="border-radius:14px;box-shadow:0 4px 16px rgba(192,57,43,0.35)"><i class="ti ti-circle-check"></i> Aggiungi ordine</button>
 </div>
 <div id="toast"></div>
 <div id="print-label"></div>
@@ -1303,7 +1303,7 @@ function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&d
         </div>
       </div>
       <div style="position:relative;margin-bottom:10px">
-        <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:17px">🔍</span>
+        <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:17px"><i class="ti ti-search"></i></span>
         <input type="text" id="st-det-cerca" value="${_stDetCerca}" placeholder="Cerca per nome, numero, articolo…" oninput="_stDetCerca=this.value;renderStoricoRiepilogo()" style="width:100%;padding:10px 14px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none">
       </div>
       <div class="cp" style="margin-bottom:10px">${stDetPills}</div>`;
@@ -1576,7 +1576,7 @@ function renderDetModal(o){
       </div>
       <div style="display:flex;align-items:center;gap:6px">
         <input class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(it.nota||'').replace(/"/g,'&quot;')}" ${isRitirato?'disabled':''} oninput="updItem(${o.id},${idx},'nota',this.value)" style="flex:1">
-        <button onmousedown="event.preventDefault()" onclick="detFocusCerca(${o.id})" style="width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;${isRitirato?'visibility:hidden':''}">🔍</button>
+        <button onmousedown="event.preventDefault()" onclick="detFocusCerca(${o.id})" style="width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;${isRitirato?'visibility:hidden':''}"><i class="ti ti-search"></i></button>
       </div>
     </div>`;
   }).join('');
@@ -1618,7 +1618,7 @@ function renderDetModal(o){
         <button class="btn-outline-r" onclick="openDetQArt(${o.id})"><i class="ti ti-pencil"></i> Nuovo</button>
       </div>
       <div class="cp" id="det-cat-pills" style="margin-bottom:8px"></div>
-      <div class="sbox" style="margin-bottom:8px"><span class="si">🔍</span><input type="text" id="det-search-art" placeholder="Cerca articolo…" style="width:100%;padding:9px 13px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id})"></div>
+      <div class="sbox" style="margin-bottom:8px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="det-search-art" placeholder="Cerca articolo…" style="width:100%;padding:9px 13px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id})"></div>
       <div id="det-art-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;max-height:180px;overflow-y:auto"></div>
     </div>
     <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:14px;margin-bottom:8px">Nessun articolo.</p>'}</div>
@@ -1691,7 +1691,7 @@ async function detCalSalva(oid){
   const lbl=document.getElementById('det-data-lbl');
   if(lbl)lbl.textContent=fmtD(detCalSelDate)+(o.ora?' 🕐'+o.ora:o.turno?' · '+(o.turno==='mattina'?'☀️ Mattina':'🌆 Pomeriggio'):'');
   const w=document.getElementById('det-cal-wrap');if(w)w.style.display='none';
-  renderOrdini();toast('Data aggiornata ✅','v');
+  renderOrdini();toast('Data aggiornata','v');
 }
 async function detCalSceglOra(oid,val){
   detCalOra=val||null;
@@ -1822,7 +1822,7 @@ function confDelItem(oid,idx){
 }
 async function delItemFromOrd(oid,idx){const o=ords.find(x=>x.id===oid);if(!o)return;o.items.splice(idx,1);await saveData();renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso');}
 let sel=[],tNuovo=null,catS='Tutti';
-function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.textContent=usati.has(v)?'⚠️ già usato':'';}
+function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.innerHTML=usati.has(v)?'<i class="ti ti-alert-triangle"></i> già usato':'';}
 function minNumeroLibero(){const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));let n=1;while(usati.has(n))n++;return n;}
 function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getElementById('nuovo-num-top');if(elTop)elTop.value=numLibero;const badge=document.getElementById('nuovo-num-badge');if(badge)badge.textContent='';document.getElementById('nn').value='';const noteResetEl=document.getElementById('note-ordine');if(noteResetEl)noteResetEl.value='';tNuovo=null;calSelDate=null;calOra=null;const tr=document.getElementById('cal-trigger');if(tr){tr.classList.remove('has-val');document.getElementById('cal-trigger-txt').textContent='Scegli giorno e turno…'}const cw=document.getElementById('cal-wrap');if(cw)cw.style.display='none';calInit();catS='Tutti';renderPills();const canEl=document.getElementById('can');if(canEl)canEl.value='';renderArtS();sel=[];renderSP();}
 function getCats(){return['Tutti',...cats.sort()]}
@@ -1877,11 +1877,11 @@ function selUMpill(id,v){
 function setSelNota(id,v){const s=sel.find(x=>x.id===id);if(s)s.nota=v}
 function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent='Articoli '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
   const umPills=unitaMisura.map(u=>`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--r)':'var(--brd)'};background:${s.um===u?'var(--r)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('');
-  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button style="background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.01" min="0.01" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button style="background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button onmousedown="event.preventDefault()" onclick="tornaRicerca()" style="width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">🔍</button></div></div>`;}).join('');}
+  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button style="background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.01" min="0.01" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button style="background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button onmousedown="event.preventDefault()" onclick="tornaRicerca()" style="width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><i class="ti ti-search"></i></button></div></div>`;}).join('');}
 async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un articolo!','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:'articolo';if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:sel.map(function(s,i){return{artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i}}),creato:new Date().toISOString()});await saveData();toast('Ordine #'+numInput+' aggiunto!','v');goTab('ordini');}
 function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei">🗂️</div><p>Nessun articolo.</p></div>';}
 function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';openModal('modal-edit-art');}
-async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato ✅','v');}
+async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato','v');}
 async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
   if(detQArtOid){await addItemToOrd(detQArtOid,id);detQArtOid=null;}
@@ -1889,22 +1889,22 @@ async function addArt(){const n=document.getElementById('an').value.trim();const
   document.getElementById('an').value='';
   await saveData();refreshAll();
   closeModal('modal-qart');
-  toast('"'+n+'" aggiunto ✅','v');
+  toast('"'+n+'" aggiunto','v');
 }
 async function delArt(id){arts=arts.filter(x=>x.id!==id);await saveData();renderArtM();stats();toast('Eliminato','err')}
 function renderUMDisplay(){document.getElementById('um-display').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')" style="margin-left:4px;cursor:pointer;color:var(--r);font-size:11px">✕</span></span>`).join('')}
 function renderUMModal(){document.getElementById('um-modal-list').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')">✕</span></span>`).join('')}
-async function addUM(){const v=document.getElementById('um-new').value.trim().toLowerCase();if(!v||unitaMisura.includes(v)){toast(v?'Già presente!':'Inserisci nome!','err');return}unitaMisura.push(v);document.getElementById('um-new').value='';await saveData();renderUMDisplay();renderUMModal();toast('"'+v+'" aggiunto ✅','v');}
+async function addUM(){const v=document.getElementById('um-new').value.trim().toLowerCase();if(!v||unitaMisura.includes(v)){toast(v?'Già presente!':'Inserisci nome!','err');return}unitaMisura.push(v);document.getElementById('um-new').value='';await saveData();renderUMDisplay();renderUMModal();toast('"'+v+'" aggiunto','v');}
 async function delUM(u){if(unitaMisura.length<=1){toast('Almeno 1 unità!');return}unitaMisura=unitaMisura.filter(x=>x!==u);await saveData();renderUMDisplay();renderUMModal();toast('Rimosso');}
 function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} articoli</span><button class="ibtn d" onclick="if(confirm('Eliminare questa categoria?'))delCat('${c}')"><i class="ti ti-trash"></i></button></div>`).join('');}
 async function delCat(nome){cats=cats.filter(x=>x!==nome);arts.forEach(function(a){if(a.cat===nome)a.cat=''});await saveData();refreshAll();renderCatList();toast('Categoria eliminata','v');}
 function refreshCatSelects(){_rcs('ac2');_rcs('qac')}
 function _rcs(id){const s=document.getElementById(id);if(!s)return;const cur=(s.value==='__nuova__'||s.value==='__qnuova__')?'':s.value;const sent=id==='qac'?'__qnuova__':'__nuova__';s.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('')+`<option value="${sent}">＋ Nuova categoria…</option>`;}
 function onCatChange(s){const w=document.getElementById('nuova-cat-wrap');if(s.value==='__nuova__'){w.style.display='block';setTimeout(function(){document.getElementById('nuova-cat-input').focus()},80)}else w.style.display='none'}
-async function confermaNuovaCat(){const v=document.getElementById('nuova-cat-input').value.trim();if(!v){toast('Inserisci il nome!','err');return}if(!cats.includes(v)){cats.push(v);cats.sort();await saveData();}refreshCatSelects();document.getElementById('ac2').value=v;document.getElementById('nuova-cat-wrap').style.display='none';toast('"'+v+'" creata ✅','v');}
+async function confermaNuovaCat(){const v=document.getElementById('nuova-cat-input').value.trim();if(!v){toast('Inserisci il nome!','err');return}if(!cats.includes(v)){cats.push(v);cats.sort();await saveData();}refreshCatSelects();document.getElementById('ac2').value=v;document.getElementById('nuova-cat-wrap').style.display='none';toast('"'+v+'" creata','v');}
 function annullaNuovaCat(){document.getElementById('ac2').value='';document.getElementById('nuova-cat-wrap').style.display='none'}
 function onQCatChange(s){const w=document.getElementById('qnuova-cat-wrap');if(s.value==='__qnuova__'){w.style.display='block';setTimeout(function(){document.getElementById('qnuova-cat-input').focus()},80)}else w.style.display='none'}
-async function confermaQNuovaCat(){const v=document.getElementById('qnuova-cat-input').value.trim();if(!v){toast('Inserisci il nome!','err');return}if(!cats.includes(v)){cats.push(v);cats.sort();await saveData();}refreshCatSelects();document.getElementById('qac').value=v;document.getElementById('qnuova-cat-wrap').style.display='none';toast('"'+v+'" creata ✅','v');}
+async function confermaQNuovaCat(){const v=document.getElementById('qnuova-cat-input').value.trim();if(!v){toast('Inserisci il nome!','err');return}if(!cats.includes(v)){cats.push(v);cats.sort();await saveData();}refreshCatSelects();document.getElementById('qac').value=v;document.getElementById('qnuova-cat-wrap').style.display='none';toast('"'+v+'" creata','v');}
 function annullaQNuovaCat(){document.getElementById('qac').value='';document.getElementById('qnuova-cat-wrap').style.display='none'}
 var _qOid=null;
 function openQArt(){_qOid=null;document.getElementById('qan').value='';document.getElementById('qac').value='';document.getElementById('qnuova-cat-wrap').style.display='none';openModal('modal-qart');setTimeout(function(){document.getElementById('qan').focus()},120)}
@@ -1933,7 +1933,7 @@ async function addArtRapido(){
       if(inp)inp.focus();
     },80);
     saveData();
-    toast('"'+n+'" aggiunto ✅','v');
+    toast('"'+n+'" aggiunto','v');
   }
 }
 // Impostazioni calendario — modalità: 'ora' | 'mp' | 'niente'
@@ -2132,9 +2132,9 @@ function closeModal(id){
   if(id==='modal-det')renderOrdini();
 }
 document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
-function esportaDati(){const data=JSON.stringify({arts:arts,ords:ords,unitaMisura:unitaMisura,cats:cats,nextNum:nextNum},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='macelleria_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);toast('Backup scaricato ✅','v');}
-function importaDati(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const d=JSON.parse(e.target.result);if(!d.arts||!d.ords){toast('File non valido!','err');return}arts=d.arts;ords=d.ords;unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;await saveData();refreshAll();toast('Importati '+ords.length+' ordini e '+arts.length+' articoli ✅','v');}catch(err){toast('Errore nel file!','err')}};reader.readAsText(file);input.value='';}
-function toast(m,t){var e=document.getElementById('toast');e.textContent=m;e.className='show'+(t?' '+t:'');clearTimeout(e._t);e._t=setTimeout(function(){e.className=''},2700)}
+function esportaDati(){const data=JSON.stringify({arts:arts,ords:ords,unitaMisura:unitaMisura,cats:cats,nextNum:nextNum},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='macelleria_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);toast('Backup scaricato','v');}
+function importaDati(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const d=JSON.parse(e.target.result);if(!d.arts||!d.ords){toast('File non valido!','err');return}arts=d.arts;ords=d.ords;unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;await saveData();refreshAll();toast('Importati '+ords.length+' ordini e '+arts.length+' articoli','v');}catch(err){toast('Errore nel file!','err')}};reader.readAsText(file);input.value='';}
+function toast(m,t){var e=document.getElementById('toast');var icona=t==='v'?'<i class="ti ti-circle-check" style="margin-right:6px;vertical-align:-2px"></i>':t==='err'?'<i class="ti ti-alert-triangle" style="margin-right:6px;vertical-align:-2px"></i>':'';e.innerHTML=icona+m;e.className='show'+(t?' '+t:'');clearTimeout(e._t);e._t=setTimeout(function(){e.className=''},2700)}
 
 function _disegnaEtichetta(o,artIdEvidenziato){
   const W=591,pad=28;
@@ -2306,7 +2306,7 @@ const auth=firebase.auth();
 auth.languageCode='it';
 let currentUser=null;
 auth.onAuthStateChanged(function(user){if(user){currentUser=user;document.getElementById('login-screen').style.display='none';boot();if(!user.emailVerified&&user.providerData&&user.providerData[0]&&user.providerData[0].providerId==='password'){setInterval(function(){if(!currentUser)return;currentUser.reload().then(function(){if(currentUser.emailVerified)refreshAll();});},20000);}}else{currentUser=null;document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';}});
-function salvaAttivita(){const nome=document.getElementById('input-attivita').value.trim();if(!nome){toast('Inserisci il nome attività!','err');return;}if(!currentUser){toast('Non sei loggato','err');return;}currentUser.updateProfile({displayName:nome}).then(function(){return db.collection('profili').doc(currentUser.uid).set({attivita:nome,email:currentUser.email,aggiornato:new Date().toISOString()},{merge:true});}).then(function(){const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita)sbAttivita.textContent=nome;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita)inputAttivita.value=nome;toast('Nome attività salvato ✅','v');}).catch(function(e){toast('Errore: '+e.message,'err');});}
+function salvaAttivita(){const nome=document.getElementById('input-attivita').value.trim();if(!nome){toast('Inserisci il nome attività!','err');return;}if(!currentUser){toast('Non sei loggato','err');return;}currentUser.updateProfile({displayName:nome}).then(function(){return db.collection('profili').doc(currentUser.uid).set({attivita:nome,email:currentUser.email,aggiornato:new Date().toISOString()},{merge:true});}).then(function(){const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita)sbAttivita.textContent=nome;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita)inputAttivita.value=nome;toast('Nome attività salvato','v');}).catch(function(e){toast('Errore: '+e.message,'err');});}
 function switchLoginTab(tab){document.getElementById('form-login').style.display=tab==='login'?'block':'none';document.getElementById('form-reg').style.display=tab==='registrati'?'block':'none';document.getElementById('tab-login-btn').classList.toggle('active',tab==='login');document.getElementById('tab-reg-btn').classList.toggle('active',tab==='registrati');document.getElementById('login-err').textContent='';}
 function loginErr(msg){document.getElementById('login-err').textContent=msg;}
 function doLogin(){const email=document.getElementById('login-email').value.trim();const pwd=document.getElementById('login-pwd').value;if(!email||!pwd){loginErr('Inserisci email e password');return;}auth.signInWithEmailAndPassword(email,pwd).catch(function(e){if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')loginErr('Email o password errati');else loginErr('Errore: '+e.message);});}
