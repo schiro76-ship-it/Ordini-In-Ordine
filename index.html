@@ -12,6 +12,7 @@
 <link rel="apple-touch-icon" sizes="1024x1024" href="icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
 <link rel="icon" type="image/png" sizes="1024x1024" href="icon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.1.0/tabler-icons.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 :root{
@@ -535,11 +536,12 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       </div>
     </div>
     <nav class="sb-nav">
-      <div class="ni active" onclick="goTab('ordini')"><span class="ic">📋</span>Ordini</div>
-      <div class="ni" onclick="goTab('riepilogo')"><span class="ic">📊</span>Riepilogo</div>
-      <div class="ni" onclick="goTab('storico')"><span class="ic">📅</span>Storico</div>
+      <div class="ni active" onclick="goTab('ordini')"><span class="ic"><i class="ti ti-clipboard-list"></i></span>Ordini</div>
+      <div class="ni" onclick="goTab('riepilogo')"><span class="ic"><i class="ti ti-chart-bar"></i></span>Riepilogo</div>
+      <div class="ni" onclick="goTab('storico')"><span class="ic"><i class="ti ti-calendar"></i></span>Storico</div>
       <div class="ni ni-nuovo" onclick="goTab('nuovo')"><span class="ic" style="font-size:22px;font-weight:900">+</span>Nuovo Ordine</div>
-      <div class="ni" onclick="goTab('impostazioni')"><span class="ic">⚙️</span>Impostazioni</div>
+      <div class="ni" onclick="goTab('impostazioni')"><span class="ic"><i class="ti ti-settings"></i></span>Impostazioni</div>
+      <div class="ni" onclick="goTab('invita')"><span class="ic"><i class="ti ti-gift"></i></span>Invita un amico</div>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importaDati(this)">
     </nav>
   </aside>
@@ -788,6 +790,18 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           </div>
         </div>
       </div>
+      <div class="sec" id="tab-invita">
+        <div class="phdr"><h2>Invita un amico</h2></div>
+        <div class="pbody">
+          <div class="card">
+            <div class="cb" style="text-align:center;padding:40px 20px">
+              <div style="font-size:48px;margin-bottom:12px">🎁</div>
+              <div style="font-size:17px;font-weight:800;color:#1A1A2E;margin-bottom:8px">Presto disponibile</div>
+              <div style="font-size:14px;color:var(--sub);font-weight:600">Invita un collega e ottenete entrambi un mese gratis quando inizierà ad abbonarsi.</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -950,8 +964,8 @@ async function boot(){applyTheme(DEFAULT_THEME);loadDateFormat();loadCalSettings
   }catch(e){console.warn('Realtime error',e);}
 }
 function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';if(document.body.classList.contains('portrait-phone')){const pc=document.querySelector('.pcontent');if(pc)pc.style.paddingTop=showVb?'env(safe-area-inset-top,44px)':'0';}const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');}
-const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni'};
-const tabIdx={ordini:0,riepilogo:1,storico:2,nuovo:3,impostazioni:4};
+const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni',invita:'Invita un amico'};
+const tabIdx={ordini:0,riepilogo:1,storico:2,nuovo:3,impostazioni:4,invita:5};
 function goTab(name){
   document.querySelectorAll('.ov.open').forEach(function(ov){ov.classList.remove('open');document.body.style.overflow='';});
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
