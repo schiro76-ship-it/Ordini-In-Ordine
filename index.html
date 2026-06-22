@@ -235,6 +235,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .tb.m{background:var(--mats);color:var(--mat)}.tb.p{background:var(--poms);color:var(--pom)}
 .oc-acts{display:flex;flex-direction:column;gap:5px;flex-shrink:0;margin-top:2px;min-width:90px}
 .act-btn{border:none;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:8px 13px;transition:background 0.15s,opacity 0.15s;white-space:nowrap}
+.act-btn i{font-size:16px;vertical-align:-2px}
 .act-green{background:var(--gs);color:var(--g)}.act-green:hover{background:#C6E8D5;transform:scale(1.03)}
 .act-grey{background:var(--grs);color:var(--gr)}.act-grey:hover{background:#D1D5DB;transform:scale(1.03)}
 .act-del{background:var(--rs);color:var(--r)}.act-del:hover{background:var(--rm);transform:scale(1.03)}
@@ -292,7 +293,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .sel-input:focus{border-color:var(--r)}
 .sel-input-nota{width:100%;padding:9px 11px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none;background:#fff}
 .sel-input-nota::placeholder{color:var(--sub);font-weight:500}
-.sel-rm{background:var(--rs);border:none;color:var(--r);cursor:pointer;font-size:17px;font-weight:800;border-radius:9px;width:38px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.sel-rm{background:var(--rs);border:none;color:var(--r);cursor:pointer;font-size:17px;font-weight:800;border-radius:9px;width:38px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}.sel-rm i{font-size:18px}
 .cp{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;overflow-y:visible;scrollbar-width:none;padding-bottom:4px;position:relative;z-index:1;flex-wrap:nowrap}.cp::-webkit-scrollbar{display:none}
 .pill{flex-shrink:0;padding:6px 14px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;font-size:14px;font-weight:800;color:var(--sub);cursor:pointer;transition:all 0.2s ease}
 .pill.active{background:var(--txt);border-color:var(--txt);color:#fff}
@@ -306,7 +307,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 20px;border-radius:12px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;transition:background 0.15s,opacity 0.15s}.btn:active{opacity:0.75}
 .btn-full{width:100%}
 .br{background:var(--r);color:#fff}.bg2{background:var(--bg);color:var(--txt)}.bgg{background:var(--g);color:#fff}
-.btn-outline-r{background:#fff;border:2px solid var(--r);color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s}
+.btn-outline-r{background:#fff;border:2px solid var(--r);color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s}.btn-outline-r i{font-size:15px}
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;align-items:flex-end;justify-content:center;padding:0}
 .ov.open{display:flex}
 @media(min-width:640px){.ov{align-items:center;padding:20px}}
@@ -349,7 +350,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .empty{text-align:center;padding:44px 20px}.empty .ei{font-size:44px;margin-bottom:10px}.empty p{color:var(--sub);font-size:16px;font-weight:700}
 body.portrait-phone .empty p{color:rgba(255,255,255,0.75)}
 body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
-.ibtn{width:34px;height:34px;border-radius:8px;border:none;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all 0.15px;background:var(--bg)}
+.ibtn{width:34px;height:34px;border-radius:8px;border:none;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all 0.15px;background:var(--bg)}.ibtn i{font-size:18px}
 .ibtn.d:hover{background:var(--rs)}
 @media print{body>*:not(#print-label){display:none!important}#print-label{display:block!important}}
 #print-label{display:none;font-family:'Nunito',sans-serif}
@@ -649,7 +650,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card" style="margin-bottom:14px">
-            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Aggiungi articoli</div><button class="btn-outline-r" onclick="openQArt()">✏️ Nuovo</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Aggiungi articoli</div><button class="btn-outline-r" onclick="openQArt()"><i class="ti ti-pencil"></i> Nuovo</button></div>
             <div class="cb" style="padding-bottom:8px">
               <div class="cp" id="pills" style="margin-bottom:8px"></div>
               <div class="sbox" style="margin-bottom:6px"><span class="si">🔍</span><input type="text" id="can" placeholder="Cerca articolo…" oninput="renderArtS()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
@@ -812,7 +813,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 
 <div class="ov" id="modal-edit-art">
   <div class="modal" style="max-width:440px">
-    <div class="mta">✏️ Modifica articolo</div>
+    <div class="mta"><i class="ti ti-pencil"></i> Modifica articolo</div>
     <input type="hidden" id="edit-art-id">
     <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="edit-art-nome" placeholder="Nome articolo"></div>
     <div class="fg">
@@ -828,7 +829,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 </div>
 <div class="ov" id="modal-del-conf" style="align-items:center;padding:20px;z-index:200">
   <div class="modal" style="max-width:320px;text-align:center;border-radius:18px">
-    <div style="font-size:36px;margin-bottom:12px">🗑️</div>
+    <div style="font-size:36px;margin-bottom:12px"><i class="ti ti-trash"></i></div>
     <div class="mta" id="modal-del-txt" style="font-size:18px"></div>
     <p style="color:var(--sub);font-size:15px;font-weight:600;margin-bottom:20px">Questa azione non può essere annullata.</p>
     <div class="ma">
@@ -855,7 +856,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 </div>
 <div class="ov" id="modal-qart">
   <div class="modal-qart-inner">
-    <div class="mta">✏️ Nuovo articolo</div>
+    <div class="mta"><i class="ti ti-pencil"></i> Nuovo articolo</div>
     <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="qan" placeholder="Es. Spiedini di maiale"></div>
     <div class="fg">
       <label class="fl">Categoria</label>
@@ -877,7 +878,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 <div class="ov" id="modal-etichetta" style="background:rgba(0,0,0,0.85);z-index:500">
   <div class="modal-etichetta-box" style="background:#fff;width:100%;max-width:420px;border-radius:20px 20px 0 0;max-height:95vh;overflow-y:auto;padding:0 0 28px 0">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #E5E7EB">
-      <div style="font-size:16px;font-weight:900">🖨️ Etichetta ordine</div>
+      <div style="font-size:16px;font-weight:900"><i class="ti ti-printer"></i> Etichetta ordine</div>
       <button onclick="closeModal('modal-etichetta')" style="background:#E5E7EB;border:none;width:38px;height:38px;border-radius:50%;font-size:19px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;color:#1A1A2E">✕</button>
     </div>
     <div style="padding:24px 20px" id="etichetta-content"></div>
@@ -1065,8 +1066,8 @@ function buildOcHTML(lista){
         </div>
         <div class="oc-acts" style="margin-top:2px;flex-shrink:0;flex-direction:column;gap:5px" onclick="event.stopPropagation()">
           ${o.stato==='evadere'?`<button class="act-btn act-green" style="width:100%" onclick="event.stopPropagation();setStato(${o.id},'completato')">Completato</button>`:o.stato==='completato'?`<button class="act-btn act-grey" style="width:100%" onclick="event.stopPropagation();setStato(${o.id},'ritirato')">Ritirato</button>`:'<div style="height:0"></div>'}
-          <button class="act-btn" style="width:100%;background:#EEF2FF;color:#4F46E5;border:none;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:8px 13px" onclick="event.stopPropagation();stampaEtichetta(${o.id})">🖨️ Stampa</button>
-          ${o.stato!=='ritirato'?`<button class="act-btn act-del" style="width:100%" onclick="event.stopPropagation();eliminaOrd(${o.id})">🗑️ Elimina</button>`:''}
+          <button class="act-btn" style="width:100%;background:#EEF2FF;color:#4F46E5;border:none;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:8px 13px" onclick="event.stopPropagation();stampaEtichetta(${o.id})"><i class="ti ti-printer"></i> Stampa</button>
+          ${o.stato!=='ritirato'?`<button class="act-btn act-del" style="width:100%" onclick="event.stopPropagation();eliminaOrd(${o.id})"><i class="ti ti-trash"></i> Elimina</button>`:''}
         </div>
       </div>
       ${tags?`<div class="oc-items">${tags}</div>`:''}
@@ -1520,7 +1521,7 @@ function renderRiepilogo(){if(_rpLocked)return;
       const circleClass='itag-circle'+(x.done?' done':isUrg?' urg':'');
       const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';
       const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});
-      return`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'✓':''}</div><span style="flex:1;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?`<span style=\"color:var(--sub);font-style:italic;font-weight:700;font-size:15px;margin-left:6px\">\"${x.nota}\"</span>`:""}</span><span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}</div><button onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="background:#EEF2FF;color:#4F46E5;border:none;border-radius:8px;padding:4px 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0">🖨️</button></div>`;
+      return`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'✓':''}</div><span style="flex:1;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?`<span style=\"color:var(--sub);font-style:italic;font-weight:700;font-size:15px;margin-left:6px\">\"${x.nota}\"</span>`:""}</span><span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}</div><button onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="background:#EEF2FF;color:#4F46E5;border:none;border-radius:8px;padding:4px 8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;flex-shrink:0"><i class="ti ti-printer"></i></button></div>`;
     }).join(''):'';
     return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;cursor:pointer;gap:0" onclick="toggleRp(${v.artId})"><div style="display:flex;align-items:center;gap:12px;padding-right:14px"><div class="rp-pri" style="width:72px;min-width:72px;align-self:stretch;border-radius:11px;padding:5px 6px;font-size:14px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.3;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div class="rp-art">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="display:flex;align-items:center;gap:4px;flex-shrink:0;white-space:nowrap">${qStr}</div><span style="font-size:15px;color:var(--sub);margin-left:4px;flex-shrink:0">${exp?'▲':'▼'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden">${dettaglio}</div>`:''}</div>`;
   }).join('');
@@ -1565,7 +1566,7 @@ function renderDetModal(o){
     return `<div class="sel-card" style="${cardStyle}">
       <div class="sel-card-top">
         <div class="sel-card-name">${nome}</div>
-        <button class="sel-rm" style="${isRitirato?'visibility:hidden':''}" onclick="confDelItem(${o.id},${idx})">🗑️</button>
+        <button class="sel-rm" style="${isRitirato?'visibility:hidden':''}" onclick="confDelItem(${o.id},${idx})"><i class="ti ti-trash"></i></button>
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
         <button ${isRitirato?'disabled':''} style="background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="detChQtyDirect(${o.id},${idx},-1)">−</button>
@@ -1614,7 +1615,7 @@ function renderDetModal(o){
     <div style="margin-bottom:14px;border-bottom:1px solid var(--brd);padding-bottom:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase">Aggiungi articolo</span>
-        <button class="btn-outline-r" onclick="openDetQArt(${o.id})">✏️ Nuovo</button>
+        <button class="btn-outline-r" onclick="openDetQArt(${o.id})"><i class="ti ti-pencil"></i> Nuovo</button>
       </div>
       <div class="cp" id="det-cat-pills" style="margin-bottom:8px"></div>
       <div class="sbox" style="margin-bottom:8px"><span class="si">🔍</span><input type="text" id="det-search-art" placeholder="Cerca articolo…" style="width:100%;padding:9px 13px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id})"></div>
@@ -1876,9 +1877,9 @@ function selUMpill(id,v){
 function setSelNota(id,v){const s=sel.find(x=>x.id===id);if(s)s.nota=v}
 function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent='Articoli '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
   const umPills=unitaMisura.map(u=>`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--r)':'var(--brd)'};background:${s.um===u?'var(--r)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('');
-  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}</div><button class="sel-rm" onclick="confRimArt(${s.id})">🗑️</button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button style="background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.01" min="0.01" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button style="background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button onmousedown="event.preventDefault()" onclick="tornaRicerca()" style="width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">🔍</button></div></div>`;}).join('');}
+  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button style="background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.01" min="0.01" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button style="background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button onmousedown="event.preventDefault()" onclick="tornaRicerca()" style="width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">🔍</button></div></div>`;}).join('');}
 async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un articolo!','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:'articolo';if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:sel.map(function(s,i){return{artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i}}),creato:new Date().toISOString()});await saveData();toast('Ordine #'+numInput+' aggiunto!','v');goTab('ordini');}
-function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})">✏️</button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})">🗑️</button></div>`).join(''):'<div class="empty"><div class="ei">🗂️</div><p>Nessun articolo.</p></div>';}
+function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei">🗂️</div><p>Nessun articolo.</p></div>';}
 function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';openModal('modal-edit-art');}
 async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato ✅','v');}
 async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});
@@ -1895,7 +1896,7 @@ function renderUMDisplay(){document.getElementById('um-display').innerHTML=unita
 function renderUMModal(){document.getElementById('um-modal-list').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')">✕</span></span>`).join('')}
 async function addUM(){const v=document.getElementById('um-new').value.trim().toLowerCase();if(!v||unitaMisura.includes(v)){toast(v?'Già presente!':'Inserisci nome!','err');return}unitaMisura.push(v);document.getElementById('um-new').value='';await saveData();renderUMDisplay();renderUMModal();toast('"'+v+'" aggiunto ✅','v');}
 async function delUM(u){if(unitaMisura.length<=1){toast('Almeno 1 unità!');return}unitaMisura=unitaMisura.filter(x=>x!==u);await saveData();renderUMDisplay();renderUMModal();toast('Rimosso');}
-function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} articoli</span><button class="ibtn d" onclick="if(confirm('Eliminare questa categoria?'))delCat('${c}')">🗑️</button></div>`).join('');}
+function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} articoli</span><button class="ibtn d" onclick="if(confirm('Eliminare questa categoria?'))delCat('${c}')"><i class="ti ti-trash"></i></button></div>`).join('');}
 async function delCat(nome){cats=cats.filter(x=>x!==nome);arts.forEach(function(a){if(a.cat===nome)a.cat=''});await saveData();refreshAll();renderCatList();toast('Categoria eliminata','v');}
 function refreshCatSelects(){_rcs('ac2');_rcs('qac')}
 function _rcs(id){const s=document.getElementById(id);if(!s)return;const cur=(s.value==='__nuova__'||s.value==='__qnuova__')?'':s.value;const sent=id==='qac'?'__qnuova__':'__nuova__';s.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('')+`<option value="${sent}">＋ Nuova categoria…</option>`;}
@@ -2272,7 +2273,7 @@ function _mostraCanvasNelModal(canvas){
   const el=document.getElementById('etichetta-content');if(!el)return;
   el.innerHTML=`<div style="text-align:center">
     <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
-    <button id="btn-condividi-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer">🖨️ Condividi / Stampa</button>
+    <button id="btn-condividi-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Condividi / Stampa</button>
   </div>`;
   openModal('modal-etichetta');
   // Attach condividi dopo render
