@@ -157,10 +157,11 @@ body.portrait-phone .phdr h2{color:#fff}
 body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
 body.portrait-phone .phdr-invita i{font-size:18px}
 body.portrait-phone .phdr input[type=number],body.portrait-phone .phdr span{color:#fff!important}
+body.portrait-phone #tab-ordini .empty .ei,body.portrait-phone #tab-riepilogo .empty .ei{color:rgba(255,255,255,0.6)}
 body:not(.portrait-phone) .phdr input[type=number]{color:var(--r)!important}
 body:not(.portrait-phone) .phdr span{color:var(--r)!important}
 body:not(.portrait-phone) #sel-count{color:var(--r)!important}
-body.portrait-phone .phdr button{background:var(--bg)!important;color:var(--sub)!important;border:1.5px solid var(--brd)!important}
+body.portrait-phone .phdr button:not(.phdr-invita){background:var(--bg)!important;color:var(--sub)!important;border:1.5px solid var(--brd)!important}
 body.portrait-phone .phdr input[type=number]{border-bottom-color:#fff!important}
 body.portrait-phone #sel-count{color:#fff!important}
 body.portrait-phone .phdr{padding:14px 16px 0}
@@ -244,7 +245,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .act-grey{background:var(--grs);color:var(--gr)}.act-grey:hover{background:#D1D5DB;transform:scale(1.03)}
 .act-del{background:var(--rs);color:var(--r)}.act-del:hover{background:var(--rm);transform:scale(1.03)}
 .act-print{background:#EEF2FF;color:#4F46E5}.act-print:hover{background:#DDE3FB;transform:scale(1.03)}
-.act-print-rp{background:#EEF2FF;color:#4F46E5;transition:all 0.15s}.act-print-rp:hover{background:#DDE3FB;transform:scale(1.08)}
+.act-print-rp{background:#fff;color:#4F46E5;box-shadow:0 1px 4px rgba(0,0,0,0.15);transition:all 0.15s}.act-print-rp:hover{background:#F5F6FF;transform:scale(1.08)}
 .btn-condividi-print:hover{filter:brightness(1.2);transition:filter 0.15s}
 .oc-items{padding:0 14px 12px 14px;display:flex;flex-direction:column;gap:4px}
 .itag{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;line-height:1.3;padding:7px 10px;min-height:38px;box-sizing:border-box;color:var(--txt);border-radius:8px;background:var(--evs);transition:background 0.2s ease,color 0.2s ease;cursor:pointer}
