@@ -293,6 +293,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .sel-input:focus{border-color:var(--r)}
 .sel-input-nota{width:100%;padding:9px 11px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none;background:#fff}
 .sel-input-nota::placeholder{color:var(--sub);font-weight:500}
+.det-note-input::placeholder{color:rgba(255,255,255,0.75);font-weight:600}
 .sel-rm{background:var(--rs);border:none;color:var(--r);cursor:pointer;font-size:17px;font-weight:800;border-radius:9px;width:38px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}.sel-rm i{font-size:18px}
 .cp{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;overflow-y:visible;scrollbar-width:none;padding-bottom:4px;position:relative;z-index:1;flex-wrap:nowrap}.cp::-webkit-scrollbar{display:none}
 .pill{flex-shrink:0;padding:6px 14px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;font-size:14px;font-weight:800;color:var(--sub);cursor:pointer;transition:all 0.2s ease}
@@ -705,8 +706,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-database"></i> Dati</div></div>
             <div class="cb" style="display:flex;flex-direction:column;gap:10px">
-              <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="esportaDati()"><span style="font-size:20px">⬆️</span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Esporta dati</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Scarica backup JSON</div></div></button>
-              <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="document.getElementById('import-file').click()"><span style="font-size:20px">⬇️</span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Importa dati</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Ripristina da backup JSON</div></div></button>
+              <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="esportaDati()"><span style="font-size:20px"><i class="ti ti-upload"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Esporta dati</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Scarica backup JSON</div></div></button>
+              <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="document.getElementById('import-file').click()"><span style="font-size:20px"><i class="ti ti-download"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Importa dati</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Ripristina da backup JSON</div></div></button>
             </div>
           </div>
           <div class="card">
@@ -1288,11 +1289,11 @@ function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&d
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:5px">
           <label style="font-size:13px;font-weight:800;color:var(--sub)">Dal</label>
-          <button onclick="toggleStDetCal('dal')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetDal?'<i class="ti ti-calendar"></i> '+fmtD(stDetDal):'<i class="ti ti-calendar"></i> —'}</button>
+          <button onclick="toggleStDetCal('dal')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetDal?'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> '+fmtD(stDetDal):'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> —'}</button>
         </div>
         <div style="display:flex;align-items:center;gap:5px">
           <label style="font-size:13px;font-weight:800;color:var(--sub)">Al</label>
-          <button onclick="toggleStDetCal('al')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetAl?'<i class="ti ti-calendar"></i> '+fmtD(stDetAl):'<i class="ti ti-calendar"></i> —'}</button>
+          <button onclick="toggleStDetCal('al')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetAl?'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> '+fmtD(stDetAl):'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> —'}</button>
         </div>
         <button onclick="_stDetDal='';_stDetAl='';renderStoricoRiepilogo()" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;background:var(--bg);color:var(--txt);cursor:pointer">Tutto</button>
       </div>
@@ -1583,18 +1584,18 @@ function renderDetModal(o){
   document.getElementById('modal-det-body').innerHTML=`
     <div style="background:${hBg};color:#fff;padding:14px 16px;border-radius:12px;margin-bottom:14px">
       <div style="display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:end;margin-bottom:8px">
-        <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">#Num</div>
+        <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">#Num</div>
           <input type="text" inputmode="numeric" pattern="[0-9]*" value="${o.num}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;color:#fff;outline:none;" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
-        <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">Nome</div>
+        <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Nome</div>
           <input value="${o.nome.replace(/"/g,'&quot;')}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
-        <div style="display:flex;flex-direction:column;flex-shrink:0"><div style="font-size:10px;opacity:0.6;text-transform:uppercase;margin-bottom:2px">Data</div>
+        <div style="display:flex;flex-direction:column;flex-shrink:0"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Data</div>
           <button onclick="toggleDetCal(${o.id})" style="height:36px;box-sizing:border-box;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px">
-            <i class="ti ti-calendar"></i> <span id="det-data-lbl">${o.data?o.data:'—'}${o.ora?' <i class="ti ti-clock"></i>'+o.ora:o.turno?' '+(o.turno==='mattina'?'<i class="ti ti-sun"></i>':'<i class="ti ti-sunset-2"></i>'):''}</span>
+            <i class="ti ti-calendar" style="font-size:16px"></i> <span id="det-data-lbl">${o.data?o.data:'—'}${o.ora?' <i class="ti ti-clock" style="font-size:16px"></i>'+o.ora:o.turno?' '+(o.turno==='mattina'?'<i class="ti ti-sun" style="font-size:16px"></i>':'<i class="ti ti-sunset-2" style="font-size:16px"></i>'):''}</span>
           </button>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.6;text-transform:uppercase;margin-bottom:2px"><i class="ti ti-notes"></i> Note</div>
-        <input value="${(o.note||'').replace(/"/g,'&quot;')}" placeholder="Es. Pagato, consegnare a domicilio…" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none" oninput="updOrdCampo(${o.id},'note',this.value)"></div>
+      <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700"><i class="ti ti-notes"></i> Note</div>
+        <input class="det-note-input" value="${(o.note||'').replace(/"/g,'&quot;')}" placeholder="Es. Pagato, consegnare a domicilio…" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none" oninput="updOrdCampo(${o.id},'note',this.value)"></div>
       <div id="det-cal-wrap" style="display:none;margin-top:6px">
         <div class="cal-compact" id="det-cal-compact">
           <div class="cal-nav"><button onclick="detCalNav(${o.id},-1)">‹</button><span class="cn-lbl" id="det-cal-lbl"></span><button onclick="detCalNav(${o.id},+1)">›</button></div>
@@ -1689,7 +1690,7 @@ async function detCalSalva(oid){
   o.data=detCalSelDate;o.turno=detCalOra?null:detCalTurno;o.ora=detCalOra||null;
   await saveData();
   const lbl=document.getElementById('det-data-lbl');
-  if(lbl)lbl.innerHTML=fmtD(detCalSelDate)+(o.ora?' <i class="ti ti-clock"></i>'+o.ora:o.turno?' · '+(o.turno==='mattina'?'<i class="ti ti-sun"></i> Mattina':'<i class="ti ti-sunset-2"></i> Pomeriggio'):'');
+  if(lbl)lbl.innerHTML=fmtD(detCalSelDate)+(o.ora?' <i class="ti ti-clock" style="font-size:16px"></i>'+o.ora:o.turno?' · '+(o.turno==='mattina'?'<i class="ti ti-sun" style="font-size:16px"></i> Mattina':'<i class="ti ti-sunset-2" style="font-size:16px"></i> Pomeriggio'):'');
   const w=document.getElementById('det-cal-wrap');if(w)w.style.display='none';
   renderOrdini();toast('Data aggiornata','v');
 }
