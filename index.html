@@ -153,6 +153,8 @@ body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
 body.portrait-phone .phdr h2{color:#fff}
+.phdr-invita{display:none}
+body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:20px;padding:7px 13px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
 body.portrait-phone .phdr input[type=number],body.portrait-phone .phdr span{color:#fff!important}
 body:not(.portrait-phone) .phdr input[type=number]{color:var(--r)!important}
 body:not(.portrait-phone) .phdr span{color:var(--r)!important}
@@ -565,7 +567,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
     <div class="page-wrap">
       <div class="sec active" id="tab-ordini">
-        <div class="phdr"><h2>Ordini</h2><button id="btn-nuovo-ordini" class="btn br" style="font-size:14px;padding:9px 16px;white-space:nowrap" onclick="goTab('nuovo')">+ Nuovo</button></div>
+        <div class="phdr"><h2>Ordini</h2><button id="btn-nuovo-ordini" class="btn br" style="font-size:14px;padding:9px 16px;white-space:nowrap" onclick="goTab('nuovo')">+ Nuovo</button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Invita</button></div>
         <div class="pbody">
           <div class="stats-row">
             <div class="sc sc-nuovo" onclick="goTab('nuovo')" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity=''" ontouchcancel="this.style.opacity=''" onmousedown="this.style.opacity='0.7'" onmouseup="this.style.opacity=''" onmouseleave="this.style.opacity=''" style="background:var(--r);cursor:pointer;display:none" id="sc-nuovo"><div class="sn" style="color:#fff;font-size:32px;line-height:1">+</div><div class="sl" style="color:rgba(255,255,255,0.9)">Nuovo</div></div>
@@ -580,7 +582,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-riepilogo">
-        <div class="phdr"><h2>Riepilogo</h2></div>
+        <div class="phdr"><h2>Riepilogo</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Invita</button></div>
         <div class="pbody">
           <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo()"></div>
           <div class="cp" id="riepilogo-day-pills"></div>
@@ -589,7 +591,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-storico">
-        <div class="phdr"><h2>Storico</h2></div>
+        <div class="phdr"><h2>Storico</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Invita</button></div>
         <div class="pbody">
           <div class="card" style="margin-bottom:20px">
             <div class="ch"><div class="ct"><i class="ti ti-history"></i> Storico articoli</div></div>
@@ -671,7 +673,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-impostazioni">
-        <div class="phdr"><h2>Impostazioni</h2></div>
+        <div class="phdr"><h2>Impostazioni</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Invita</button></div>
         <div class="pbody">
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Articoli</div></div>
