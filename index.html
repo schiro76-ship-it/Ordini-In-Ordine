@@ -501,7 +501,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <span style="color:#FFE033">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#FFE033">nOrdine</span>
       </div>
     </div>
-    <p class="ob-tagline"><ul class="ob-tagline-ul" style="list-style:disc;padding-left:20px;margin:0;text-align:left"><li style="margin-bottom:8px">Tutti gli ordini in un unico posto</li><li style="margin-bottom:8px">Il Riepilogo ti dice cosa preparare e quando</li><li>Lo Storico ti aiuta a programmare il lavoro nei periodi più intensi</li></ul></p>
+    <p class="ob-tagline" id="ob-tagline"><ul class="ob-tagline-ul" style="list-style:disc;padding-left:20px;margin:0;text-align:left"><li style="margin-bottom:8px">Tutti gli ordini in un unico posto</li><li style="margin-bottom:8px">Il Riepilogo ti dice cosa preparare e quando</li><li>Lo Storico ti aiuta a programmare il lavoro nei periodi più intensi</li></ul></p>
   </div>
   <div class="ob-step" id="ob-step1">
     <h2>Qual è la tua attività?</h2>
@@ -513,15 +513,15 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px">
       <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
         <span style="font-size:28px"><i class="ti ti-clipboard-list"></i></span>
-        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Registra gli ordini</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Crea un ordine per ogni cliente con articoli, quantità e data di ritiro</div></div>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Registra gli ordini</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Registra gli ordini dei tuoi clienti con articoli, note e data di ritiro. Stampa le etichette e tieni tutto in ordine</div></div>
       </div>
       <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
         <span style="font-size:28px"><i class="ti ti-chart-bar"></i></span>
-        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Gestisci la produzione dal Riepilogo</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Vedi tutto ciò che devi preparare, raggruppato per articolo e priorità</div></div>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Gestisci la produzione dal Riepilogo</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Ottimizza le risorse della tua attività: sai sempre cosa preparare e quando</div></div>
       </div>
       <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
         <span style="font-size:28px"><i class="ti ti-calendar"></i></span>
-        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Consulta lo storico</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Consulta lo storico per programmare meglio il lavoro. Ritrova ogni ordine precedente.</div></div>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Consulta lo storico</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Guarda le statistiche per organizzare meglio il lavoro nei periodi più impegnativi</div></div>
       </div>
     </div>
     <div id="ob-verify-email" style="display:none;border-top:1px solid #F0F0F0;padding-top:16px;margin-bottom:20px;align-items:center;gap:10px;justify-content:center">
@@ -938,6 +938,8 @@ function obNext(){
   if(!obSelectedAttivita)return;
   document.getElementById('ob-step1').style.display='none';
   document.getElementById('ob-step2').style.display='block';
+  const obTaglineEl=document.getElementById('ob-tagline');
+  if(obTaglineEl)obTaglineEl.style.display='none';
   const obVerifyEl=document.getElementById('ob-verify-email');
   if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';
 }
