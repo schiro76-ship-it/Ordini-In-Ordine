@@ -1964,8 +1964,9 @@ function applyCalSettings(){
   ['ora','mp','niente'].forEach(function(k){
     const el=document.getElementById('cal-radio-'+k);
     if(!el)return;
-    el.innerHTML=_calMode===k?'<div style="width:10px;height:10px;border-radius:50%;background:var(--r)"></div>':'';
+    el.innerHTML=_calMode===k?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';
     el.style.borderColor=_calMode===k?'var(--r)':'var(--brd)';
+    el.style.background=_calMode===k?'var(--r)':'#fff';
     el.parentElement.style.background=_calMode===k?'var(--rs)':'transparent';
   });
   // Aggiorna hint nel calendario
@@ -1981,7 +1982,7 @@ var _calSetMP=false,_calSetOra=true;
 let dateFormat='gg dd/mm';
 function loadDateFormat(){try{const s=JSON.parse(localStorage.getItem('date-format-settings')||'{}');dateFormat=s.fmt||'gg dd/mm';}catch(e){}}
 function saveDateFormat(fmt){dateFormat=fmt;try{localStorage.setItem('date-format-settings',JSON.stringify({fmt}));}catch(e){}applyDateFormatUI();refreshAll();}
-function applyDateFormatUI(){const map={'dd/mm':'dfr-ddmm','gg dd/mm':'dfr-ggddmm','dd/mm/yy':'dfr-ddmmyy','dd/mm/yyyy':'dfr-ddmmyyyy','gg dd mmm':'dfr-ggddmmm'};const dot='<span style="width:10px;height:10px;border-radius:50%;background:var(--r);display:block"></span>';Object.values(map).forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});const activeId=map[dateFormat];if(activeId){const el=document.getElementById(activeId);if(el)el.innerHTML=dot;}}
+function applyDateFormatUI(){const map={'dd/mm':'dfr-ddmm','gg dd/mm':'dfr-ggddmm','dd/mm/yy':'dfr-ddmmyy','dd/mm/yyyy':'dfr-ddmmyyyy','gg dd mmm':'dfr-ggddmmm'};Object.entries(map).forEach(([fmt,id])=>{const el=document.getElementById(id);if(!el)return;const active=dateFormat===fmt;el.innerHTML=active?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';el.style.borderColor=active?'var(--r)':'var(--brd)';el.style.background=active?'var(--r)':'#fff';el.parentElement.style.background=active?'var(--rs)':'transparent';});}
 function fmtDataByFormat(isoDate){if(!isoDate)return'—';const d=new Date(isoDate+'T00:00:00');const gg=['dom','lun','mar','mer','gio','ven','sab'][d.getDay()];const dd=String(d.getDate()).padStart(2,'0');const mm=String(d.getMonth()+1).padStart(2,'0');const yy=String(d.getFullYear()).slice(2);const yyyy=String(d.getFullYear());const mesi=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];const mmm=mesi[d.getMonth()];switch(dateFormat){case'dd/mm':return dd+'/'+mm;case'dd/mm/yy':return dd+'/'+mm+'/'+yy;case'dd/mm/yyyy':return dd+'/'+mm+'/'+yyyy;case'gg dd mmm':return gg+' '+dd+' '+mmm;default:return gg+' '+dd+'/'+mm;}}
 // Impostazioni storico
 var _stSetOrdini=false;
