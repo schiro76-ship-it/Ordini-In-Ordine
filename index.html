@@ -1557,7 +1557,7 @@ async function setStato(id,stato,skipItemReset){
   _updateCardColor(id,stato);
   if(_moves)_snapAndAnimate(id);const o=ords.find(x=>x.id===id);if(!o)return;o.stato=stato;if(stato==='ritirato')o.ritirato_il=new Date().toISOString();if(stato==='completato'&&!skipItemReset)o.items.forEach(function(it){it.done=true});if(stato==='evadere'&&!skipItemReset)o.items.forEach(function(it){it.done=false});renderOrdini(_moves);toast(stato==='completato'?'Completato':stato==='ritirato'?'Ritirato':'Riaperto','v');saveData();}
 function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+o.nome+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};openModal('modal-del-conf');}
-async function delOrd(id){ords=ords.filter(x=>x.id!==id);await saveData();renderOrdini();toast('Ordine eliminato','err');}
+async function delOrd(id){ords=ords.filter(x=>x.id!==id);await saveData();renderOrdini();toast('Ordine eliminato','v');}
 function openDet(id){const o=ords.find(x=>x.id===id);if(!o)return;renderDetModal(o);openModal('modal-det')}
 let detCatFilter='Tutti';
 function setDetCat(c,oid){detCatFilter=c;renderDetArtGrid(oid);}
@@ -1832,7 +1832,7 @@ function confDelItem(oid,idx){
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delItemFromOrd(oid,idx);};
   openModal('modal-del-conf');
 }
-async function delItemFromOrd(oid,idx){const o=ords.find(x=>x.id===oid);if(!o)return;o.items.splice(idx,1);await saveData();renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso');}
+async function delItemFromOrd(oid,idx){const o=ords.find(x=>x.id===oid);if(!o)return;o.items.splice(idx,1);await saveData();renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso','v');}
 let sel=[],tNuovo=null,catS='Tutti';
 function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.innerHTML=usati.has(v)?'<i class="ti ti-alert-triangle"></i> già usato':'';}
 function minNumeroLibero(){const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));let n=1;while(usati.has(n))n++;return n;}
@@ -1894,7 +1894,7 @@ async function salvaOrdine(){const nome=document.getElementById('nn').value.trim
 function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun articolo.</p></div>';}
 function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';openModal('modal-edit-art');}
 async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato','v');}
-async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});
+async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
   if(detQArtOid){await addItemToOrd(detQArtOid,id);detQArtOid=null;}
   else{sel.push({id:id,qty:'',um:'',nota:'',done:false});catS='Tutti';renderPills();renderArtS();renderSP();}
@@ -1903,11 +1903,11 @@ async function addArt(){const n=document.getElementById('an').value.trim();const
   closeModal('modal-qart');
   toast('"'+n+'" aggiunto','v');
 }
-async function delArt(id){arts=arts.filter(x=>x.id!==id);await saveData();renderArtM();stats();toast('Eliminato','err')}
+async function delArt(id){arts=arts.filter(x=>x.id!==id);await saveData();renderArtM();stats();toast('Eliminato','v')}
 function renderUMDisplay(){document.getElementById('um-display').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')" style="margin-left:4px;cursor:pointer;color:var(--r);font-size:13px"><i class="ti ti-x"></i></span></span>`).join('')}
 function renderUMModal(){document.getElementById('um-modal-list').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')"><i class="ti ti-x"></i></span></span>`).join('')}
 async function addUM(){const v=document.getElementById('um-new').value.trim().toLowerCase();if(!v||unitaMisura.includes(v)){toast(v?'Già presente!':'Inserisci nome!','err');return}unitaMisura.push(v);document.getElementById('um-new').value='';await saveData();renderUMDisplay();renderUMModal();toast('"'+v+'" aggiunto','v');}
-async function delUM(u){if(unitaMisura.length<=1){toast('Almeno 1 unità!');return}unitaMisura=unitaMisura.filter(x=>x!==u);await saveData();renderUMDisplay();renderUMModal();toast('Rimosso');}
+async function delUM(u){if(unitaMisura.length<=1){toast('Almeno una unità di misura!','err');return}unitaMisura=unitaMisura.filter(x=>x!==u);await saveData();renderUMDisplay();renderUMModal();toast('Rimosso','v');}
 function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} articoli</span><button class="ibtn d" onclick="if(confirm('Eliminare questa categoria?'))delCat('${c}')"><i class="ti ti-trash"></i></button></div>`).join('');}
 async function delCat(nome){cats=cats.filter(x=>x!==nome);arts.forEach(function(a){if(a.cat===nome)a.cat=''});await saveData();refreshAll();renderCatList();toast('Categoria eliminata','v');}
 function refreshCatSelects(){_rcs('ac2');_rcs('qac')}
@@ -1925,7 +1925,7 @@ async function addArtRapido(){
   const qs=document.getElementById('qac');let c=qs.value==='__qnuova__'?'':qs.value;
   const qi=document.getElementById('qnuova-cat-input');if(qs.value==='__qnuova__'&&qi&&qi.value.trim())c=qi.value.trim();
   if(!n){toast('Inserisci il nome!','err');return}
-  if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!');return}
+  if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}
   const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
   arts.push({id:id,nome:n,cat:c});
