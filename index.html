@@ -255,6 +255,10 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .act-print{background:#EEF2FF;color:#4F46E5;transition:filter 0.15s}.act-print:hover{filter:brightness(0.92)}.act-print:active{filter:brightness(0.85)}
 .act-print-rp{background:#EEF2FF;color:#4F46E5;border:1.5px solid rgba(79,70,229,0.25);transition:filter 0.15s}.act-print-rp:hover{filter:brightness(0.92)}.act-print-rp:active{filter:brightness(0.85)}
 .btn-condividi-print:hover{filter:brightness(1.2);transition:filter 0.15s}
+.modal-act-green{background:#C6E8D5;color:var(--g);border:1.5px solid var(--g);transition:filter 0.15s}.modal-act-green:hover{filter:brightness(0.92)}.modal-act-green:active{filter:brightness(0.85)}
+.modal-act-grey{background:#E5E7EB;color:#374151;border:1.5px solid #6B7280;transition:filter 0.15s}.modal-act-grey:hover{filter:brightness(0.92)}.modal-act-grey:active{filter:brightness(0.85)}
+.modal-act-del{background:var(--rm);color:var(--r);border:1.5px solid var(--r);transition:filter 0.15s}.modal-act-del:hover{filter:brightness(0.92)}.modal-act-del:active{filter:brightness(0.85)}
+.modal-btn-chiudi{background:#E5E7EB;color:#374151;border:1.5px solid #9CA3AF;transition:filter 0.15s}.modal-btn-chiudi:hover{filter:brightness(0.92)}.modal-btn-chiudi:active{filter:brightness(0.85)}
 .oc-items{padding:0 14px 12px 14px;display:flex;flex-direction:column;gap:4px}
 .itag{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;line-height:1.3;padding:7px 10px;min-height:38px;box-sizing:border-box;color:var(--txt);border-radius:8px;background:var(--evs);transition:background 0.2s ease,color 0.2s ease;cursor:pointer}
 .itag.done{background:var(--gs);color:var(--sub)}
@@ -1652,11 +1656,11 @@ function renderDetModal(o){
     <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:14px;margin-bottom:8px">Nessun articolo.</p>'}</div>
     <div style="font-size:12px;font-weight:800;color:var(--sub);text-transform:uppercase;margin-top:8px;margin-bottom:4px">Articoli <span style="background:var(--bg);border-radius:10px;padding:1px 7px;color:var(--txt)">${(o.items||[]).length}</span></div>
     <div style="display:flex;gap:7px;margin-top:14px;border-top:1px solid var(--brd);padding-top:12px;flex-wrap:wrap">
-      ${o.stato!=='evadere'?`<button class="btn act-del" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'evadere')">Da evadere</button>`:''}
-      ${o.stato!=='completato'?`<button class="btn act-green" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'completato')">Completato</button>`:''}
-      ${o.stato!=='ritirato'?`<button class="btn act-grey" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'ritirato')">Ritirato</button>`:''}
+      ${o.stato!=='evadere'?`<button class="btn modal-act-del" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'evadere')">Da evadere</button>`:''}
+      ${o.stato!=='completato'?`<button class="btn modal-act-green" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'completato')">Completato</button>`:''}
+      ${o.stato!=='ritirato'?`<button class="btn modal-act-grey" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'ritirato')">Ritirato</button>`:''}
     </div>
-    <div class="ma"><button class="btn btn-full" style="background:#F3F4F6;color:#1A1A2E" onclick="closeModal('modal-det')">Chiudi</button></div>`;
+    <div class="ma"><button class="btn btn-full modal-btn-chiudi" onclick="closeModal('modal-det')">Chiudi</button></div>`;
   setTimeout(function(){renderDetArtGrid(o.id);initDetCal(o);},0);
 }
 let detCalYear=0,detCalMonth=0,detCalSelDate=null,detCalOid=null;
