@@ -352,7 +352,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 @keyframes su{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
 .mta{font-size:20px;font-weight:900;margin-bottom:16px}
 .mta i{font-size:25px;vertical-align:-4px;margin-right:3px}
-.ma{display:flex;gap:8px;margin-top:16px}
+.ma{display:flex;gap:8px;margin-top:16px;position:sticky;bottom:0;background:#fff;padding-top:12px;z-index:1}
 .modal-qart-inner{background:#fff;border-radius:20px 20px 0 0;padding:22px 18px 30px;width:100%;max-width:440px;box-shadow:var(--shl);animation:su 0.18s ease;max-height:85vh;overflow-y:auto}
 @media(min-width:640px){.modal-qart-inner{border-radius:18px;max-height:88vh}}
 @supports(padding-bottom:env(safe-area-inset-bottom)){.modal-qart-inner{padding-bottom:max(30px,env(safe-area-inset-bottom))}}
@@ -716,7 +716,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cb"><div class="um-list" id="um-display"></div></div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-tag"></i> Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderCatList();openModal('modal-cat')">Gestisci</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-tag"></i> Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderCatList();openModal('modal-cat')"><i class="ti ti-pencil"></i> Gestisci</button></div>
             <div class="cb"><div class="um-list" id="cat-display"></div></div>
           </div>
           <div class="card">
