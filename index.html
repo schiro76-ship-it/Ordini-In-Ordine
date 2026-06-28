@@ -2351,8 +2351,18 @@ function evidenziaCampo(id){
     const wrap=el.parentElement;
     wrap.style.outline='2px solid var(--r)';
     wrap.style.borderRadius='8px';
-    wrap.style.transition='outline-color 0.3s';
-    setTimeout(function(){wrap.style.outline='2px solid transparent';},1500);
+    wrap.style.padding='8px';
+    wrap.style.margin='0 -8px 8px -8px';
+    wrap.style.transition='outline-color 0.2s,background 0.2s';
+    const rimuovi=function(){
+      if(el.checked){
+        wrap.style.outline='2px solid transparent';
+        wrap.style.padding='0';
+        wrap.style.margin='0 0 16px 0';
+        el.removeEventListener('change',rimuovi);
+      }
+    };
+    el.addEventListener('change',rimuovi);
   }
 }
 function doLogin(){const email=document.getElementById('login-email').value.trim();const pwd=document.getElementById('login-pwd').value;if(!email||!pwd){loginErr('Inserisci email e password');evidenziaCampo(!email?'login-email':'login-pwd');return;}auth.signInWithEmailAndPassword(email,pwd).catch(function(e){if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')loginErr('Email o password errati');else loginErr('Errore: '+e.message);});}
