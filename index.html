@@ -708,31 +708,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="phdr"><h2>Impostazioni</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Invita</button></div>
         <div class="pbody">
           <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Articoli</div></div>
-            <div class="cb" style="padding-bottom:8px">
-              <div class="two-col">
-                <div>
-                  <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="an" placeholder="Es. Costata di manzo"></div>
-                  <div class="fg">
-                    <label class="fl">Categoria</label>
-                    <select class="fi" id="ac2" onchange="onCatChange(this)"><option value="">— Nessuna —</option></select>
-                    <div id="nuova-cat-wrap" style="display:none;margin-top:8px">
-                      <div style="display:flex;gap:8px;align-items:center">
-                        <input class="fi" type="text" id="nuova-cat-input" placeholder="Nome nuova categoria…" style="flex:1;margin:0">
-                        <button class="btn br" style="padding:10px 14px" onclick="confermaNuovaCat()"><i class="ti ti-check"></i></button>
-                        <button class="btn bg2" style="padding:10px 12px" onclick="annullaNuovaCat()"><i class="ti ti-x"></i></button>
-                      </div>
-                    </div>
-                  </div>
-                  <button class="btn br" onclick="addArt()">+ Aggiungi articolo</button>
-                </div>
-                <div>
-                  <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
-                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span id="acb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
-                  <div class="slist" id="aml"></div>
-                </div>
-              </div>
-            </div>
+            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Articoli</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderArtM();openModal('modal-articoli')"><i class="ti ti-pencil"></i> Gestisci</button></div>
+            <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Catalogo: <span id="acb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
           </div>
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-ruler-2"></i> Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-um')"><i class="ti ti-plus"></i> Aggiungi</button></div>
@@ -851,6 +828,28 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 
 <!-- MODALI -->
 
+<div class="ov" id="modal-articoli">
+  <div class="modal">
+    <div class="mta"><i class="ti ti-folder"></i> Catalogo articoli</div>
+    <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="an" placeholder="Es. Costata di manzo"></div>
+    <div class="fg">
+      <label class="fl">Categoria</label>
+      <select class="fi" id="ac2" onchange="onCatChange(this)"><option value="">— Nessuna —</option></select>
+      <div id="nuova-cat-wrap" style="display:none;margin-top:8px">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="fi" type="text" id="nuova-cat-input" placeholder="Nome nuova categoria…" style="flex:1;margin:0">
+          <button class="btn br" style="padding:10px 14px" onclick="confermaNuovaCat()"><i class="ti ti-check"></i></button>
+          <button class="btn bg2" style="padding:10px 12px" onclick="annullaNuovaCat()"><i class="ti ti-x"></i></button>
+        </div>
+      </div>
+    </div>
+    <button class="btn br btn-full" onclick="addArt()" style="margin-bottom:16px">+ Aggiungi articolo</button>
+    <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0"><span id="acb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
+    <div class="slist" id="aml"></div>
+    <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-articoli')">Chiudi</button></div>
+  </div>
+</div>
 <div class="ov" id="modal-edit-art">
   <div class="modal" style="max-width:440px">
     <div class="mta"><i class="ti ti-pencil"></i> Modifica articolo</div>
@@ -987,12 +986,14 @@ const db=firebase.firestore();
 const DOC_ID='macelleria-schirinzi';
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let stampeCount=0;
-// Limiti piano gratuito (non ancora applicati/bloccanti — solo conteggio silenzioso in attesa di Stripe)
+let ordiniCreatiTotale=0;
+let articoliCreatiTotale=0;
+// Limiti piano gratuito — contatori cumulativi (non scendono mai, non vengono esportati/importati nei backup)
 const LIMITI_FREE={ordini:20,articoli:15,stampe:20};
 const DEFAULT_UM=['kg','g','fette','pezzi','numero','vaschette','bustine'];
 const DEFAULT_ARTS=[{id:1,nome:'Costata di manzo',cat:'Bovino'},{id:2,nome:'Filetto di manzo',cat:'Bovino'},{id:3,nome:'Bistecca T-bone',cat:'Bovino'},{id:4,nome:'Macinato di manzo',cat:'Bovino'},{id:5,nome:'Roast beef',cat:'Bovino'},{id:6,nome:'Ossobuco',cat:'Bovino'},{id:7,nome:'Braciola di maiale',cat:'Suino'},{id:8,nome:'Salsiccia fresca',cat:'Suino'},{id:9,nome:'Arista di maiale',cat:'Suino'},{id:10,nome:'Pancetta',cat:'Suino'},{id:11,nome:'Coscia di agnello',cat:'Agnello'},{id:12,nome:'Costolette di agnello',cat:'Agnello'},{id:13,nome:'Petto di pollo',cat:'Pollame'},{id:14,nome:'Cosce di pollo',cat:'Pollame'},{id:15,nome:'Tacchino intero',cat:'Pollame'},{id:16,nome:'Prosciutto crudo',cat:'Salumi'},{id:17,nome:'Salame Milano',cat:'Salumi'}];
-async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload);}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
-async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;}
+async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload);}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
+async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;}
 async function boot(){applyTheme(DEFAULT_THEME);loadDateFormat();loadCalSettings();loadStoricoSettings();try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
   try{
     db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
@@ -1938,11 +1939,11 @@ function setSelNota(id,v){const s=sel.find(x=>x.id===id);if(s)s.nota=v}
 function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent='Articoli '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
   const umPills=unitaMisura.map(u=>`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.01" min="0.01" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div></div>`;}).join('');}
-async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un articolo!','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:'articolo';if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:sel.map(function(s,i){return{artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i}}),creato:new Date().toISOString()});await saveData();toast('Ordine #'+numInput+' aggiunto!','v');goTab('ordini');}
-function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun articolo.</p></div>';}
+async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un articolo!','err');return}if(ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:'articolo';if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:sel.map(function(s,i){return{artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i}}),creato:new Date().toISOString()});ordiniCreatiTotale++;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');goTab('ordini');}
+function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun articolo.</p></div>';}
 function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';openModal('modal-edit-art');}
 async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato','v');}
-async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});
+async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}if(articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' articoli del piano gratuito','err');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});articoliCreatiTotale++;
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
   if(detQArtOid){await addItemToOrd(detQArtOid,id);detQArtOid=null;}
   else{sel.push({id:id,qty:'',um:'',nota:'',done:false});catS='Tutti';renderPills();renderArtS();renderSP();}
@@ -1976,9 +1977,11 @@ async function addArtRapido(){
   const qi=document.getElementById('qnuova-cat-input');if(qs.value==='__qnuova__'&&qi&&qi.value.trim())c=qi.value.trim();
   if(!n){toast('Inserisci il nome!','err');return}
   if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}
+  if(articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' articoli del piano gratuito','err');return}
   const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
   arts.push({id:id,nome:n,cat:c});
+  articoliCreatiTotale++;
   refreshCatSelects();
   closeModal('modal-qart');
   if(detQArtOid){
@@ -2194,7 +2197,7 @@ function closeModal(id){
   if(!document.querySelector('.ov.open'))document.body.style.overflow='';
   if(id==='modal-det')renderOrdini();
 }
-document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
+document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
 function esportaDati(){const data=JSON.stringify({arts:arts,ords:ords,unitaMisura:unitaMisura,cats:cats,nextNum:nextNum},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='macelleria_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);toast('Backup scaricato','v');}
 function importaDati(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const d=JSON.parse(e.target.result);if(!d.arts||!d.ords){toast('File non valido!','err');return}arts=d.arts;ords=d.ords;unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;await saveData();refreshAll();toast('Importati '+ords.length+' ordini e '+arts.length+' articoli','v');}catch(err){toast('Errore nel file!','err')}};reader.readAsText(file);input.value='';}
 function toast(m,t){var e=document.getElementById('toast');var icona=t==='v'?'<i class="ti ti-circle-check" style="margin-right:6px;vertical-align:-2px"></i>':t==='err'?'<i class="ti ti-alert-triangle" style="margin-right:6px;vertical-align:-2px"></i>':'';e.innerHTML=icona+m;e.className='show'+(t?' '+t:'');clearTimeout(e._t);e._t=setTimeout(function(){e.className=''},2700)}
@@ -2344,6 +2347,7 @@ function _mostraCanvasNelModal(canvas){
     const btn=document.getElementById('btn-condividi-etichetta');
     if(!btn)return;
     btn.addEventListener('click',async function(){
+      if(stampeCount>=LIMITI_FREE.stampe){toast('Hai raggiunto il limite di '+LIMITI_FREE.stampe+' stampe del piano gratuito','err');return}
       stampeCount=(stampeCount||0)+1;saveData();
       try{
         const blob=await(await fetch(url)).blob();
