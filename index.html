@@ -731,7 +731,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-ruler-2"></i> Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-um')">Gestisci</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-ruler-2"></i> Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-um')">Aggiungi</button></div>
             <div class="cb"><div class="um-list" id="um-display"></div></div>
           </div>
           <div class="card">
@@ -1599,6 +1599,7 @@ function renderDetModal(o){
       const dis=isRitirato?'disabled':'' ;
       umPills+=`<button ${dis} onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detUpdUM(${o.id},${idx},'${u}')" onclick="detUpdUM(${o.id},${idx},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--r)':'var(--brd)'};background:${sel?'var(--r)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
     });
+    if(!isRitirato)umPills+=`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVoloDet(${o.id},${idx})" onclick="addUMVoloDet(${o.id},${idx})" style="padding:5px 10px;border-radius:18px;border:1.5px dashed var(--brd);background:#fff;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
     return `<div class="sel-card" style="${cardStyle}">
       <div class="sel-card-top">
         <div class="sel-card-name">${nome}</div>
@@ -1834,6 +1835,15 @@ function detUpdUM(oid,idx,um){
     if(nota)nota.focus();
   },30);
 }
+async function addUMVoloDet(oid,idx){
+  const v=(prompt('Nome della nuova unità di misura:')||'').trim().toLowerCase();
+  if(!v)return;
+  if(unitaMisura.includes(v)){toast('Già presente!','err');detUpdUM(oid,idx,v);return;}
+  unitaMisura.push(v);
+  await saveData();
+  toast('"'+v+'" aggiunto','v');
+  detUpdUM(oid,idx,v);
+}
 function detChQtyDirect(oid,idx,d){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const cur=parseFloat(o.items[idx].qty)||0;
@@ -1910,9 +1920,18 @@ function selUMpill(id,v){
     if(nota)nota.focus();
   },30);
 }
+async function addUMVolo(id){
+  const v=(prompt('Nome della nuova unità di misura:')||'').trim().toLowerCase();
+  if(!v)return;
+  if(unitaMisura.includes(v)){toast('Già presente!','err');selUMpill(id,v);return;}
+  unitaMisura.push(v);
+  await saveData();
+  toast('"'+v+'" aggiunto','v');
+  selUMpill(id,v);
+}
 function setSelNota(id,v){const s=sel.find(x=>x.id===id);if(s)s.nota=v}
 function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent='Articoli '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
-  const umPills=unitaMisura.map(u=>`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--r)':'var(--brd)'};background:${s.um===u?'var(--r)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('');
+  const umPills=unitaMisura.map(u=>`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--r)':'var(--brd)'};background:${s.um===u?'var(--r)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px dashed var(--brd);background:#fff;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.01" min="0.01" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div></div>`;}).join('');}
 async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un articolo!','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:'articolo';if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:sel.map(function(s,i){return{artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i}}),creato:new Date().toISOString()});await saveData();toast('Ordine #'+numInput+' aggiunto!','v');goTab('ordini');}
 function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun articolo.</p></div>';}
