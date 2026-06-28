@@ -731,7 +731,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-ruler-2"></i> Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-um')">Aggiungi</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-ruler-2"></i> Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-um')"><i class="ti ti-plus"></i> Aggiungi</button></div>
             <div class="cb"><div class="um-list" id="um-display"></div></div>
           </div>
           <div class="card">
@@ -740,9 +740,10 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           </div>
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-database"></i> Dati</div></div>
+            <div style="font-size:13px;color:var(--sub);font-weight:600;padding:0 16px 12px;margin-top:-6px">Crea una copia di sicurezza di tutti i tuoi ordini e articoli, e ripristinala quando vuoi.</div>
             <div class="cb" style="display:flex;flex-direction:column;gap:10px">
-              <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="esportaDati()"><span style="font-size:20px"><i class="ti ti-upload"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Esporta dati</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Scarica backup JSON</div></div></button>
-              <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="document.getElementById('import-file').click()"><span style="font-size:20px"><i class="ti ti-download"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Importa dati</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Ripristina da backup JSON</div></div></button>
+              <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="esportaDati()"><span style="font-size:20px"><i class="ti ti-upload"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Salva una copia</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Scarica un file con tutti i tuoi dati</div></div></button>
+              <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="document.getElementById('import-file').click()"><span style="font-size:20px"><i class="ti ti-download"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Ripristina da una copia</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Carica un file salvato in precedenza</div></div></button>
             </div>
           </div>
           <div class="card">
@@ -879,6 +880,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
   <div class="modal">
     <div class="mta"><i class="ti ti-tag"></i> Gestisci categorie</div>
     <div id="cat-modal-list" class="slist"></div>
+    <div style="display:flex;gap:8px;margin-top:8px"><input class="fi" type="text" id="cat-new" placeholder="Nuova categoria…" style="flex:1"><button class="btn br" onclick="addCatVolo()" style="font-size:17px;font-weight:900">+</button></div>
     <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-cat')">Chiudi</button></div>
   </div>
 </div>
@@ -1951,8 +1953,10 @@ function renderUMDisplay(){document.getElementById('um-display').innerHTML=unita
 function renderUMModal(){document.getElementById('um-modal-list').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')"><i class="ti ti-x"></i></span></span>`).join('')}
 async function addUM(){const v=document.getElementById('um-new').value.trim().toLowerCase();if(!v||unitaMisura.includes(v)){toast(v?'Già presente!':'Inserisci nome!','err');return}unitaMisura.push(v);document.getElementById('um-new').value='';await saveData();renderUMDisplay();renderUMModal();toast('"'+v+'" aggiunto','v');}
 async function delUM(u){if(unitaMisura.length<=1){toast('Almeno una unità di misura!','err');return}unitaMisura=unitaMisura.filter(x=>x!==u);await saveData();renderUMDisplay();renderUMModal();toast('Rimosso','v');}
-function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} articoli</span><button class="ibtn d" onclick="if(confirm('Eliminare questa categoria?'))delCat('${c}')"><i class="ti ti-trash"></i></button></div>`).join('');}
+function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} articoli</span><button class="ibtn" onclick="rinominaCat('${c}')"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questa categoria?'))delCat('${c}')"><i class="ti ti-trash"></i></button></div>`).join('');}
 async function delCat(nome){cats=cats.filter(x=>x!==nome);arts.forEach(function(a){if(a.cat===nome)a.cat=''});await saveData();refreshAll();renderCatList();toast('Categoria eliminata','v');}
+async function addCatVolo(){const v=document.getElementById('cat-new').value.trim();if(!v){toast('Inserisci nome!','err');return}if(cats.includes(v)){toast('Già presente!','err');return}cats.push(v);cats.sort();await saveData();document.getElementById('cat-new').value='';refreshAll();renderCatList();toast('"'+v+'" aggiunta','v');}
+async function rinominaCat(nome){const v=(prompt('Nuovo nome per la categoria:',nome)||'').trim();if(!v||v===nome)return;if(cats.includes(v)){toast('Già presente!','err');return}cats=cats.map(c=>c===nome?v:c);cats.sort();arts.forEach(function(a){if(a.cat===nome)a.cat=v});await saveData();refreshAll();renderCatList();toast('Categoria rinominata','v');}
 function refreshCatSelects(){_rcs('ac2');_rcs('qac')}
 function _rcs(id){const s=document.getElementById(id);if(!s)return;const cur=(s.value==='__nuova__'||s.value==='__qnuova__')?'':s.value;const sent=id==='qac'?'__qnuova__':'__nuova__';s.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('')+`<option value="${sent}">＋ Nuova categoria…</option>`;}
 function onCatChange(s){const w=document.getElementById('nuova-cat-wrap');if(s.value==='__nuova__'){w.style.display='block';setTimeout(function(){document.getElementById('nuova-cat-input').focus()},80)}else w.style.display='none'}
