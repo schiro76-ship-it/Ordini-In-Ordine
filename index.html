@@ -437,8 +437,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 .ob-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}
 @media(min-width:480px){.ob-grid{grid-template-columns:repeat(3,1fr)}}
 .ob-card{border:2px solid #E5E7EB;border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fff}
-.ob-card:hover{border-color:var(--r);background:var(--rs)}
+.ob-card:hover{border-color:var(--rm);background:#FDF8F7}
 .ob-card.selected{border-color:var(--r);background:var(--rs)}
+.ob-card.selected:hover{border-color:var(--r);background:var(--rs);filter:brightness(0.97)}
 .ob-card .ob-emoji{font-size:32px;margin-bottom:8px}
 .ob-card .ob-label{font-size:14px;font-weight:800;color:#1A1A2E}
 
