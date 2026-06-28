@@ -352,7 +352,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 @keyframes su{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
 .mta{font-size:20px;font-weight:900;margin-bottom:16px}
 .mta i{font-size:25px;vertical-align:-4px;margin-right:3px}
-.ma{display:flex;gap:8px;margin-top:16px;position:sticky;bottom:0;background:#fff;padding-top:12px;z-index:1}
+.ma{display:flex;gap:8px;margin-top:16px}
 .modal-qart-inner{background:#fff;border-radius:20px 20px 0 0;padding:22px 18px 30px;width:100%;max-width:440px;box-shadow:var(--shl);animation:su 0.18s ease;max-height:85vh;overflow-y:auto}
 @media(min-width:640px){.modal-qart-inner{border-radius:18px;max-height:88vh}}
 @supports(padding-bottom:env(safe-area-inset-bottom)){.modal-qart-inner{padding-bottom:max(30px,env(safe-area-inset-bottom))}}
@@ -829,25 +829,27 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 <!-- MODALI -->
 
 <div class="ov" id="modal-articoli">
-  <div class="modal">
+  <div class="modal" style="display:flex;flex-direction:column;overflow-y:hidden">
     <div class="mta"><i class="ti ti-folder"></i> Catalogo articoli</div>
-    <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="an" placeholder="Es. Costata di manzo"></div>
-    <div class="fg">
-      <label class="fl">Categoria</label>
-      <select class="fi" id="ac2" onchange="onCatChange(this)"><option value="">— Nessuna —</option></select>
-      <div id="nuova-cat-wrap" style="display:none;margin-top:8px">
-        <div style="display:flex;gap:8px;align-items:center">
-          <input class="fi" type="text" id="nuova-cat-input" placeholder="Nome nuova categoria…" style="flex:1;margin:0">
-          <button class="btn br" style="padding:10px 14px" onclick="confermaNuovaCat()"><i class="ti ti-check"></i></button>
-          <button class="btn bg2" style="padding:10px 12px" onclick="annullaNuovaCat()"><i class="ti ti-x"></i></button>
+    <div style="overflow-y:auto;flex:1;min-height:0">
+      <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="an" placeholder="Es. Costata di manzo"></div>
+      <div class="fg">
+        <label class="fl">Categoria</label>
+        <select class="fi" id="ac2" onchange="onCatChange(this)"><option value="">— Nessuna —</option></select>
+        <div id="nuova-cat-wrap" style="display:none;margin-top:8px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="fi" type="text" id="nuova-cat-input" placeholder="Nome nuova categoria…" style="flex:1;margin:0">
+            <button class="btn br" style="padding:10px 14px" onclick="confermaNuovaCat()"><i class="ti ti-check"></i></button>
+            <button class="btn bg2" style="padding:10px 12px" onclick="annullaNuovaCat()"><i class="ti ti-x"></i></button>
+          </div>
         </div>
       </div>
+      <button class="btn br btn-full" onclick="addArt()" style="margin-bottom:16px">+ Aggiungi articolo</button>
+      <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0"><span id="acb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
+      <div class="slist" id="aml"></div>
     </div>
-    <button class="btn br btn-full" onclick="addArt()" style="margin-bottom:16px">+ Aggiungi articolo</button>
-    <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0"><span id="acb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
-    <div class="slist" id="aml"></div>
-    <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-articoli')">Chiudi</button></div>
+    <div class="ma" style="flex-shrink:0"><button class="btn bg2 btn-full" onclick="closeModal('modal-articoli')">Chiudi</button></div>
   </div>
 </div>
 <div class="ov" id="modal-edit-art">
