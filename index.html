@@ -17,6 +17,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 :root{
   --r:#C0392B;--rs:#F9EDED;--rm:#E8C4C1;
+  --azione:#5B2D8E;--azione-d:#46226E;--azione-s:#EEEAF5;
   --g:#1E8A6E;--gs:#E3F3EE;
   --gr:#6B7280;--grs:#F3F4F6;
   --mat:#E67E22;--mats:#FEF3E2;
@@ -98,10 +99,10 @@ body.portrait-phone #bottom-nav{display:flex}
 .bn-item .bn-ic{font-size:22px;line-height:1}
 .bn-item.bn-new{color:#fff}.bn-item.bn-new:active .bn-ic-wrap{transform:scale(0.92);transition:transform 0.08s}
 .bn-item.bn-new .bn-ic-wrap{
-  background:var(--r);width:48px;height:48px;border-radius:50%;
+  background:var(--azione);width:48px;height:48px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-size:28px;font-weight:900;margin-top:-20px;
-  box-shadow:0 4px 16px rgba(192,57,43,0.5);
+  box-shadow:0 4px 16px rgba(91,45,142,0.5);
   border:3px solid #2C3E50;
 }
 #nuovo-bottom-bar{display:none;background:transparent;padding:10px 0 8px}
@@ -138,7 +139,7 @@ body.portrait-phone .sc .sn{font-size:19px}
 body.portrait-phone .sc .sl{font-size:10px;margin-top:2px}
 body.portrait-phone .pill{background:transparent;border-color:rgba(255,255,255,0.4);color:rgba(255,255,255,0.7)}
 body.portrait-phone .pill.active{background:#fff;border-color:#fff;color:#2C3E50}
-body.portrait-phone #sf-tutti.active-filt{background:var(--r)!important;border-color:var(--r)!important}
+body.portrait-phone #sf-tutti.active-filt{background:var(--azione)!important;border-color:var(--azione)!important}
 body.portrait-phone #sf-evadere.active-filt{background:var(--ev)!important;border-color:var(--ev)!important}
 body.portrait-phone #sf-completato.active-filt{background:#1E8A6E!important;border-color:#1E8A6E!important}
 body.portrait-phone #sf-ritirato.active-filt{background:#6B7280!important;border-color:#6B7280!important}
@@ -210,7 +211,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:active{filter:brightness(0.85)}button:disabled:hover{filter:none}
 [onclick]{transition:filter 0.15s}[onclick]:hover{filter:brightness(0.96)}[onclick]:active{filter:brightness(0.9)}
 .sc{background:#fff;border-radius:12px;padding:13px 8px;text-align:center;box-shadow:var(--sh)}
-.sc-nuovo{background:var(--r)}
+.sc-nuovo{background:var(--azione)}
 .sc-nuovo:hover{filter:brightness(0.85);transition:filter 0.15s}
 .sc-nuovo:active{filter:brightness(0.75)}
 .sc .sn{font-size:26px;font-weight:900;line-height:1}
@@ -218,11 +219,11 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .sc-filt{border:3px solid transparent;transition:border-color 0.15s,box-shadow 0.15s,filter 0.15s;cursor:pointer}
 .sc-filt:hover{filter:brightness(0.96)}
 .sc-filt:active{filter:brightness(0.92)}
-.sc-filt-r{background:var(--rs)}
+.sc-filt-r{background:var(--azione-s)}
 .sc-filt-ev{background:var(--evs)}
 .sc-filt-g{background:var(--gs)}
 .sc-filt-gr{background:var(--grs)}
-#sf-tutti.active-filt{border-color:var(--r)}
+#sf-tutti.active-filt{border-color:var(--azione)}
 #sf-evadere.active-filt{border-color:var(--ev)}
 #sf-completato.active-filt{border-color:var(--g)}
 #sf-ritirato.active-filt{border-color:var(--gr)}
@@ -337,7 +338,9 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .ar-cat{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;background:var(--bg);padding:3px 9px;border-radius:6px;color:var(--sub)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 20px;border-radius:12px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;transition:filter 0.15s}.btn:hover{filter:brightness(0.92)}.btn:active{filter:brightness(0.85)}
 .btn-full{width:100%}
-.br{background:var(--r);color:#fff}.bg2{background:var(--bg);color:var(--txt)}.bgg{background:var(--g);color:#fff}
+.br{background:var(--azione);color:#fff}.bg2{background:var(--bg);color:var(--txt)}.bgg{background:var(--g);color:#fff}
+.br:hover{filter:brightness(0.85)}.br:active{filter:brightness(0.75)}
+.btn-danger{background:var(--r);color:#fff}.btn-danger:hover{filter:brightness(0.85)}.btn-danger:active{filter:brightness(0.75)}
 .br:hover{filter:brightness(0.85)}.br:active{filter:brightness(0.75)}
 .bgg:hover{filter:brightness(0.85)}.bgg:active{filter:brightness(0.75)}
 .btn-outline-r{background:#fff;border:2px solid var(--r);color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background 0.15s}.btn-outline-r i{font-size:15px}.btn-outline-r:hover{background:var(--rs)}.btn-outline-r:active{background:var(--rm)}
@@ -599,7 +602,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="pbody">
           <div class="stats-row">
             <div class="sc sc-nuovo" onclick="goTab('nuovo')" style="cursor:pointer;display:none" id="sc-nuovo"><div class="sn" style="color:#fff;font-size:32px;line-height:1">+</div><div class="sl" style="color:rgba(255,255,255,0.9)">Nuovo</div></div>
-            <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" onclick="setFT('tutti','sf-tutti')"><div class="sn" id="st-tot" style="color:var(--r)">0</div><div class="sl" style="color:var(--r)">Tutti</div></div>
+            <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" onclick="setFT('tutti','sf-tutti')"><div class="sn" id="st-tot" style="color:var(--azione)">0</div><div class="sl" style="color:var(--azione)">Tutti</div></div>
             <div class="sc sc-filt sc-filt-ev" id="sf-evadere" onclick="setFT('evadere','sf-evadere')"><div class="sn" id="st-ev" style="color:var(--ev)">0</div><div class="sl" id="sl-ev" style="color:var(--ev)">Da evadere</div></div>
             <div class="sc sc-filt sc-filt-g" id="sf-completato" onclick="setFT('completato','sf-completato')"><div class="sn" id="st-co" style="color:var(--g)">0</div><div class="sl" style="color:var(--g)">Completati</div></div>
             <div class="sc sc-filt sc-filt-gr" id="sf-ritirato" onclick="setFT('ritirato','sf-ritirato')"><div class="sn" id="st-ri" style="color:var(--gr)">0</div><div class="sl" style="color:var(--gr)">Ritirati</div></div>
@@ -739,8 +742,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cb"><div class="um-list" id="cat-display"></div></div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-database"></i> Dati</div></div>
-            <div style="font-size:13px;color:var(--sub);font-weight:600;padding:0 16px 12px;margin-top:-6px">Crea una copia di sicurezza di tutti i tuoi ordini e articoli, e ripristinala quando vuoi.</div>
+            <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-database"></i> Dati</div><div style="font-size:13px;color:var(--sub);font-weight:600">Crea una copia di sicurezza di tutti i tuoi ordini e articoli, e ripristinala quando vuoi.</div></div>
             <div class="cb" style="display:flex;flex-direction:column;gap:10px">
               <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="esportaDati()"><span style="font-size:20px"><i class="ti ti-upload"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Salva una copia</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Scarica un file con tutti i tuoi dati</div></div></button>
               <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="document.getElementById('import-file').click()"><span style="font-size:20px"><i class="ti ti-download"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Ripristina da una copia</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Carica un file salvato in precedenza</div></div></button>
@@ -871,7 +873,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <p style="color:var(--sub);font-size:15px;font-weight:600;margin-bottom:20px">Questa azione non può essere annullata.</p>
     <div class="ma">
       <button class="btn bg2" style="flex:1" onclick="closeModal('modal-del-conf')">Annulla</button>
-      <button class="btn br" style="flex:1" id="modal-del-btn">Elimina</button>
+      <button class="btn btn-danger" style="flex:1" id="modal-del-btn">Elimina</button>
     </div>
   </div>
 </div>
@@ -928,7 +930,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 </div>
 <div id="nuovo-bottom-bar">
   <div id="bottom-bar-count" style="font-size:14px;font-weight:800;color:var(--sub);text-align:center;margin-bottom:8px;display:none"></div>
-  <button class="btn br btn-full" onclick="salvaOrdine()" style="border-radius:14px;box-shadow:0 4px 16px rgba(192,57,43,0.35)"><i class="ti ti-circle-check"></i> Aggiungi ordine</button>
+  <button class="btn br btn-full" onclick="salvaOrdine()" style="border-radius:14px;box-shadow:0 4px 16px rgba(91,45,142,0.35)"><i class="ti ti-circle-check"></i> Aggiungi ordine</button>
 </div>
 <div id="toast"></div>
 <div id="print-label"></div>
