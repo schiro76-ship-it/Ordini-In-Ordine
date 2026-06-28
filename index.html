@@ -957,7 +957,7 @@ const ATTIVITA_TYPES=[
 function getAttivitaById(id){return ATTIVITA_TYPES.find(a=>a.id===id)||ATTIVITA_TYPES[ATTIVITA_TYPES.length-1];}
 const DEFAULT_THEME={r:'#C0392B',rs:'#F9EDED',g:'#1E8A6E',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'};
 let obSelectedAttivita=null;
-function showOnboarding(){obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.display='flex';el.style.zIndex='99999';renderObAttivita();}
+function showOnboarding(){obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.display='flex';el.style.zIndex='99999';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}
 function renderObAttivita(){const grid=document.getElementById('ob-attivita-grid');if(!grid||!ATTIVITA_TYPES)return;grid.innerHTML='';ATTIVITA_TYPES.forEach(function(a){const sel=(obSelectedAttivita&&obSelectedAttivita===a.id)?' selected':'';const div=document.createElement('div');div.className='ob-card'+sel;div.innerHTML='<div class="ob-emoji">'+a.emoji+'</div><div class="ob-label">'+a.label+'</div>';div.onclick=function(){selectAttivita(a.id);};grid.appendChild(div);});}
 function selectAttivita(id){obSelectedAttivita=id;renderObAttivita();const btn=document.getElementById('ob-btn1');if(btn){btn.disabled=false;btn.style.opacity='1';}}
 function obNext(){
