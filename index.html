@@ -32,7 +32,7 @@
 body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
 #loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:16px}
 #loading.hidden{display:none}
-.spinner{width:40px;height:40px;border:4px solid #F0F2F5;border-top-color:#C0392B;border-radius:50%;animation:spin 0.7s linear infinite}
+.spinner{width:40px;height:40px;border:4px solid #F0F2F5;border-top-color:#256BC1;border-radius:50%;animation:spin 0.7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #loading p{font-size:16px;font-weight:700;color:#6B7280}
 .shell{display:flex;min-height:100vh}
@@ -44,7 +44,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .sb-nav .ni{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:10px;cursor:pointer;color:#fff;font-size:16px;font-weight:700;transition:all 0.15s;margin-bottom:3px;user-select:none}
 .sb-nav .ni .ic{font-size:20px;flex-shrink:0}
 .sb-nav .ni:hover{background:rgba(255,255,255,0.15)}
-.sb-nav .ni.active{background:var(--r)}
+.sb-nav .ni.active{background:var(--azione)}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:39}
 .sb-overlay.open{display:block}
 .pcontent{flex:1;min-width:0;display:flex;flex-direction:column;overflow-x:hidden}
@@ -159,9 +159,9 @@ body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;backgro
 body.portrait-phone .phdr-invita i{font-size:18px}
 body.portrait-phone .phdr input[type=number],body.portrait-phone .phdr span{color:#fff!important}
 body.portrait-phone #tab-ordini .empty .ei,body.portrait-phone #tab-riepilogo .empty .ei{color:rgba(255,255,255,0.6)}
-body:not(.portrait-phone) .phdr input[type=number]{color:var(--r)!important}
-body:not(.portrait-phone) .phdr span{color:var(--r)!important}
-body:not(.portrait-phone) #sel-count{color:var(--r)!important}
+body:not(.portrait-phone) .phdr input[type=number]{color:var(--azione)!important}
+body:not(.portrait-phone) .phdr span{color:var(--azione)!important}
+body:not(.portrait-phone) #sel-count{color:var(--azione)!important}
 body.portrait-phone .phdr button:not(.phdr-invita){background:var(--bg)!important;color:var(--sub)!important;border:1.5px solid var(--brd)!important}
 body.portrait-phone .phdr input[type=number]{border-bottom-color:#fff!important}
 body.portrait-phone #sel-count{color:#fff!important}
@@ -229,7 +229,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 #sf-ritirato.active-filt{border-color:var(--gr)}
 .sbox{position:relative;margin-bottom:12px}
 .sbox input{width:100%;padding:12px 14px 12px 44px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none;transition:border-color 0.2s}
-.sbox input:focus{border-color:var(--r)}
+.sbox input:focus{border-color:var(--azione)}
 .sbox .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:19px}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease}
@@ -281,17 +281,17 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .fg{margin-bottom:14px}
 .fl{display:block;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
 .fi{width:100%;padding:12px 14px;border:1.5px solid var(--brd);border-radius:11px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);background:#fff;outline:none;transition:border-color 0.2s}
-.fi:focus{border-color:var(--r)}
+.fi:focus{border-color:var(--azione)}
 .cal-compact{background:#fff;border-radius:12px;border:1.5px solid var(--brd);overflow:hidden;max-width:320px}
-.cal-compact.has-val{border-color:var(--r)}
-.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--r)}
+.cal-compact.has-val{border-color:var(--azione)}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--azione)}
 .cal-nav .cn-lbl{font-size:14px;font-weight:900;color:#fff;text-align:center;flex:1}
 .cal-nav button{background:rgba(255,255,255,0.2);border:none;color:#fff;width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:4px 4px 2px;gap:1px}
 .cal-dow{font-size:10px;font-weight:800;color:var(--sub);text-align:center;padding:2px 0;text-transform:uppercase}
 .cal-day{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;border-radius:50%;transition:all 0.12s;border:none;background:none;font-family:'Nunito',sans-serif;color:var(--txt);box-sizing:border-box}
-.cal-day:hover{background:var(--rs);color:var(--r)}.cal-day.today{color:var(--r);font-weight:900}
-.cal-day.sel{background:var(--r);color:#fff!important}.cal-day.other-month{color:var(--brd)}
+.cal-day:hover{background:var(--azione-s);color:var(--azione)}.cal-day.today{color:var(--azione);font-weight:900}
+.cal-day.sel{background:var(--azione);color:#fff!important}.cal-day.other-month{color:var(--brd)}
 .cal-day.past{color:var(--brd);cursor:default}.cal-day.past:hover{background:none}
 .cal-row-mp{display:flex;align-items:center;border-top:1px solid var(--brd)}
 .cal-btn-mp{flex:1;padding:8px 4px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:3px;background:#fff;color:var(--sub)}
@@ -308,19 +308,19 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .cal-turno .ct-mat{background:var(--mats);color:var(--mat);border-right:1px solid var(--brd)}
 .cal-turno .ct-pom{background:var(--poms);color:var(--pom)}
 .sp{min-height:48px;border:2px dashed var(--brd);border-radius:11px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;margin-bottom:14px;background:var(--bg)}
-.sel-card{background:#fff;border:2px solid var(--r);border-radius:13px;padding:12px 14px;margin-bottom:10px;animation:fadeInUp 0.2s ease}
+.sel-card{background:#fff;border:2px solid var(--azione);border-radius:13px;padding:12px 14px;margin-bottom:10px;animation:fadeInUp 0.2s ease}
 .sel-card-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.sel-card-name{flex:1;font-size:16px;font-weight:800;color:var(--r)}
+.sel-card-name{flex:1;font-size:16px;font-weight:800;color:var(--azione)}
 .sel-card-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .sel-input{width:100%;padding:9px 11px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none;background:#fff}
-.sel-input:focus{border-color:var(--r)}
+.sel-input:focus{border-color:var(--azione)}
 .sel-input-nota{width:100%;padding:9px 11px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none;background:#fff}
 .sel-input-nota::placeholder{color:var(--sub);font-weight:500}
 .det-note-input::placeholder{color:rgba(255,255,255,0.75);font-weight:600}
 .sel-rm{background:var(--rs);border:none;color:var(--r);cursor:pointer;font-size:17px;font-weight:800;border-radius:9px;width:38px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:filter 0.15s}.sel-rm i{font-size:18px}.sel-rm:hover{filter:brightness(0.92)}.sel-rm:active{filter:brightness(0.85)}
 .qty-minus{background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0;transition:filter 0.15s}.qty-minus:hover{filter:brightness(0.92)}.qty-minus:active{filter:brightness(0.85)}.qty-minus:disabled{cursor:default}.qty-minus:disabled:hover{filter:none}
 .qty-plus{background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0;transition:filter 0.15s}.qty-plus:hover{filter:brightness(0.92)}.qty-plus:active{filter:brightness(0.85)}.qty-plus:disabled{cursor:default}.qty-plus:disabled:hover{filter:none}
-.qty-search{width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:filter 0.15s,border-color 0.15s}.qty-search:hover{filter:brightness(0.96);border-color:var(--r)}.qty-search:active{filter:brightness(0.9)}
+.qty-search{width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:filter 0.15s,border-color 0.15s}.qty-search:hover{filter:brightness(0.96);border-color:var(--azione)}.qty-search:active{filter:brightness(0.9)}
 .cp{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;overflow-y:visible;scrollbar-width:none;padding-bottom:4px;position:relative;z-index:1;flex-wrap:nowrap}.cp::-webkit-scrollbar{display:none}
 .pill{flex-shrink:0;padding:6px 14px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;font-size:14px;font-weight:800;color:var(--sub);cursor:pointer;transition:filter 0.15s}
 .pill:hover{filter:brightness(0.92)}
@@ -331,7 +331,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .rp-item-row{transition:filter 0.15s}.rp-item-row:hover{filter:brightness(0.93)}.rp-item-row:active{filter:brightness(0.87)}
 .ac{padding:11px 20px 18px 10px;border-radius:11px;border:2px solid var(--brd);background:#fff;cursor:pointer;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--txt);text-align:left;position:relative}
 .ac .acat{display:block;font-size:12px;color:var(--sub);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
-.ac.sel{border-color:var(--r);background:var(--rs);color:var(--r)}
+.ac.sel{border-color:var(--azione);background:var(--azione-s);color:var(--azione)}
 
 .ar{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--brd)}.ar:last-child{border-bottom:none}
 .ar-name{flex:1;font-weight:700;font-size:16px}
@@ -343,7 +343,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .btn-danger{background:var(--r);color:#fff}.btn-danger:hover{filter:brightness(0.85)}.btn-danger:active{filter:brightness(0.75)}
 .br:hover{filter:brightness(0.85)}.br:active{filter:brightness(0.75)}
 .bgg:hover{filter:brightness(0.85)}.bgg:active{filter:brightness(0.75)}
-.btn-outline-r{background:#fff;border:2px solid var(--r);color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background 0.15s}.btn-outline-r i{font-size:15px}.btn-outline-r:hover{background:var(--rs)}.btn-outline-r:active{background:var(--rm)}
+.btn-outline-r{background:#fff;border:2px solid var(--azione);color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background 0.15s}.btn-outline-r i{font-size:15px}.btn-outline-r:hover{background:var(--azione-s)}.btn-outline-r:active{filter:brightness(0.92)}
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;align-items:flex-end;justify-content:center;padding:0}
 .ov.open{display:flex}
 @media(min-width:640px){.ov{align-items:center;padding:20px}}
@@ -414,8 +414,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 .login-field{margin-bottom:14px}
 .login-field label{display:block;font-size:13px;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
 .login-field input{width:100%;padding:12px 14px;border:1.5px solid #E5E7EB;border-radius:11px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:#1A1A2E;outline:none;transition:border-color 0.2s;box-sizing:border-box}
-.login-field input:focus{border-color:#C0392B}
-.login-btn{width:100%;padding:14px;background:#C0392B;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;cursor:pointer;margin-top:8px;transition:all 0.2s}
+.login-field input:focus{border-color:#256BC1}
+.login-btn{width:100%;padding:14px;background:#256BC1;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;cursor:pointer;margin-top:8px;transition:all 0.2s}
 .login-btn:hover{filter:brightness(0.85)}
 .login-btn:active{filter:brightness(0.75)}
 .login-err{color:#C0392B;font-size:14px;font-weight:700;text-align:center;margin-top:10px;min-height:20px}
@@ -654,7 +654,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-nuovo">
-        <div class="phdr"><h2>Nuovo Ordine <span id="nuovo-num-badge" style="font-size:13px;color:var(--urg)"></span></h2><div style="display:flex;align-items:center;gap:12px"><div style="display:flex;align-items:center;gap:4px"><span style="font-size:19px;font-weight:900;color:var(--txt)">#</span><input type="number" id="nuovo-num-top" min="1" style="width:64px;font-size:20px;font-weight:900;color:var(--txt);border:none;border-bottom:2px solid var(--r);background:transparent;font-family:'Nunito',sans-serif;outline:none;text-align:center" oninput="sincNuovoNum(this.value)"></div><button onclick="goTab('ordini')" style="padding:8px 16px;background:#fff;color:var(--txt);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Annulla</button></div></div>
+        <div class="phdr"><h2>Nuovo Ordine <span id="nuovo-num-badge" style="font-size:13px;color:var(--urg)"></span></h2><div style="display:flex;align-items:center;gap:12px"><div style="display:flex;align-items:center;gap:4px"><span style="font-size:19px;font-weight:900;color:var(--txt)">#</span><input type="number" id="nuovo-num-top" min="1" style="width:64px;font-size:20px;font-weight:900;color:var(--txt);border:none;border-bottom:2px solid var(--azione);background:transparent;font-family:'Nunito',sans-serif;outline:none;text-align:center" oninput="sincNuovoNum(this.value)"></div><button onclick="goTab('ordini')" style="padding:8px 16px;background:#fff;color:var(--txt);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Annulla</button></div></div>
         <div class="pbody has-bottom-bar">
           <div class="card" style="margin-bottom:14px">
             <div class="ch"><div class="ct"><i class="ti ti-calendar"></i> Ritiro</div></div>
@@ -727,7 +727,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                 </div>
                 <div>
                   <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
-                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span id="acb" style="background:var(--r);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span id="acb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
                   <div class="slist" id="aml"></div>
                 </div>
               </div>
@@ -1350,7 +1350,7 @@ function renderStoricoRiepilogo(){const dal=document.getElementById('st-dal')&&d
     html+=ordsFiltered.sort((a,b)=>new Date(a.data+'T00:00:00')-new Date(b.data+'T00:00:00')).map(o=>{
       const turnoLabel=o.ora?'<i class="ti ti-clock"></i> '+o.ora:o.turno==='mattina'?'<i class="ti ti-sun"></i> Mat.':o.turno==='pomeriggio'?'<i class="ti ti-sunset-2"></i> Pom.':'';
       const items=(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return'';const qty=(it.qty?(parseFloat(it.qty)||''):'—')+(it.um?' '+it.um:'');return`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:14px"><span style="color:var(--txt);font-weight:600">${a.nome}</span><span style="font-weight:800;color:var(--sub)">${qty}</span></div>`;}).join('');
-      return`<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px;font-weight:900;color:var(--r)">#${o.num}</span><span style="font-size:16px;font-weight:800;flex:1">${o.nome}</span></div><div style="font-size:13px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
+      return`<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px;font-weight:900;color:var(--azione)">#${o.num}</span><span style="font-size:16px;font-weight:800;flex:1">${o.nome}</span></div><div style="font-size:13px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
     }).join('');
     if(!ordsFiltered.length)html+='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun ordine trovato.</p>';
     html+='</div>';
@@ -1591,7 +1591,7 @@ let detCatFilter='Tutti';
 function setDetCat(c,oid){detCatFilter=c;renderDetArtGrid(oid);}
 function renderDetModal(o){
   detCatFilter='Tutti';
-  const hBg={evadere:'linear-gradient(135deg,var(--r),#8B1A1A)',completato:'linear-gradient(135deg,var(--g),#0D5C47)',ritirato:'linear-gradient(135deg,var(--gr),#374151)'}[o.stato];
+  const hBg={evadere:'linear-gradient(135deg,var(--azione),#173E66)',completato:'linear-gradient(135deg,var(--g),#0D5C47)',ritirato:'linear-gradient(135deg,var(--gr),#374151)'}[o.stato];
   const artRows=(o.items||[]).map(function(it,idx){
     const a=arts.find(x=>x.id===it.artId);
     const nome=a?a.nome:'<i style="color:var(--sub)">Rimosso</i>';
@@ -1601,9 +1601,9 @@ function renderDetModal(o){
     unitaMisura.forEach(function(u){
       const sel=it.um===u;
       const dis=isRitirato?'disabled':'' ;
-      umPills+=`<button ${dis} onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detUpdUM(${o.id},${idx},'${u}')" onclick="detUpdUM(${o.id},${idx},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--r)':'var(--brd)'};background:${sel?'var(--r)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
+      umPills+=`<button ${dis} onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detUpdUM(${o.id},${idx},'${u}')" onclick="detUpdUM(${o.id},${idx},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--azione)':'var(--brd)'};background:${sel?'var(--azione)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
     });
-    if(!isRitirato)umPills+=`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVoloDet(${o.id},${idx})" onclick="addUMVoloDet(${o.id},${idx})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
+    if(!isRitirato)umPills+=`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVoloDet(${o.id},${idx})" onclick="addUMVoloDet(${o.id},${idx})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
     return `<div class="sel-card" style="${cardStyle}">
       <div class="sel-card-top">
         <div class="sel-card-name">${nome}</div>
@@ -1859,7 +1859,7 @@ function detChQtyDirect(oid,idx,d){
 }
 function detFocusCerca(oid){
   const s=document.getElementById('det-search-art');
-  if(s){s.value='';s.style.borderColor='var(--r)';s.focus();}
+  if(s){s.value='';s.style.borderColor='var(--azione)';s.focus();}
   renderDetArtGrid(oid);
   setTimeout(function(){const s2=document.getElementById('det-search-art');if(s2)s2.style.borderColor='';},2000);
 }
@@ -1878,7 +1878,7 @@ function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getE
 function getCats(){return['Tutti',...cats.sort()]}
 function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" onclick="setC('${c}')">${c}</span>`).join('')}
 function setC(c){catS=c;renderPills();renderArtS()}
-function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c))).sort((a,b)=>a.nome.localeCompare(b.nome));agrid.innerHTML=l.length?l.map(a=>{const s=sel.find(x=>x.id===a.id);return`<button class="ac ${s?'sel':''}" onclick="togArt(${a.id})">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}${s?'<span style="position:absolute;bottom:5px;right:7px;font-size:13px;color:var(--r);font-weight:900"><i class="ti ti-check"></i></span>':''}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun articolo trovato.</p>';}
+function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c))).sort((a,b)=>a.nome.localeCompare(b.nome));agrid.innerHTML=l.length?l.map(a=>{const s=sel.find(x=>x.id===a.id);return`<button class="ac ${s?'sel':''}" onclick="togArt(${a.id})">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}${s?'<span style="position:absolute;bottom:5px;right:7px;font-size:13px;color:var(--azione);font-weight:900"><i class="ti ti-check"></i></span>':''}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun articolo trovato.</p>';}
 function tornaRicerca(){
   const can=document.getElementById('can');
   if(can){can.value='';can.focus();}
@@ -1935,7 +1935,7 @@ async function addUMVolo(id){
 }
 function setSelNota(id,v){const s=sel.find(x=>x.id===id);if(s)s.nota=v}
 function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent='Articoli '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
-  const umPills=unitaMisura.map(u=>`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--r)':'var(--brd)'};background:${s.um===u?'var(--r)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
+  const umPills=unitaMisura.map(u=>`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.01" min="0.01" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div></div>`;}).join('');}
 async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un articolo!','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:'articolo';if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:sel.map(function(s,i){return{artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i}}),creato:new Date().toISOString()});await saveData();toast('Ordine #'+numInput+' aggiunto!','v');goTab('ordini');}
 function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun articolo.</p></div>';}
@@ -2016,9 +2016,9 @@ function applyCalSettings(){
     const el=document.getElementById('cal-radio-'+k);
     if(!el)return;
     el.innerHTML=_calMode===k?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';
-    el.style.borderColor=_calMode===k?'var(--r)':'var(--brd)';
-    el.style.background=_calMode===k?'var(--r)':'#fff';
-    el.parentElement.style.background=_calMode===k?'var(--rs)':'transparent';
+    el.style.borderColor=_calMode===k?'var(--azione)':'var(--brd)';
+    el.style.background=_calMode===k?'var(--azione)':'#fff';
+    el.parentElement.style.background=_calMode===k?'var(--azione-s)':'transparent';
   });
   // Aggiorna hint nel calendario
   const hint=document.getElementById('cal-hint');
@@ -2033,7 +2033,7 @@ var _calSetMP=false,_calSetOra=true;
 let dateFormat='gg dd/mm';
 function loadDateFormat(){try{const s=JSON.parse(localStorage.getItem('date-format-settings')||'{}');dateFormat=s.fmt||'gg dd/mm';}catch(e){}}
 function saveDateFormat(fmt){dateFormat=fmt;try{localStorage.setItem('date-format-settings',JSON.stringify({fmt}));}catch(e){}applyDateFormatUI();refreshAll();}
-function applyDateFormatUI(){const map={'dd/mm':'dfr-ddmm','gg dd/mm':'dfr-ggddmm','dd/mm/yy':'dfr-ddmmyy','dd/mm/yyyy':'dfr-ddmmyyyy','gg dd mmm':'dfr-ggddmmm'};Object.entries(map).forEach(([fmt,id])=>{const el=document.getElementById(id);if(!el)return;const active=dateFormat===fmt;el.innerHTML=active?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';el.style.borderColor=active?'var(--r)':'var(--brd)';el.style.background=active?'var(--r)':'#fff';el.parentElement.style.background=active?'var(--rs)':'transparent';});}
+function applyDateFormatUI(){const map={'dd/mm':'dfr-ddmm','gg dd/mm':'dfr-ggddmm','dd/mm/yy':'dfr-ddmmyy','dd/mm/yyyy':'dfr-ddmmyyyy','gg dd mmm':'dfr-ggddmmm'};Object.entries(map).forEach(([fmt,id])=>{const el=document.getElementById(id);if(!el)return;const active=dateFormat===fmt;el.innerHTML=active?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';el.style.borderColor=active?'var(--azione)':'var(--brd)';el.style.background=active?'var(--azione)':'#fff';el.parentElement.style.background=active?'var(--azione-s)':'transparent';});}
 function fmtDataByFormat(isoDate){if(!isoDate)return'—';const d=new Date(isoDate+'T00:00:00');const gg=['dom','lun','mar','mer','gio','ven','sab'][d.getDay()];const dd=String(d.getDate()).padStart(2,'0');const mm=String(d.getMonth()+1).padStart(2,'0');const yy=String(d.getFullYear()).slice(2);const yyyy=String(d.getFullYear());const mesi=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];const mmm=mesi[d.getMonth()];switch(dateFormat){case'dd/mm':return dd+'/'+mm;case'dd/mm/yy':return dd+'/'+mm+'/'+yy;case'dd/mm/yyyy':return dd+'/'+mm+'/'+yyyy;case'gg dd mmm':return gg+' '+dd+' '+mmm;default:return gg+' '+dd+'/'+mm;}}
 // Impostazioni storico
 var _stSetOrdini=false;
@@ -2088,7 +2088,7 @@ function applyStoricoSettings(){
   const track=document.getElementById('st-set-ordini-track');
   const thumb=document.getElementById('st-set-ordini-thumb');
   if(cb)cb.checked=_stSetOrdini;
-  if(track)track.style.background=_stSetOrdini?'var(--r)':'#ccc';
+  if(track)track.style.background=_stSetOrdini?'var(--azione)':'#ccc';
   if(thumb)thumb.style.left=_stSetOrdini?'25px':'3px';
 }
 
@@ -2268,7 +2268,7 @@ function _disegnaEtichetta(o,artIdEvidenziato){
   let y=pad+16;
 
   // Numero ordine
-  ctx.fillStyle='#C0392B';ctx.font='900 160px sans-serif';ctx.textAlign='center';
+  ctx.fillStyle='#256BC1';ctx.font='900 160px sans-serif';ctx.textAlign='center';
   ctx.fillText('#'+o.num,W/2,y+130);y+=155;
 
   // Nome cliente — adattivo
@@ -2299,9 +2299,9 @@ function _disegnaEtichetta(o,artIdEvidenziato){
       const nR=misuraRighe(a.nome,'900 48px sans-serif',maxN);
       const boxH=nR*60+56+16;
       ctx.fillStyle='#FEF3E2';ctx.fillRect(pad-6,y-4,W-pad*2+12,boxH);
-      ctx.strokeStyle='#C0392B';ctx.lineWidth=3;ctx.strokeRect(pad-6,y-4,W-pad*2+12,boxH);
-      scriviWrap(a.nome,'900 48px sans-serif','#C0392B',pad+8,y+48,maxN,60,'left');
-      ctx.fillStyle='#C0392B';ctx.font='900 44px sans-serif';ctx.textAlign='right';
+      ctx.strokeStyle='#256BC1';ctx.lineWidth=3;ctx.strokeRect(pad-6,y-4,W-pad*2+12,boxH);
+      scriviWrap(a.nome,'900 48px sans-serif','#256BC1',pad+8,y+48,maxN,60,'left');
+      ctx.fillStyle='#256BC1';ctx.font='900 44px sans-serif';ctx.textAlign='right';
       ctx.fillText(qty,W-pad-8,y+nR*60+50);
       ctx.textAlign='left';y+=boxH+10;
     } else {
