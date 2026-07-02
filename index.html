@@ -2349,7 +2349,6 @@ function _mostraCanvasNelModal(canvas){
     const btn=document.getElementById('btn-condividi-etichetta');
     if(!btn)return;
     btn.addEventListener('click',async function(){
-      if(stampeCount>=LIMITI_FREE.stampe){toast('Hai raggiunto il limite di '+LIMITI_FREE.stampe+' stampe del piano gratuito','err');return}
       stampeCount=(stampeCount||0)+1;saveData();
       try{
         const blob=await(await fetch(url)).blob();
