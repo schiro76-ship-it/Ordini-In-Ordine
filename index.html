@@ -292,7 +292,8 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .cal-day:hover{background:var(--azione-s);color:var(--azione)}.cal-day.today{color:var(--azione);font-weight:900}
 .cal-day.sel{background:var(--azione);color:#fff!important}.cal-day.other-month{color:var(--brd)}
 .cal-day.past{color:var(--brd);cursor:default}.cal-day.past:hover{background:none}
-.cal-row-mp{display:flex;align-items:center;border-top:1px solid var(--brd)}
+.cal-row-mp{display:flex;align-items:center;border-top:1px solid transparent;max-height:0;overflow:hidden;transition:max-height 0.25s ease,border-color 0.25s ease}
+.cal-row-mp.show{max-height:48px;border-top-color:var(--brd)}
 .cal-btn-mp{flex:1;padding:8px 4px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:3px;background:#fff;color:var(--sub)}
 .cal-btn-mp i{font-size:17px}
 .cal-btn-mp.sel-mat{background:var(--mats);color:var(--mat)}
@@ -670,7 +671,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                 <div class="cal-compact" id="cal-nuovo">
                   <div class="cal-nav"><button onclick="calNavMese(-1)">‹</button><span class="cn-lbl" id="cal-mese-lbl"></span><button onclick="calNavMese(+1)">›</button></div>
                   <div class="cal-grid" id="cal-grid"></div>
-                  <div id="cal-row-extra" style="display:none" class="cal-row-mp">
+                  <div id="cal-row-extra" class="cal-row-mp">
                     <button id="cal-btn-mat" class="cal-btn-mp" onclick="calSceglTurno('mattina')"><i class="ti ti-sun"></i> Mattina</button>
                     <button id="cal-btn-pom" class="cal-btn-mp" onclick="calSceglTurno('pomeriggio')"><i class="ti ti-sunset-2"></i> Pom.</button>
                     <div id="cal-time-wrap" class="cal-time-wrap" style="display:none">
@@ -1669,7 +1670,7 @@ function renderDetModal(o){
           <div class="cal-nav"><button onclick="detCalNav(${o.id},-1)">‹</button><span class="cn-lbl" id="det-cal-lbl"></span><button onclick="detCalNav(${o.id},+1)">›</button></div>
           <div class="cal-grid" id="det-cal-grid"></div>
           <div id="det-cal-salva-solo" style="display:none"></div>
-          <div id="det-cal-row-extra" class="cal-row-mp" style="display:none">
+          <div id="det-cal-row-extra" class="cal-row-mp">
             <button id="det-cal-btn-mat" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'mattina')"><i class="ti ti-sun"></i> Mat.</button>
             <button id="det-cal-btn-pom" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'pomeriggio')"><i class="ti ti-sunset-2"></i> Pom.</button>
             <div id="det-cal-time-wrap" class="cal-time-wrap" style="display:none">
@@ -1738,7 +1739,7 @@ function renderDetCalGrid(){
   if(salvaSolo)salvaSolo.style.display='none';
   if(rowExtra){
     const showRow=detCalSelDate&&(_calSetMP||_calSetOra);
-    rowExtra.style.display=showRow?'flex':'none';
+    rowExtra.classList.toggle('show',showRow);
     if(btnMat)btnMat.style.display=_calSetMP?'':'none';
     if(btnPom)btnPom.style.display=_calSetMP?'':'none';
     if(timeWrap)timeWrap.style.display=_calSetOra?'flex':'none';
@@ -2167,7 +2168,7 @@ function renderCal(){
   const timeInp=document.getElementById('cal-time-inp');
   if(rowExtra){
     const showRow=calSelDate&&(_calSetMP||_calSetOra);
-    rowExtra.style.display=showRow?'flex':'none';
+    rowExtra.classList.toggle('show',showRow);
     if(btnMat)btnMat.style.display=_calSetMP?'':'none';
     if(btnPom)btnPom.style.display=_calSetMP?'':'none';
     if(timeWrap)timeWrap.style.display=_calSetOra?'flex':'none';
