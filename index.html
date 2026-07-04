@@ -292,8 +292,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .cal-day:hover{background:var(--azione-s);color:var(--azione)}.cal-day.today{color:var(--azione);font-weight:900}
 .cal-day.sel{background:var(--azione);color:#fff!important}.cal-day.other-month{color:var(--brd)}
 .cal-day.past{color:var(--brd);cursor:default}.cal-day.past:hover{background:none}
-.cal-row-mp{display:flex;align-items:center;border-top:1px solid transparent;max-height:0;overflow:hidden;transition:max-height 0.25s ease,border-color 0.25s ease}
-.cal-row-mp.show{max-height:48px;border-top-color:var(--brd)}
+.cal-row-mp{display:flex;align-items:center;border-top:1px solid var(--brd);height:48px}
 .cal-btn-mp{flex:1;padding:8px 4px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:3px;background:#fff;color:var(--sub)}
 .cal-btn-mp i{font-size:17px}
 .cal-btn-mp.sel-mat{background:var(--mats);color:var(--mat)}
@@ -768,23 +767,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-calendar"></i> Calendario</div></div>
             <div class="cb">
-              <div style="padding:6px 0 4px;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px">Tipo di orario</div>
-              <div style="display:flex;flex-direction:column;gap:2px">
-                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveCalMode('ora')">
-                  <span id="cal-radio-ora" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
-                  <div><div style="font-size:16px;font-weight:700"><i class="ti ti-clock"></i> Orario</div><div style="font-size:13px;color:var(--sub);font-weight:600">Inserisci un orario preciso</div></div>
-                </label>
-                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveCalMode('mp')">
-                  <span id="cal-radio-mp" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
-                  <div><div style="font-size:16px;font-weight:700"><i class="ti ti-sun"></i><i class="ti ti-sunset-2"></i> Mattina / Pomeriggio</div><div style="font-size:13px;color:var(--sub);font-weight:600">Scegli il turno di consegna</div></div>
-                </label>
-                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveCalMode('niente')">
-                  <span id="cal-radio-niente" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
-                  <div><div style="font-size:16px;font-weight:700">— Solo giorno</div><div style="font-size:13px;color:var(--sub);font-weight:600">Nessun orario, solo la data</div></div>
-                </label>
-              </div>
-              <div style="margin-top:12px;border-top:1px solid var(--brd);padding-top:12px">
-                <div style="padding:6px 0 4px;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px">Formato data</div>
+              <div style="padding:6px 0 4px;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px">Formato data</div>
                 <div style="display:flex;flex-direction:column;gap:2px" id="date-format-options">
                   <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveDateFormat('dd/mm')">
                     <span id="dfr-ddmm" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
@@ -807,7 +790,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                     <div><div style="font-size:16px;font-weight:700">ven 24 apr</div><div style="font-size:13px;color:var(--sub);font-weight:600">Stile pill / etichetta</div></div>
                   </label>
                 </div>
-              </div>
             </div>
           </div>
           <div class="card">
@@ -1738,8 +1720,6 @@ function renderDetCalGrid(){
   const salvaSolo=document.getElementById('det-cal-salva-solo');
   if(salvaSolo)salvaSolo.style.display='none';
   if(rowExtra){
-    const showRow=detCalSelDate&&(_calSetMP||_calSetOra);
-    rowExtra.classList.toggle('show',showRow);
     if(btnMat)btnMat.style.display=_calSetMP?'':'none';
     if(btnPom)btnPom.style.display=_calSetMP?'':'none';
     if(timeWrap)timeWrap.style.display=_calSetOra?'flex':'none';
@@ -2045,15 +2025,8 @@ function saveCalMode(mode){
 }
 function saveCalSettings(){saveCalMode(_calMode);}
 function applyCalSettings(){
-  // Aggiorna radio UI (Impostazioni) e pillole (Nuovo Ordine + modal dettaglio)
+  // Aggiorna pillole (Nuovo Ordine + modal dettaglio)
   ['ora','mp','niente'].forEach(function(k){
-    const el=document.getElementById('cal-radio-'+k);
-    if(el){
-      el.innerHTML=_calMode===k?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';
-      el.style.borderColor=_calMode===k?'var(--azione)':'var(--brd)';
-      el.style.background=_calMode===k?'var(--azione)':'#fff';
-      el.parentElement.style.background=_calMode===k?'var(--azione-s)':'transparent';
-    }
     const p1=document.getElementById('cal-pill-'+k);
     if(p1)p1.classList.toggle('active',_calMode===k);
     const p2=document.getElementById('det-cal-pill-'+k);
@@ -2167,8 +2140,6 @@ function renderCal(){
   const timeWrap=document.getElementById('cal-time-wrap');
   const timeInp=document.getElementById('cal-time-inp');
   if(rowExtra){
-    const showRow=calSelDate&&(_calSetMP||_calSetOra);
-    rowExtra.classList.toggle('show',showRow);
     if(btnMat)btnMat.style.display=_calSetMP?'':'none';
     if(btnPom)btnPom.style.display=_calSetMP?'':'none';
     if(timeWrap)timeWrap.style.display=_calSetOra?'flex':'none';
