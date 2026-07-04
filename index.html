@@ -679,7 +679,11 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                     </div>
                   </div>
                 </div>
-                <div id="cal-hint" style="font-size:12px;color:var(--sub);font-weight:600;margin-top:6px;display:none"><i class="ti ti-bulb"></i> Puoi usare Mattina/Pomeriggio invece dell'orario dalle Impostazioni → Calendario</div>
+                <div id="cal-mode-switch" style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+                  <span class="pill" id="cal-pill-ora" onclick="saveCalMode('ora')">Orario</span>
+                  <span class="pill" id="cal-pill-mp" onclick="saveCalMode('mp')">Mattina/Pom.</span>
+                  <span class="pill" id="cal-pill-niente" onclick="saveCalMode('niente')">Solo giorno</span>
+                </div>
               </div>
             </div>
           </div>
@@ -842,13 +846,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div class="fg">
         <label class="fl">Categoria</label>
         <select class="fi" id="ac2" onchange="onCatChange(this)"><option value="">— Nessuna —</option></select>
-        <div id="nuova-cat-wrap" style="display:none;margin-top:8px">
-          <div style="display:flex;gap:8px;align-items:center">
-            <input class="fi" type="text" id="nuova-cat-input" placeholder="Nome nuova categoria…" style="flex:1;margin:0">
-            <button class="btn br" style="padding:10px 14px" onclick="confermaNuovaCat()"><i class="ti ti-check"></i></button>
-            <button class="btn bg2" style="padding:10px 12px" onclick="annullaNuovaCat()"><i class="ti ti-x"></i></button>
-          </div>
-        </div>
+        <div id="nuova-cat-wrap" style="display:none;margin-top:8px"><input class="fi" type="text" id="nuova-cat-input" placeholder="Nome nuova categoria…"></div>
       </div>
       <button class="btn br btn-full" onclick="addArt()" style="margin-bottom:16px">+ Aggiungi articolo</button>
       <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
@@ -909,13 +907,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div class="fg">
       <label class="fl">Categoria</label>
       <select class="fi" id="qac" onchange="onQCatChange(this)"><option value="">— Nessuna —</option></select>
-      <div id="qnuova-cat-wrap" style="display:none;margin-top:8px;overflow:hidden">
-        <div style="display:flex;gap:8px;align-items:center">
-          <input class="fi" type="text" id="qnuova-cat-input" placeholder="Nome nuova categoria…" style="flex:1;margin:0">
-          <button class="btn br" style="padding:10px 14px" onclick="confermaQNuovaCat()"><i class="ti ti-check"></i></button>
-          <button class="btn bg2" style="padding:10px 12px" onclick="annullaQNuovaCat()"><i class="ti ti-x"></i></button>
-        </div>
-      </div>
+      <div id="qnuova-cat-wrap" style="display:none;margin-top:8px;overflow:hidden"><input class="fi" type="text" id="qnuova-cat-input" placeholder="Nome nuova categoria…"></div>
     </div>
     <div class="ma" style="position:sticky;bottom:0;background:#fff;padding-top:12px;margin-top:8px">
       <button class="btn bg2" style="flex:1" onclick="closeModal('modal-qart')">Annulla</button>
@@ -1687,6 +1679,11 @@ function renderDetModal(o){
 
           </div>
         </div>
+        <div id="det-cal-mode-switch" style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+          <span class="pill" id="det-cal-pill-ora" onclick="saveCalMode('ora')">Orario</span>
+          <span class="pill" id="det-cal-pill-mp" onclick="saveCalMode('mp')">Mattina/Pom.</span>
+          <span class="pill" id="det-cal-pill-niente" onclick="saveCalMode('niente')">Solo giorno</span>
+        </div>
       </div>
     </div>
     <div style="margin-bottom:14px;border-bottom:1px solid var(--brd);padding-bottom:12px">
@@ -1977,7 +1974,7 @@ async function salvaOrdine(){const nome=document.getElementById('nn').value.trim
 function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun articolo.</p></div>';}
 function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';openModal('modal-edit-art');}
 async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato','v');}
-async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}if(articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' articoli del piano gratuito','err');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});articoliCreatiTotale++;
+async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;const ni=document.getElementById('nuova-cat-input');if(s.value==='__nuova__'&&ni&&ni.value.trim())c=ni.value.trim();if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}if(articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' articoli del piano gratuito','err');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});articoliCreatiTotale++;
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
   if(detQArtOid){await addItemToOrd(detQArtOid,id);detQArtOid=null;}
   else{sel.push({id:id,qty:'',um:'',nota:'',done:false});catS='Tutti';renderPills();renderArtS();renderSP();}
@@ -1998,11 +1995,7 @@ async function rinominaCat(nome){const v=(prompt('Nuovo nome per la categoria:',
 function refreshCatSelects(){_rcs('ac2');_rcs('qac')}
 function _rcs(id){const s=document.getElementById(id);if(!s)return;const cur=(s.value==='__nuova__'||s.value==='__qnuova__')?'':s.value;const sent=id==='qac'?'__qnuova__':'__nuova__';s.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('')+`<option value="${sent}">＋ Nuova categoria…</option>`;}
 function onCatChange(s){const w=document.getElementById('nuova-cat-wrap');if(s.value==='__nuova__'){w.style.display='block';setTimeout(function(){document.getElementById('nuova-cat-input').focus()},80)}else w.style.display='none'}
-async function confermaNuovaCat(){const v=document.getElementById('nuova-cat-input').value.trim();if(!v){toast('Inserisci il nome!','err');return}if(!cats.includes(v)){cats.push(v);cats.sort();await saveData();}refreshCatSelects();document.getElementById('ac2').value=v;document.getElementById('nuova-cat-wrap').style.display='none';toast('"'+v+'" creata','v');}
-function annullaNuovaCat(){document.getElementById('ac2').value='';document.getElementById('nuova-cat-wrap').style.display='none'}
 function onQCatChange(s){const w=document.getElementById('qnuova-cat-wrap');if(s.value==='__qnuova__'){w.style.display='block';setTimeout(function(){document.getElementById('qnuova-cat-input').focus()},80)}else w.style.display='none'}
-async function confermaQNuovaCat(){const v=document.getElementById('qnuova-cat-input').value.trim();if(!v){toast('Inserisci il nome!','err');return}if(!cats.includes(v)){cats.push(v);cats.sort();await saveData();}refreshCatSelects();document.getElementById('qac').value=v;document.getElementById('qnuova-cat-wrap').style.display='none';toast('"'+v+'" creata','v');}
-function annullaQNuovaCat(){document.getElementById('qac').value='';document.getElementById('qnuova-cat-wrap').style.display='none'}
 var _qOid=null;
 function openQArt(){_qOid=null;document.getElementById('qan').value='';document.getElementById('qac').value='';document.getElementById('qnuova-cat-wrap').style.display='none';openModal('modal-qart');setTimeout(function(){document.getElementById('qan').focus()},120)}
 async function addArtRapido(){
@@ -2046,21 +2039,25 @@ function saveCalMode(mode){
   localStorage.setItem('cal-settings',JSON.stringify({mode:_calMode}));
   applyCalSettings();
   renderCal();
+  const detModal=document.getElementById('modal-det');
+  if(detModal&&detModal.classList.contains('open'))renderDetCalGrid();
 }
 function saveCalSettings(){saveCalMode(_calMode);}
 function applyCalSettings(){
-  // Aggiorna radio UI
+  // Aggiorna radio UI (Impostazioni) e pillole (Nuovo Ordine + modal dettaglio)
   ['ora','mp','niente'].forEach(function(k){
     const el=document.getElementById('cal-radio-'+k);
-    if(!el)return;
-    el.innerHTML=_calMode===k?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';
-    el.style.borderColor=_calMode===k?'var(--azione)':'var(--brd)';
-    el.style.background=_calMode===k?'var(--azione)':'#fff';
-    el.parentElement.style.background=_calMode===k?'var(--azione-s)':'transparent';
+    if(el){
+      el.innerHTML=_calMode===k?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';
+      el.style.borderColor=_calMode===k?'var(--azione)':'var(--brd)';
+      el.style.background=_calMode===k?'var(--azione)':'#fff';
+      el.parentElement.style.background=_calMode===k?'var(--azione-s)':'transparent';
+    }
+    const p1=document.getElementById('cal-pill-'+k);
+    if(p1)p1.classList.toggle('active',_calMode===k);
+    const p2=document.getElementById('det-cal-pill-'+k);
+    if(p2)p2.classList.toggle('active',_calMode===k);
   });
-  // Aggiorna hint nel calendario
-  const hint=document.getElementById('cal-hint');
-  if(hint)hint.style.display=_calMode==='ora'?'block':'none';
   // Variabili di compatibilità
   _calSetMP=_calMode==='mp';
   _calSetOra=_calMode==='ora';
