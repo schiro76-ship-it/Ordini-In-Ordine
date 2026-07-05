@@ -209,6 +209,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;align-items:start}
 @media(max-width:480px){.stats-row{grid-template-columns:repeat(2,1fr)}}
 button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:active{filter:brightness(0.85)}button:disabled:hover{filter:none}
+.link-legale{transition:filter 0.15s}.link-legale:hover{filter:brightness(0.92)}.link-legale:active{filter:brightness(0.85)}
 [onclick]{transition:filter 0.15s}[onclick]:hover{filter:brightness(0.96)}[onclick]:active{filter:brightness(0.9)}
 .sc{background:#fff;border-radius:12px;padding:13px 8px;text-align:center;box-shadow:var(--sh)}
 .sc-nuovo{background:var(--azione)}
@@ -527,9 +528,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <label for="reg-privacy-accept" style="font-size:13px;color:#6B7280;font-weight:600;cursor:pointer">Dichiaro di aver letto e accettato i seguenti documenti:</label>
         </div>
         <div style="display:flex;flex-direction:column;margin-top:4px;margin-left:24px">
-          <a href="termini.html" target="_blank" style="color:#FF6B35;font-weight:800;text-decoration:underline;font-size:13px;padding:6px 4px">Termini e Condizioni</a>
-          <a href="privacy.html" target="_blank" style="color:#FF6B35;font-weight:800;text-decoration:underline;font-size:13px;padding:6px 4px">Privacy Policy</a>
-          <a href="dpa.html" target="_blank" style="color:#FF6B35;font-weight:800;text-decoration:underline;font-size:13px;padding:6px 4px">Accordo sul trattamento dati</a>
+          <a class="link-legale" href="termini.html" target="_blank" style="color:#FF6B35;font-weight:800;text-decoration:underline;font-size:13px;padding:6px 4px">Termini e Condizioni</a>
+          <a class="link-legale" href="privacy.html" target="_blank" style="color:#FF6B35;font-weight:800;text-decoration:underline;font-size:13px;padding:6px 4px">Privacy Policy</a>
+          <a class="link-legale" href="dpa.html" target="_blank" style="color:#FF6B35;font-weight:800;text-decoration:underline;font-size:13px;padding:6px 4px">Accordo sul trattamento dati</a>
         </div>
       </div>
       <button class="login-btn" onclick="doRegister()">Crea account</button>      <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
