@@ -459,10 +459,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       </div>
       <div style="font-size:14px;color:#6B7280;font-weight:600;margin-top:4px;text-align:center">Gestione ordini per la tua attività</div>
       <p class="brand-tagline"><ul style="list-style:disc;padding-left:20px;margin:0;text-align:left;color:#2C3E50"><li style="margin-bottom:8px">Tutti gli ordini in un unico posto</li><li style="margin-bottom:8px">Il Riepilogo ti dice cosa preparare e quando</li><li>Lo Storico ti aiuta a programmare il lavoro nei periodi più intensi</li></ul></p>
-      <div style="margin-top:18px;text-align:center">
-        <div style="font-family:'Nunito',sans-serif;font-size:23px;font-weight:900;color:#FF6B35">Inizia gratis</div>
-        <div style="font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:#6B7280;margin-top:3px">Primo mese gratis, poi solo 9,99 € al mese. Più Ordine, meno tempo perso.</div>
-      </div>
     </div>
     <div class="login-box" style="max-width:400px">
     <div class="login-logo" style="display:block">
@@ -473,10 +469,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <span style="color:#2C3E50">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#2C3E50">nOrdine</span>
       </div>
       <div class="app-sub" style="color:#6B7280">Gestione ordini per la tua attività</div>
-      <div style="margin-top:12px">
-        <div style="font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:#FF6B35">Inizia gratis</div>
-        <div style="font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:#6B7280;margin-top:2px">Primo mese gratis, poi solo 9,99 € al mese. Più Ordine, meno tempo perso.</div>
-      </div>
     </div>
     <div class="login-tab">
       <button class="active" id="tab-login-btn" onclick="switchLoginTab('login')">Accedi</button>
@@ -497,6 +489,10 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       </button>
     </div>
     <div id="form-reg" style="display:none">
+      <div style="text-align:center;margin-bottom:14px">
+        <div style="font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;color:#FF6B35">Inizia gratis</div>
+        <div style="font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#6B7280;margin-top:2px">Primo mese gratis, poi solo 9,99 € al mese. Più Ordine, meno tempo perso.</div>
+      </div>
       <div class="login-field"><label>Nome attività *</label><input type="text" id="reg-attivita" placeholder="Es. Macelleria Rossi" autocomplete="organization"></div>
       <div class="login-field"><label>Email</label><input type="email" id="reg-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
       <div class="login-field"><label>Password</label><input type="password" id="reg-pwd" placeholder="Minimo 6 caratteri" autocomplete="new-password"></div>
@@ -2385,7 +2381,7 @@ auth.languageCode='it';
 let currentUser=null;
 auth.onAuthStateChanged(function(user){if(user){currentUser=user;document.getElementById('login-screen').style.display='none';boot();if(!user.emailVerified&&user.providerData&&user.providerData[0]&&user.providerData[0].providerId==='password'){setInterval(function(){if(!currentUser)return;currentUser.reload().then(function(){if(currentUser.emailVerified)refreshAll();});},20000);}}else{currentUser=null;document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';}});
 function salvaAttivita(){const nome=document.getElementById('input-attivita').value.trim();if(!nome){toast('Inserisci il nome attività!','err');return;}if(!currentUser){toast('Non sei loggato','err');return;}currentUser.updateProfile({displayName:nome}).then(function(){return db.collection('profili').doc(currentUser.uid).set({attivita:nome,email:currentUser.email,aggiornato:new Date().toISOString()},{merge:true});}).then(function(){const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita)sbAttivita.textContent=nome;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita)inputAttivita.value=nome;toast('Nome attività salvato','v');}).catch(function(e){toast('Errore: '+e.message,'err');});}
-function switchLoginTab(tab){document.getElementById('form-login').style.display=tab==='login'?'block':'none';document.getElementById('form-reg').style.display=tab==='registrati'?'block':'none';document.getElementById('tab-login-btn').classList.toggle('active',tab==='login');document.getElementById('tab-reg-btn').classList.toggle('active',tab==='registrati');document.getElementById('login-err').textContent='';}
+function switchLoginTab(tab){document.getElementById('form-login').style.display=tab==='login'?'block':'none';document.getElementById('form-reg').style.display=tab==='registrati'?'block':'none';document.getElementById('tab-login-btn').classList.toggle('active',tab==='login');document.getElementById('tab-reg-btn').classList.toggle('active',tab==='registrati');document.getElementById('login-err').textContent='';const ls=document.getElementById('login-screen');if(ls)ls.scrollTop=0;}
 function loginErr(msg){document.getElementById('login-err').textContent=msg;}
 function evidenziaCampo(id){
   const el=document.getElementById(id);
