@@ -810,6 +810,20 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card">
+            <div class="ch"><div class="ct"><i class="ti ti-bell"></i> Notifiche</div></div>
+            <div class="cb">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+                <div><div style="font-size:16px;font-weight:700">Nuovo ordine</div><div style="font-size:13px;color:var(--sub);font-weight:600">Notifica quando arriva un ordine da un altro dispositivo</div></div>
+                <label style="position:relative;display:inline-block;width:48px;height:26px;flex-shrink:0">
+                  <input type="checkbox" id="notif-nuovo-ordine" onchange="toggleNotifNuovoOrdine()" style="opacity:0;width:0;height:0">
+                  <span id="notif-nuovo-ordine-track" style="position:absolute;inset:0;background:#ccc;border-radius:13px;cursor:pointer;transition:0.3s"></span>
+                  <span id="notif-nuovo-ordine-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
+                </label>
+              </div>
+              <div id="notif-permesso-avviso" style="display:none;font-size:12px;font-weight:700;color:#B45309;background:#FEF3E2;border-radius:8px;padding:8px 10px;margin-top:4px">Permesso notifiche negato dal browser. Abilitalo nelle impostazioni del browser/sistema per ricevere le notifiche.</div>
+            </div>
+          </div>
+          <div class="card">
             <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-alert-triangle"></i> Urgenza ordini</div><div style="font-size:13px;color:var(--sub);font-weight:600">Da quanti giorni prima del ritiro un ordine deve apparire rosso/urgente</div></div>
             <div class="cb">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0">
@@ -1001,6 +1015,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 
 <script>
 let isNewUser=false;
@@ -1048,6 +1063,8 @@ const db=firebase.firestore();
 const DOC_ID='macelleria-schirinzi';
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
+let fcmTokens=[]; // Token dei dispositivi per notifiche push — sincronizzato su Firestore
+let _notifNuovoOrdine=true; // Interruttore notifica "nuovo ordine" — sincronizzato su Firestore, default attivo
 let ordiniPerMese={};
 let stampeCount=0;
 let ordiniCreatiTotale=0;
@@ -1059,13 +1076,15 @@ const LIMITE_ORDINI_ATTIVO=false;
 const LIMITI_FREE={ordini:100,articoli:15,stampe:20};
 const DEFAULT_UM=['kg','g','fette','pezzi','numero','vaschette','bustine'];
 const DEFAULT_ARTS=getAttivitaById('macelleria').arts.map((a,i)=>({id:i+1,...a}));
-async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,stSetOrdini:_stSetOrdini};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload);}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
+async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,stSetOrdini:_stSetOrdini,fcmTokens,notifNuovoOrdine:_notifNuovoOrdine};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload);}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
 function applyRemoteSettings(d){
   _urgDays=(typeof d.urgDays==='number'&&d.urgDays>=0)?d.urgDays:0;
   _calMode=d.calMode||'ora';
   dateFormat=d.dateFormat||'gg dd/mm';
   _stSetOrdini=d.stSetOrdini===true;
-  applyUrgSettings();applyCalSettings();applyDateFormatUI();applyStoricoSettings();
+  fcmTokens=Array.isArray(d.fcmTokens)?d.fcmTokens:[];
+  _notifNuovoOrdine=d.notifNuovoOrdine!==false;
+  applyUrgSettings();applyCalSettings();applyDateFormatUI();applyStoricoSettings();applyNotifSettings();
 }
 async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,stSetOrdini:_stSetOrdini}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
 // Banner "Aggiungi a Home" per iOS — Safari, Chrome, Firefox, Edge su iOS usano tutti il motore WebKit,
@@ -1139,7 +1158,7 @@ function goTab(name){
   // Assicura che bottom-nav sia sempre visibile quando si cambia tab
   const nav=document.getElementById('bottom-nav');
   if(nav&&document.body.classList.contains('portrait-phone'))nav.style.display='flex';
-  if(name==='impostazioni'){renderArtM();renderUMDisplay();applyDateFormatUI();applyCalSettings();applyUrgSettings();}
+  if(name==='impostazioni'){renderArtM();renderUMDisplay();applyDateFormatUI();applyCalSettings();applyUrgSettings();applyNotifSettings();}
   if(name==='ordini')renderOrdini();
   if(name==='riepilogo'){_rpOrdineCongelato=null;rpExpanded={};rpDayFilter=null;renderRiepilogo();}
   if(name==='storico'){renderStoricoMensile();renderStoricoRiepilogo();}
@@ -2243,6 +2262,68 @@ function applyStoricoSettings(){
   if(cb)cb.checked=_stSetOrdini;
   if(track)track.style.background=_stSetOrdini?'var(--azione)':'#ccc';
   if(thumb)thumb.style.left=_stSetOrdini?'25px':'3px';
+}
+
+// Notifiche push — interruttore "nuovo ordine", sincronizzato su Firestore (campo notifNuovoOrdine)
+function applyNotifSettings(){
+  const cb=document.getElementById('notif-nuovo-ordine');
+  const track=document.getElementById('notif-nuovo-ordine-track');
+  const thumb=document.getElementById('notif-nuovo-ordine-thumb');
+  if(cb)cb.checked=_notifNuovoOrdine;
+  if(track)track.style.background=_notifNuovoOrdine?'var(--azione)':'#ccc';
+  if(thumb)thumb.style.left=_notifNuovoOrdine?'25px':'3px';
+}
+async function toggleNotifNuovoOrdine(){
+  const cb=document.getElementById('notif-nuovo-ordine');
+  const acceso=cb.checked;
+  const avviso=document.getElementById('notif-permesso-avviso');
+  if(avviso)avviso.style.display='none';
+  if(acceso){
+    const ok=await initFCM();
+    if(!ok){
+      // Permesso negato o non disponibile: riporta l'interruttore su spento
+      cb.checked=false;
+      if(avviso)avviso.style.display='block';
+      return;
+    }
+  }
+  _notifNuovoOrdine=acceso;
+  applyNotifSettings();
+  saveData();
+}
+// Richiede il permesso notifiche, registra il Service Worker dedicato e salva il token del dispositivo
+async function initFCM(){
+  if(!('serviceWorker' in navigator)||!('Notification' in window)){
+    console.warn('Notifiche push non supportate su questo browser');
+    return false;
+  }
+  try{
+    const swReg=await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    const permission=await Notification.requestPermission();
+    if(permission!=='granted')return false;
+    const messaging=firebase.messaging();
+    const VAPID_KEY='BOXvpBBDfaEB-tRbW7y-EopXVK-34fFsq1UYOx3xUVJheCvvYvCtbMqJF_vSTUAqsTrwxc8DzornlX047sOgLhU';
+    const token=await messaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:swReg});
+    if(token)await salvaFcmToken(token);
+    messaging.onMessage((payload)=>{
+      const title=payload.notification?.title||'OrdinInOrdine';
+      const body=payload.notification?.body||'';
+      if(Notification.permission==='granted')new Notification(title,{body});
+    });
+    return true;
+  }catch(e){
+    console.warn('Errore inizializzazione notifiche push',e);
+    return false;
+  }
+}
+async function salvaFcmToken(token){
+  if(!token)return;
+  const tokens=Array.isArray(fcmTokens)?fcmTokens:[];
+  if(!tokens.includes(token)){
+    tokens.push(token);
+    fcmTokens=tokens;
+    await saveData();
+  }
 }
 
 let calYear=0,calMonth=0,calSelDate=null,calOra=null;
