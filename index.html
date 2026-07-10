@@ -805,6 +805,19 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card">
+            <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-alert-triangle"></i> Urgenza ordini</div><div style="font-size:13px;color:var(--sub);font-weight:600">Da quanti giorni prima del ritiro un ordine deve apparire rosso/urgente</div></div>
+            <div class="cb">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0">
+                <div id="urg-giorni-lbl" style="font-size:15px;font-weight:700;color:var(--txt)">Solo il giorno del ritiro</div>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <button class="btn br" style="width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%" onclick="changeUrgDays(-1)"><i class="ti ti-minus" style="font-size:16px"></i></button>
+                  <span id="urg-giorni-val" style="font-size:18px;font-weight:900;min-width:22px;text-align:center">0</span>
+                  <button class="btn br" style="width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%" onclick="changeUrgDays(1)"><i class="ti ti-plus" style="font-size:16px"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-calendar"></i> Calendario</div></div>
             <div class="cb">
               <div style="padding:6px 0 4px;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px">Formato data</div>
@@ -1009,6 +1022,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const DOC_ID='macelleria-schirinzi';
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
+let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
 let ordiniPerMese={};
 let stampeCount=0;
 let ordiniCreatiTotale=0;
@@ -1020,14 +1034,22 @@ const LIMITE_ORDINI_ATTIVO=false;
 const LIMITI_FREE={ordini:100,articoli:15,stampe:20};
 const DEFAULT_UM=['kg','g','fette','pezzi','numero','vaschette','bustine'];
 const DEFAULT_ARTS=getAttivitaById('macelleria').arts.map((a,i)=>({id:i+1,...a}));
-async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload);}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
-async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
-async function boot(){applyTheme(DEFAULT_THEME);loadDateFormat();loadCalSettings();loadStoricoSettings();try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
+async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,stSetOrdini:_stSetOrdini};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload);}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
+function applyRemoteSettings(d){
+  _urgDays=(typeof d.urgDays==='number'&&d.urgDays>=0)?d.urgDays:0;
+  _calMode=d.calMode||'ora';
+  dateFormat=d.dateFormat||'gg dd/mm';
+  _stSetOrdini=d.stSetOrdini===true;
+  applyUrgSettings();applyCalSettings();applyDateFormatUI();applyStoricoSettings();
+}
+async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,stSetOrdini:_stSetOrdini}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
+async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
   try{
     db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
       const d=snap.data();
       arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;
+      applyRemoteSettings(d);
       refreshAll();
       const tabRep=document.getElementById('tab-riepilogo');
       if(tabRep&&tabRep.classList.contains('active')){
@@ -1058,7 +1080,7 @@ function goTab(name){
   // Assicura che bottom-nav sia sempre visibile quando si cambia tab
   const nav=document.getElementById('bottom-nav');
   if(nav&&document.body.classList.contains('portrait-phone'))nav.style.display='flex';
-  if(name==='impostazioni'){renderArtM();renderUMDisplay();applyDateFormatUI();applyCalSettings();}
+  if(name==='impostazioni'){renderArtM();renderUMDisplay();applyDateFormatUI();applyCalSettings();applyUrgSettings();}
   if(name==='ordini')renderOrdini();
   if(name==='riepilogo'){_rpOrdineCongelato=null;rpExpanded={};rpDayFilter=null;renderRiepilogo();}
   if(name==='storico'){renderStoricoMensile();renderStoricoRiepilogo();}
@@ -1090,8 +1112,9 @@ let ft='tutti';
 function setFT(t,cid){ft=t;document.querySelectorAll('.sc-filt').forEach(c=>{c.classList.remove('active-filt');c.style.borderColor='';});const el=document.getElementById(cid);if(el){el.classList.add('active-filt');if(cid==='sf-evadere'){const urgente=el.dataset.urgente==='1';el.style.borderColor=urgente?'var(--urg)':'var(--ev)';}}renderOrdini();}
 const fmtD=d=>{if(!d)return'';return fmtDataByFormat(d);};
 const oggi=()=>new Date().toISOString().slice(0,10);
+const oggiPiu=(n)=>{const d=new Date();d.setDate(d.getDate()+(n||0));return d.toISOString().slice(0,10);};
 const nowMin=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
-function isUrgente(o){if(!o.data||o.stato!=='evadere')return false;return o.data<=oggi()}
+function isUrgente(o){if(!o.data||o.stato!=='evadere')return false;return o.data<=oggiPiu(_urgDays)}
 function priScore(o){if(!o.data)return Number.MAX_SAFE_INTEGER;const base=new Date(o.data+'T00:00:00').getTime();if(o.ora){const parts=o.ora.split(':');return base+(parseInt(parts[0])||0)*3600000+(parseInt(parts[1])||0)*60000;}return base+(o.turno==='pomeriggio'?43200000:0);}
 function isRitiratoVecchio(o){if(o.stato!=='ritirato')return false;const ref=o.ritirato_il||o.creato;if(!ref)return false;return(Date.now()-new Date(ref).getTime())>24*60*60*1000;}
 function buildOcHTML(lista){
@@ -2054,19 +2077,15 @@ async function addArtRapido(){
     toast('"'+n+'" aggiunto','v');
   }
 }
-// Impostazioni calendario — modalità: 'ora' | 'mp' | 'niente'
+// Impostazioni calendario — modalità: 'ora' | 'mp' | 'niente' — sincronizzata su Firestore (campo calMode nel doc 'dati')
 var _calMode='ora';
-function loadCalSettings(){
-  try{const s=JSON.parse(localStorage.getItem('cal-settings')||'{}');_calMode=s.mode||'ora';}catch(e){}
-  applyCalSettings();
-}
 function saveCalMode(mode){
   _calMode=mode;
-  localStorage.setItem('cal-settings',JSON.stringify({mode:_calMode}));
   applyCalSettings();
   renderCal();
   const detModal=document.getElementById('modal-det');
   if(detModal&&detModal.classList.contains('open'))renderDetCalGrid();
+  saveData();
 }
 function saveCalSettings(){saveCalMode(_calMode);}
 function applyCalSettings(){
@@ -2083,13 +2102,38 @@ function applyCalSettings(){
 }
 var _calSetMP=false,_calSetOra=true;
 
-// Impostazioni formato data
+// Impostazioni soglia urgenza — giorni di anticipo prima del ritiro per colorare l'ordine di rosso
+// Sincronizzata su Firestore (campo urgDays nel doc 'dati'): stessa soglia su tutti i dispositivi/operatori
+function changeUrgDays(delta){
+  let v=_urgDays+delta;
+  if(v<0)v=0;
+  if(v>30)v=30;
+  setUrgDays(v);
+}
+function setUrgDays(v){
+  v=parseInt(v,10);
+  if(isNaN(v)||v<0)v=0;
+  if(v>30)v=30;
+  _urgDays=v;
+  applyUrgSettings();
+  renderOrdini();
+  const rpTab=document.getElementById('tab-riepilogo');
+  if(rpTab&&rpTab.classList.contains('active'))renderRiepilogo();
+  saveData();
+}
+function applyUrgSettings(){
+  const val=document.getElementById('urg-giorni-val');
+  if(val)val.textContent=_urgDays;
+  const lbl=document.getElementById('urg-giorni-lbl');
+  if(lbl)lbl.textContent=_urgDays===0?'Solo il giorno del ritiro':(_urgDays===1?'Da 1 giorno prima del ritiro':'Da '+_urgDays+' giorni prima del ritiro');
+}
+
+// Impostazioni formato data — sincronizzato su Firestore (campo dateFormat nel doc 'dati')
 let dateFormat='gg dd/mm';
-function loadDateFormat(){try{const s=JSON.parse(localStorage.getItem('date-format-settings')||'{}');dateFormat=s.fmt||'gg dd/mm';}catch(e){}}
-function saveDateFormat(fmt){dateFormat=fmt;try{localStorage.setItem('date-format-settings',JSON.stringify({fmt}));}catch(e){}applyDateFormatUI();refreshAll();}
+function saveDateFormat(fmt){dateFormat=fmt;applyDateFormatUI();refreshAll();saveData();}
 function applyDateFormatUI(){const map={'dd/mm':'dfr-ddmm','gg dd/mm':'dfr-ggddmm','dd/mm/yy':'dfr-ddmmyy','dd/mm/yyyy':'dfr-ddmmyyyy','gg dd mmm':'dfr-ggddmmm'};Object.entries(map).forEach(([fmt,id])=>{const el=document.getElementById(id);if(!el)return;const active=dateFormat===fmt;el.innerHTML=active?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';el.style.borderColor=active?'var(--azione)':'var(--brd)';el.style.background=active?'var(--azione)':'#fff';el.parentElement.style.background=active?'var(--azione-s)':'transparent';});}
 function fmtDataByFormat(isoDate){if(!isoDate)return'—';const d=new Date(isoDate+'T00:00:00');const gg=['dom','lun','mar','mer','gio','ven','sab'][d.getDay()];const dd=String(d.getDate()).padStart(2,'0');const mm=String(d.getMonth()+1).padStart(2,'0');const yy=String(d.getFullYear()).slice(2);const yyyy=String(d.getFullYear());const mesi=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];const mmm=mesi[d.getMonth()];switch(dateFormat){case'dd/mm':return dd+'/'+mm;case'dd/mm/yy':return dd+'/'+mm+'/'+yy;case'dd/mm/yyyy':return dd+'/'+mm+'/'+yyyy;case'gg dd mmm':return gg+' '+dd+' '+mmm;default:return gg+' '+dd+'/'+mm;}}
-// Impostazioni storico
+// Impostazioni storico — _stSetOrdini sincronizzato su Firestore (campo stSetOrdini nel doc 'dati')
 var _stSetOrdini=false;
 var _stDetCerca='',_stDetCat='Tutte',_stDetDal='',_stDetAl='';
 var _stDetCalField=null,_stDetCalYear=new Date().getFullYear(),_stDetCalMonth=new Date().getMonth();
@@ -2127,15 +2171,11 @@ function selStDetCalDay(iso){
   setTimeout(function(){const el=document.getElementById('st-det-cerca');if(el)el.focus();},50);
 }
 
-function loadStoricoSettings(){
-  try{const s=JSON.parse(localStorage.getItem('st-settings')||'{}');_stSetOrdini=s.ordini===true;}catch(e){}
-  applyStoricoSettings();
-}
 function saveStoricoSettings(){
   _stSetOrdini=document.getElementById('st-set-ordini').checked;
-  localStorage.setItem('st-settings',JSON.stringify({ordini:_stSetOrdini}));
   applyStoricoSettings();
   renderStoricoRiepilogo();
+  saveData();
 }
 function applyStoricoSettings(){
   const cb=document.getElementById('st-set-ordini');
