@@ -1121,7 +1121,7 @@ function showIosInstallInstructions(){
   openModal('modal-ios-install');
 }
 
-async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if(_notifNuovoOrdine){initFCM().catch((e)=>console.warn('Auto-init FCM fallito',e));}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
   try{
     db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
