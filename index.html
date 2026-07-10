@@ -820,7 +820,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <span id="notif-nuovo-ordine-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
                 </label>
               </div>
-              <div id="notif-permesso-avviso" style="display:none;font-size:12px;font-weight:700;color:#B45309;background:#FEF3E2;border-radius:8px;padding:8px 10px;margin-top:4px">Permesso notifiche negato dal browser. Abilitalo nelle impostazioni del browser/sistema per ricevere le notifiche.</div>
+              <div id="notif-permesso-avviso" style="display:none;font-size:12px;font-weight:700;color:#B45309;background:#FEF3E2;border-radius:8px;padding:8px 10px;margin-top:4px">Non è stato possibile attivare le notifiche su questo dispositivo. Verifica il permesso notifiche del browser oppure riprova tra qualche istante.</div>
             </div>
           </div>
           <div class="card">
@@ -2298,7 +2298,10 @@ async function initFCM(){
     return false;
   }
   try{
-    const swReg=await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    // Attende che il Service Worker sia effettivamente attivo (non solo registrato)
+    // prima di richiedere il token — altrimenti pushManager non è ancora disponibile
+    const swReg=await navigator.serviceWorker.ready;
     const permission=await Notification.requestPermission();
     if(permission!=='granted')return false;
     const messaging=firebase.messaging();
