@@ -241,21 +241,34 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .oc-num.ev{background:var(--ev)}.oc-num.co{background:var(--g)}.oc-num.ri{background:var(--gr)}.oc-num.urg{background:var(--urg)}
 .oc-num{transition:background 0.3s ease}
 .oc.fading{opacity:0;transform:translateX(8px)}
-.oc-top{display:flex;align-items:flex-start;gap:12px;padding:14px;cursor:pointer}
-.oc-num{width:44px;height:44px;border-radius:50%;font-size:17px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;margin-top:2px}
+.oc-top{padding:14px 14px 10px;display:flex;flex-direction:column;gap:4px}
+.oc-head{display:flex;align-items:center;flex-wrap:wrap;gap:6px 9px}
+.oc-head .oc-num{width:auto;height:auto;padding:4px 9px;border-radius:8px;font-size:13px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff}
 .oc-nome{font-size:18px;font-weight:800}
-.oc-meta{font-size:14px;color:var(--sub);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .stato-badge{display:inline-flex;align-items:center;gap:3px;font-size:13px;font-weight:800;padding:3px 9px;border-radius:20px;transition:all 0.2s ease}
 .sb-ev{background:var(--evs);color:var(--ev)}.sb-co{background:var(--gs);color:var(--g)}.sb-ri{background:var(--grs);color:var(--gr)}
 .tb{display:inline-flex;align-items:center;gap:3px;font-size:13px;font-weight:800;padding:3px 9px;border-radius:20px}
 .tb.m{background:var(--mats);color:var(--mat)}.tb.p{background:var(--poms);color:var(--pom)}
-.oc-acts{display:flex;flex-direction:column;gap:5px;flex-shrink:0;margin-top:2px;min-width:90px}
+.oc-acts-row{display:flex;align-items:stretch;gap:8px;padding:6px 14px 14px}
+.oc-acts-row>.act-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.act-placeholder{visibility:hidden}
+.oc-acts-mini{display:flex;gap:6px;flex:1;min-width:0}
+.oc-acts-mini .act-btn-mini{flex:1}
 .act-btn{border:none;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:8px 13px;transition:background 0.15s,opacity 0.15s;white-space:nowrap}
 .act-btn i{font-size:16px;vertical-align:-2px}
+.act-btn-mini{padding:0;min-height:38px}
+.act-btn-mini i{font-size:17px;vertical-align:0}
 .act-green{background:var(--gs);color:var(--g);transition:filter 0.15s}.act-green:hover{filter:brightness(0.92)}.act-green:active{filter:brightness(0.85)}
 .act-grey{background:var(--grs);color:var(--gr);transition:filter 0.15s}.act-grey:hover{filter:brightness(0.92)}.act-grey:active{filter:brightness(0.85)}
+.act-mod{background:var(--azione-s);color:var(--azione);transition:filter 0.15s}.act-mod:hover{filter:brightness(0.92)}.act-mod:active{filter:brightness(0.85)}
 .act-del{background:var(--rs);color:var(--r);transition:filter 0.15s}.act-del:hover{filter:brightness(0.92)}.act-del:active{filter:brightness(0.85)}
 .act-print{background:#EEF2FF;color:#4F46E5;transition:filter 0.15s}.act-print:hover{filter:brightness(0.92)}.act-print:active{filter:brightness(0.85)}
+@media(min-width:640px){
+  .oc-acts-row>.act-btn:not(.act-btn-mini){flex:none}
+  .oc-acts-row .act-placeholder{display:none}
+  .oc-acts-mini{flex:none}
+  .oc-acts-mini .act-btn-mini{flex:none;width:38px}
+}
 .act-print-rp{background:#EEF2FF;color:#4F46E5;border:1.5px solid rgba(79,70,229,0.25);transition:filter 0.15s}.act-print-rp:hover{filter:brightness(0.92)}.act-print-rp:active{filter:brightness(0.85)}
 .btn-condividi-print:hover{filter:brightness(1.2);transition:filter 0.15s}
 .modal-act-green{background:#C6E8D5;color:var(--g);border:1.5px solid var(--g);transition:filter 0.15s}.modal-act-green:hover{filter:brightness(0.92)}.modal-act-green:active{filter:brightness(0.85)}
@@ -1112,19 +1125,23 @@ function buildOcHTML(lista){
         ${it.nota?`<span class="nt" style="min-width:140px">"${it.nota}"</span>`:''}
       </div>`;
     }).join('');
-    return`<div class="${ocClass}" data-oid="${o.id}" onclick="openDet(${o.id})" style="cursor:pointer">
-      <div class="oc-top" style="align-items:flex-start">
-        <div class="oc-num ${nc}" style="margin-top:2px;flex-shrink:0">#${o.num}</div>
-        <div class="oc-info" style="flex:1;min-width:0">
+    const statoBtn=o.stato==='evadere'?`<button class="act-btn act-green" onclick="setStato(${o.id},'completato')"><i class="ti ti-check"></i> Completato</button>`:o.stato==='completato'?`<button class="act-btn act-grey" onclick="setStato(${o.id},'ritirato')">Ritirato</button>`:`<div class="act-btn act-placeholder"></div>`;
+    return`<div class="${ocClass}" data-oid="${o.id}">
+      <div class="oc-top">
+        <div class="oc-head">
+          <div class="oc-num ${nc}">#${o.num}</div>
           <div class="oc-nome">${o.nome}</div>
-          ${ds?`<div style="margin-top:2px">${ds}</div>`:''}
-          ${o.note?`<div style="font-size:15px;color:var(--sub);font-style:italic;font-weight:700;margin-top:4px">"${o.note}"</div>`:''}
-          <div class="oc-meta">${sb2}${pr}</div>
+          ${ds?ds:''}
+          ${sb2}${pr}
         </div>
-        <div class="oc-acts" style="margin-top:2px;flex-shrink:0;flex-direction:column;gap:5px" onclick="event.stopPropagation()">
-          ${o.stato==='evadere'?`<button class="act-btn act-green" style="width:100%" onclick="event.stopPropagation();setStato(${o.id},'completato')"><i class="ti ti-check"></i> Completato</button>`:o.stato==='completato'?`<button class="act-btn act-grey" style="width:100%" onclick="event.stopPropagation();setStato(${o.id},'ritirato')">Ritirato</button>`:'<div style="height:0"></div>'}
-          <button class="act-btn act-print" style="width:100%" onclick="event.stopPropagation();stampaEtichetta(${o.id})"><i class="ti ti-printer"></i> Stampa</button>
-          ${o.stato!=='ritirato'?`<button class="act-btn act-del" style="width:100%" onclick="event.stopPropagation();eliminaOrd(${o.id})"><i class="ti ti-trash"></i> Elimina</button>`:''}
+        ${o.note?`<div style="font-size:15px;color:var(--sub);font-style:italic;font-weight:700;margin-top:2px">"${o.note}"</div>`:''}
+      </div>
+      <div class="oc-acts-row">
+        ${statoBtn}
+        <button class="act-btn act-mod" onclick="openDet(${o.id})"><i class="ti ti-edit"></i> Modifica</button>
+        <div class="oc-acts-mini">
+          <button class="act-btn act-btn-mini act-print" onclick="stampaEtichetta(${o.id})" aria-label="Stampa etichetta"><i class="ti ti-printer"></i></button>
+          ${o.stato!=='ritirato'?`<button class="act-btn act-btn-mini act-del" onclick="eliminaOrd(${o.id})" aria-label="Elimina ordine"><i class="ti ti-trash"></i></button>`:''}
         </div>
       </div>
       ${tags?`<div class="oc-items">${tags}</div>`:''}
