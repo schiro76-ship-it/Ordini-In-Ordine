@@ -131,6 +131,7 @@ body.portrait-phone #bottom-nav{display:flex}
    .pcontent NON aggiunge padding extra (lo spazio è già dato dal body) */
 body.portrait-phone .page-wrap{padding-bottom:calc(74px + env(safe-area-inset-bottom,16px))}
 body.portrait-phone .modal{padding-bottom:calc(110px + env(safe-area-inset-bottom,28px))}
+body.portrait-phone #modal-del-conf .modal{padding-bottom:max(30px, env(safe-area-inset-bottom,20px))}
 body.portrait-phone .modal-qart-inner{padding-bottom:calc(110px + env(safe-area-inset-bottom,28px))}
 #btn-nuovo-ordini{display:none}
 body.portrait-phone .stats-row{grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px}
@@ -986,8 +987,9 @@ function obNext(){
 async function obConfirm(){if(!obSelectedAttivita)return;const attivita=getAttivitaById(obSelectedAttivita);const defaultTheme=getAttivitaById('macelleria');cats=[...attivita.cats];arts=attivita.arts.map((a,i)=>({id:i+1,...a}));unitaMisura=['kg','g','pezzi','numero','fette','vaschette','bustine'];ords=[];await saveData();if(currentUser){await db.collection('profili').doc(currentUser.uid).set({attivita:currentUser.displayName||'',email:currentUser.email,tipoAttivita:obSelectedAttivita,tema:'macelleria',onboardingCompleto:true,creato:new Date().toISOString()},{merge:true});}applyTheme(DEFAULT_THEME);document.getElementById('onboarding-screen').style.display='none';refreshAll();toast('Benvenuto!','v');}
 function applyTheme(theme){const root=document.documentElement;root.style.setProperty('--r',theme.r);root.style.setProperty('--rs',theme.rs);root.style.setProperty('--g',theme.g);root.style.setProperty('--gs',theme.gs);root.style.setProperty('--bg',theme.bg);const sb=document.querySelector('.sidebar');if(sb)sb.style.background=theme.sb;const ext=document.getElementById('sidebar-extender');if(ext)ext.style.background=theme.sb;const cover=document.getElementById('status-bar-cover');if(cover)cover.style.background=theme.sb;}
 
-async function checkOnboarding(){if(!currentUser)return;try{const snap=await db.collection('profili').doc(currentUser.uid).get();if(snap.exists&&snap.data().onboardingCompleto){applyTheme(DEFAULT_THEME);}else{showOnboarding();}}catch(e){showOnboarding();}}
-async function resetOnboarding(){if(!currentUser)return;await db.collection('profili').doc(currentUser.uid).set({onboardingCompleto:false},{merge:true});obSelectedAttivita=null;showOnboarding();toast('Scegli il tipo di attività','v');}
+async function checkOnboarding(){if(!currentUser)return;try{const snap=await db.collection('profili').doc(currentUser.uid).get();if(snap.exists&&snap.data().onboardingCompleto){applyTheme(DEFAULT_THEME);}else{showOnboarding();}}catch(e){console.warn('checkOnboarding: verifica non riuscita (probabile problema di rete), onboarding NON mostrato per sicurezza',e);}}
+function resetOnboarding(){if(!currentUser)return;document.getElementById('modal-del-txt').textContent='Cambiare tipo di attività?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');confermaResetOnboarding();};openModal('modal-del-conf');}
+async function confermaResetOnboarding(){if(!currentUser)return;await db.collection('profili').doc(currentUser.uid).set({onboardingCompleto:false},{merge:true});obSelectedAttivita=null;showOnboarding();toast('Scegli il tipo di attività','v');}
 
 const firebaseConfig={apiKey:"AIzaSyByjm6Hcp-4VhousgnJC5Jhf_oiQZLIrHo",authDomain:"ordini-in-ordine-f4966.firebaseapp.com",projectId:"ordini-in-ordine-f4966",storageBucket:"ordini-in-ordine-f4966.firebasestorage.app",messagingSenderId:"621333481193",appId:"1:621333481193:web:332edbad10053665239278"};
 firebase.initializeApp(firebaseConfig);
