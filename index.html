@@ -633,6 +633,11 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <span><i class="ti ti-alert-triangle"></i> Verifica la tua email per proteggere il tuo account</span>
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="reinviaVerificaEmail()">Reinvia email di verifica</button>
     </div>
+    <div id="ios-install-banner" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
+      <span><i class="ti ti-download"></i> Aggiungi OrdinInOrdine alla schermata Home per un'esperienza migliore</span>
+      <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="showIosInstallInstructions()">Come si fa</button>
+      <button onclick="dismissIosInstallBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
+    </div>
     <div class="topbar">
       <button class="tb-menu" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
       <div class="tb-title" id="topbar-title" style="font-family:'Nunito',sans-serif;font-weight:900"><span style="color:#2C3E50">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#2C3E50">nOrdine</span></div>
@@ -928,6 +933,26 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-cat')">Chiudi</button></div>
   </div>
 </div>
+<div class="ov" id="modal-ios-install">
+  <div class="modal">
+    <div class="mta"><i class="ti ti-device-mobile"></i> Aggiungi alla schermata Home</div>
+    <div style="display:flex;flex-direction:column;gap:14px;padding:4px 0 8px">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--azione);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">1</div>
+        <div style="font-size:14px;font-weight:600;color:var(--txt);line-height:1.5">Tocca l'icona <b>Condividi</b> <i class="ti ti-share-2" style="font-size:16px;vertical-align:-2px"></i> nella barra del browser (in basso su Safari, in alto su Chrome/Firefox/Edge)</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--azione);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">2</div>
+        <div style="font-size:14px;font-weight:600;color:var(--txt);line-height:1.5">Scorri il menu e tocca <b>"Aggiungi a Home"</b></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--azione);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">3</div>
+        <div style="font-size:14px;font-weight:600;color:var(--txt);line-height:1.5">Conferma toccando <b>"Aggiungi"</b> — l'icona comparirà sulla schermata Home come un'app</div>
+      </div>
+    </div>
+    <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-ios-install')">Ho capito</button></div>
+  </div>
+</div>
 <div class="ov" id="modal-um">
   <div class="modal">
     <div class="mta"><i class="ti ti-ruler-2"></i> Unità di misura</div>
@@ -1043,7 +1068,41 @@ function applyRemoteSettings(d){
   applyUrgSettings();applyCalSettings();applyDateFormatUI();applyStoricoSettings();
 }
 async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,stSetOrdini:_stSetOrdini}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
-async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
+// Banner "Aggiungi a Home" per iOS — Safari, Chrome, Firefox, Edge su iOS usano tutti il motore WebKit,
+// quindi stesso comportamento su qualsiasi browser: nessun banner automatico di installazione come su Android,
+// va costruito manualmente. Non richiede alcuna infrastruttura Firebase, puro client-side.
+function isIOSDevice(){
+  const ua=navigator.userAgent||'';
+  const isIOSUA=/iPad|iPhone|iPod/.test(ua);
+  const isIPadOSDesktopMode=ua.includes('Macintosh')&&navigator.maxTouchPoints&&navigator.maxTouchPoints>1; // iPadOS 13+ si presenta come Mac
+  return isIOSUA||isIPadOSDesktopMode;
+}
+function isStandaloneApp(){
+  return window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;
+}
+function checkIosInstallBanner(){
+  const el=document.getElementById('ios-install-banner');
+  if(!el)return;
+  if(!isIOSDevice()||isStandaloneApp()){el.style.display='none';return;}
+  try{
+    const dismissedAt=localStorage.getItem('ios-install-banner-dismissed');
+    if(dismissedAt){
+      const giorniPassati=(Date.now()-parseInt(dismissedAt,10))/(1000*60*60*24);
+      if(giorniPassati<14){el.style.display='none';return;}
+    }
+  }catch(e){}
+  el.style.display='flex';
+}
+function dismissIosInstallBanner(){
+  const el=document.getElementById('ios-install-banner');
+  if(el)el.style.display='none';
+  try{localStorage.setItem('ios-install-banner-dismissed',String(Date.now()));}catch(e){}
+}
+function showIosInstallInstructions(){
+  openModal('modal-ios-install');
+}
+
+async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
   try{
     db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
