@@ -2316,11 +2316,9 @@ async function initFCM(){
     const VAPID_KEY='BOXvpBBDfaEB-tRbW7y-EopXVK-34fFsq1UYOx3xUVJheCvvYvCtbMqJF_vSTUAqsTrwxc8DzornlX047sOgLhU';
     const token=await messaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:swReg});
     if(token)await salvaFcmToken(token);
-    messaging.onMessage((payload)=>{
-      const title=payload.notification?.title||'OrdinInOrdine';
-      const body=payload.notification?.body||'';
-      if(Notification.permission==='granted')new Notification(title,{body});
-    });
+    // Nota: la visualizzazione della notifica è gestita esclusivamente dal Service Worker
+    // (firebase-messaging-sw.js, onBackgroundMessage) — un solo percorso, per evitare doppioni su iOS
+    // quando l'app risulta "in background ma non chiusa" e potrebbero scattare entrambi i gestori.
     return true;
   }catch(e){
     console.warn('Errore inizializzazione notifiche push',e);
