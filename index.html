@@ -2306,7 +2306,10 @@ async function initFCM(){
     return false;
   }
   try{
-    await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    // Registra lo stesso sw.js già usato per la cache: stesso script+scope,
+    // il browser lo riconosce come registrazione già esistente (idempotente),
+    // niente conflitto di scope con un secondo Service Worker separato.
+    await navigator.serviceWorker.register('sw.js');
     // Attende che il Service Worker sia effettivamente attivo (non solo registrato)
     // prima di richiedere il token — altrimenti pushManager non è ancora disponibile
     const swReg=await navigator.serviceWorker.ready;
