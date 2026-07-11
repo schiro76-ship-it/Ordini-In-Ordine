@@ -1,3 +1,192 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>OrdinInOrdine</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OrdinInOrdine">
+<meta name="theme-color" content="#2C3E50">
+<link rel="apple-touch-icon" sizes="1024x1024" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+<link rel="icon" type="image/png" sizes="1024x1024" href="icon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.35.0/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+:root{
+  --r:#C0392B;--rs:#F9EDED;--rm:#E8C4C1;
+  --azione:#256BC1;--azione-d:#1A4F94;--azione-s:#E8F0FB;
+  --g:#1E8A6E;--gs:#E3F3EE;
+  --gr:#6B7280;--grs:#F3F4F6;
+  --mat:#E67E22;--mats:#FEF3E2;
+  --urg:#C0392B;--urgs:#F9EDED;
+  --ev:#E67E22;--evs:#FEF3E2;
+  --pom:#8E44AD;--poms:#F3EBF8;
+  --bg:#F0F2F5;--txt:#1A1A2E;--sub:#6B7280;--brd:#E5E7EB;
+  --sh:0 2px 10px rgba(0,0,0,0.07);--shl:0 8px 30px rgba(0,0,0,0.13);
+  --rad:14px;--sbw:240px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}.ov button:active{transform:none}.bn-item:active{opacity:0.6;transition:opacity 0.08s}.tb-menu:active{opacity:0.5}.no-fade:active{opacity:1!important}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+#loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:16px}
+#loading.hidden{display:none}
+.spinner{width:40px;height:40px;border:4px solid #F0F2F5;border-top-color:#256BC1;border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p{font-size:16px;font-weight:700;color:#6B7280}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:var(--sbw);background:#2C3E50;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;z-index:40;transition:transform 0.25s ease;padding-top:env(safe-area-inset-top,0px)}
+.sb-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.12)}
+.sb-logo .title{font-size:18px;font-weight:900;color:#fff}
+.sb-logo .sub{font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.sb-nav{flex:1;padding:10px 8px;overflow-y:auto}
+.sb-nav .ni{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:10px;cursor:pointer;color:#fff;font-size:16px;font-weight:700;transition:all 0.15s;margin-bottom:3px;user-select:none}
+.sb-nav .ni .ic{font-size:20px;flex-shrink:0}
+.sb-nav .ni:hover{background:rgba(255,255,255,0.15)}
+.sb-nav .ni.active{background:var(--azione)}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:39}
+.sb-overlay.open{display:block}
+.pcontent{flex:1;min-width:0;display:flex;flex-direction:column;overflow-x:hidden}
+.topbar{display:none;background:#fff;border-bottom:1px solid var(--brd);padding:0 16px;height:54px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;box-shadow:0 1px 8px rgba(0,0,0,0.06);flex-shrink:0}
+.topbar .tb-menu{background:none;border:none;font-size:24px;cursor:pointer;padding:4px}
+.topbar .tb-title{font-size:18px;font-weight:900}
+.page-wrap{flex:1;overflow-y:auto}
+.sec{display:none}.sec.active{display:block}
+@media(max-width:639px){
+  .sidebar{position:fixed;top:0;left:0;height:100vh;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .topbar{display:flex}
+  .phdr{padding:16px 16px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .phdr h2{font-size:22px;font-weight:900}
+  .pbody{padding:12px 16px 24px}
+}
+/* Bottom nav SOLO smartphone portrait */
+@media(max-width:639px) and (orientation:portrait){
+  .sidebar{display:none!important}
+  .sb-overlay{display:none!important}
+  .topbar{display:none!important}
+  .page-wrap{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+  #bottom-nav{display:flex}
+}
+/* Su landscape (tablet e smartphone): mostra nuovo riquadro, nascondi voce sidebar */
+@media(min-width:640px) and (orientation:landscape){
+  #sc-nuovo{display:block!important}
+  .sb-nav .ni-nuovo{display:none!important}
+  #tab-ordini .stats-row{grid-template-columns:repeat(5,1fr)}
+}
+/* Fallback: se JS rileva portrait smartphone, aggiunge classe al body */
+body.portrait-phone .sidebar{display:none!important}
+body.portrait-phone .sb-overlay{display:none!important}
+body.portrait-phone .topbar{display:none!important}
+body.portrait-phone .page-wrap{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+body.portrait-phone #bottom-nav{display:flex}
+#bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  background:#2C3E50;
+  border-top:none;
+  padding-bottom:max(env(safe-area-inset-bottom), 28px);
+  z-index:300;box-shadow:0 -4px 20px rgba(0,0,0,0.25);
+}
+.bn-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;padding:10px 4px 0;border:none;background:none;
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
+  color:rgba(255,255,255,0.5);transition:color 0.15s;-webkit-tap-highlight-color:transparent;
+}
+.bn-item.active{color:#fff}
+.bn-item .bn-ic{font-size:22px;line-height:1}
+.bn-item.bn-new{color:#fff}.bn-item.bn-new:active .bn-ic-wrap{transform:scale(0.92);transition:transform 0.08s}
+.bn-item.bn-new .bn-ic-wrap{
+  background:var(--azione);width:48px;height:48px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:900;margin-top:-20px;
+  box-shadow:0 4px 16px rgba(37,107,193,0.5);
+  border:3px solid #2C3E50;
+}
+#nuovo-bottom-bar{display:none;background:transparent;padding:10px 0 8px}
+#nuovo-bottom-bar.visible{display:block}
+/* Solo tablet/desktop: fixed in fondo */
+@media(min-width:640px){
+  #nuovo-bottom-bar{position:fixed;bottom:0;left:var(--sbw);right:0;padding:10px 24px 20px;background:rgba(221,224,232,0.97);backdrop-filter:blur(8px);z-index:50}
+}
+
+/* portrait-phone: barra nel flusso, no offset necessario */.pbody.has-bottom-bar{padding-bottom:100px!important}
+@media(max-width:639px) and (orientation:portrait){
+  #nuovo-bottom-bar{bottom:calc(68px + env(safe-area-inset-bottom,16px));padding:10px 16px 12px}
+  .pbody.has-bottom-bar{padding-bottom:170px!important}
+}
+@media(max-width:639px) and (orientation:landscape){
+  #bottom-nav{display:none!important}
+  body.landscape-phone #bottom-nav{display:none!important}
+  #btn-nuovo-ordini{display:inline-flex!important}
+  #sc-nuovo{display:block!important}
+  .sb-nav .ni-nuovo{display:none!important}
+  #tab-ordini .stats-row{grid-template-columns:repeat(5,1fr)}
+  #nuovo-bottom-bar.visible{display:block!important;left:var(--sbw);bottom:4px;padding:6px 16px}
+  .pbody.has-bottom-bar{padding-bottom:70px!important}
+}
+/* FIX SAFE AREA TOP: il body ha il colore scuro sotto la status bar,
+   .pcontent NON aggiunge padding extra (lo spazio è già dato dal body) */
+body.portrait-phone .page-wrap{padding-bottom:calc(74px + env(safe-area-inset-bottom,16px))}
+body.portrait-phone .modal{padding-bottom:calc(110px + env(safe-area-inset-bottom,28px))}
+body.portrait-phone #modal-del-conf .modal{padding-bottom:max(30px, env(safe-area-inset-bottom,20px))}
+body.portrait-phone .modal-qart-inner{padding-bottom:calc(110px + env(safe-area-inset-bottom,28px))}
+#btn-nuovo-ordini{display:none}
+body.portrait-phone .stats-row{grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px}
+body.portrait-phone .sc{padding:7px 4px;border-radius:10px}
+body.portrait-phone .sc .sn{font-size:19px}
+body.portrait-phone .sc .sl{font-size:clamp(8.5px,2.3vw,11px);margin-top:2px;white-space:nowrap}
+body.portrait-phone #ordini-date-pills .pill,body.portrait-phone #riepilogo-day-pills .pill,body.portrait-phone #riepilogo-cat-pills .pill{background:transparent;border-color:rgba(255,255,255,0.4);color:rgba(255,255,255,0.7)}
+body.portrait-phone #ordini-date-pills .pill.active,body.portrait-phone #riepilogo-day-pills .pill.active,body.portrait-phone #riepilogo-cat-pills .pill.active{background:#fff;border-color:#fff;color:#2C3E50}
+body.portrait-phone #sf-tutti.active-filt{background:var(--azione)!important;border-color:var(--azione)!important}
+body.portrait-phone #sf-evadere.active-filt{background:var(--ev)!important;border-color:var(--ev)!important}
+body.portrait-phone #sf-completato.active-filt{background:#1E8A6E!important;border-color:#1E8A6E!important}
+body.portrait-phone #sf-ritirato.active-filt{background:#6B7280!important;border-color:#6B7280!important}
+body.portrait-phone .sc-filt.active-filt .sn,body.portrait-phone .sc-filt.active-filt .sl{color:#fff!important}
+body.portrait-phone .pcontent{padding-top:0}
+body.portrait-phone{background:#2C3E50}
+/* Barra fissa che copre la status bar con il colore corretto */
+#status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
+#tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39}
+#sidebar-extender{display:none;position:fixed;bottom:-500px;left:0;width:var(--sbw);height:500px;background:#2C3E50;z-index:39}
+body.portrait-phone #status-bar-cover{display:block}
+/* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
+body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
+body.portrait-phone .phdr h2{color:#fff}
+.phdr-invita{display:none}
+body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
+body.portrait-phone .phdr-invita i{font-size:18px}
+body.portrait-phone .phdr input[type=number],body.portrait-phone .phdr span{color:#fff!important}
+body.portrait-phone #tab-ordini .empty .ei,body.portrait-phone #tab-riepilogo .empty .ei{color:rgba(255,255,255,0.6)}
+body:not(.portrait-phone) .phdr input[type=number]{color:var(--azione)!important}
+body:not(.portrait-phone) .phdr span{color:var(--azione)!important}
+body:not(.portrait-phone) #sel-count{color:var(--azione)!important}
+body.portrait-phone .phdr button:not(.phdr-invita){background:var(--bg)!important;color:var(--sub)!important;border:1.5px solid var(--brd)!important}
+body.portrait-phone .phdr input[type=number]{border-bottom-color:#fff!important}
+body.portrait-phone #sel-count{color:#fff!important}
+body.portrait-phone .phdr{padding:14px 16px 0}
+/* Spazio extra sotto la ricerca solo quando la tastiera è aperta */
+body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!important}
+@media(min-width:640px) and (max-width:1023px){
+  html{background:#DDE0E8}
+  body{background:#DDE0E8}
+  :root{--sbw:200px}
+  .shell{min-height:100dvh}
+  .sidebar{min-height:100dvh;padding-bottom:env(safe-area-inset-bottom,34px)}
+  .phdr{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .phdr h2{font-size:23px;font-weight:900}
+  .pbody{padding:14px 24px 32px}
+  .pcontent{padding-top:0}
+  .sidebar{position:fixed;top:0;bottom:0;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,34px);z-index:100}
+  #sidebar-extender{display:block;z-index:100}
+  .page-wrap{margin-left:var(--sbw);padding-top:env(safe-area-inset-top,20px)}
+  #tablet-top-bar{display:block}
+  #verify-banner{margin-top:env(safe-area-inset-top,0px);margin-left:var(--sbw)}
+  #sc-nuovo{display:block!important}
+  .sb-nav .ni-nuovo{display:none!important}
+  #tab-ordini .stats-row{grid-template-columns:repeat(5,1fr)}
 }
 @media(min-width:1024px){
   html{background:#DDE0E8}
