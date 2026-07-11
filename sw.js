@@ -27,7 +27,7 @@
  * ---------------------------------------------------------
  */
 
-const CACHE_NAME = 'ordininordine-cache-v2';
+const CACHE_NAME = 'ordininordine-cache-v3';
 
 self.addEventListener('install', function(event) {
   // Attiva subito la nuova versione, senza attendere la chiusura di tutte le schede aperte
@@ -97,10 +97,13 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 // Gestisce le notifiche ricevute quando l'app è in background o chiusa
+// Il messaggio arriva come "data" puro (non "notification"): questo evita
+// che l'SDK Firebase Messaging mostri automaticamente una sua notifica in
+// parallelo a questa mostrata manualmente, causando doppioni.
 messaging.onBackgroundMessage((payload) => {
-  const title = (payload.notification && payload.notification.title) || "OrdinInOrdine";
+  const title = (payload.data && payload.data.title) || "OrdinInOrdine";
   const options = {
-    body: (payload.notification && payload.notification.body) || "",
+    body: (payload.data && payload.data.body) || "",
     tag: "ordininordine-notifica"
   };
   self.registration.showNotification(title, options);
