@@ -1072,7 +1072,7 @@ let _deviceId=(function(){
     return id;
   }catch(e){return 'dev-'+Date.now();}
 })();
-let _notifNuovoOrdine=true; // Interruttore notifica "nuovo ordine" — sincronizzato su Firestore, default attivo
+let _notifNuovoOrdine=false; // Interruttore notifica "nuovo ordine" — sincronizzato su Firestore, default disattivo (opt-in, non invasivo per i nuovi account)
 let ordiniPerMese={};
 let stampeCount=0;
 let ordiniCreatiTotale=0;
@@ -1091,7 +1091,7 @@ function applyRemoteSettings(d){
   dateFormat=d.dateFormat||'gg dd/mm';
   _stSetOrdini=d.stSetOrdini===true;
   fcmTokens=(d.fcmTokens&&typeof d.fcmTokens==='object'&&!Array.isArray(d.fcmTokens))?d.fcmTokens:{};
-  _notifNuovoOrdine=d.notifNuovoOrdine!==false;
+  _notifNuovoOrdine=d.notifNuovoOrdine===true;
   applyUrgSettings();applyCalSettings();applyDateFormatUI();applyStoricoSettings();applyNotifSettings();
 }
 async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,stSetOrdini:_stSetOrdini}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
@@ -2324,8 +2324,8 @@ async function initFCM(){
     // insieme al Service Worker, quindi lì saltiamo la visualizzazione manuale.
     if(!isIOSDevice()){
       messaging.onMessage((payload)=>{
-        const title=payload.notification?.title||'OrdinInOrdine';
-        const body=payload.notification?.body||'';
+        const title=payload.data?.title||'OrdinInOrdine';
+        const body=payload.data?.body||'';
         if(Notification.permission==='granted')new Notification(title,{body});
       });
     }
