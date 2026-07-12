@@ -820,6 +820,14 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <span id="notif-nuovo-ordine-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
                 </label>
               </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--brd)">
+                <div><div style="font-size:16px;font-weight:700">Ordini urgenti</div><div style="font-size:13px;color:var(--sub);font-weight:600">Notifica ogni mattina se ci sono ordini urgenti da evadere</div></div>
+                <label style="position:relative;display:inline-block;width:48px;height:26px;flex-shrink:0">
+                  <input type="checkbox" id="notif-ordini-urgenti" onchange="toggleNotifOrdiniUrgenti()" style="opacity:0;width:0;height:0">
+                  <span id="notif-ordini-urgenti-track" style="position:absolute;inset:0;background:#ccc;border-radius:13px;cursor:pointer;transition:0.3s"></span>
+                  <span id="notif-ordini-urgenti-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
+                </label>
+              </div>
               <div id="notif-permesso-avviso" style="display:none;font-size:12px;font-weight:700;color:#B45309;background:#FEF3E2;border-radius:8px;padding:8px 10px;margin-top:4px">Non è stato possibile attivare le notifiche su questo dispositivo. Verifica il permesso notifiche del browser oppure riprova tra qualche istante.</div>
             </div>
           </div>
@@ -1073,6 +1081,7 @@ let _deviceId=(function(){
   }catch(e){return 'dev-'+Date.now();}
 })();
 let _notifNuovoOrdine=false; // Interruttore notifica "nuovo ordine" — sincronizzato su Firestore, default disattivo (opt-in, non invasivo per i nuovi account)
+let _notifOrdiniUrgenti=false; // Interruttore notifica "ordini urgenti" (controllo giornaliero via Cloud Scheduler) — sincronizzato su Firestore, default disattivo
 let ordiniPerMese={};
 let stampeCount=0;
 let ordiniCreatiTotale=0;
@@ -1084,7 +1093,7 @@ const LIMITE_ORDINI_ATTIVO=false;
 const LIMITI_FREE={ordini:100,articoli:15,stampe:20};
 const DEFAULT_UM=['kg','g','fette','pezzi','numero','vaschette','bustine'];
 const DEFAULT_ARTS=getAttivitaById('macelleria').arts.map((a,i)=>({id:i+1,...a}));
-async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,stSetOrdini:_stSetOrdini,fcmTokens,notifNuovoOrdine:_notifNuovoOrdine,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
+async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,stSetOrdini:_stSetOrdini,fcmTokens,notifNuovoOrdine:_notifNuovoOrdine,notifOrdiniUrgenti:_notifOrdiniUrgenti,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
 function applyRemoteSettings(d){
   _urgDays=(typeof d.urgDays==='number'&&d.urgDays>=0)?d.urgDays:0;
   _calMode=d.calMode||'ora';
@@ -1092,6 +1101,7 @@ function applyRemoteSettings(d){
   _stSetOrdini=d.stSetOrdini===true;
   fcmTokens=(d.fcmTokens&&typeof d.fcmTokens==='object'&&!Array.isArray(d.fcmTokens))?d.fcmTokens:{};
   _notifNuovoOrdine=d.notifNuovoOrdine===true;
+  _notifOrdiniUrgenti=d.notifOrdiniUrgenti===true;
   applyUrgSettings();applyCalSettings();applyDateFormatUI();applyStoricoSettings();applyNotifSettings();
 }
 async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,stSetOrdini:_stSetOrdini}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
@@ -1129,7 +1139,7 @@ function showIosInstallInstructions(){
   openModal('modal-ios-install');
 }
 
-async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if(_notifNuovoOrdine){initFCM().catch((e)=>console.warn('Auto-init FCM fallito',e));}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if(_notifNuovoOrdine||_notifOrdiniUrgenti){initFCM().catch((e)=>console.warn('Auto-init FCM fallito',e));}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
   try{
     db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
@@ -2272,7 +2282,9 @@ function applyStoricoSettings(){
   if(thumb)thumb.style.left=_stSetOrdini?'25px':'3px';
 }
 
-// Notifiche push — interruttore "nuovo ordine", sincronizzato su Firestore (campo notifNuovoOrdine)
+// Notifiche push — interruttori "nuovo ordine" e "ordini urgenti", sincronizzati su Firestore
+// (campi notifNuovoOrdine e notifOrdiniUrgenti). Condividono lo stesso token FCM per dispositivo:
+// initFCM() registra il token una sola volta, usato per consegnare entrambi i tipi di notifica.
 function applyNotifSettings(){
   const cb=document.getElementById('notif-nuovo-ordine');
   const track=document.getElementById('notif-nuovo-ordine-track');
@@ -2280,6 +2292,12 @@ function applyNotifSettings(){
   if(cb)cb.checked=_notifNuovoOrdine;
   if(track)track.style.background=_notifNuovoOrdine?'var(--azione)':'#ccc';
   if(thumb)thumb.style.left=_notifNuovoOrdine?'25px':'3px';
+  const cb2=document.getElementById('notif-ordini-urgenti');
+  const track2=document.getElementById('notif-ordini-urgenti-track');
+  const thumb2=document.getElementById('notif-ordini-urgenti-thumb');
+  if(cb2)cb2.checked=_notifOrdiniUrgenti;
+  if(track2)track2.style.background=_notifOrdiniUrgenti?'var(--azione)':'#ccc';
+  if(thumb2)thumb2.style.left=_notifOrdiniUrgenti?'25px':'3px';
 }
 async function toggleNotifNuovoOrdine(){
   const cb=document.getElementById('notif-nuovo-ordine');
@@ -2296,6 +2314,23 @@ async function toggleNotifNuovoOrdine(){
     }
   }
   _notifNuovoOrdine=acceso;
+  applyNotifSettings();
+  saveData();
+}
+async function toggleNotifOrdiniUrgenti(){
+  const cb=document.getElementById('notif-ordini-urgenti');
+  const acceso=cb.checked;
+  const avviso=document.getElementById('notif-permesso-avviso');
+  if(avviso)avviso.style.display='none';
+  if(acceso){
+    const ok=await initFCM();
+    if(!ok){
+      cb.checked=false;
+      if(avviso)avviso.style.display='block';
+      return;
+    }
+  }
+  _notifOrdiniUrgenti=acceso;
   applyNotifSettings();
   saveData();
 }
