@@ -946,6 +946,13 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
   </div>
 </div>
+<div class="ov" id="modal-img-view" style="align-items:center;justify-content:center;padding:20px;z-index:210;background:rgba(0,0,0,0.85)">
+  <div style="position:relative;max-width:100%;max-height:100%;display:flex;align-items:center;justify-content:center">
+    <button onclick="closeModal('modal-img-view')" style="position:absolute;top:-44px;right:0;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;line-height:1;padding:6px"><i class="ti ti-x"></i></button>
+    <div id="img-view-loading" style="display:none;color:#fff;font-family:'Nunito',sans-serif;font-weight:700"><i class="ti ti-loader-2"></i> Caricamento…</div>
+    <img id="img-view-el" style="display:none;max-width:100%;max-height:80vh;border-radius:10px;object-fit:contain">
+  </div>
+</div>
 <div class="ov" id="modal-det"><div class="modal" id="modal-det-body"></div></div>
 <div class="ov" id="modal-cat">
   <div class="modal">
@@ -1024,6 +1031,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
 <script>
 let isNewUser=false;
@@ -1068,6 +1076,7 @@ async function confermaResetOnboarding(){if(!currentUser)return;await db.collect
 const firebaseConfig={apiKey:"AIzaSyByjm6Hcp-4VhousgnJC5Jhf_oiQZLIrHo",authDomain:"ordini-in-ordine-f4966.firebaseapp.com",projectId:"ordini-in-ordine-f4966",storageBucket:"ordini-in-ordine-f4966.firebasestorage.app",messagingSenderId:"621333481193",appId:"1:621333481193:web:332edbad10053665239278"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
+const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1242,6 +1251,7 @@ function buildOcHTML(lista){
         <span class="qty" style="${qtyStyle}">${qtyStr}</span>
         <span style="white-space:nowrap">${a.nome}${a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</span>
         ${it.nota?`<span class="nt" style="min-width:140px">"${it.nota}"</span>`:''}
+        ${it.itemId&&it.imgCaricata?`<i class="ti ti-photo" style="color:var(--azione);font-size:16px" onclick="event.stopPropagation();visualizzaImmagineItem(${o.id},${idx})"></i>`:''}
       </div>`;
     }).join('');
     const statoBtn=o.stato==='evadere'?`<button class="act-btn act-green" onclick="setStato(${o.id},'completato')"><i class="ti ti-check"></i> Completato</button>`:o.stato==='completato'?`<button class="act-btn act-grey" onclick="setStato(${o.id},'ritirato')">Ritirato</button>`:`<div class="act-btn act-placeholder"></div>`;
@@ -1736,7 +1746,8 @@ function renderRiepilogo(){if(_rpLocked)return;
       const circleClass='itag-circle'+(x.done?' done':isUrg?' urg':'');
       const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';
       const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});
-      return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg};cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div style="display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><span style="white-space:nowrap;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span></span>${x.nota?`<span style="flex:1 1 auto;min-width:140px;color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}<div style="display:flex;align-items:center;gap:8px;margin-left:auto"><span style="white-space:nowrap"><span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}</span><button class="act-print-rp" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="flex-shrink:0;border-radius:8px;padding:6px 10px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center"><i class="ti ti-printer"></i></button></div></div></div>`;
+      const _itFoto=x.ordine.items&&x.ordine.items[fidx];
+      return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg};cursor:pointer" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})"><div style="display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap"><div class="${circleClass}" style="width:20px;height:20px;border-radius:50%;border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><span style="white-space:nowrap;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span></span>${x.nota?`<span style="flex:1 1 auto;min-width:140px;color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}<div style="display:flex;align-items:center;gap:8px;margin-left:auto"><span style="white-space:nowrap"><span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}</span>${_itFoto&&_itFoto.itemId&&_itFoto.imgCaricata?`<i class="ti ti-photo" style="color:var(--azione);font-size:19px" onclick="event.stopPropagation();visualizzaImmagineItem('${x.ordine.id}',${fidx})"></i>`:''}<button class="act-print-rp" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="flex-shrink:0;border-radius:8px;padding:6px 10px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center"><i class="ti ti-printer"></i></button></div></div></div>`;
     }).join(''):'';
     return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;cursor:pointer;gap:0" onclick="toggleRp(${v.artId})"><div style="display:flex;align-items:center;gap:12px;padding-right:32px;position:relative"><div class="rp-pri" style="width:72px;min-width:72px;align-self:stretch;border-radius:11px;padding:5px 6px;font-size:14px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.3;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;flex:1;min-width:0;padding:14px 0"><div class="rp-art" style="padding:0">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="flex:1 1 auto;min-width:90px;text-align:right;font-size:16px;font-weight:900">${qStr}</div></div><span style="position:absolute;top:50%;transform:translateY(-50%);right:10px;font-size:15px;color:var(--sub)">${exp?'▲':'▼'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden">${dettaglio}</div>`:''}</div>`;
   }).join('');
@@ -1779,6 +1790,12 @@ function renderDetModal(o){
       umPills+=`<button ${dis} onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detUpdUM(${o.id},${idx},'${u}')" onclick="detUpdUM(${o.id},${idx},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--azione)':'var(--brd)'};background:${sel?'var(--azione)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
     });
     if(!isRitirato)umPills+=`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVoloDet(${o.id},${idx})" onclick="addUMVoloDet(${o.id},${idx})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
+    const imgRow=it.itemId&&it.imgCaricata
+      ?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+          <button type="button" onclick="visualizzaImmagineItem(${o.id},${idx})" style="width:40px;height:40px;border-radius:8px;border:1.5px solid var(--azione);background:var(--rs);display:flex;align-items:center;justify-content:center;color:var(--azione);cursor:pointer;flex-shrink:0"><i class="ti ti-photo" style="font-size:20px"></i></button>
+          ${!isRitirato?`<button type="button" onclick="rimuoviImmagineDet(${o.id},${idx})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi foto</button>`:''}
+        </div>`
+      :(!isRitirato?`<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px"><i class="ti ti-camera"></i> Immagine opzionale…<input type="file" accept="image/*" style="display:none" onchange="onPickImgDet(${o.id},${idx},this)"></label>`:'');
     return `<div class="sel-card" style="${cardStyle}">
       <div class="sel-card-top">
         <div class="sel-card-name">${nome}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div>
@@ -1794,6 +1811,7 @@ function renderDetModal(o){
         <input class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(it.nota||'').replace(/"/g,'&quot;')}" ${isRitirato?'disabled':''} oninput="updItem(${o.id},${idx},'nota',this.value)" style="flex:1">
         <button class="qty-search" onmousedown="event.preventDefault()" onclick="detFocusCerca(${o.id})" style="${isRitirato?'visibility:hidden':''}"><i class="ti ti-search"></i></button>
       </div>
+      ${imgRow}
     </div>`;
   }).join('');
   document.getElementById('modal-det-body').innerHTML=`
@@ -1983,6 +2001,35 @@ async function togItemDone(oid,idx){
   }
 }
 async function updItem(oid,idx,field,val){const o=ords.find(x=>x.id===oid);if(!o)return;o.items[idx][field]=val;await saveData();}
+async function onPickImgDet(oid,idx,inputEl){
+  const file=inputEl.files&&inputEl.files[0];
+  inputEl.value='';
+  if(!file)return;
+  const o=ords.find(x=>x.id===oid);
+  if(!o||!o.items[idx])return;
+  try{
+    const blob=await comprimiImmagine(file);
+    await caricaImmagineItem(o.items[idx],blob);
+    await saveData();
+    renderDetModal(o);
+    renderOrdini();
+    renderRiepilogo();
+    toast('Foto aggiunta','v');
+  }catch(e){
+    console.warn('Errore caricamento immagine',e);
+    toast('Foto non caricata, riprova','err');
+  }
+}
+async function rimuoviImmagineDet(oid,idx){
+  const o=ords.find(x=>x.id===oid);
+  if(!o||!o.items[idx])return;
+  await rimuoviImmagineItem(o.items[idx]);
+  await saveData();
+  renderDetModal(o);
+  renderOrdini();
+  renderRiepilogo();
+  toast('Foto rimossa','v');
+}
 async function updOrdCampo(oid,campo,val){const o=ords.find(x=>x.id===oid);if(!o)return;o[campo]=val||null;await saveData();renderOrdini();}
 async function setStatoD(oid,stato){await setStato(oid,stato);const o=ords.find(x=>x.id===oid);if(o)renderDetModal(o);}
 async function addItemToOrd(oid,artId){
@@ -2112,10 +2159,52 @@ async function addUMVolo(id){
   selUMpill(id,v);
 }
 function setSelNota(id,v){const s=sel.find(x=>x.id===id);if(s)s.nota=v}
+async function onPickImgSel(id,inputEl){
+  const file=inputEl.files&&inputEl.files[0];
+  inputEl.value='';
+  if(!file)return;
+  const s=sel.find(x=>x.id===id);
+  if(!s)return;
+  try{
+    const blob=await comprimiImmagine(file);
+    if(s.imgPreviewUrl)URL.revokeObjectURL(s.imgPreviewUrl);
+    if(!s.itemId)s.itemId=generaItemId();
+    s.imgBlob=blob;
+    s.imgPreviewUrl=URL.createObjectURL(blob);
+    renderSP();
+  }catch(e){
+    console.warn('Errore compressione immagine',e);
+    toast('Foto non valida, riprova','err');
+  }
+}
+function rimuoviImgSel(id){
+  const s=sel.find(x=>x.id===id);
+  if(!s)return;
+  if(s.imgPreviewUrl)URL.revokeObjectURL(s.imgPreviewUrl);
+  delete s.imgBlob;delete s.imgPreviewUrl;delete s.itemId;
+  renderSP();
+}
 function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent='Articoli '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
   const umPills=unitaMisura.map(u=>`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
-  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.1" min="0.1" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div></div>`;}).join('');}
-async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un articolo!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:'articolo';if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:sel.map(function(s,i){return{artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i}}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');goTab('ordini');}
+  const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi foto</button></div>`:`<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px"><i class="ti ti-camera"></i> Immagine opzionale…<input type="file" accept="image/*" style="display:none" onchange="onPickImgSel(${s.id},this)"></label>`;
+  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.1" min="0.1" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota opzionale…" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
+async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un articolo!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:'articolo';if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');goTab('ordini');
+  // Caricamento foto in background: l'ordine è già salvato, l'utente non deve aspettare l'upload
+  const _daCaricare=_selSnapshot.filter(s=>s.imgBlob);
+  if(_daCaricare.length){
+    const _ordCreato=ords.find(o=>o.id===id);
+    for(const s of _daCaricare){
+      const it=_ordCreato&&_ordCreato.items.find(x=>x.itemId===s.itemId);
+      if(it){
+        try{await caricaImmagineItem(it,s.imgBlob);}
+        catch(e){console.warn('Upload immagine fallito',e);toast('Foto non caricata, riprova dal dettaglio ordine','err');}
+      }
+      if(s.imgPreviewUrl)URL.revokeObjectURL(s.imgPreviewUrl);
+    }
+    await saveData();
+    renderOrdini();
+  }
+}
 function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun articolo.</p></div>';}
 function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';openModal('modal-edit-art');}
 async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato','v');}
@@ -2375,6 +2464,87 @@ async function salvaFcmToken(token){
   if(fcmTokens[_deviceId]===token)return; // già salvato, nessuna scrittura inutile
   fcmTokens[_deviceId]=token;
   await saveData();
+}
+
+// --- Foto righe d'ordine ---
+// Un'immagine opzionale per riga articolo (non per catalogo): compressa lato client
+// prima dell'upload (resize ~800px, JPEG 70-80%), salvata su Firebase Storage sotto
+// immagini_ordini/{uid}/{itemId}.jpg. itemId è generato una sola volta, al primo
+// caricamento di quella riga, e resta stabile anche se altre righe dell'ordine
+// vengono rimosse — non dipende dalla posizione nell'array.
+function generaItemId(){return Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);}
+
+function comprimiImmagine(file){
+  return new Promise(function(resolve,reject){
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const img=new Image();
+      img.onload=function(){
+        const maxDim=800;
+        let w=img.width,h=img.height;
+        if(w>maxDim||h>maxDim){
+          if(w>=h){h=Math.round(h*maxDim/w);w=maxDim;}
+          else{w=Math.round(w*maxDim/h);h=maxDim;}
+        }
+        const canvas=document.createElement('canvas');
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        canvas.toBlob(function(blob){
+          if(blob)resolve(blob);else reject(new Error('Compressione immagine fallita'));
+        },'image/jpeg',0.75);
+      };
+      img.onerror=function(){reject(new Error('File immagine non valido'));};
+      img.src=e.target.result;
+    };
+    reader.onerror=function(){reject(new Error('Lettura file fallita'));};
+    reader.readAsDataURL(file);
+  });
+}
+
+function pathImmagineItem(itemId){
+  const uid=currentUser?currentUser.uid:DOC_ID;
+  return 'immagini_ordini/'+uid+'/'+itemId+'.jpg';
+}
+
+// Carica (o sostituisce) la foto di una riga d'ordine già esistente. Muta l'oggetto
+// item passato: assegna itemId se assente, imposta imgCaricata alla data odierna.
+async function caricaImmagineItem(item,blob){
+  if(!item.itemId)item.itemId=generaItemId();
+  await storage.ref(pathImmagineItem(item.itemId)).put(blob,{contentType:'image/jpeg'});
+  item.imgCaricata=new Date().toISOString();
+}
+
+// Rimuove la foto di una riga d'ordine, sia dal Storage che dai campi dell'item.
+async function rimuoviImmagineItem(item){
+  if(!item.itemId)return;
+  try{await storage.ref(pathImmagineItem(item.itemId)).delete();}
+  catch(e){console.warn('Errore eliminazione immagine (proseguo comunque)',e);}
+  delete item.itemId;
+  delete item.imgCaricata;
+}
+
+// Apre il visualizzatore a schermo intero per la foto di una riga d'ordine specifica,
+// identificata da ordine+indice riga. Usata sia dal dettaglio ordine (Modifica) sia
+// dalle icone compatte in Ordini e Riepilogo.
+async function visualizzaImmagineItem(oidRaw,idx){
+  const oid=typeof oidRaw==='string'?parseInt(oidRaw):oidRaw;
+  const o=ords.find(x=>x.id===oid);
+  if(!o||!o.items[idx]||!o.items[idx].itemId)return;
+  const imgEl=document.getElementById('img-view-el');
+  const loadEl=document.getElementById('img-view-loading');
+  if(imgEl)imgEl.style.display='none';
+  if(loadEl)loadEl.style.display='flex';
+  openModal('modal-img-view');
+  try{
+    const url=await storage.ref(pathImmagineItem(o.items[idx].itemId)).getDownloadURL();
+    if(imgEl){imgEl.src=url;imgEl.style.display='block';}
+  }catch(e){
+    console.warn('Errore caricamento immagine',e);
+    toast('Impossibile caricare la foto','err');
+    closeModal('modal-img-view');
+  }finally{
+    if(loadEl)loadEl.style.display='none';
+  }
 }
 
 let calYear=0,calMonth=0,calSelDate=null,calOra=null;
