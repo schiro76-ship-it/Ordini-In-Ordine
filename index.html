@@ -1031,10 +1031,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
   </div>
 </div>
-<div id="nuovo-bottom-bar">
-  <div id="bottom-bar-count" style="font-size:14px;font-weight:800;color:var(--sub);text-align:center;margin-bottom:8px;display:none"></div>
-  <button class="btn br btn-full" onclick="salvaOrdine()" style="border-radius:14px;box-shadow:0 4px 16px rgba(37,107,193,0.35)"><i class="ti ti-circle-check"></i> Aggiungi ordine</button>
-</div>
 <div id="toast"></div>
 <div id="print-label"></div>
 
@@ -2661,8 +2657,20 @@ function closeModal(id){
   if(id==='modal-det')renderOrdini();
 }
 document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
-function esportaDati(){const data=JSON.stringify({arts:arts,ords:ords,unitaMisura:unitaMisura,cats:cats,nextNum:nextNum},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='macelleria_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);toast('Backup scaricato','v');}
-function importaDati(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const d=JSON.parse(e.target.result);if(!d.arts||!d.ords){toast('File non valido!','err');return}arts=d.arts;ords=d.ords;unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;await saveData();refreshAll();toast('Importati '+ords.length+' ordini e '+arts.length+' articoli','v');}catch(err){toast('Errore nel file!','err')}};reader.readAsText(file);input.value='';}
+function esportaDati(){const uid=currentUser?currentUser.uid:DOC_ID;const data=JSON.stringify({uid:uid,arts:arts,ords:ords,unitaMisura:unitaMisura,cats:cats,nextNum:nextNum,ordiniCreatiTotale:ordiniCreatiTotale,articoliCreatiTotale:articoliCreatiTotale,ordiniPerMese:ordiniPerMese},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='macelleria_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);toast('Backup scaricato','v');}
+function importaDati(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const d=JSON.parse(e.target.result);if(!d.arts||!d.ords){toast('File non valido!','err');return}
+  // Un backup può essere ripristinato solo sullo stesso account che lo ha esportato:
+  // impedisce di trasferire dati/storico su un account "nuovo" per ottenere di nuovo
+  // lo sconto referral (vedi Knowledge Base, sezione anti-frode). I backup creati
+  // prima di questa protezione non hanno il campo uid: li accettiamo comunque, per
+  // non rompere ripristini legittimi già effettuati o programmati.
+  const uidCorrente=currentUser?currentUser.uid:DOC_ID;
+  if(d.uid&&d.uid!==uidCorrente){toast('Questo file appartiene a un altro account: puoi importarlo solo sullo stesso account che lo ha esportato','err');input.value='';return;}
+  arts=d.arts;ords=d.ords;unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;
+  if(typeof d.ordiniCreatiTotale==='number')ordiniCreatiTotale=d.ordiniCreatiTotale;
+  if(typeof d.articoliCreatiTotale==='number')articoliCreatiTotale=d.articoliCreatiTotale;
+  if(d.ordiniPerMese&&typeof d.ordiniPerMese==='object')ordiniPerMese=d.ordiniPerMese;
+  await saveData();refreshAll();toast('Importati '+ords.length+' ordini e '+arts.length+' articoli','v');}catch(err){toast('Errore nel file!','err')}};reader.readAsText(file);input.value='';}
 function toast(m,t){var e=document.getElementById('toast');var icona=t==='v'?'<i class="ti ti-circle-check" style="margin-right:6px;vertical-align:-2px"></i>':t==='err'?'<i class="ti ti-alert-triangle" style="margin-right:6px;vertical-align:-2px"></i>':'';e.innerHTML=icona+m;e.className='show'+(t?' '+t:'');clearTimeout(e._t);e._t=setTimeout(function(){e.className=''},2700)}
 
 function _disegnaEtichetta(o,artIdEvidenziato){
