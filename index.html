@@ -116,6 +116,11 @@ body.portrait-phone #bottom-nav{display:flex}
   #nuovo-bottom-bar .btn-full{width:auto!important;min-width:220px;padding:12px 32px!important;font-size:16px!important;border-radius:12px!important}
   .pbody.has-bottom-bar{padding-bottom:90px!important}
 }
+/* Allinea il margine destro della barra a quello del contenuto (Annulla ecc.),
+   che aumenta a sua volta su schermi più larghi */
+@media(min-width:1024px){
+  #nuovo-bottom-bar{padding-right:32px}
+}
 
 /* portrait-phone: barra nel flusso, no offset necessario */.pbody.has-bottom-bar{padding-bottom:100px!important}
 @media(max-width:639px) and (orientation:portrait){
