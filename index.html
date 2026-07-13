@@ -107,10 +107,14 @@ body.portrait-phone #bottom-nav{display:flex}
 }
 #nuovo-bottom-bar{display:none;background:transparent;padding:10px 0 8px}
 #nuovo-bottom-bar.visible{display:block}
-/* Solo tablet/desktop: fixed in fondo */
+/* Solo tablet/desktop: fixed in fondo, bottone a dimensione normale allineato a destra
+   (non più a tutta larghezza/altezza: sproporzionato su schermi grandi ed era anche
+   fonte di un problema di area cliccabile poco affidabile) */
 @media(min-width:640px){
-  #nuovo-bottom-bar{position:fixed;bottom:0;left:var(--sbw);right:0;padding:10px 24px 20px;background:rgba(221,224,232,0.97);backdrop-filter:blur(8px);z-index:50}
-  .pbody.has-bottom-bar{padding-bottom:140px!important}
+  #nuovo-bottom-bar{position:fixed;bottom:0;left:var(--sbw);right:0;padding:14px 24px;background:rgba(221,224,232,0.97);backdrop-filter:blur(8px);z-index:50;display:none}
+  #nuovo-bottom-bar.visible{display:flex;justify-content:flex-end;align-items:center}
+  #nuovo-bottom-bar .btn-full{width:auto!important;min-width:220px;padding:12px 32px!important;font-size:16px!important;border-radius:12px!important}
+  .pbody.has-bottom-bar{padding-bottom:90px!important}
 }
 
 /* portrait-phone: barra nel flusso, no offset necessario */.pbody.has-bottom-bar{padding-bottom:100px!important}
