@@ -243,8 +243,8 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
    dimensioni tramite selettori per id, più specifici delle vecchie regole .sc/.sc-filt-*,
    senza bisogno di toccarle. */
 .exp-arrow{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;color:var(--sub);font-size:19px;transition:transform 0.2s;flex-shrink:0}
-.ordini-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px}
-.list-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;padding-bottom:4px}
+.ordini-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform}
+.list-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;padding-bottom:4px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform}
 body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#2C3E50}
 .list-sticky .sbox{margin-bottom:8px}
 .list-sticky .cp:last-child{margin-bottom:8px}
@@ -692,7 +692,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
             <div class="cp" id="ordini-date-pills"></div>
           </div>
-          <div id="ordini-list"></div>
+          <div id="ordini-list" style="contain:layout style"></div>
         </div>
       </div>
       <div class="sec" id="tab-riepilogo">
@@ -703,7 +703,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cp" id="riepilogo-day-pills"></div>
             <div class="cp" id="riepilogo-cat-pills"></div>
           </div>
-          <div id="riepilogo-list"></div>
+          <div id="riepilogo-list" style="contain:layout style"></div>
         </div>
       </div>
       <div class="sec" id="tab-storico">
@@ -744,7 +744,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                 <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="st-art-cerca" placeholder="Cerca articolo…" oninput="renderStoricoRiepilogo()"></div>
                 <div class="cp" id="st-cat-pills"></div>
               </div>
-              <div id="storico-riepilogo"></div>
+              <div id="storico-riepilogo" style="contain:layout style"></div>
             </div>
           </div>
           <div class="card card-sticky-host" style="margin-bottom:20px">
@@ -753,7 +753,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <span id="storico-dettaglio-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
             <div class="cb" id="storico-dettaglio-fields" style="display:none">
-              <div id="storico-dettaglio-list"></div>
+              <div id="storico-dettaglio-list" style="contain:layout style"></div>
             </div>
           </div>
         </div>
@@ -1193,7 +1193,7 @@ async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){c
       refreshAll();
       const tabRep=document.getElementById('tab-riepilogo');
       if(tabRep&&tabRep.classList.contains('active')){
-        renderRiepilogo();
+        renderRiepilogo(true);
       }
     });
   }catch(e){console.warn('Realtime error',e);}
@@ -1650,9 +1650,9 @@ async function toggleRp(key){
           if(el){
             el.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
             el.style.transform='translateX(100px)';el.style.opacity='0';
-            setTimeout(()=>renderRiepilogo(),280);
-          } else { renderRiepilogo(); }
-        } else { renderRiepilogo(); }
+            setTimeout(()=>renderRiepilogo(true),280);
+          } else { renderRiepilogo(true); }
+        } else { renderRiepilogo(true); }
         return;
       }
       const slideOutEls=[];
@@ -1666,7 +1666,7 @@ async function toggleRp(key){
       });
       const doFlip=()=>{
         _rpOrdineCongelato=null;
-        renderRiepilogo();
+        renderRiepilogo(true);
         container.querySelectorAll('[data-artid]').forEach(el=>{
           const aid=el.dataset.artid;
           if(rpFirst[aid]===undefined||tuttiDoneIds.has(aid))return;
@@ -1710,11 +1710,12 @@ async function toggleRp(key){
 function setRpDay(d){rpDayFilter=d;_rpOrdineCongelato=null;renderRiepilogo()}
 function setRpCat(c){rpCatFilter=c;if(!Object.values(rpExpanded).some(Boolean))_rpOrdineCongelato=null;renderRiepilogo()}
 
-function renderRiepilogo(){if(_rpLocked)return;
+function renderRiepilogo(skipPills){if(_rpLocked)return;
   const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));
   if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><p>Nessun ordine da evadere!</p></div>';return}
   const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''}).filter(Boolean)))].sort();
   // Day pills: giorni con ordini pendenti, filtro "fino a"
+  if(!skipPills){
   const dayPillsEl=document.getElementById('riepilogo-day-pills');
   if(dayPillsEl){
     const giorniConOrdini=[...new Set(ev.filter(o=>o.data).map(o=>o.data))].sort();
@@ -1726,6 +1727,7 @@ function renderRiepilogo(){if(_rpLocked)return;
   }
   const pillsEl=document.getElementById('riepilogo-cat-pills');
   if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" onclick="setRpCat('${c}')">${c}</span>`).join('');
+  }
   const map={};
   ev.forEach(o=>(o.items||[]).forEach(it=>{
     const k=String(it.artId);
@@ -1807,7 +1809,7 @@ async function togRpItem(oidStr,idx){
   if(!o.items[idx].done&&o.stato==='completato')o.stato='evadere';
   saveData();
   renderOrdini();
-  renderRiepilogo();
+  renderRiepilogo(true);
 }
 
 
