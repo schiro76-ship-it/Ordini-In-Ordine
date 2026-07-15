@@ -35,7 +35,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .spinner{width:40px;height:40px;border:4px solid #F0F2F5;border-top-color:#256BC1;border-radius:50%;animation:spin 0.7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #loading p{font-size:16px;font-weight:700;color:#6B7280}
-.shell{display:flex;min-height:100vh}
+.shell{display:flex;height:100vh}
 .sidebar{width:var(--sbw);background:#2C3E50;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;z-index:40;transition:transform 0.25s ease;padding-top:env(safe-area-inset-top,0px)}
 .sb-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.12)}
 .sb-logo .title{font-size:18px;font-weight:900;color:#fff}
@@ -45,6 +45,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .sb-nav .ni .ic{font-size:20px;flex-shrink:0}
 .sb-nav .ni:hover{background:rgba(255,255,255,0.15)}
 .sb-nav .ni.active{background:var(--azione)}
+.sb-nav .ni-nuovo{background:var(--azione);margin-top:4px;margin-bottom:12px}
+.sb-nav .ni-nuovo:hover{filter:brightness(1.12)}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:39}
 .sb-overlay.open{display:block}
 .pcontent{flex:1;min-width:0;display:flex;flex-direction:column;overflow-x:hidden}
@@ -177,9 +179,10 @@ body.portrait-phone .phdr{padding:14px 16px 0}
 body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!important}
 @media(min-width:640px) and (max-width:1023px){
   html{background:#DDE0E8}
+  .ordini-sticky,.list-sticky{background:#DDE0E8}
   body{background:#DDE0E8}
   :root{--sbw:200px}
-  .shell{min-height:100dvh}
+  .shell{height:100dvh}
   .sidebar{min-height:100dvh;padding-bottom:env(safe-area-inset-bottom,34px)}
   .phdr{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .phdr h2{font-size:23px;font-weight:900}
@@ -195,8 +198,9 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 }
 @media(min-width:1024px){
   html{background:#DDE0E8}
+  .ordini-sticky,.list-sticky{background:#DDE0E8}
   body{background:#DDE0E8}
-  .shell{min-height:100dvh}
+  .shell{height:100dvh}
   .sidebar{min-height:100dvh;padding-bottom:env(safe-area-inset-bottom,34px)}
   .phdr{padding:28px 32px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .phdr h2{font-size:26px;font-weight:900}
@@ -238,14 +242,17 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
    grande (setFT(), contatori, colori "active-filt") — qui sovrascriviamo solo le
    dimensioni tramite selettori per id, più specifici delle vecchie regole .sc/.sc-filt-*,
    senza bisogno di toccarle. */
+.exp-arrow{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--txt);color:#fff!important;font-size:14px;transition:transform 0.2s;flex-shrink:0}
 .ordini-sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding-top:2px}
 .list-sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding-top:2px;padding-bottom:4px}
+body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#2C3E50}
 .list-sticky .sbox{margin-bottom:8px}
 .list-sticky .cp:last-child{margin-bottom:8px}
 .ordini-sticky-top{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 .ordini-sticky .sbox{margin-bottom:0}
-.ordini-filt-row{display:flex;gap:6px;flex-wrap:wrap}
-#sf-tutti,#sf-evadere,#sf-completato,#sf-ritirato{display:inline-flex;align-items:center;gap:5px;width:auto;padding:6px 14px;border-radius:18px;box-shadow:none;text-align:left}
+.ordini-filt-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.ordini-filt-row::-webkit-scrollbar{display:none}
+#sf-tutti,#sf-evadere,#sf-completato,#sf-ritirato{display:inline-flex;align-items:center;gap:5px;width:auto;flex-shrink:0;padding:6px 14px;border-radius:18px;box-shadow:none;text-align:left}
 #sf-tutti .sn,#sf-evadere .sn,#sf-completato .sn,#sf-ritirato .sn{font-size:13px;font-weight:900;line-height:1}
 #sf-tutti .sl,#sf-evadere .sl,#sf-completato .sl,#sf-ritirato .sl{font-size:13px;font-weight:800;text-transform:none;letter-spacing:normal;margin-top:0}
 @media(min-width:640px){
@@ -551,7 +558,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div class="login-field"><label>Password</label><input type="password" id="reg-pwd" placeholder="Minimo 6 caratteri" autocomplete="new-password"></div>
       <div class="login-field"><label>Conferma password</label><input type="password" id="reg-pwd2" placeholder="Ripeti la password" autocomplete="new-password"></div>
       <div id="billing-toggle" onclick="toggleBillingFields()" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:13px 14px;margin-bottom:14px;user-select:none;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:11px">
-        <span id="billing-arrow" style="font-size:13px;color:#6B7280;transition:transform 0.2s">▶</span>
+        <span id="billing-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
         <span style="font-size:14px;font-weight:800;color:#6B7280">Aggiungi dati di fatturazione (opzionale)</span>
       </div>
       <div id="billing-fields" style="display:none">
@@ -659,7 +666,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="reinviaVerificaEmail()">Reinvia email di verifica</button>
     </div>
     <div id="ios-install-banner" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
-      <span><i class="ti ti-download"></i> Aggiungi OrdinInOrdine alla schermata Home per ricevere le notifiche in modo affidabile</span>
+      <span><i class="ti ti-download"></i> Aggiungi OrdinInOrdine alla schermata Home per ricevere le notifiche</span>
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="showIosInstallInstructions()">Come si fa</button>
       <button onclick="dismissIosInstallBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
     </div>
@@ -709,7 +716,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <div class="card" style="margin-bottom:20px">
             <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none">
               <div class="ct"><i class="ti ti-history"></i> Storico articoli</div>
-              <span id="storico-articoli-arrow" style="font-size:13px;color:var(--sub);transition:transform 0.2s;transform:rotate(90deg)">▶</span>
+              <span id="storico-articoli-arrow" class="exp-arrow" style="transform:rotate(90deg)"><i class="ti ti-chevron-right"></i></span>
             </div>
             <div class="cb" id="storico-articoli-fields">
               <div class="list-sticky">
@@ -741,7 +748,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <div class="card" style="margin-bottom:20px">
             <div class="ch" onclick="toggleStoricoDettaglio()" style="cursor:pointer;user-select:none">
               <div class="ct"><i class="ti ti-list-details"></i> Dettaglio ordini</div>
-              <span id="storico-dettaglio-arrow" style="font-size:13px;color:var(--sub);transition:transform 0.2s">▶</span>
+              <span id="storico-dettaglio-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
             <div class="cb" id="storico-dettaglio-fields" style="display:none">
               <div id="storico-dettaglio-list"></div>
@@ -779,7 +786,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <div class="card" style="margin-bottom:14px">
             <div class="ch"><div class="ct"><i class="ti ti-user"></i> Cliente</div></div>
             <div class="cb">
-              <div class="fg"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi"></div>
+              <div class="fg"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi" oninput="capWords(this)"></div>
             </div>
           </div>
           <div class="card" style="margin-bottom:14px">
@@ -1785,7 +1792,7 @@ function renderRiepilogo(){if(_rpLocked)return;
       const _fotoBtn=_itFoto&&_itFoto.itemId&&_itFoto.imgCaricata?`<button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem('${x.ordine.id}',${fidx})" style="flex-shrink:0;border-radius:8px;padding:6px 10px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;margin:2px 4px"><i class="ti ti-photo"></i></button>`:'';
       return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap"><div class="${circleClass}" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})" style="border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><span style="white-space:nowrap;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span></span>${_fotoBtn}${x.nota?`<span style="flex:1 1 auto;min-width:80px;color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}<div style="display:flex;align-items:center;gap:12px;margin-left:auto"><span style="white-space:nowrap"><span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}</span><button class="act-print-rp" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="flex-shrink:0;border-radius:8px;padding:6px 10px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center"><i class="ti ti-printer"></i></button></div></div></div>`;
     }).join(''):'';
-    return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;gap:0"><div style="display:flex;align-items:center;gap:8px;padding-right:32px;position:relative"><div class="rp-pri" style="width:58px;min-width:58px;align-self:stretch;border-radius:11px;padding:5px 4px;font-size:13px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.25;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;flex:1;min-width:0;padding:12px 0"><div class="rp-art" style="padding:0">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="flex:1 1 auto;min-width:70px;text-align:right;font-size:16px;font-weight:900">${qStr}</div></div><button type="button" onclick="toggleRp(${v.artId})" style="position:absolute;top:0;bottom:0;right:0;width:36px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--sub)">${exp?'▲':'▼'}</button></div>${exp?`<div class="rp-detail" style="overflow:hidden">${dettaglio}</div>`:''}</div>`;
+    return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;gap:0"><div style="display:flex;align-items:center;gap:8px;padding-right:32px;position:relative"><div class="rp-pri" style="width:58px;min-width:58px;align-self:stretch;border-radius:11px;padding:5px 4px;font-size:13px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.25;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;flex:1;min-width:0;padding:12px 0"><div class="rp-art" style="padding:0">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="flex:1 1 auto;min-width:70px;text-align:right;font-size:16px;font-weight:900">${qStr}</div></div><button type="button" onclick="toggleRp(${v.artId})" style="position:absolute;top:0;bottom:0;right:0;width:36px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center"><span class="exp-arrow">${exp?'<i class="ti ti-chevron-up"></i>':'<i class="ti ti-chevron-down"></i>'}</span></button></div>${exp?`<div class="rp-detail" style="overflow:hidden">${dettaglio}</div>`:''}</div>`;
   }).join('');
 }
 
@@ -2353,6 +2360,13 @@ function applyUrgSettings(){
 let dateFormat='gg dd/mm';
 function saveDateFormat(fmt){dateFormat=fmt;applyDateFormatUI();refreshAll();saveData();}
 function applyDateFormatUI(){const map={'dd/mm':'dfr-ddmm','gg dd/mm':'dfr-ggddmm','dd/mm/yy':'dfr-ddmmyy','dd/mm/yyyy':'dfr-ddmmyyyy','gg dd mmm':'dfr-ggddmmm'};Object.entries(map).forEach(([fmt,id])=>{const el=document.getElementById(id);if(!el)return;const active=dateFormat===fmt;el.innerHTML=active?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';el.style.borderColor=active?'var(--azione)':'var(--brd)';el.style.background=active?'var(--azione)':'#fff';el.parentElement.style.background=active?'var(--azione-s)':'transparent';});}
+function capWords(el){
+  const pos=el.selectionStart;
+  const before=el.value;
+  el.value=before.replace(/(^|\s)([a-zà-ÿ])/g,(m,sep,ch)=>sep+ch.toUpperCase());
+  const diff=el.value.length-before.length;
+  if(document.activeElement===el)el.setSelectionRange(pos+diff,pos+diff);
+}
 function fmtDataByFormat(isoDate){if(!isoDate)return'—';const d=new Date(isoDate+'T00:00:00');const gg=['dom','lun','mar','mer','gio','ven','sab'][d.getDay()];const dd=String(d.getDate()).padStart(2,'0');const mm=String(d.getMonth()+1).padStart(2,'0');const yy=String(d.getFullYear()).slice(2);const yyyy=String(d.getFullYear());const mesi=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];const mmm=mesi[d.getMonth()];switch(dateFormat){case'dd/mm':return dd+'/'+mm;case'dd/mm/yy':return dd+'/'+mm+'/'+yy;case'dd/mm/yyyy':return dd+'/'+mm+'/'+yyyy;case'gg dd mmm':return gg+' '+dd+' '+mmm;default:return gg+' '+dd+'/'+mm;}}
 var _stDetCerca='',_stDetCat='Tutte',_stDetDal='',_stDetAl='';
 var _stDetCalField=null,_stDetCalYear=new Date().getFullYear(),_stDetCalMonth=new Date().getMonth();
