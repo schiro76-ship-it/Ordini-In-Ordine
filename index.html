@@ -321,6 +321,8 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .itag-circle.done{border-color:var(--g);background:var(--g);color:#fff}
 .itag-circle.ritirato{border-color:var(--gr);background:var(--gr);color:#fff}
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
+.card-sticky-host{overflow:visible}
+.card-sticky-host .list-sticky{background:#fff!important}
 .ch{padding:15px 18px 13px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center}
 .ct{font-size:16px;font-weight:900}
 .ct i{font-size:20px;vertical-align:-3px;margin-right:3px}
@@ -713,7 +715,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div id="storico-mensile"></div>
             </div>
           </div>
-          <div class="card" style="margin-bottom:20px">
+          <div class="card card-sticky-host" style="margin-bottom:20px">
             <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none">
               <div class="ct"><i class="ti ti-history"></i> Storico articoli</div>
               <span id="storico-articoli-arrow" class="exp-arrow" style="transform:rotate(90deg)"><i class="ti ti-chevron-right"></i></span>
@@ -745,7 +747,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div id="storico-riepilogo"></div>
             </div>
           </div>
-          <div class="card" style="margin-bottom:20px">
+          <div class="card card-sticky-host" style="margin-bottom:20px">
             <div class="ch" onclick="toggleStoricoDettaglio()" style="cursor:pointer;user-select:none">
               <div class="ct"><i class="ti ti-list-details"></i> Dettaglio ordini</div>
               <span id="storico-dettaglio-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
