@@ -882,7 +882,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <span id="notif-ordini-urgenti-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
                 </label>
               </div>
-              <div id="notif-permesso-avviso" style="display:none;font-size:12px;font-weight:700;color:#B45309;background:#FEF3E2;border-radius:8px;padding:8px 10px;margin-top:4px">Le notifiche sono bloccate dal permesso del browser/telefono su questo dispositivo. Per riattivarle vai nelle impostazioni di sistema (notifiche del sito o dell'app) e consenti l'invio, poi torna qui e riaccendi l'interruttore.</div>
+              <div id="notif-permesso-avviso" style="display:none;font-size:12px;font-weight:700;color:#B45309;background:#FEF3E2;border-radius:8px;padding:8px 10px;margin-top:4px">Le notifiche sono bloccate su questo dispositivo. Riattivale dalle impostazioni di sistema o del browser, poi torna qui e riaccendi l'interruttore.</div>
             </div>
           </div>
           <div class="card">
@@ -1203,7 +1203,7 @@ function showIosInstallInstructions(){
   openModal('modal-ios-install');
 }
 
-async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if(_notifNuovoOrdine||_notifOrdiniUrgenti){initFCM().then((ok)=>{if(!ok){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();});}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(!ok){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
   try{
     db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
@@ -2497,17 +2497,32 @@ function applyNotifSettings(){
   if(track2)track2.style.background=_notifOrdiniUrgenti?'var(--azione)':'#ccc';
   if(thumb2)thumb2.style.left=_notifOrdiniUrgenti?'25px':'3px';
 }
+function installBannerVisibile(){
+  const el=document.getElementById('ios-install-banner');
+  return !!(el&&getComputedStyle(el).display!=='none');
+}
+function mostraAvvisoNotificheBloccate(){
+  const avviso=document.getElementById('notif-permesso-avviso');
+  if(!avviso)return;
+  avviso.textContent="Le notifiche sono bloccate su questo dispositivo. Riattivale dalle impostazioni di sistema o del browser, poi torna qui e riaccendi l'interruttore.";
+  avviso.style.display='block';
+}
 async function toggleNotifNuovoOrdine(){
   const cb=document.getElementById('notif-nuovo-ordine');
   const acceso=cb.checked;
   const avviso=document.getElementById('notif-permesso-avviso');
   if(avviso)avviso.style.display='none';
   if(acceso){
+    if(installBannerVisibile()){
+      // L'app non è ancora installata: risolvere prima quello, niente avvisi aggiuntivi sovrapposti
+      cb.checked=false;
+      return;
+    }
     const ok=await initFCM();
     if(!ok){
       // Permesso negato o non disponibile: riporta l'interruttore su spento
       cb.checked=false;
-      if(avviso)avviso.style.display='block';
+      mostraAvvisoNotificheBloccate();
       return;
     }
   }
@@ -2521,10 +2536,14 @@ async function toggleNotifOrdiniUrgenti(){
   const avviso=document.getElementById('notif-permesso-avviso');
   if(avviso)avviso.style.display='none';
   if(acceso){
+    if(installBannerVisibile()){
+      cb.checked=false;
+      return;
+    }
     const ok=await initFCM();
     if(!ok){
       cb.checked=false;
-      if(avviso)avviso.style.display='block';
+      mostraAvvisoNotificheBloccate();
       return;
     }
   }
