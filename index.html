@@ -44,10 +44,10 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .sb-nav .ni{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:10px;cursor:pointer;color:#fff;font-size:16px;font-weight:700;transition:all 0.15s;margin-bottom:3px;user-select:none}
 .sb-nav .ni .ic{font-size:20px;flex-shrink:0}
 .sb-nav .ni:hover{background:rgba(255,255,255,0.15)}
-.sb-nav .ni.active{background:var(--azione)}
+.sb-nav .ni.active{background:#969FA8;border-radius:0 0 10px 10px}
 .sb-nuovo-wrap{border-bottom:1px solid rgba(255,255,255,0.12)}
-.ni-nuovo-top{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 13px;border-radius:10px;cursor:pointer;color:#fff;font-size:16px;font-weight:800;border:1.5px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.06);transition:all 0.15s;user-select:none;margin-bottom:8px}
-.ni-nuovo-top:hover{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.55)}
+.ni-nuovo-top{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 13px;border-radius:0 0 10px 10px;cursor:pointer;color:#fff;font-size:16px;font-weight:800;border:none;background:var(--azione);transition:all 0.15s;user-select:none;margin-bottom:8px}
+.ni-nuovo-top:hover{filter:brightness(1.1)}
 .ni-nuovo-top .ic{font-size:20px;flex-shrink:0}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:39}
 .sb-overlay.open{display:block}
@@ -755,7 +755,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card card-sticky-host" style="margin-bottom:20px">
-            <div class="ch" onclick="toggleStoricoDettaglio()" style="cursor:pointer;user-select:none;border-bottom:none">
+            <div class="ch" onclick="toggleStoricoDettaglio()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
               <div class="ct"><i class="ti ti-list-details"></i> Dettaglio ordini</div>
               <span id="storico-dettaglio-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
@@ -1523,8 +1523,8 @@ function renderStoricoMensile(){
   }).join('');
 }
 function syncStickyHeaderHeights(){document.querySelectorAll('.card-sticky-host').forEach(function(card){const ch=card.querySelector('.ch');if(ch)card.style.setProperty('--ch-h',ch.offsetHeight+'px');});}
-function toggleStoricoArticoli(){const f=document.getElementById('storico-articoli-fields');const a=document.getElementById('storico-articoli-arrow');const open=f.style.display!=='none';f.style.display=open?'none':'block';if(a)a.style.transform=open?'rotate(0deg)':'rotate(90deg)';const h=f.previousElementSibling;if(h)h.style.borderBottom=open?'none':'';syncStickyHeaderHeights();}
-function toggleStoricoDettaglio(){const f=document.getElementById('storico-dettaglio-fields');const a=document.getElementById('storico-dettaglio-arrow');const open=f.style.display!=='none';f.style.display=open?'none':'block';if(a)a.style.transform=open?'rotate(0deg)':'rotate(90deg)';const h=f.previousElementSibling;if(h)h.style.borderBottom=open?'none':'';syncStickyHeaderHeights();}
+function toggleStoricoArticoli(){const f=document.getElementById('storico-articoli-fields');const a=document.getElementById('storico-articoli-arrow');const open=f.style.display!=='none';f.style.display=open?'none':'block';if(a)a.style.transform=open?'rotate(0deg)':'rotate(90deg)';const h=f.previousElementSibling;if(h){h.style.borderBottom=open?'none':'';h.style.borderRadius=open?'var(--rad)':'';}syncStickyHeaderHeights();}
+function toggleStoricoDettaglio(){const f=document.getElementById('storico-dettaglio-fields');const a=document.getElementById('storico-dettaglio-arrow');const open=f.style.display!=='none';f.style.display=open?'none':'block';if(a)a.style.transform=open?'rotate(0deg)':'rotate(90deg)';const h=f.previousElementSibling;if(h){h.style.borderBottom=open?'none':'';h.style.borderRadius=open?'var(--rad)':'';}syncStickyHeaderHeights();}
 function renderStoricoRiepilogo(){
   // --- Sezione 1: Storico articoli (riepilogo aggregato) ---
   const dal=document.getElementById('st-dal')&&document.getElementById('st-dal').value||'';const al=document.getElementById('st-al')&&document.getElementById('st-al').value||'';const cerca=(document.getElementById('st-art-cerca')&&document.getElementById('st-art-cerca').value||'').toLowerCase().trim();const ordsF=ords.filter(o=>{if(o.stato!=='ritirato')return false;if(!o.data)return!dal&&!al;if(dal&&o.data<dal)return false;if(al&&o.data>al)return false;return true;});const map={};ordsF.forEach(o=>(o.items||[]).forEach(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return;const k=`${it.artId}`;if(!map[k])map[k]={artId:it.artId,nome:a.nome,cat:a.cat||'',ums:{},nOrdini:0};const um=it.um||'';map[k].ums[um]=(map[k].ums[um]||0)+(parseFloat(it.qty)||1);map[k].nOrdini++;}));const voci=Object.values(map).sort((a,b)=>a.nome.localeCompare(b.nome));const catsP=['Tutte',...[...new Set(voci.map(v=>v.cat).filter(Boolean))].sort()];if(!catsP.includes(stCatFilter))stCatFilter='Tutte';const pillsEl=document.getElementById('st-cat-pills');if(pillsEl)pillsEl.innerHTML=catsP.map(c=>`<span class="pill ${c===stCatFilter?'active':''}" onclick="setStCat('${c}')">${c}</span>`).join('');const filtrate=voci.filter(v=>{if(stCatFilter!=='Tutte'&&v.cat!==stCatFilter)return false;if(cerca&&!v.nome.toLowerCase().includes(cerca))return false;return true;});
