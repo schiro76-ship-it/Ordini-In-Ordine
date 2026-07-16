@@ -179,7 +179,7 @@ body.portrait-phone .phdr{padding:14px 16px 0}
 body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!important}
 @media(min-width:640px) and (max-width:1023px){
   html{background:#DDE0E8}
-  .ordini-sticky,.list-sticky{background:#DDE0E8}
+  body:not(.portrait-phone) .ordini-sticky,body:not(.portrait-phone) .list-sticky{background:#DDE0E8}
   body{background:#DDE0E8}
   :root{--sbw:200px}
   .shell{height:100dvh}
@@ -198,7 +198,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 }
 @media(min-width:1024px){
   html{background:#DDE0E8}
-  .ordini-sticky,.list-sticky{background:#DDE0E8}
+  body:not(.portrait-phone) .ordini-sticky,body:not(.portrait-phone) .list-sticky{background:#DDE0E8}
   body{background:#DDE0E8}
   .shell{height:100dvh}
   .sidebar{min-height:100dvh;padding-bottom:env(safe-area-inset-bottom,34px)}
