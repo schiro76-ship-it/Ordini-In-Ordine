@@ -882,7 +882,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <span id="notif-ordini-urgenti-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
                 </label>
               </div>
-              <div id="notif-permesso-avviso" style="display:none;font-size:12px;font-weight:700;color:#B45309;background:#FEF3E2;border-radius:8px;padding:8px 10px;margin-top:4px">Non è stato possibile attivare le notifiche su questo dispositivo. Verifica il permesso notifiche del browser oppure riprova tra qualche istante.</div>
+              <div id="notif-permesso-avviso" style="display:none;font-size:12px;font-weight:700;color:#B45309;background:#FEF3E2;border-radius:8px;padding:8px 10px;margin-top:4px">Le notifiche sono bloccate dal permesso del browser/telefono su questo dispositivo. Per riattivarle vai nelle impostazioni di sistema (notifiche del sito o dell'app) e consenti l'invio, poi torna qui e riaccendi l'interruttore.</div>
             </div>
           </div>
           <div class="card">
@@ -960,7 +960,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div class="mta"><i class="ti ti-folder"></i> Catalogo articoli</div>
     <div style="overflow-y:auto;flex:1;min-height:0">
       <div onclick="toggleArtNuovo()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0 14px;user-select:none">
-        <span style="font-size:15px;font-weight:800;color:var(--txt)">Nuovo</span>
+        <span style="font-size:16px;font-weight:900;color:var(--txt)">Nuovo</span>
         <span id="art-nuovo-icon" class="art-nuovo-icon"><i class="ti ti-plus"></i></span>
       </div>
       <div id="art-nuovo-fields" style="display:none;background:var(--bg);border-radius:12px;padding:14px;margin-bottom:16px">
@@ -1203,7 +1203,7 @@ function showIosInstallInstructions(){
   openModal('modal-ios-install');
 }
 
-async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if(_notifNuovoOrdine||_notifOrdiniUrgenti){initFCM().catch((e)=>console.warn('Auto-init FCM fallito',e));}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if(_notifNuovoOrdine||_notifOrdiniUrgenti){initFCM().then((ok)=>{if(!ok){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();});}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
   try{
     db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
