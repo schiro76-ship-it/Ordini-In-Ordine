@@ -719,11 +719,11 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="phdr"><h2>Storico</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
         <div class="pbody">
           <div class="card card-sticky-host" style="margin-bottom:20px">
-            <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none">
+            <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
               <div class="ct"><i class="ti ti-history"></i> Storico articoli</div>
-              <span id="storico-articoli-arrow" class="exp-arrow" style="transform:rotate(90deg)"><i class="ti ti-chevron-right"></i></span>
+              <span id="storico-articoli-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
-            <div class="cb" id="storico-articoli-fields">
+            <div class="cb" id="storico-articoli-fields" style="display:none">
               <div class="list-sticky">
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
                   <div style="display:flex;align-items:center;gap:6px">
@@ -760,11 +760,11 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card card-sticky-host" style="margin-bottom:20px">
-            <div class="ch" onclick="toggleStoricoMensile()" style="cursor:pointer;user-select:none">
+            <div class="ch" onclick="toggleStoricoMensile()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
               <div class="ct"><i class="ti ti-chart-bar"></i> Ordini mensili</div>
-              <span id="storico-mensile-arrow" class="exp-arrow" style="transform:rotate(90deg)"><i class="ti ti-chevron-right"></i></span>
+              <span id="storico-mensile-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
-            <div class="cb" id="storico-mensile-fields">
+            <div class="cb" id="storico-mensile-fields" style="display:none">
               <div id="storico-mensile-lista"></div>
             </div>
           </div>
@@ -1588,7 +1588,7 @@ function renderStoricoRiepilogo(){
     else{
       let html=`<p style="font-size:13px;color:var(--sub);font-weight:700;margin-bottom:10px">${ordsF.length} ordini ritirati nel periodo</p>`;
       if(!filtrate.length){html+='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun articolo trovato.</p>';}
-      else{html+=filtrate.map(v=>{const qStr=Object.entries(v.ums).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span class="rp-qty" style="color:var(--txt)">${q}</span><span class="rp-um" style="color:var(--txt)">${um?' '+um:''}</span>`;}).join('<span style="color:var(--sub);margin:0 3px">+</span>');return`<div class="rp-row" style="margin-bottom:6px"><div class="rp-art">${v.nome}${v.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${v.cat}</span>`:''}</div><div style="text-align:right;flex-shrink:0">${qStr}<span style="font-size:12px;color:var(--sub);display:block">${v.nOrdini} ordini</span></div></div>`;}).join('');}
+      else{html+=filtrate.map(v=>{const qStr=Object.entries(v.ums).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span class="rp-qty" style="color:var(--azione)">${q}</span><span class="rp-um" style="color:var(--azione)">${um?' '+um:''}</span>`;}).join('<span style="color:var(--sub);margin:0 3px">+</span>');return`<div class="rp-row" style="margin-bottom:6px;flex-wrap:wrap;row-gap:2px"><div class="rp-art" style="white-space:nowrap;padding:14px 0;flex-shrink:0">${v.nome}${v.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${v.cat}</span>`:''}</div><div style="margin-left:auto;flex-shrink:0;display:flex;align-items:baseline;gap:6px;white-space:nowrap"><span>${qStr}</span><span style="font-size:12px;color:var(--sub);font-weight:700">${v.nOrdini} ordini</span></div></div>`;}).join('');}
       el.innerHTML=html;
     }
   }
