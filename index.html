@@ -436,6 +436,8 @@ body.portrait-phone .itag-circle i{font-size:16px}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.v{background:var(--g)}#toast.err{background:var(--r)}
 .um-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.art-nuovo-icon{width:32px;height:32px;border-radius:8px;background:var(--azione);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:all 0.15s}
+.art-nuovo-icon.open{background:none;color:var(--sub);font-size:20px}
 .um-chip{padding:7px 15px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px}
 .um-chip .del-um{font-size:14px;color:var(--sub);cursor:pointer}
 .slist{max-height:320px;overflow-y:auto}
@@ -828,7 +830,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="phdr"><h2>Impostazioni</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
         <div class="pbody">
           <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Articoli</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderArtM();openModal('modal-articoli')"><i class="ti ti-pencil"></i> Gestisci</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Articoli</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderArtM();resetArtNuovo();openModal('modal-articoli')"><i class="ti ti-pencil"></i> Gestisci</button></div>
             <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Catalogo: <span id="acb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
           </div>
           <div class="card">
@@ -957,13 +959,19 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
   <div class="modal" style="display:flex;flex-direction:column;overflow-y:hidden">
     <div class="mta"><i class="ti ti-folder"></i> Catalogo articoli</div>
     <div style="overflow-y:auto;flex:1;min-height:0">
-      <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="an" placeholder="Es. Nome articolo"></div>
-      <div class="fg">
-        <label class="fl">Categoria</label>
-        <select class="fi" id="ac2" onchange="onCatChange(this)"><option value="">— Nessuna —</option></select>
-        <div id="nuova-cat-wrap" style="display:none;margin-top:8px"><input class="fi" type="text" id="nuova-cat-input" placeholder="Nome nuova categoria…"></div>
+      <div onclick="toggleArtNuovo()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0 14px;user-select:none">
+        <span style="font-size:15px;font-weight:800;color:var(--txt)">Nuovo</span>
+        <span id="art-nuovo-icon" class="art-nuovo-icon"><i class="ti ti-plus"></i></span>
       </div>
-      <button class="btn br btn-full" onclick="addArt()" style="margin-bottom:16px">+ Aggiungi articolo</button>
+      <div id="art-nuovo-fields" style="display:none;background:var(--bg);border-radius:12px;padding:14px;margin-bottom:16px">
+        <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="an" placeholder="Es. Nome articolo"></div>
+        <div class="fg">
+          <label class="fl">Categoria</label>
+          <select class="fi" id="ac2" onchange="onCatChange(this)"><option value="">— Nessuna —</option></select>
+          <div id="nuova-cat-wrap" style="display:none;margin-top:8px"><input class="fi" type="text" id="nuova-cat-input" placeholder="Nome nuova categoria…"></div>
+        </div>
+        <button class="btn br btn-full" onclick="addArt()">+ Aggiungi articolo</button>
+      </div>
       <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0"><span id="acb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
       <div class="slist" id="aml"></div>
@@ -1137,8 +1145,8 @@ let _deviceId=(function(){
     return id;
   }catch(e){return 'dev-'+Date.now();}
 })();
-let _notifNuovoOrdine=false; // Interruttore notifica "nuovo ordine" — sincronizzato su Firestore, default disattivo (opt-in, non invasivo per i nuovi account)
-let _notifOrdiniUrgenti=false; // Interruttore notifica "ordini urgenti" (controllo giornaliero via Cloud Scheduler) — sincronizzato su Firestore, default disattivo
+let _notifNuovoOrdine=true; // Interruttore notifica "nuovo ordine" — sincronizzato su Firestore, default ATTIVO (allineato al permesso di sistema richiesto al primo avvio)
+let _notifOrdiniUrgenti=true; // Interruttore notifica "ordini urgenti" (controllo giornaliero via Cloud Scheduler) — sincronizzato su Firestore, default ATTIVO
 let ordiniPerMese={};
 let stampeCount=0;
 let ordiniCreatiTotale=0;
@@ -1156,8 +1164,8 @@ function applyRemoteSettings(d){
   _calMode=d.calMode||'ora';
   dateFormat=d.dateFormat||'gg dd/mm';
   fcmTokens=(d.fcmTokens&&typeof d.fcmTokens==='object'&&!Array.isArray(d.fcmTokens))?d.fcmTokens:{};
-  _notifNuovoOrdine=d.notifNuovoOrdine===true;
-  _notifOrdiniUrgenti=d.notifOrdiniUrgenti===true;
+  _notifNuovoOrdine=d.notifNuovoOrdine!==false;
+  _notifOrdiniUrgenti=d.notifOrdiniUrgenti!==false;
   applyUrgSettings();applyCalSettings();applyDateFormatUI();applyNotifSettings();
 }
 async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
@@ -1579,6 +1587,8 @@ function smoothToggle(bodyEl,arrowEl,headerEl){
 function toggleStoricoArticoli(){const f=document.getElementById('storico-articoli-fields');const a=document.getElementById('storico-articoli-arrow');const h=f.previousElementSibling;smoothToggle(f,a,h);}
 function toggleStoricoDettaglio(){const f=document.getElementById('storico-dettaglio-fields');const a=document.getElementById('storico-dettaglio-arrow');const h=f.previousElementSibling;smoothToggle(f,a,h);}
 function toggleStoricoMensile(){const f=document.getElementById('storico-mensile-fields');const a=document.getElementById('storico-mensile-arrow');const h=f.previousElementSibling;smoothToggle(f,a,h);}
+function toggleArtNuovo(){const f=document.getElementById('art-nuovo-fields');const icon=document.getElementById('art-nuovo-icon');const wasOpen=f.style.display!=='none'&&getComputedStyle(f).display!=='none';smoothToggle(f,null,null);if(icon){icon.classList.toggle('open',!wasOpen);icon.innerHTML=wasOpen?'<i class="ti ti-plus"></i>':'<i class="ti ti-x"></i>';}}
+function resetArtNuovo(){const f=document.getElementById('art-nuovo-fields');const icon=document.getElementById('art-nuovo-icon');if(f){f.style.display='none';f.style.maxHeight='';f.style.overflow='';f.style.transition='';}if(icon){icon.classList.remove('open');icon.innerHTML='<i class="ti ti-plus"></i>';}}
 function renderStoricoRiepilogo(){
   // --- Sezione 1: Storico articoli (riepilogo aggregato) ---
   const dal=document.getElementById('st-dal')&&document.getElementById('st-dal').value||'';const al=document.getElementById('st-al')&&document.getElementById('st-al').value||'';const cerca=(document.getElementById('st-art-cerca')&&document.getElementById('st-art-cerca').value||'').toLowerCase().trim();const ordsF=ords.filter(o=>{if(o.stato!=='ritirato')return false;if(!o.data)return!dal&&!al;if(dal&&o.data<dal)return false;if(al&&o.data>al)return false;return true;});const map={};ordsF.forEach(o=>(o.items||[]).forEach(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return;const k=`${it.artId}`;if(!map[k])map[k]={artId:it.artId,nome:a.nome,cat:a.cat||'',ums:{},nOrdini:0};const um=it.um||'';map[k].ums[um]=(map[k].ums[um]||0)+(parseFloat(it.qty)||1);map[k].nOrdini++;}));const voci=Object.values(map).sort((a,b)=>a.nome.localeCompare(b.nome));const catsP=['Tutte',...[...new Set(voci.map(v=>v.cat).filter(Boolean))].sort()];if(!catsP.includes(stCatFilter))stCatFilter='Tutte';const pillsEl=document.getElementById('st-cat-pills');if(pillsEl)pillsEl.innerHTML=catsP.map(c=>`<span class="pill ${c===stCatFilter?'active':''}" onclick="setStCat('${c}')">${c}</span>`).join('');const filtrate=voci.filter(v=>{if(stCatFilter!=='Tutte'&&v.cat!==stCatFilter)return false;if(cerca&&!v.nome.toLowerCase().includes(cerca))return false;return true;});
