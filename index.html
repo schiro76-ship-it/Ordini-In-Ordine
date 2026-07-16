@@ -327,6 +327,8 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .card-sticky-host{overflow:visible}
 .card-sticky-host .ch{position:sticky;top:0;z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0}
+.card-sticky-host.anim-lock .ch{position:relative!important}
+.card-sticky-host.anim-lock .list-sticky{position:relative!important;top:auto!important}
 .card-sticky-host .list-sticky{background:#fff!important;top:var(--ch-h,50px)}
 .ch{padding:15px 18px 13px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center}
 .ct{font-size:16px;font-weight:900}
@@ -1543,6 +1545,8 @@ function toggleMesiAltri(){smoothToggle(document.getElementById('storico-mesi-al
 function syncStickyHeaderHeights(){document.querySelectorAll('.card-sticky-host').forEach(function(card){const ch=card.querySelector('.ch');if(ch)card.style.setProperty('--ch-h',ch.offsetHeight+'px');});}
 function smoothToggle(bodyEl,arrowEl,headerEl){
   if(!bodyEl)return;
+  const hostCard=bodyEl.closest('.card-sticky-host');
+  if(hostCard)hostCard.classList.add('anim-lock');
   const isClosed=bodyEl.style.display==='none'||getComputedStyle(bodyEl).display==='none';
   if(isClosed){
     bodyEl.style.display='block';
@@ -1558,6 +1562,7 @@ function smoothToggle(bodyEl,arrowEl,headerEl){
       bodyEl.addEventListener('transitionend',function te(){
         bodyEl.style.maxHeight='';bodyEl.style.overflow='';bodyEl.style.transition='';
         bodyEl.removeEventListener('transitionend',te);
+        if(hostCard)hostCard.classList.remove('anim-lock');
         syncStickyHeaderHeights();
       },{once:true});
     });});
@@ -1574,6 +1579,7 @@ function smoothToggle(bodyEl,arrowEl,headerEl){
       bodyEl.addEventListener('transitionend',function te(){
         bodyEl.style.display='none';bodyEl.style.maxHeight='';bodyEl.style.overflow='';bodyEl.style.transition='';
         bodyEl.removeEventListener('transitionend',te);
+        if(hostCard)hostCard.classList.remove('anim-lock');
         syncStickyHeaderHeights();
       },{once:true});
     });});
