@@ -765,9 +765,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <span id="storico-mensile-arrow" class="exp-arrow" style="transform:rotate(90deg)"><i class="ti ti-chevron-right"></i></span>
             </div>
             <div class="cb" id="storico-mensile-fields">
-              <div id="storico-mensile-corrente"></div>
-              <div id="storico-mensile-vedi-wrap"></div>
-              <div id="storico-mesi-altri" style="display:none"></div>
+              <div id="storico-mensile-lista"></div>
             </div>
           </div>
         </div>
@@ -1509,10 +1507,8 @@ let stCatFilter='Tutte';
 function setStCat(c){stCatFilter=c;renderStoricoRiepilogo()}
 const MESI_LUNGHI=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 function renderStoricoMensile(){
-  const elCorr=document.getElementById('storico-mensile-corrente');
-  const elAltri=document.getElementById('storico-mesi-altri');
-  const wrapVedi=document.getElementById('storico-mensile-vedi-wrap');
-  if(!elCorr)return;
+  const el=document.getElementById('storico-mensile-lista');
+  if(!el)return;
   const dati=ordiniPerMese||{};
   const meseCorrente=new Date().toISOString().slice(0,7);
   const chiaviAltre=Object.keys(dati).filter(k=>k!==meseCorrente).sort().reverse();
@@ -1526,22 +1522,17 @@ function renderStoricoMensile(){
     return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
       <div style="width:110px;flex-shrink:0;font-size:14px;font-weight:${isCorrente?'900':'700'};color:${isCorrente?'var(--azione)':'var(--txt)'}">${label}</div>
       <div style="flex:1;background:var(--bg);border-radius:8px;overflow:hidden;height:22px;position:relative">
-        <div style="background:${isCorrente?'var(--azione)':'var(--azione-s)'};height:100%;width:${pct}%;border-radius:8px"></div>
+        <div style="background:${isCorrente?'var(--azione)':'#7DA9E0'};height:100%;width:${pct}%;border-radius:8px"></div>
       </div>
       <div style="width:70px;flex-shrink:0;text-align:right;font-size:15px;font-weight:900;color:var(--txt)">${n} ord.</div>
     </div>`;
   };
   if(!chiaviAltre.length&&!(dati[meseCorrente])){
-    elCorr.innerHTML='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Ancora nessun dato: da qui in avanti ogni ordine creato verrà conteggiato nel mese corrispondente.</p>';
-    if(wrapVedi)wrapVedi.innerHTML='';
-    if(elAltri)elAltri.innerHTML='';
+    el.innerHTML='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Ancora nessun dato: da qui in avanti ogni ordine creato verrà conteggiato nel mese corrispondente.</p>';
     return;
   }
-  elCorr.innerHTML=rigaMese(meseCorrente);
-  if(elAltri)elAltri.innerHTML=chiaviAltre.map(rigaMese).join('');
-  if(wrapVedi)wrapVedi.innerHTML=chiaviAltre.length?`<div onclick="toggleMesiAltri()" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:8px;margin-top:2px;cursor:pointer;font-size:13px;font-weight:800;color:var(--azione);user-select:none">Vedi tutti i mesi<span id="storico-mesi-altri-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span></div>`:'';
+  el.innerHTML=rigaMese(meseCorrente)+chiaviAltre.map(rigaMese).join('');
 }
-function toggleMesiAltri(){smoothToggle(document.getElementById('storico-mesi-altri'),document.getElementById('storico-mesi-altri-arrow'),null);}
 function syncStickyHeaderHeights(){document.querySelectorAll('.card-sticky-host').forEach(function(card){const ch=card.querySelector('.ch');if(ch)card.style.setProperty('--ch-h',ch.offsetHeight+'px');});}
 function smoothToggle(bodyEl,arrowEl,headerEl){
   if(!bodyEl)return;
