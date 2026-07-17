@@ -2244,15 +2244,18 @@ function togArt(id){
     sel.push({id:id,qty:'',um:'',nota:'',done:false});
     // Azzera campo ricerca e aggiorna griglia senza perdere focus
     const can=document.getElementById('can');
-    if(can){can.value='';can.focus();}
+    if(can)can.value='';
     const agrid=document.getElementById('agrid');
     if(agrid)agrid.innerHTML='';
     renderSP();
-    // Focus e scroll sull'input quantità dell'articolo appena aggiunto
-    setTimeout(function(){
-      const inp=document.getElementById('qin-'+id);
-      if(inp){inp.focus();inp.scrollIntoView({behavior:'smooth',block:'center'});}
-    },80);
+    // Focus SINCRONO (stesso gesto utente, niente setTimeout prima del focus) sull'input quantità
+    // dell'articolo appena aggiunto — su iOS spostare il focus fuori dal gesto originale è inaffidabile
+    // e causava la tastiera/il focus in posizione casuale (a volte sulla ricerca, a volte altrove).
+    const inp=document.getElementById('qin-'+id);
+    if(inp){
+      inp.focus();
+      requestAnimationFrame(function(){inp.scrollIntoView({behavior:'smooth',block:'center'});});
+    }
   }
 }
 function chQty(id,d){const s=sel.find(x=>x.id===id);if(!s)return;s.qty=Math.max(0,parseFloat(((parseFloat(s.qty)||0)+d).toFixed(4)));const inp=document.getElementById('qin-'+id);if(inp)inp.value=s.qty}
