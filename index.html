@@ -1145,8 +1145,9 @@ let _deviceId=(function(){
     return id;
   }catch(e){return 'dev-'+Date.now();}
 })();
-let _notifNuovoOrdine=true; // Interruttore notifica "nuovo ordine" — sincronizzato su Firestore, default ATTIVO (allineato al permesso di sistema richiesto al primo avvio)
-let _notifOrdiniUrgenti=true; // Interruttore notifica "ordini urgenti" (controllo giornaliero via Cloud Scheduler) — sincronizzato su Firestore, default ATTIVO
+let _notifNuovoOrdine=true; // Preferenza notifica "nuovo ordine" DI QUESTO DISPOSITIVO — salvata in notifSettings[_deviceId] su Firestore, default ATTIVO
+let _notifOrdiniUrgenti=true; // Preferenza notifica "ordini urgenti" DI QUESTO DISPOSITIVO — salvata in notifSettings[_deviceId] su Firestore, default ATTIVO
+let _notifSettingsAll={}; // Cache della mappa completa {deviceId:{nuovoOrdine,ordiniUrgenti}} letta da Firestore — serve per calcolare i campi legacy account-wide (OR) usati dalle Cloud Functions
 let ordiniPerMese={};
 let stampeCount=0;
 let ordiniCreatiTotale=0;
@@ -1158,14 +1159,26 @@ const LIMITE_ORDINI_ATTIVO=false;
 const LIMITI_FREE={ordini:100,articoli:15,stampe:20};
 const DEFAULT_UM=['kg','g','fette','pezzi','numero','vaschette','bustine'];
 const DEFAULT_ARTS=getAttivitaById('macelleria').arts.map((a,i)=>({id:i+1,...a}));
-async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,fcmTokens,notifNuovoOrdine:_notifNuovoOrdine,notifOrdiniUrgenti:_notifOrdiniUrgenti,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
+async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}
+_notifSettingsAll[_deviceId]={nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti};
+const _orNuovo=Object.values(_notifSettingsAll).some(v=>v&&v.nuovoOrdine!==false);
+const _orUrg=Object.values(_notifSettingsAll).some(v=>v&&v.ordiniUrgenti!==false);
+const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
 function applyRemoteSettings(d){
   _urgDays=(typeof d.urgDays==='number'&&d.urgDays>=0)?d.urgDays:0;
   _calMode=d.calMode||'ora';
   dateFormat=d.dateFormat||'gg dd/mm';
   fcmTokens=(d.fcmTokens&&typeof d.fcmTokens==='object'&&!Array.isArray(d.fcmTokens))?d.fcmTokens:{};
-  _notifNuovoOrdine=d.notifNuovoOrdine!==false;
-  _notifOrdiniUrgenti=d.notifOrdiniUrgenti!==false;
+  _notifSettingsAll=(d.notifSettings&&typeof d.notifSettings==='object'&&!Array.isArray(d.notifSettings))?d.notifSettings:{};
+  const _mieNotif=_notifSettingsAll[_deviceId];
+  if(_mieNotif&&typeof _mieNotif==='object'){
+    _notifNuovoOrdine=_mieNotif.nuovoOrdine!==false;
+    _notifOrdiniUrgenti=_mieNotif.ordiniUrgenti!==false;
+  }else{
+    // Nessuna voce per questo dispositivo: eredita i vecchi campi globali (migrazione account esistenti)
+    _notifNuovoOrdine=d.notifNuovoOrdine!==false;
+    _notifOrdiniUrgenti=d.notifOrdiniUrgenti!==false;
+  }
   applyUrgSettings();applyCalSettings();applyDateFormatUI();applyNotifSettings();
 }
 async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
@@ -1203,7 +1216,7 @@ function showIosInstallInstructions(){
   openModal('modal-ios-install');
 }
 
-async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(!ok){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(!ok){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
   try{
     db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
@@ -2530,6 +2543,7 @@ async function toggleNotifNuovoOrdine(){
     }
   }
   _notifNuovoOrdine=acceso;
+  if(!_notifNuovoOrdine&&!_notifOrdiniUrgenti)rimuoviTokenDispositivo();
   applyNotifSettings();
   saveData();
 }
@@ -2551,6 +2565,7 @@ async function toggleNotifOrdiniUrgenti(){
     }
   }
   _notifOrdiniUrgenti=acceso;
+  if(!_notifNuovoOrdine&&!_notifOrdiniUrgenti)rimuoviTokenDispositivo();
   applyNotifSettings();
   saveData();
 }
@@ -2595,6 +2610,16 @@ async function salvaFcmToken(token){
   if(fcmTokens[_deviceId]===token)return; // già salvato, nessuna scrittura inutile
   fcmTokens[_deviceId]=token;
   await saveData();
+}
+async function rimuoviTokenDispositivo(){
+  // Con set(...,{merge:true}) le chiavi assenti dal payload NON vengono cancellate da Firestore:
+  // serve una update mirata con FieldValue.delete() per rimuovere davvero il token dal server.
+  if(!fcmTokens[_deviceId])return;
+  delete fcmTokens[_deviceId];
+  try{
+    const uid=currentUser?currentUser.uid:DOC_ID;
+    await db.collection('dati').doc(uid).update({['fcmTokens.'+_deviceId]:firebase.firestore.FieldValue.delete()});
+  }catch(e){console.warn('Rimozione token fallita',e);}
 }
 
 // --- Foto righe d'ordine ---
