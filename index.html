@@ -1320,7 +1320,7 @@ function buildOcHTML(lista){
       const circleStyle=isRitirato?'border-color:var(--gr);background:var(--gr);color:#fff;cursor:default':'';
       return`<div class="${tagClass}" style="${tagStyle}">
         <div class="itag-circle ${circleClass}" ${circleClickHandler} style="${circleStyle}">${circleContent}</div>
-        <span style="flex:1 1 auto;min-width:120px">${a.nome}${a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</span>
+        <span style="flex:1 1 0%;min-width:120px">${a.nome}${a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</span>
         ${it.itemId&&it.imgCaricata?`<button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:5px 9px;font-size:18px;display:inline-flex;align-items:center;cursor:pointer;flex-shrink:0"><i class="ti ti-photo"></i></button>`:''}
         ${it.nota?`<span class="nt">"${it.nota}"</span>`:''}
         <span class="qty" style="${qtyStyle};flex-shrink:0;white-space:nowrap;margin-left:auto">${qtyStr}</span>
