@@ -1317,7 +1317,7 @@ function buildOcHTML(lista){
       return`<div class="${tagClass}" style="${tagStyle}">
         <div class="itag-circle ${circleClass}" ${circleClickHandler} style="${circleStyle}">${circleContent}</div>
         <span class="qty" style="${qtyStyle}">${qtyStr}</span>
-        <span style="white-space:nowrap">${a.nome}${a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</span>
+        <span>${a.nome}${a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</span>
         ${it.nota?`<span class="nt" style="min-width:60px">"${it.nota}"</span>`:''}
         ${it.itemId&&it.imgCaricata?`<button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:5px 9px;font-size:18px;display:inline-flex;align-items:center;cursor:pointer;flex-shrink:0;margin-left:auto"><i class="ti ti-photo"></i></button>`:''}
       </div>`;
