@@ -883,7 +883,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                 </label>
               </div>
               <div id="notif-permesso-avviso" style="display:none;font-size:12px;font-weight:700;color:#B45309;background:#FEF3E2;border-radius:8px;padding:8px 10px;margin-top:4px">Le notifiche sono bloccate su questo dispositivo. Riattivale dalle impostazioni di sistema o del browser, poi torna qui e riaccendi l'interruttore.</div>
-              <div id="diag-device-id" style="font-size:10px;color:var(--sub);font-weight:600;margin-top:6px;word-break:break-all"></div>
             </div>
           </div>
           <div class="card">
@@ -2513,11 +2512,6 @@ function applyNotifSettings(){
   if(cb2)cb2.checked=_notifOrdiniUrgenti;
   if(track2)track2.style.background=_notifOrdiniUrgenti?'var(--azione)':'#ccc';
   if(thumb2)thumb2.style.left=_notifOrdiniUrgenti?'25px':'3px';
-  const diag=document.getElementById('diag-device-id');
-  if(diag){
-    const salvato=_notifSettingsAll&&_notifSettingsAll[_deviceId]?JSON.stringify(_notifSettingsAll[_deviceId]):'(nessuna voce salvata per questo device)';
-    diag.textContent='DIAG · device-id: '+_deviceId+' · salvato: '+salvato+' · permesso: '+(('Notification' in window)?Notification.permission:'n/d');
-  }
 }
 function installBannerVisibile(){
   const el=document.getElementById('ios-install-banner');
@@ -2589,7 +2583,11 @@ async function initFCM(){
     // Attende che il Service Worker sia effettivamente attivo (non solo registrato)
     // prima di richiedere il token — altrimenti pushManager non è ancora disponibile
     const swReg=await navigator.serviceWorker.ready;
-    const permission=await Notification.requestPermission();
+    // Se il permesso è già stato deciso in passato, non richiederlo di nuovo: su un riavvio
+    // automatico (senza gesto diretto dell'utente) alcuni browser rifiutano la richiesta anche
+    // quando il permesso reale a livello di sistema è già "granted", causando falsi spegnimenti.
+    let permission=Notification.permission;
+    if(permission==='default')permission=await Notification.requestPermission();
     if(permission==='denied')return 'denied';
     if(permission!=='granted')return 'error'; // richiesta ignorata dal browser (niente gesto utente), non un rifiuto esplicito
     const messaging=firebase.messaging();
