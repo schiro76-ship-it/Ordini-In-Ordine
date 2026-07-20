@@ -113,10 +113,8 @@ body.portrait-phone #bottom-nav{display:flex}
    (non più a tutta larghezza/altezza: sproporzionato su schermi grandi ed era anche
    fonte di un problema di area cliccabile poco affidabile) */
 @media(min-width:640px){
-  #nuovo-bottom-bar{position:fixed;bottom:0;left:var(--sbw);right:0;padding:14px 24px;background:rgba(221,224,232,0.97);backdrop-filter:blur(8px);z-index:50;display:none}
   #nuovo-bottom-bar.visible{display:flex;justify-content:flex-end;align-items:center}
   #nuovo-bottom-bar .btn-full{width:auto!important;min-width:220px;padding:12px 32px!important;font-size:16px!important;border-radius:12px!important}
-  .pbody.has-bottom-bar{padding-bottom:90px!important}
 }
 /* Allinea il margine destro della barra a quello del contenuto (Annulla ecc.),
    che aumenta a sua volta su schermi più larghi */
@@ -773,7 +771,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-nuovo">
-        <div class="phdr"><h2>Nuovo Ordine <span id="nuovo-num-badge" style="font-size:13px;color:var(--urg)"></span></h2><div style="display:flex;align-items:center;gap:12px"><div style="display:flex;align-items:center;gap:4px"><span style="font-size:19px;font-weight:900;color:var(--txt)">#</span><input type="number" id="nuovo-num-top" min="1" style="width:64px;font-size:20px;font-weight:900;color:var(--txt);border:none;border-bottom:2px solid var(--azione);background:transparent;font-family:'Nunito',sans-serif;outline:none;text-align:center" oninput="sincNuovoNum(this.value)"></div><button onclick="goTab('ordini')" style="padding:8px 16px;background:#fff;color:var(--txt);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Annulla</button></div></div>
+        <div class="phdr"><h2>Nuovo Ordine <span id="nuovo-num-badge" style="font-size:13px;color:var(--urg)"></span></h2><div style="display:flex;align-items:center;gap:12px"><div style="display:flex;align-items:center;gap:4px"><span style="font-size:19px;font-weight:900;color:var(--txt)">#</span><input type="number" id="nuovo-num-top" min="1" style="width:64px;font-size:20px;font-weight:900;color:var(--txt);border:none;border-bottom:2px solid var(--azione);background:transparent;font-family:'Nunito',sans-serif;outline:none;text-align:center" oninput="sincNuovoNum(this.value)"></div><button onclick="goTab(_tabPrimaDiNuovo)" style="padding:8px 16px;background:#fff;color:var(--txt);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Annulla</button></div></div>
         <div class="pbody has-bottom-bar">
           <div class="card" style="margin-bottom:14px">
             <div class="ch"><div class="ct"><i class="ti ti-calendar"></i> Ritiro</div></div>
@@ -1234,10 +1232,16 @@ async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){c
 function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';if(document.body.classList.contains('portrait-phone')){const pc=document.querySelector('.pcontent');if(pc)pc.style.paddingTop=showVb?'env(safe-area-inset-top,44px)':'0';}const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');}
 const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni',invita:'Ricevi 5 €'};
 const tabIdx={ordini:0,riepilogo:1,storico:2,impostazioni:3,invita:4};
+let _currentTab='ordini';
+let _tabPrimaDiNuovo='ordini';
 function goTab(name){
+  if(name==='nuovo'&&_currentTab!=='nuovo')_tabPrimaDiNuovo=_currentTab;
+  _currentTab=name;
   document.querySelectorAll('.ov.open').forEach(function(ov){ov.classList.remove('open');document.body.style.overflow='';});
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
+  const pw=document.querySelector('.page-wrap');
+  if(pw)pw.scrollTop=0;
   document.querySelectorAll('.sb-nav .ni').forEach((n,i)=>n.classList.toggle('active',i===tabIdx[name]));
   document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
   const bnBtn=document.getElementById('bn-'+name);
@@ -3076,6 +3080,17 @@ function checkPortrait(){
     else nav.style.display='';
   }
 }
+document.addEventListener('focusin',function(e){
+  const t=e.target;
+  if(!t||!t.closest)return;
+  if(!(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'))return;
+  if(!t.closest('#tab-nuovo'))return;
+  if(t.type==='hidden')return;
+  clearTimeout(t._centraTimeout);
+  t._centraTimeout=setTimeout(function(){
+    t.scrollIntoView({behavior:'smooth',block:'center'});
+  },300);
+});
 window.addEventListener('resize',checkPortrait);
 window.addEventListener('resize',function(){if(document.getElementById('tab-storico').classList.contains('active'))syncStickyHeaderHeights();});
 
