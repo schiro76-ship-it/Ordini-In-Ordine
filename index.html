@@ -3080,6 +3080,17 @@ function checkPortrait(){
     else nav.style.display='';
   }
 }
+const _nuovoFieldOrder=['nn','note-ordine','can'];
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;
+  const t=e.target;
+  if(!t||!t.closest||!t.closest('#tab-nuovo'))return;
+  const idx=_nuovoFieldOrder.indexOf(t.id);
+  if(idx===-1||idx===_nuovoFieldOrder.length-1)return;
+  e.preventDefault();
+  const next=document.getElementById(_nuovoFieldOrder[idx+1]);
+  if(next)next.focus();
+});
 document.addEventListener('focusin',function(e){
   const t=e.target;
   if(!t||!t.closest)return;
