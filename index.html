@@ -1318,12 +1318,11 @@ function buildOcHTML(lista){
       const qtyStyle=isRitirato?'color:var(--gr)':'';
       const circleContent=(isRitirato||it.done)?'<i class="ti ti-check"></i>':'';
       const circleStyle=isRitirato?'border-color:var(--gr);background:var(--gr);color:#fff;cursor:default':'';
-      const _fotoBtnO=it.itemId&&it.imgCaricata?`<span style="float:right;margin-left:8px"><button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:5px 9px;font-size:18px;display:inline-flex;align-items:center;cursor:pointer"><i class="ti ti-photo"></i></button></span>`:'';
+      const _fotoBtnO=it.itemId&&it.imgCaricata?`<span style="float:right;margin-left:8px"><button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:4px 8px;font-size:18px;display:inline-flex;align-items:center;cursor:pointer;margin-top:1px"><i class="ti ti-photo"></i></button></span>`:'';
       return`<div class="${tagClass}" style="${tagStyle}">
         <div class="itag-circle ${circleClass}" ${circleClickHandler} style="${circleStyle};margin-top:2px">${circleContent}</div>
         <div style="flex:1;min-width:0;overflow:hidden">
-          ${a.nome}${a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}${it.nota?` <span class="nt">"${it.nota}"</span>`:''}${_fotoBtnO}<span class="qty" style="${qtyStyle};float:right;margin-left:8px">${qtyStr}</span>
-        </div>
+          ${a.nome}${a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}${it.nota?` <span class="nt">"${it.nota}"</span>`:''}<span class="qty" style="${qtyStyle};float:right;margin-left:8px">${qtyStr}</span>${_fotoBtnO}</div>
       </div>`;
     }).join('');
     const statoBtn=o.stato==='evadere'?`<button class="act-btn act-green" onclick="setStato(${o.id},'completato')"><i class="ti ti-check"></i> Completato</button>`:o.stato==='completato'?`<button class="act-btn act-grey" onclick="setStato(${o.id},'ritirato')">Ritirato</button>`:`<div class="act-btn act-placeholder"></div>`;
@@ -1882,9 +1881,9 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
       const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';
       const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});
       const _itFoto=x.ordine.items&&x.ordine.items[fidx];
-      const _fotoBtn=_itFoto&&_itFoto.itemId&&_itFoto.imgCaricata?`<button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem('${x.ordine.id}',${fidx})" style="flex-shrink:0;border-radius:8px;padding:6px 10px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;margin:2px 4px"><i class="ti ti-photo"></i></button>`:'';
+      const _fotoBtn=_itFoto&&_itFoto.itemId&&_itFoto.imgCaricata?`<button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem('${x.ordine.id}',${fidx})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center;margin-top:1px"><i class="ti ti-photo"></i></button>`:'';
       const _fotoFloat=_fotoBtn?`<span style="float:right;margin-left:8px">${_fotoBtn}</span>`:'';
-      const _printFloat=`<span style="float:right;margin-left:8px"><button class="act-print-rp" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center"><i class="ti ti-printer"></i></button></span>`;
+      const _printFloat=`<span style="float:right;margin-left:8px"><button class="act-print-rp" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center;margin-top:1px"><i class="ti ti-printer"></i></button></span>`;
       const _qtyFloat=`<span style="float:right;margin-left:8px;white-space:nowrap"><span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}</span>`;
       return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:flex-start;gap:8px"><div class="${circleClass}" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})" style="border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer;margin-top:2px;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><div style="flex:1;min-width:0;overflow:hidden;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?` <span style="color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}${_printFloat}${_qtyFloat}${_fotoFloat}</div></div></div>`;
     }).join(''):'';
