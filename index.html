@@ -36,7 +36,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 @keyframes spin{to{transform:rotate(360deg)}}
 #loading p{font-size:16px;font-weight:700;color:#6B7280}
 .shell{display:flex;height:100vh}
-.sidebar{width:var(--sbw);background:#2C3E50;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;z-index:40;transition:transform 0.25s ease;padding-top:env(safe-area-inset-top,0px)}
+.sidebar{width:var(--sbw);background:#2C3E50;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;z-index:60;transition:transform 0.25s ease;padding-top:env(safe-area-inset-top,0px)}
 .sb-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.12)}
 .sb-logo .title{font-size:18px;font-weight:900;color:#fff}
 .sb-logo .sub{font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
@@ -49,7 +49,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .ni-nuovo-top{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 13px;border-radius:10px;cursor:pointer;color:#fff;font-size:16px;font-weight:800;border:none;background:var(--azione);transition:all 0.15s;user-select:none;margin-bottom:8px}
 .ni-nuovo-top:hover{filter:brightness(1.1)}
 .ni-nuovo-top .ic{font-size:20px;flex-shrink:0}
-.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:39}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:59}
 .sb-overlay.open{display:block}
 .pcontent{flex:1;min-width:0;display:flex;flex-direction:column;overflow-x:hidden}
 .topbar{display:none;background:#fff;border-bottom:1px solid var(--brd);padding:0 16px;height:54px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;box-shadow:0 1px 8px rgba(0,0,0,0.06);flex-shrink:0}
