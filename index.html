@@ -425,7 +425,6 @@ body:not(.portrait-phone) #storico-riepilogo{display:grid;grid-template-columns:
 body:not(.portrait-phone) #storico-riepilogo>p{grid-column:1/-1}
 body:not(.portrait-phone) #storico-riepilogo .rp-row{margin-bottom:0}
 #storico-riepilogo .rp-row{background:var(--azione-s);padding:0 14px;border:1px solid var(--brd)}
-#storico-riepilogo .rp-art{white-space:normal;flex-shrink:1;min-width:0}
 .storico-ord-card{border:1px solid var(--brd)}
 body:not(.portrait-phone) #storico-dettaglio-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:0 16px;align-items:stretch}
 body:not(.portrait-phone) #storico-dettaglio-list .list-sticky{grid-column:1/-1}
@@ -1626,7 +1625,7 @@ function renderStoricoRiepilogo(){
     else{
       let html=`<p style="font-size:13px;color:var(--sub);font-weight:700;margin-bottom:10px">${ordsF.length} ordini ritirati nel periodo</p>`;
       if(!filtrate.length){html+='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun articolo trovato.</p>';}
-      else{html+=filtrate.map(v=>{const qStr=Object.entries(v.ums).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span class="rp-qty" style="color:var(--azione)">${q}</span><span class="rp-um" style="color:var(--azione)">${um?' '+um:''}</span>`;}).join('<span style="color:var(--sub);margin:0 3px">+</span>');return`<div class="rp-row" style="margin-bottom:6px;flex-wrap:wrap;row-gap:2px"><div class="rp-art" style="white-space:nowrap;padding:14px 0;flex-shrink:0">${v.nome}${v.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${v.cat}</span>`:''}</div><div style="margin-left:auto;flex-shrink:0;display:flex;align-items:baseline;gap:6px;white-space:nowrap"><span>${qStr}</span><span style="font-size:12px;color:var(--sub);font-weight:700">${v.nOrdini} ordini</span></div></div>`;}).join('');}
+      else{html+=filtrate.map(v=>{const qStr=Object.entries(v.ums).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span class="rp-qty" style="color:var(--azione)">${q}</span><span class="rp-um" style="color:var(--azione)">${um?' '+um:''}</span>`;}).join('<span style="color:var(--sub);margin:0 3px">+</span>');return`<div class="rp-row" style="flex-wrap:wrap;row-gap:2px"><div class="rp-art" style="white-space:normal;padding:14px 0;flex-shrink:1;min-width:0">${v.nome}${v.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${v.cat}</span>`:''}</div><div style="margin-left:auto;flex-shrink:0;display:flex;align-items:baseline;gap:6px;white-space:nowrap"><span>${qStr}</span><span style="font-size:12px;color:var(--sub);font-weight:700">${v.nOrdini} ordini</span></div></div>`;}).join('');}
       el.innerHTML=html;
     }
   }
