@@ -65,13 +65,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
   .phdr h2{font-size:22px;font-weight:900}
   .pbody{padding:12px 16px 24px}
 }
-/* Bottom nav SOLO smartphone portrait */
-@media(max-width:639px) and (orientation:portrait){
-  .sidebar{display:none!important}
-  .sb-overlay{display:none!important}
-  .page-wrap{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
-  #bottom-nav{display:flex}
-}
 /* Su landscape (tablet e smartphone): mostra nuovo riquadro, nascondi voce sidebar */
 @media(min-width:640px) and (orientation:landscape){
   #tab-ordini .stats-row{grid-template-columns:repeat(5,1fr)}
