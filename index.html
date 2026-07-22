@@ -244,8 +244,8 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
    dimensioni tramite selettori per id, più specifici delle vecchie regole .sc/.sc-filt-*,
    senza bisogno di toccarle. */
 .exp-arrow{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;color:var(--sub);font-size:19px;transition:transform 0.2s;flex-shrink:0}
-.ordini-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-.list-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;padding-bottom:4px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.ordini-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
+.list-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;padding-bottom:4px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
 body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#2C3E50}
 .list-sticky .sbox{margin-bottom:8px}
 .list-sticky .cp:last-child{margin-bottom:8px}
@@ -310,7 +310,7 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .itag{display:flex;align-items:flex-start;flex-wrap:wrap;gap:3px 6px;font-size:16px;font-weight:700;line-height:1.3;padding:6px 8px;box-sizing:border-box;color:var(--txt);border-radius:8px;background:var(--evs);transition:background 0.2s ease,color 0.2s ease}
 .itag.done{background:var(--gs);color:var(--sub)}
 .itag.urg{background:var(--urgs)}
-.itag .qty{font-weight:800;min-width:52px;flex-shrink:0;font-size:14px;line-height:1.4;color:var(--ev);margin-top:5px}
+.itag .qty{font-weight:800;min-width:52px;flex-shrink:0;font-size:14px;line-height:1.4;color:var(--ev)}
 .itag-txt{padding-top:1px}
 body.portrait-phone .itag-txt{padding-top:4px}
 .itag.done .qty{color:var(--g)}
@@ -325,7 +325,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .itag-circle.ritirato{border-color:var(--gr);background:var(--gr);color:#fff}
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .card-sticky-host{overflow:visible}
-.card-sticky-host .ch{position:sticky;top:0;z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0}
+.card-sticky-host .ch{position:sticky;top:0;z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
 .card-sticky-host.anim-lock .ch{position:relative!important}
 .card-sticky-host.anim-lock .list-sticky{position:relative!important;top:auto!important}
 .card-sticky-host .list-sticky{background:#fff!important;top:var(--ch-h,50px)}
@@ -1327,7 +1327,7 @@ function buildOcHTML(lista){
       const circleContent=(isRitirato||it.done)?'<i class="ti ti-check"></i>':'';
       const circleStyle=isRitirato?'border-color:var(--gr);background:var(--gr);color:#fff;cursor:default':'';
       const _fotoBtnO=it.itemId&&it.imgCaricata?`<button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:4px 8px;font-size:18px;display:inline-flex;align-items:center;cursor:pointer;margin-top:1px"><i class="ti ti-photo"></i></button>`:'';
-      const _qtySpanO=`<span class="qty" style="${qtyStyle}">${qtyStr}</span>`;
+      const _qtySpanO=`<span class="qty" style="${qtyStyle};margin-top:5px">${qtyStr}</span>`;
       const _qtyFotoO=_fotoBtnO?`<span style="float:right;margin-left:8px;display:inline-flex;align-items:center;gap:8px">${_fotoBtnO}${_qtySpanO}</span>`:`<span class="qty" style="${qtyStyle};float:right;margin-left:8px">${qtyStr}</span>`;
       return`<div class="${tagClass}" style="${tagStyle}">
         <div class="itag-circle ${circleClass}" ${circleClickHandler} style="${circleStyle}">${circleContent}</div>
@@ -1893,7 +1893,7 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
       const _itFoto=x.ordine.items&&x.ordine.items[fidx];
       const _fotoBtn=_itFoto&&_itFoto.itemId&&_itFoto.imgCaricata?`<button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem('${x.ordine.id}',${fidx})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center;margin-top:1px"><i class="ti ti-photo"></i></button>`:'';
       const _printBtnR=`<button class="act-print-rp" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center;margin-top:1px"><i class="ti ti-printer"></i></button>`;
-      const _qtySpanR=`<span class="rp-qty" style="color:${col};margin-top:5px;display:inline-block">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}`;
+      const _qtySpanR=`<span class="rp-qty" style="color:${col};display:inline-block${_fotoBtn?';margin-top:5px':''}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}`;
       const _qtyFotoR=`<span style="float:right;margin-left:8px;display:inline-flex;align-items:center;gap:8px">${_fotoBtn}<span style="white-space:nowrap">${_qtySpanR}</span>${_printBtnR}</span>`;
       return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:flex-start;gap:8px"><div class="${circleClass}" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})" style="border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><div class="itag-txt" style="flex:1;min-width:0;overflow:hidden;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?` <span style="color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}${_qtyFotoR}</div></div></div>`;
     }).join(''):'';
