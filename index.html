@@ -424,6 +424,7 @@ body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list
 body:not(.portrait-phone) #storico-riepilogo{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 16px;align-items:start}
 body:not(.portrait-phone) #storico-riepilogo>p{grid-column:1/-1}
 body:not(.portrait-phone) #storico-riepilogo .rp-row{margin-bottom:0}
+#storico-riepilogo .rp-row{background:var(--azione-s);padding:0 14px}
 body:not(.portrait-phone) #storico-dettaglio-list{column-width:340px;column-gap:16px}
 body:not(.portrait-phone) #storico-dettaglio-list .list-sticky{column-span:all}
 body:not(.portrait-phone) #storico-dettaglio-list .storico-ord-card{break-inside:avoid;margin-bottom:8px}
@@ -1677,7 +1678,7 @@ function renderStoricoRiepilogo(){
     htmlDet+=ordsFiltered.sort((a,b)=>new Date(a.data+'T00:00:00')-new Date(b.data+'T00:00:00')).map(o=>{
       const turnoLabel=o.ora?'<i class="ti ti-clock"></i> '+o.ora:o.turno==='mattina'?'<i class="ti ti-sun"></i> Mat.':o.turno==='pomeriggio'?'<i class="ti ti-sunset-2"></i> Pom.':'';
       const items=(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return'';const qty=(it.qty?(parseFloat(it.qty)||''):'—')+(it.um?' '+it.um:'');return`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:14px"><span style="color:var(--txt);font-weight:600">${a.nome}</span><span style="font-weight:800;color:var(--sub)">${qty}</span></div>`;}).join('');
-      return`<div class="storico-ord-card" style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px;font-weight:900;color:var(--azione)">#${o.num}</span><span style="font-size:16px;font-weight:800;flex:1">${o.nome}</span></div><div style="font-size:13px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
+      return`<div class="storico-ord-card" style="background:var(--azione-s);border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px;font-weight:900;color:var(--azione)">#${o.num}</span><span style="font-size:16px;font-weight:800;flex:1">${o.nome}</span></div><div style="font-size:13px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
     }).join('');
     if(!ordsFiltered.length)htmlDet+='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun ordine trovato.</p>';
     // Ripristina focus sul campo ricerca dettaglio se era attivo
