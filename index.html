@@ -69,7 +69,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 @media(max-width:639px) and (orientation:portrait){
   .sidebar{display:none!important}
   .sb-overlay{display:none!important}
-  .topbar{display:none!important}
   .page-wrap{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
   #bottom-nav{display:flex}
 }
@@ -1236,14 +1235,16 @@ const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'
 const tabIdx={ordini:0,riepilogo:1,storico:2,impostazioni:3,invita:4};
 let _currentTab='ordini';
 let _tabPrimaDiNuovo='ordini';
+let _scrollPositions={};
 function goTab(name){
+  const pwPrev=document.querySelector('.page-wrap');
+  if(pwPrev)_scrollPositions[_currentTab]=pwPrev.scrollTop;
   if(name==='nuovo'&&_currentTab!=='nuovo')_tabPrimaDiNuovo=_currentTab;
   _currentTab=name;
   document.querySelectorAll('.ov.open').forEach(function(ov){ov.classList.remove('open');document.body.style.overflow='';});
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   const pw=document.querySelector('.page-wrap');
-  if(pw)pw.scrollTop=0;
   document.querySelectorAll('.sb-nav .ni').forEach((n,i)=>n.classList.toggle('active',i===tabIdx[name]));
   document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
   const bnBtn=document.getElementById('bn-'+name);
@@ -1263,6 +1264,11 @@ function goTab(name){
   if(name==='ordini')renderOrdini();
   if(name==='riepilogo'){_rpOrdineCongelato=null;rpExpanded={};rpDayFilter=null;renderRiepilogo();}
   if(name==='storico'){renderStoricoMensile();renderStoricoRiepilogo();setTimeout(syncStickyHeaderHeights,0);}
+  if(pw){
+    const target=(name==='nuovo')?0:(_scrollPositions[name]||0);
+    pw.scrollTop=target;
+    setTimeout(function(){pw.scrollTop=target;},0);
+  }
 }
 function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open')}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open')}
@@ -1322,7 +1328,7 @@ function buildOcHTML(lista){
       const circleStyle=isRitirato?'border-color:var(--gr);background:var(--gr);color:#fff;cursor:default':'';
       const _fotoBtnO=it.itemId&&it.imgCaricata?`<button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:4px 8px;font-size:18px;display:inline-flex;align-items:center;cursor:pointer;margin-top:1px"><i class="ti ti-photo"></i></button>`:'';
       const _qtySpanO=`<span class="qty" style="${qtyStyle}">${qtyStr}</span>`;
-      const _qtyFotoO=_fotoBtnO?`<span style="float:right;margin-left:8px;display:inline-flex;align-items:center;gap:8px">${_qtySpanO}${_fotoBtnO}</span>`:`<span class="qty" style="${qtyStyle};float:right;margin-left:8px">${qtyStr}</span>`;
+      const _qtyFotoO=_fotoBtnO?`<span style="float:right;margin-left:8px;display:inline-flex;align-items:center;gap:8px">${_fotoBtnO}${_qtySpanO}</span>`:`<span class="qty" style="${qtyStyle};float:right;margin-left:8px">${qtyStr}</span>`;
       return`<div class="${tagClass}" style="${tagStyle}">
         <div class="itag-circle ${circleClass}" ${circleClickHandler} style="${circleStyle}">${circleContent}</div>
         <div class="itag-txt" style="flex:1;min-width:0;overflow:hidden">
@@ -3061,8 +3067,14 @@ function checkPortrait(){
   const w=window.innerWidth;
   const h=window.innerHeight;
 
-  // Prima volta: salva il tipo di dispositivo dalle dimensioni reali
-  if(!_deviceType){
+  // Prima volta: salva il tipo di dispositivo dalle dimensioni reali.
+  // Sui dispositivi touch (telefono/tablet) resta fisso da qui in poi, per evitare
+  // un bug noto di iOS che rilegge le dimensioni in modo scorretto al risveglio schermo.
+  // Sui dispositivi non touch (desktop/laptop con mouse), invece, si ricalcola sempre:
+  // altrimenti ridimensionando la finestra del browser si può restare "bloccati" con
+  // sidebar e bottom-nav entrambe nascoste.
+  const _isTouchDevice=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  if(!_deviceType||!_isTouchDevice){
     _deviceType=w<=639?'phone':'tablet';
   }
 
