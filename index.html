@@ -242,6 +242,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#2C3E50}
 .list-sticky .sbox{margin-bottom:8px}
 .list-sticky .cp:last-child{margin-bottom:8px}
+#storico-articoli-fields .cp:last-child,#storico-dettaglio-list .cp:last-child{margin-bottom:12px}
 .ordini-sticky-top{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 .ordini-sticky .sbox{margin-bottom:0}
 .ordini-filt-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
@@ -254,6 +255,7 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
   .ordini-sticky .sbox{flex:0 1 320px}
 }
 .sbox{position:relative;margin-bottom:12px}
+@media(min-width:640px){#riepilogo-cerca{max-width:320px}}
 .sbox input{width:100%;padding:12px 14px 12px 44px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none;transition:border-color 0.2s}
 .sbox input:focus{border-color:var(--azione)}
 .sbox .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:19px}
@@ -418,6 +420,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .rp-row-detail{padding:0 14px 10px;background:#fff;border-radius:0 0 11px 11px;margin-top:0;margin-bottom:8px;box-shadow:var(--sh)}
 .rp-pri{background:var(--ev);color:#fff;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
 .rp-art{font-size:16px;font-weight:800;padding:14px 0;white-space:nowrap}
+#riepilogo-list .rp-art{font-size:18px}
 .rp-qty{font-size:16px;font-weight:900;color:var(--ev)}
 .rp-um{font-size:16px;font-weight:900;color:var(--ev)}
 body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list{display:grid;grid-template-columns:minmax(280px,fit-content(820px));justify-content:center}
@@ -2001,7 +2004,7 @@ function renderDetModal(o){
             <button id="det-cal-btn-pom" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'pomeriggio')"><i class="ti ti-sunset-2"></i> Pom.</button>
             <div id="det-cal-time-wrap" class="cal-time-wrap" style="display:none">
               <span style="font-size:13px;color:var(--sub)"><i class="ti ti-clock"></i></span>
-              <input type="time" id="det-cal-time-inp" class="cal-time-inp" onchange="detCalSceglOra(${o.id},this.value)">
+              <input type="time" id="det-cal-time-inp" class="cal-time-inp" onchange="detCalSceglOra(${o.id},this.value)" onblur="detCalOraBlur(${o.id})">
             </div>
 
           </div>
@@ -2070,7 +2073,7 @@ function renderDetCalGrid(){
     if(timeInp&&_calSetOra&&!detCalOra){
       timeInp.value=detCalTurno==='pomeriggio'?'14:00':'08:00';
     }
-    if(timeInp&&detCalOra)timeInp.value=detCalOra;
+    if(timeInp&&detCalOra&&timeInp.value!==detCalOra)timeInp.value=detCalOra;
     if(btnMat)btnMat.className='cal-btn-mp'+(detCalTurno==='mattina'&&!detCalOra?' sel-mat':'');
     if(btnPom)btnPom.className='cal-btn-mp'+(detCalTurno==='pomeriggio'&&!detCalOra?' sel-pom':'');
   }
@@ -2096,6 +2099,8 @@ async function detCalSceglOra(oid,val){
   detCalOra=val||null;
   if(detCalOra)detCalTurno=null;
   renderDetCalGrid();
+}
+function detCalOraBlur(oid){
   if(detCalOra)detCalSalva(oid);
 }
 let detQArtOid=null;
@@ -2784,7 +2789,7 @@ function renderCal(){
     if(timeInp&&_calSetOra&&!calOra){
       timeInp.value=tNuovo==='pomeriggio'?'14:00':'08:00';
     }
-    if(timeInp&&calOra)timeInp.value=calOra;
+    if(timeInp&&calOra&&timeInp.value!==calOra)timeInp.value=calOra;
     // Aggiorna stati attivi
     if(btnMat)btnMat.className='cal-btn-mp'+(tNuovo==='mattina'&&!calOra?' sel-mat':'');
     if(btnPom)btnPom.className='cal-btn-mp'+(tNuovo==='pomeriggio'&&!calOra?' sel-pom':'');
