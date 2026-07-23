@@ -423,7 +423,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 #riepilogo-list .rp-art{font-size:18px}
 .rp-qty{font-size:16px;font-weight:900;color:var(--ev)}
 .rp-um{font-size:16px;font-weight:900;color:var(--ev)}
-@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list{max-width:860px}}
+@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list{max-width:calc(100% - var(--sbw))}}
 body:not(.portrait-phone) #storico-riepilogo{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 16px;align-items:stretch}
 body:not(.portrait-phone) #storico-riepilogo>p{grid-column:1/-1}
 body:not(.portrait-phone) #storico-riepilogo .rp-row{margin-bottom:0}
