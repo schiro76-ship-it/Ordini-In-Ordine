@@ -317,6 +317,8 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .card-sticky-host{overflow:visible}
 .card-sticky-host .ch{position:sticky;top:0;z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.card-sticky-host .ch::after{content:"";position:absolute;left:0;right:0;top:100%;height:8px;background:var(--bg)}
+body.portrait-phone .card-sticky-host .ch::after{background:#2C3E50}
 .card-sticky-host.anim-lock .ch{position:relative!important}
 .card-sticky-host.anim-lock .list-sticky{position:relative!important;top:auto!important}
 .card-sticky-host .list-sticky{background:#fff!important;top:var(--ch-h,50px)}
@@ -720,7 +722,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="phdr"><h2>Storico</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
         <div class="pbody">
           <div class="card card-sticky-host" style="margin-bottom:20px">
-            <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad);box-shadow:none">
+            <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
               <div class="ct"><i class="ti ti-history"></i> Storico articoli</div>
               <span id="storico-articoli-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
@@ -752,7 +754,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card card-sticky-host" style="margin-bottom:20px">
-            <div class="ch" onclick="toggleStoricoDettaglio()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad);box-shadow:none">
+            <div class="ch" onclick="toggleStoricoDettaglio()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
               <div class="ct"><i class="ti ti-list-details"></i> Dettaglio ordini</div>
               <span id="storico-dettaglio-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
