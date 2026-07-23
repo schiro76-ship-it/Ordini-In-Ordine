@@ -242,7 +242,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#2C3E50}
 .list-sticky .sbox{margin-bottom:8px}
 .list-sticky .cp:last-child{margin-bottom:8px}
-#storico-articoli-fields .cp:last-child,#storico-dettaglio-list .cp:last-child{margin-bottom:12px!important}
+#storico-articoli-fields .cp:last-child,#storico-dettaglio-sticky .cp:last-child{margin-bottom:12px!important}
 .ordini-sticky-top{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 .ordini-sticky .sbox{margin-bottom:0}
 .ordini-filt-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
@@ -430,7 +430,6 @@ body:not(.portrait-phone) #storico-riepilogo .rp-row{margin-bottom:0}
 #storico-riepilogo .rp-row{background:var(--azione-s);padding:0 14px;border:1px solid var(--brd)}
 .storico-ord-card{border:1px solid var(--brd)}
 body:not(.portrait-phone) #storico-dettaglio-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:0 16px;align-items:stretch}
-body:not(.portrait-phone) #storico-dettaglio-list .list-sticky{grid-column:1/-1}
 body:not(.portrait-phone) #storico-dettaglio-list .storico-ord-card{margin-bottom:8px}
 .rp-urgente{border-left-color:var(--urg)!important}.rp-urgente .rp-pri{background:var(--urg)}.rp-urgente .rp-qty{color:var(--urg)}
 .rp-completato{border-left-color:var(--g)!important}.rp-completato .rp-pri{background:var(--g)}.rp-completato .rp-qty{color:var(--g)}
@@ -760,6 +759,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <span id="storico-dettaglio-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
             <div class="cb" id="storico-dettaglio-fields" style="display:none">
+              <div id="storico-dettaglio-sticky"></div>
               <div id="storico-dettaglio-list" style="contain:layout style"></div>
             </div>
           </div>
@@ -1653,9 +1653,10 @@ function renderStoricoRiepilogo(){
     if(stDetCat!=='Tutte'&&!(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat===stDetCat;}))return false;
     return true;
   });
+  const elDetSticky=document.getElementById('storico-dettaglio-sticky');
   const elDet=document.getElementById('storico-dettaglio-list');
   if(elDet){
-    let htmlDet=`<div class="list-sticky">
+    let htmlStickyDet=`<div class="list-sticky">
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
         <div style="display:flex;align-items:center;gap:5px">
           <label style="font-size:13px;font-weight:800;color:var(--sub)">Dal</label>
@@ -1679,6 +1680,8 @@ function renderStoricoRiepilogo(){
       </div>
       <div class="cp">${stDetPills}</div>
     </div>`;
+    if(elDetSticky)elDetSticky.innerHTML=htmlStickyDet;
+    let htmlDet='';
     htmlDet+=ordsFiltered.sort((a,b)=>new Date(a.data+'T00:00:00')-new Date(b.data+'T00:00:00')).map(o=>{
       const turnoLabel=o.ora?'<i class="ti ti-clock"></i> '+o.ora:o.turno==='mattina'?'<i class="ti ti-sun"></i> Mat.':o.turno==='pomeriggio'?'<i class="ti ti-sunset-2"></i> Pom.':'';
       const items=(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return'';const qty=(it.qty?(parseFloat(it.qty)||''):'—')+(it.um?' '+it.um:'');return`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:14px"><span style="color:var(--txt);font-weight:600">${a.nome}</span><span style="font-weight:800;color:var(--sub)">${qty}</span></div>`;}).join('');
