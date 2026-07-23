@@ -316,10 +316,10 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .itag-circle.ritirato{border-color:var(--gr);background:var(--gr);color:#fff}
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .card-sticky-host{overflow:visible}
-.card-sticky-host .ch{position:sticky;top:0;z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
+.card-sticky-host .ch{position:sticky;top:0;z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .card-sticky-host.anim-lock .ch{position:relative!important}
 .card-sticky-host.anim-lock .list-sticky{position:relative!important;top:auto!important}
-.card-sticky-host .list-sticky{background:#fff!important;top:var(--ch-h,50px);border-radius:var(--rad) var(--rad) 0 0}
+.card-sticky-host .list-sticky{background:#fff!important;top:var(--ch-h,50px)}
 .ch{padding:15px 18px 13px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center}
 .ct{font-size:16px;font-weight:900}
 .ct i{font-size:20px;vertical-align:-3px;margin-right:3px}
