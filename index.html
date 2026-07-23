@@ -172,6 +172,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 @media(min-width:640px) and (max-width:1023px){
   html{background:#DDE0E8}
   body:not(.portrait-phone) .ordini-sticky,body:not(.portrait-phone) .list-sticky{background:#DDE0E8}
+  body:not(.portrait-phone) .card-sticky-host .ch-mask{background:#DDE0E8}
   body{background:#DDE0E8}
   :root{--sbw:200px}
   .shell{height:100dvh}
@@ -193,6 +194,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
 @media(min-width:1024px){
   html{background:#DDE0E8}
   body:not(.portrait-phone) .ordini-sticky,body:not(.portrait-phone) .list-sticky{background:#DDE0E8}
+  body:not(.portrait-phone) .card-sticky-host .ch-mask{background:#DDE0E8}
   body{background:#DDE0E8}
   .shell{height:100dvh}
   .sidebar{min-height:100dvh;padding-bottom:env(safe-area-inset-bottom,34px)}
@@ -317,6 +319,8 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .card-sticky-host{overflow:visible}
 .card-sticky-host .ch{position:sticky;top:0;z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.card-sticky-host .ch-mask{position:sticky;top:var(--ch-h,50px);z-index:51;height:var(--rad);background:var(--bg);-webkit-transform:translateZ(0);transform:translateZ(0)}
+body.portrait-phone .card-sticky-host .ch-mask{background:#2C3E50}
 .card-sticky-host.anim-lock .ch{position:relative!important}
 .card-sticky-host.anim-lock .list-sticky{position:relative!important;top:auto!important}
 .card-sticky-host .list-sticky{background:#fff!important;top:var(--ch-h,50px)}
@@ -724,6 +728,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div class="ct"><i class="ti ti-history"></i> Storico articoli</div>
               <span id="storico-articoli-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
+            <div class="ch-mask" style="display:none"></div>
             <div class="cb" id="storico-articoli-fields" style="display:none">
               <div class="list-sticky">
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
@@ -756,6 +761,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div class="ct"><i class="ti ti-list-details"></i> Dettaglio ordini</div>
               <span id="storico-dettaglio-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
+            <div class="ch-mask" style="display:none"></div>
             <div class="cb" id="storico-dettaglio-fields" style="display:none">
               <div id="storico-dettaglio-list" style="contain:layout style"></div>
             </div>
@@ -765,6 +771,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div class="ct"><i class="ti ti-chart-bar"></i> Ordini mensili</div>
               <span id="storico-mensile-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
+            <div class="ch-mask" style="display:none"></div>
             <div class="cb" id="storico-mensile-fields" style="display:none">
               <div id="storico-mensile-lista"></div>
             </div>
@@ -1581,7 +1588,7 @@ function smoothToggle(bodyEl,arrowEl,headerEl){
     bodyEl.style.maxHeight='0px';
     bodyEl.style.transition='none';
     if(arrowEl)arrowEl.style.transform='rotate(90deg)';
-    if(headerEl){headerEl.style.borderBottom='';headerEl.style.borderRadius='';}
+    if(headerEl){headerEl.style.borderBottom='';headerEl.style.borderRadius='';const m=headerEl.nextElementSibling;if(m&&m.classList.contains('ch-mask'))m.style.display='block';}
     requestAnimationFrame(()=>{requestAnimationFrame(()=>{
       bodyEl.style.transition='max-height 0.28s cubic-bezier(0.25,0.8,0.25,1)';
       bodyEl.style.maxHeight=h+'px';
@@ -1598,7 +1605,7 @@ function smoothToggle(bodyEl,arrowEl,headerEl){
     bodyEl.style.maxHeight=h+'px';
     bodyEl.style.transition='none';
     if(arrowEl)arrowEl.style.transform='rotate(0deg)';
-    if(headerEl){headerEl.style.borderBottom='none';headerEl.style.borderRadius='var(--rad)';}
+    if(headerEl){headerEl.style.borderBottom='none';headerEl.style.borderRadius='var(--rad)';const m=headerEl.nextElementSibling;if(m&&m.classList.contains('ch-mask'))m.style.display='none';}
     requestAnimationFrame(()=>{requestAnimationFrame(()=>{
       bodyEl.style.transition='max-height 0.22s cubic-bezier(0.4,0,1,1)';
       bodyEl.style.maxHeight='0px';
