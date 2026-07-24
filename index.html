@@ -2812,8 +2812,10 @@ function calSceglTurno(t){
   else{tNuovo=t;calOra=null;const ti=document.getElementById('cal-time-inp');if(ti)ti.value='';}
   renderCal();
   _aggiornaTriggerLabel();
-  // Focus su nome dopo selezione M/P (sincrono per iOS)
-  const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
+  // Focus su nome solo se il giorno è già stato scelto (sincrono per iOS)
+  if(calSelDate){
+    const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
+  }
 }
 function calSceglOra(v){
   calOra=v||null;
