@@ -250,12 +250,8 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 #sf-tutti,#sf-evadere,#sf-completato,#sf-ritirato{display:inline-flex;align-items:center;gap:5px;width:auto;flex-shrink:0;padding:6px 14px;border-radius:18px;box-shadow:none;text-align:left}
 #sf-tutti .sn,#sf-evadere .sn,#sf-completato .sn,#sf-ritirato .sn{font-size:13px;font-weight:900;line-height:1}
 #sf-tutti .sl,#sf-evadere .sl,#sf-completato .sl,#sf-ritirato .sl{font-size:13px;font-weight:800;text-transform:none;letter-spacing:normal;margin-top:0}
-@media(min-width:640px){
-  .ordini-sticky-top{flex-direction:row;align-items:center}
-  .ordini-sticky .sbox{flex:0 1 320px}
-}
 .sbox{position:relative;margin-bottom:12px}
-@media(min-width:640px){#riepilogo-cerca{max-width:320px}}
+@media(min-width:900px){body:not(.portrait-phone) .ordini-sticky .sbox,body:not(.portrait-phone) #riepilogo-cerca{max-width:calc(100% - var(--sbw))}}
 .sbox input{width:100%;padding:12px 14px 12px 44px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none;transition:border-color 0.2s}
 .sbox input:focus{border-color:var(--azione)}
 .sbox .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:19px}
