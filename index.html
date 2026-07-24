@@ -599,6 +599,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
     <div class="login-err" id="login-err"></div>
   </div>
+  <div id="login-footer" style="position:fixed;left:0;right:0;bottom:0;text-align:center;padding:6px 12px calc(6px + env(safe-area-inset-bottom,0px));font-size:11px;line-height:1.5;color:#9CA3AF;font-weight:600;background:#F0F2F5">
+    OrdinInOrdine di Greco Rosanna — P.IVA 05485500754 — <a href="mailto:info@ordininordine.it" style="color:#9CA3AF">info@ordininordine.it</a> — <a href="privacy.html" target="_blank" style="color:#9CA3AF;text-decoration:underline">Privacy</a> · <a href="termini.html" target="_blank" style="color:#9CA3AF;text-decoration:underline">Termini</a>
+  </div>
 </div>
 
 <div id="onboarding-screen">
@@ -929,7 +932,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cb">
               <div style="display:flex;flex-direction:column;gap:10px">
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)"><span style="font-size:15px;font-weight:700;color:var(--sub)">App</span><span style="font-size:15px;font-weight:800">OrdinInOrdine</span></div>
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0"><span style="font-size:15px;font-weight:700;color:var(--sub)">Versione</span><span style="font-size:15px;font-weight:800">1.0</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)"><span style="font-size:15px;font-weight:700;color:var(--sub)">Versione</span><span id="app-version-val" style="font-size:15px;font-weight:800"></span></div>
+                <div style="padding-top:6px"><button class="btn bg2 btn-full" onclick="apriSegnalaProblema()"><i class="ti ti-bug"></i> Segnala un problema</button></div>
               </div>
             </div>
           </div>
@@ -1063,6 +1067,14 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
   </div>
 </div>
+<div class="ov" id="modal-segnala">
+  <div class="modal">
+    <div class="mta"><i class="ti ti-bug"></i> Segnala un problema</div>
+    <div style="font-size:13px;color:var(--sub);font-weight:600;margin:-6px 0 12px">Descrivi cosa non ha funzionato: la segnalazione arriva a noi insieme a qualche informazione tecnica utile per capire il problema (versione app, dispositivo, account).</div>
+    <div class="fg"><textarea class="fi" id="segnala-testo" rows="5" placeholder="Es. quando premo Stampa in Riepilogo l'app si blocca…" style="resize:vertical;min-height:100px;font-family:'Nunito',sans-serif"></textarea></div>
+    <div class="ma"><button class="btn bg2" style="flex:1" onclick="closeModal('modal-segnala')">Annulla</button><button class="btn br" style="flex:1" onclick="inviaSegnalazione()">Invia</button></div>
+  </div>
+</div>
 <div class="ov" id="modal-etichetta" style="background:rgba(0,0,0,0.85);z-index:500">
   <div class="modal-etichetta-box" style="background:#fff;width:100%;max-width:420px;border-radius:20px 20px 0 0;max-height:95vh;overflow-y:auto;padding:0 0 28px 0">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #E5E7EB">
@@ -1132,6 +1144,8 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
+const APP_VERSION='2.4.0';
+{const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
 let fcmTokens={}; // Mappa {deviceId: token} — un solo token per dispositivo, sincronizzata su Firestore
@@ -2846,7 +2860,27 @@ function closeModal(id){
   if(!document.querySelector('.ov.open'))document.body.style.overflow='';
   if(id==='modal-det')renderOrdini();
 }
-document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
+document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli','modal-segnala'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
+function apriSegnalaProblema(){document.getElementById('segnala-testo').value='';openModal('modal-segnala');}
+async function inviaSegnalazione(){
+  const testo=document.getElementById('segnala-testo').value.trim();
+  if(!testo){toast('Descrivi il problema prima di inviare','err');return;}
+  try{
+    await db.collection('segnalazioni').add({
+      testo:testo,
+      uid:currentUser?currentUser.uid:DOC_ID,
+      email:currentUser?currentUser.email:null,
+      appVersion:APP_VERSION,
+      deviceType:_deviceType||null,
+      userAgent:navigator.userAgent,
+      creato:new Date().toISOString()
+    });
+    closeModal('modal-segnala');
+    toast('Segnalazione inviata, grazie!','v');
+  }catch(e){
+    toast('Errore invio: '+e.message,'err');
+  }
+}
 function esportaDati(){const uid=currentUser?currentUser.uid:DOC_ID;const data=JSON.stringify({uid:uid,arts:arts,ords:ords,unitaMisura:unitaMisura,cats:cats,nextNum:nextNum,ordiniCreatiTotale:ordiniCreatiTotale,articoliCreatiTotale:articoliCreatiTotale,ordiniPerMese:ordiniPerMese},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='macelleria_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);toast('Backup scaricato','v');}
 function importaDati(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const d=JSON.parse(e.target.result);if(!d.arts||!d.ords){toast('File non valido!','err');return}
   // Un backup può essere ripristinato solo sullo stesso account che lo ha esportato:
