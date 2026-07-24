@@ -2091,6 +2091,7 @@ async function detCalSceglTurno(oid,turno){
 }
 async function detCalSalva(oid){
   const o=ords.find(x=>x.id===oid);if(!o)return;
+  if((detCalOra||detCalTurno)&&!detCalSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}
   o.data=detCalSelDate;o.turno=detCalOra?null:detCalTurno;o.ora=detCalOra||null;
   await saveData();
   const lbl=document.getElementById('det-data-lbl');
