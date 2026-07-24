@@ -2812,6 +2812,7 @@ function calSceglTurno(t){
   else{tNuovo=t;calOra=null;const ti=document.getElementById('cal-time-inp');if(ti)ti.value='';}
   renderCal();
   _aggiornaTriggerLabel();
+  if(tNuovo&&!calSelDate){toast('Ricordati di scegliere anche il giorno di ritiro!','err');}
   // Focus su nome solo se il giorno è già stato scelto (sincrono per iOS)
   if(calSelDate){
     const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
@@ -2822,6 +2823,7 @@ function calSceglOra(v){
   if(calOra)tNuovo=null;
   renderCal();
   _aggiornaTriggerLabel();
+  if(calOra&&!calSelDate){toast('Ricordati di scegliere anche il giorno di ritiro!','err');}
 }
 function _aggiornaTriggerLabel(){
   // Aggiorna la label del trigger (legacy per compatibilità)
