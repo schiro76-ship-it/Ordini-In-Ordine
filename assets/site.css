@@ -126,7 +126,7 @@ img{max-width:100%;display:block}
   transition:border-color .15s ease, transform .15s ease;
 }
 .activity-card:hover{border-color:var(--blue);transform:translateY(-2px)}
-.activity-card i{font-size:26px;color:var(--blue);display:block;margin-bottom:10px}
+.activity-card i,.activity-card svg{font-size:26px;width:26px;height:26px;color:var(--blue);display:block;margin:0 auto 10px}
 .activity-card span{font-weight:600;font-size:14.5px}
 
 /* Footer */
