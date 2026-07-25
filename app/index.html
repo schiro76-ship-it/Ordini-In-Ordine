@@ -934,7 +934,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div style="display:flex;flex-direction:column;gap:10px">
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)"><span style="font-size:15px;font-weight:700;color:var(--sub)">App</span><span style="font-size:15px;font-weight:800">OrdinInOrdine</span></div>
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)"><span style="font-size:15px;font-weight:700;color:var(--sub)">Versione</span><span id="app-version-val" style="font-size:15px;font-weight:800"></span></div>
-                <div style="padding-top:10px;text-align:center"><span onclick="apriSegnalaProblema()" style="font-size:13px;font-weight:800;color:var(--sub);cursor:pointer;display:inline-flex;align-items:center;gap:6px"><i class="ti ti-bug" style="font-size:15px"></i> Segnala un problema</span></div>
+                <div style="padding-top:10px;text-align:center"><span onclick="apriSegnalaProblema()" style="font-size:13px;font-weight:800;color:var(--azione);text-decoration:underline;cursor:pointer;display:inline-flex;align-items:center;gap:6px"><i class="ti ti-bug" style="font-size:15px"></i> Segnala un problema</span></div>
               </div>
             </div>
           </div>
@@ -2093,7 +2093,7 @@ function renderDetCalGrid(){
     if(btnPom)btnPom.className='cal-btn-mp'+(detCalTurno==='pomeriggio'&&!detCalOra?' sel-pom':'');
   }
 }
-function detCalSelGiorno(iso){detCalSelDate=iso;renderDetCalGrid();if(_calMode==='niente'&&detCalOid){detCalSalva(detCalOid);}}
+function detCalSelGiorno(iso){detCalSelDate=(detCalSelDate===iso)?null:iso;renderDetCalGrid();if(_calMode==='niente'&&detCalOid){detCalSalva(detCalOid);}}
 async function detCalSceglTurno(oid,turno){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   if(detCalTurno===turno&&!detCalOra){detCalTurno=null;}
@@ -2815,11 +2815,11 @@ function renderCal(){
   if(calComp)calComp.classList.toggle('has-val',!!calSelDate);
 }
 function calSelGiorno(iso){
-  calSelDate=iso;
+  calSelDate=(calSelDate===iso)?null:iso;
   renderCal();
   _aggiornaTriggerLabel();
-  // Se modalità niente → focus su nome subito (sincrono per iOS)
-  if(_calMode==='niente'){
+  // Se modalità niente → focus su nome subito (sincrono per iOS), solo se il giorno è stato selezionato (non deselezionato)
+  if(_calMode==='niente'&&calSelDate){
     const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
   }
 }
