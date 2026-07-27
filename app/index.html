@@ -156,7 +156,8 @@ body.portrait-phone{background:#2C3E50}
 #status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
 #tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39}
 #sidebar-extender{display:none;position:fixed;bottom:-500px;left:0;width:var(--sbw);height:500px;background:#2C3E50;z-index:39}
-body.portrait-phone #status-bar-cover{display:block}
+/* TEST DIAGNOSTICO TEMPORANEO — disattivato per verificare se #status-bar-cover causa il glitch sticky. Da riattivare dopo il test. */
+body.portrait-phone #status-bar-cover{display:none}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
 body.portrait-phone .phdr h2{color:#fff}
