@@ -149,6 +149,8 @@ body.portrait-phone .sc-filt.active-filt .sn,body.portrait-phone .sc-filt.active
 body.portrait-phone .pcontent{padding-top:0}
 /* Il banner precede il page-wrap (che ha già il suo padding-top sotto la cover): serve un padding-top statico proprio, altrimenti in PWA standalone finisce parzialmente sotto lo status-bar-cover */
 body.portrait-phone #verify-banner{padding-top:calc(9px + env(safe-area-inset-top,44px))!important}
+body.portrait-phone #ios-install-banner{padding-top:calc(9px + env(safe-area-inset-top,44px))!important}
+body.portrait-phone.vb-active #ios-install-banner{padding-top:9px!important}
 body.portrait-phone{background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
 #status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
@@ -1247,7 +1249,40 @@ async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){c
     });
   }catch(e){console.warn('Realtime error',e);}
 }
-function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');}
+function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';document.body.classList.toggle('vb-active',showVb);updateDebugPanel();const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');}
+
+// --- PANNELLO DEBUG TEMPORANEO (da rimuovere dopo la diagnosi) ---
+function updateDebugPanel(){
+  const dp=document.getElementById('debug-panel');
+  if(!dp)return;
+  if(!document.body.classList.contains('portrait-phone')){dp.style.display='none';return;}
+  const vb=document.getElementById('verify-banner');
+  const ib=document.getElementById('ios-install-banner');
+  const pc=document.querySelector('.pcontent');
+  const pw=document.querySelector('.page-wrap');
+  const stk=document.querySelector('.ordini-sticky,.list-sticky');
+  const firstCard=document.querySelector('#ordini-list .oc,#riepilogo-list .rp-row,#ordini-list [data-oid]');
+  const g=el=>el?el.getBoundingClientRect():null;
+  const vbR=g(vb),ibR=g(ib),stkR=g(stk),cardR=g(firstCard);
+  const cs=el=>el?getComputedStyle(el):null;
+  const pcCs=cs(pc),pwCs=cs(pw);
+  dp.style.display='block';
+  dp.textContent=
+    'vb: disp='+(vb?getComputedStyle(vb).display:'-')+' h='+(vbR?vbR.height.toFixed(0):'-')+' top='+(vbR?vbR.top.toFixed(0):'-')+'\n'+
+    'ib: disp='+(ib?getComputedStyle(ib).display:'-')+' h='+(ibR?ibR.height.toFixed(0):'-')+' top='+(ibR?ibR.top.toFixed(0):'-')+'\n'+
+    'pcontent padTop='+(pcCs?pcCs.paddingTop:'-')+'\n'+
+    'page-wrap padTop='+(pwCs?pwCs.paddingTop:'-')+' scrollTop='+(pw?pw.scrollTop.toFixed(0):'-')+'\n'+
+    'sticky-bar top='+(stkR?stkR.top.toFixed(0):'-')+' z='+(stk?getComputedStyle(stk).zIndex:'-')+'\n'+
+    'prima-card top='+(cardR?cardR.top.toFixed(0):'-')+' z='+(firstCard?getComputedStyle(firstCard).zIndex:'-')+'\n'+
+    'body.vb-active='+document.body.classList.contains('vb-active');
+}
+document.addEventListener('DOMContentLoaded',function(){
+  const pw=document.querySelector('.page-wrap');
+  if(pw)pw.addEventListener('scroll',updateDebugPanel,{passive:true});
+  window.addEventListener('resize',updateDebugPanel);
+});
+// --- FINE PANNELLO DEBUG TEMPORANEO ---
+
 const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni',invita:'Ricevi 5 €'};
 const tabIdx={ordini:0,riepilogo:1,storico:2,impostazioni:3,invita:4};
 let _currentTab='ordini';
@@ -3299,5 +3334,6 @@ if('serviceWorker' in navigator){
     <span class="bn-ic"><i class="ti ti-settings"></i></span><span>Impost.</span>
   </button>
 </nav>
+<pre id="debug-panel" style="display:none;position:fixed;left:4px;right:4px;bottom:70px;z-index:99999;background:rgba(0,0,0,0.85);color:#0F0;font-size:10px;line-height:1.4;padding:8px;border-radius:8px;white-space:pre-wrap;pointer-events:none;font-family:monospace"></pre>
 </body>
 </html>
