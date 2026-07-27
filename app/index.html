@@ -156,8 +156,7 @@ body.portrait-phone{background:#2C3E50}
 #status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
 #tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39}
 #sidebar-extender{display:none;position:fixed;bottom:-500px;left:0;width:var(--sbw);height:500px;background:#2C3E50;z-index:39}
-/* TEST DIAGNOSTICO TEMPORANEO — disattivato per verificare se #status-bar-cover causa il glitch sticky. Da riattivare dopo il test. */
-body.portrait-phone #status-bar-cover{display:none}
+body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
 body.portrait-phone .phdr h2{color:#fff}
@@ -243,8 +242,9 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
    dimensioni tramite selettori per id, più specifici delle vecchie regole .sc/.sc-filt-*,
    senza bisogno di toccarle. */
 .exp-arrow{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;color:var(--sub);font-size:19px;transition:transform 0.2s;flex-shrink:0}
-.ordini-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
-.list-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
+/* TEST DIAGNOSTICO TEMPORANEO 2 — rimosso layer GPU forzato per verificare se causa il glitch di stacking. Da ripristinare dopo il test se non è la causa. */
+.ordini-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
+.list-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
 body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#2C3E50}
 .list-sticky .sbox{margin-bottom:8px}
 .list-sticky .cp:last-child{margin-bottom:8px}
