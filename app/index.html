@@ -1871,21 +1871,28 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
       minScore:v.ordini.some(x=>!x.done)?Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,
       urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))
     }));
+  const _rpCmp=(a,b)=>{
+    const aDone=v=>v.ordini.every(x=>x.done);
+    const ad=aDone(a),bd=aDone(b);
+    if(ad&&!bd)return 1;if(!ad&&bd)return -1;
+    if(a.urgente&&!b.urgente)return -1;if(!a.urgente&&b.urgente)return 1;
+    return a.minScore-b.minScore;
+  };
   if(_rpOrdineCongelato){
-    voci.sort((a,b)=>{
-      const ia=_rpOrdineCongelato.indexOf(a.artId);
-      const ib=_rpOrdineCongelato.indexOf(b.artId);
-      if(ia===-1&&ib===-1)return a.minScore-b.minScore;
-      if(ia===-1)return 1;if(ib===-1)return -1;
-      return ia-ib;
+    const _rpById={};voci.forEach(v=>{_rpById[v.artId]=v;});
+    let ordine=_rpOrdineCongelato.filter(id=>_rpById[id]);
+    const nuovi=voci.filter(v=>ordine.indexOf(v.artId)===-1).sort(_rpCmp);
+    nuovi.forEach(nv=>{
+      let insertAt=ordine.length;
+      for(let i=0;i<ordine.length;i++){
+        if(_rpCmp(nv,_rpById[ordine[i]])<0){insertAt=i;break;}
+      }
+      ordine.splice(insertAt,0,nv.artId);
     });
+    voci.sort((a,b)=>ordine.indexOf(a.artId)-ordine.indexOf(b.artId));
+    _rpOrdineCongelato=ordine;
   } else {
-    voci.sort((a,b)=>{
-      const aDone=v=>v.ordini.every(x=>x.done);
-      if(aDone(a)&&!aDone(b))return 1;if(!aDone(a)&&aDone(b))return -1;
-      if(a.urgente&&!b.urgente)return -1;if(!a.urgente&&b.urgente)return 1;
-      return a.minScore-b.minScore;
-    });
+    voci.sort(_rpCmp);
     _rpOrdineCongelato=voci.map(v=>v.artId);
   }
   const cerca=(document.getElementById('riepilogo-cerca')&&document.getElementById('riepilogo-cerca').value||'').toLowerCase().trim();
