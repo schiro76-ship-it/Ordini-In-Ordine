@@ -1692,7 +1692,14 @@ function renderStoricoRiepilogo(){
       </div>
       <div class="cp">${stDetPills}</div>
     </div>`;
+    const _wasStDetCercaFocus=document.activeElement&&document.activeElement.id==='st-det-cerca';
+    const _stDetCercaSelStart=_wasStDetCercaFocus?document.activeElement.selectionStart:null;
+    const _stDetCercaSelEnd=_wasStDetCercaFocus?document.activeElement.selectionEnd:null;
     if(elDetSticky)elDetSticky.innerHTML=htmlStickyDet;
+    if(_wasStDetCercaFocus){
+      const _inpSticky=document.getElementById('st-det-cerca');
+      if(_inpSticky){_inpSticky.focus();try{_inpSticky.setSelectionRange(_stDetCercaSelStart,_stDetCercaSelEnd);}catch(e){}}
+    }
     let htmlDet='';
     htmlDet+=ordsFiltered.sort((a,b)=>new Date(a.data+'T00:00:00')-new Date(b.data+'T00:00:00')).map(o=>{
       const turnoLabel=o.ora?'<i class="ti ti-clock"></i> '+o.ora:o.turno==='mattina'?'<i class="ti ti-sun"></i> Mat.':o.turno==='pomeriggio'?'<i class="ti ti-sunset-2"></i> Pom.':'';
@@ -1700,13 +1707,7 @@ function renderStoricoRiepilogo(){
       return`<div class="storico-ord-card" style="background:var(--azione-s);border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px;font-weight:900;color:var(--azione)">#${o.num}</span><span style="font-size:16px;font-weight:800;flex:1">${o.nome}</span></div><div style="font-size:13px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
     }).join('');
     if(!ordsFiltered.length)htmlDet+='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun ordine trovato.</p>';
-    // Ripristina focus sul campo ricerca dettaglio se era attivo
-    const _wasDetCerca=document.activeElement&&document.activeElement.id==='st-det-cerca';
     elDet.innerHTML=htmlDet;
-    if(_wasDetCerca){
-      const _inp=document.getElementById('st-det-cerca');
-      if(_inp){_inp.focus();const l=_inp.value.length;_inp.setSelectionRange(l,l);}
-    }
   }
   requestAnimationFrame(()=>requestAnimationFrame(equalizeStorico));
 }
