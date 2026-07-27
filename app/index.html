@@ -1261,9 +1261,10 @@ function updateDebugPanel(){
   const pc=document.querySelector('.pcontent');
   const pw=document.querySelector('.page-wrap');
   const stk=document.querySelector('.ordini-sticky,.list-sticky');
+  const olist=document.getElementById('ordini-list');
   const firstCard=document.querySelector('#ordini-list .oc,#riepilogo-list .rp-row,#ordini-list [data-oid]');
   const g=el=>el?el.getBoundingClientRect():null;
-  const vbR=g(vb),ibR=g(ib),stkR=g(stk),cardR=g(firstCard);
+  const vbR=g(vb),ibR=g(ib),stkR=g(stk),cardR=g(firstCard),olR=g(olist);
   const cs=el=>el?getComputedStyle(el):null;
   const pcCs=cs(pc),pwCs=cs(pw);
   dp.style.display='block';
@@ -1273,7 +1274,10 @@ function updateDebugPanel(){
     'pcontent padTop='+(pcCs?pcCs.paddingTop:'-')+'\n'+
     'page-wrap padTop='+(pwCs?pwCs.paddingTop:'-')+' scrollTop='+(pw?pw.scrollTop.toFixed(0):'-')+'\n'+
     'sticky-bar top='+(stkR?stkR.top.toFixed(0):'-')+' z='+(stk?getComputedStyle(stk).zIndex:'-')+'\n'+
+    'ordini-list top='+(olR?olR.top.toFixed(0):'-')+' inlineStyle="'+(olist?olist.getAttribute('style'):'-')+'"\n'+
     'prima-card top='+(cardR?cardR.top.toFixed(0):'-')+' z='+(firstCard?getComputedStyle(firstCard).zIndex:'-')+'\n'+
+    'prima-card transform='+(firstCard?getComputedStyle(firstCard).transform:'-')+'\n'+
+    'prima-card inlineStyle="'+(firstCard?firstCard.getAttribute('style'):'-')+'"\n'+
     'body.vb-active='+document.body.classList.contains('vb-active');
 }
 document.addEventListener('DOMContentLoaded',function(){
