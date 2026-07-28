@@ -2035,7 +2035,7 @@ function renderDetModal(o){
             <button id="det-cal-btn-pom" class="cal-btn-mp" onclick="detCalSceglTurno(${o.id},'pomeriggio')"><i class="ti ti-sunset-2"></i> Pom.</button>
             <div id="det-cal-time-wrap" class="cal-time-wrap" style="display:none">
               <span style="font-size:13px;color:var(--sub)"><i class="ti ti-clock"></i></span>
-              <input type="time" id="det-cal-time-inp" class="cal-time-inp" onchange="detCalSceglOra(${o.id},this.value)" onblur="detCalOraBlur(${o.id})">
+              <input type="time" id="det-cal-time-inp" class="cal-time-inp" onchange="detCalSceglOra(${o.id},this.value)">
             </div>
 
           </div>
@@ -2109,31 +2109,35 @@ function renderDetCalGrid(){
     if(btnPom)btnPom.className='cal-btn-mp'+(detCalTurno==='pomeriggio'&&!detCalOra?' sel-pom':'');
   }
 }
-function detCalSelGiorno(iso){detCalSelDate=(detCalSelDate===iso)?null:iso;renderDetCalGrid();if(_calMode==='niente'&&detCalOid){detCalSalva(detCalOid);}}
-async function detCalSceglTurno(oid,turno){
+function detCalSelGiorno(iso){detCalSelDate=(detCalSelDate===iso)?null:iso;renderDetCalGrid();if(detCalOid)detCalAutoSalva(detCalOid);}
+function detCalSceglTurno(oid,turno){
   const o=ords.find(x=>x.id===oid);if(!o)return;
-  if(detCalTurno===turno&&!detCalOra){detCalTurno=null;}
+  if(detCalTurno===turno){detCalTurno=null;}
   else{detCalTurno=turno;detCalOra=null;const ti=document.getElementById('det-cal-time-inp');if(ti)ti.value='';}
   renderDetCalGrid();
-  if(_calMode==='mp')detCalSalva(oid);
+  detCalAutoSalva(oid);
 }
-async function detCalSalva(oid){
-  const o=ords.find(x=>x.id===oid);if(!o)return;
-  if((detCalOra||detCalTurno)&&!detCalSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}
-  o.data=detCalSelDate;o.turno=detCalOra?null:detCalTurno;o.ora=detCalOra||null;
-  await saveData();
-  const lbl=document.getElementById('det-data-lbl');
-  if(lbl)lbl.innerHTML=fmtD(detCalSelDate)+(o.ora?' <i class="ti ti-clock" style="font-size:16px"></i>'+o.ora:o.turno?' · '+(o.turno==='mattina'?'<i class="ti ti-sun" style="font-size:16px"></i> Mattina':'<i class="ti ti-sunset-2" style="font-size:16px"></i> Pomeriggio'):'');
-  const w=document.getElementById('det-cal-wrap');if(w)w.style.display='none';
-  renderOrdini();toast('Data aggiornata','v');
-}
-async function detCalSceglOra(oid,val){
+function detCalSceglOra(oid,val){
   detCalOra=val||null;
   if(detCalOra)detCalTurno=null;
   renderDetCalGrid();
+  detCalAutoSalva(oid);
 }
-function detCalOraBlur(oid){
-  if(detCalOra)detCalSalva(oid);
+// Salvataggio unico per Modifica Ordine: chiamato da qualunque interazione (giorno, Mat./Pom., orario, cambio modalità O/MP/SG)
+// così ogni scelta — singola o in combinazione — salva subito su Firestore e conferma con toast verde, senza lasciare
+// residui di turno/ora incoerenti quando si passa da una modalità all'altra (solo il campo pertinente alla modalità attiva viene salvato).
+async function detCalAutoSalva(oid){
+  const o=ords.find(x=>x.id===oid);if(!o)return;
+  let turno=null,ora=null;
+  if(_calMode==='mp')turno=detCalTurno;
+  else if(_calMode==='ora')ora=detCalOra;
+  if((ora||turno)&&!detCalSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}
+  if(!detCalSelDate&&!ora&&!turno&&!o.data&&!o.turno&&!o.ora)return;
+  o.data=detCalSelDate;o.turno=turno;o.ora=ora;
+  await saveData();
+  const lbl=document.getElementById('det-data-lbl');
+  if(lbl)lbl.innerHTML=fmtD(detCalSelDate)+(o.ora?' <i class="ti ti-clock" style="font-size:16px"></i>'+o.ora:o.turno?' · '+(o.turno==='mattina'?'<i class="ti ti-sun" style="font-size:16px"></i> Mattina':'<i class="ti ti-sunset-2" style="font-size:16px"></i> Pomeriggio'):'');
+  renderOrdini();toast('Data aggiornata','v');
 }
 let detQArtOid=null;
 function openDetQArt(oid){
@@ -2471,7 +2475,10 @@ function saveCalMode(mode){
   applyCalSettings();
   renderCal();
   const detModal=document.getElementById('modal-det');
-  if(detModal&&detModal.classList.contains('open'))renderDetCalGrid();
+  if(detModal&&detModal.classList.contains('open')){
+    renderDetCalGrid();
+    if(detCalOid)detCalAutoSalva(detCalOid);
+  }
   saveData();
 }
 function saveCalSettings(){saveCalMode(_calMode);}
