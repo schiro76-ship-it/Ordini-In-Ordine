@@ -154,12 +154,12 @@ body.portrait-phone.vb-active #ios-install-banner{padding-top:9px!important}
 body.portrait-phone{background:#2C3E50}
 html:has(body.portrait-phone){background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
-#status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:max(env(safe-area-inset-top,44px),44px);background:#2C3E50;z-index:9999}
+#status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
 #tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39}
 #sidebar-extender{display:none;position:fixed;bottom:-500px;left:0;width:var(--sbw);height:500px;background:#2C3E50;z-index:39}
 body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
-body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
+body.portrait-phone .page-wrap{padding-top:max(env(safe-area-inset-top,44px),44px)}
 body.portrait-phone .phdr h2{color:#fff}
 .phdr-invita{display:none}
 body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
