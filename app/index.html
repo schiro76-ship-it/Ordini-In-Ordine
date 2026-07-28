@@ -2067,7 +2067,12 @@ function renderDetModal(o){
   setTimeout(function(){renderDetArtGrid(o.id);initDetCal(o);},0);
 }
 let detCalYear=0,detCalMonth=0,detCalSelDate=null,detCalOid=null;
-function initDetCal(o){detCalOid=o.id;const n=new Date();detCalYear=n.getFullYear();detCalMonth=n.getMonth();detCalSelDate=o.data||null;detCalTurno=o.turno||null;detCalOra=o.ora||null;renderDetCalGrid();}
+let _detCalToastPending=false;
+// Mostra il toast "Data aggiornata" accorpato (se in sospeso) — chiamata alla chiusura del modal
+// o appena si tocca qualcos'altro nell'ordine (quantità, articolo, unità di misura, foto, nome/note),
+// così più modifiche consecutive a giorno/modalità/orario producono un solo toast, non uno per click.
+function _flushDetCalToast(){if(_detCalToastPending){_detCalToastPending=false;toast('Data aggiornata','v');}}
+function initDetCal(o){detCalOid=o.id;_detCalToastPending=false;const n=new Date();detCalYear=n.getFullYear();detCalMonth=n.getMonth();detCalSelDate=o.data||null;detCalTurno=o.turno||null;detCalOra=o.ora||null;renderDetCalGrid();}
 function toggleDetCal(oid){const w=document.getElementById('det-cal-wrap');if(w)w.style.display=w.style.display==='none'?'block':'none';}
 function detCalNav(oid,d){detCalMonth+=d;if(detCalMonth<0){detCalMonth=11;detCalYear--}if(detCalMonth>11){detCalMonth=0;detCalYear++}renderDetCalGrid();}
 var detCalOra=null,detCalTurno=null;
@@ -2137,7 +2142,7 @@ async function detCalAutoSalva(oid){
   await saveData();
   const lbl=document.getElementById('det-data-lbl');
   if(lbl)lbl.innerHTML=fmtD(detCalSelDate)+(o.ora?' <i class="ti ti-clock" style="font-size:16px"></i>'+o.ora:o.turno?' · '+(o.turno==='mattina'?'<i class="ti ti-sun" style="font-size:16px"></i> Mattina':'<i class="ti ti-sunset-2" style="font-size:16px"></i> Pomeriggio'):'');
-  renderOrdini();toast('Data aggiornata','v');
+  renderOrdini();_detCalToastPending=true;
 }
 let detQArtOid=null;
 function openDetQArt(oid){
@@ -2203,8 +2208,9 @@ async function togItemDone(oid,idx){
     const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);
   }
 }
-async function updItem(oid,idx,field,val){const o=ords.find(x=>x.id===oid);if(!o)return;o.items[idx][field]=val;await saveData();}
+async function updItem(oid,idx,field,val){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;o.items[idx][field]=val;await saveData();}
 async function onPickImgDet(oid,idx,inputEl){
+  _flushDetCalToast();
   const file=inputEl.files&&inputEl.files[0];
   inputEl.value='';
   if(!file)return;
@@ -2224,6 +2230,7 @@ async function onPickImgDet(oid,idx,inputEl){
   }
 }
 async function rimuoviImmagineDet(oid,idx){
+  _flushDetCalToast();
   const o=ords.find(x=>x.id===oid);
   if(!o||!o.items[idx])return;
   await rimuoviImmagineItem(o.items[idx]);
@@ -2233,9 +2240,10 @@ async function rimuoviImmagineDet(oid,idx){
   renderRiepilogo();
   toast('Foto rimossa','v');
 }
-async function updOrdCampo(oid,campo,val){const o=ords.find(x=>x.id===oid);if(!o)return;o[campo]=val||null;await saveData();renderOrdini();}
+async function updOrdCampo(oid,campo,val){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;o[campo]=val||null;await saveData();renderOrdini();}
 async function setStatoD(oid,stato){await setStato(oid,stato);const o=ords.find(x=>x.id===oid);if(o)renderDetModal(o);}
 async function addItemToOrd(oid,artId){
+  _flushDetCalToast();
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const newIdx=o.items.length;
   o.items.push({artId:artId,qty:'',um:'',nota:'',done:false});
@@ -2256,6 +2264,7 @@ async function addItemToOrd(oid,artId){
 }
 
 function detUpdUM(oid,idx,um){
+  _flushDetCalToast();
   const o=ords.find(x=>x.id===oid);if(!o)return;
   o.items[idx].um=um;
   saveData();
@@ -2268,6 +2277,7 @@ function detUpdUM(oid,idx,um){
   },30);
 }
 async function addUMVoloDet(oid,idx){
+  _flushDetCalToast();
   const v=(prompt('Nome della nuova unità di misura:')||'').trim().toLowerCase();
   if(!v)return;
   if(unitaMisura.includes(v)){toast('Già presente!','err');detUpdUM(oid,idx,v);return;}
@@ -2277,6 +2287,7 @@ async function addUMVoloDet(oid,idx){
   detUpdUM(oid,idx,v);
 }
 function detChQtyDirect(oid,idx,d){
+  _flushDetCalToast();
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const cur=parseFloat(o.items[idx].qty)||0;
   const newVal=Math.max(0,parseFloat((cur+d).toFixed(4)));
@@ -2298,7 +2309,7 @@ function confDelItem(oid,idx){
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delItemFromOrd(oid,idx);};
   openModal('modal-del-conf');
 }
-async function delItemFromOrd(oid,idx){const o=ords.find(x=>x.id===oid);if(!o)return;o.items.splice(idx,1);await saveData();renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso','v');}
+async function delItemFromOrd(oid,idx){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;o.items.splice(idx,1);await saveData();renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso','v');}
 let sel=[],tNuovo=null,catS='Tutti';
 function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.innerHTML=usati.has(v)?'<i class="ti ti-alert-triangle"></i> già usato':'';}
 function minNumeroLibero(){const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));let n=1;while(usati.has(n))n++;return n;}
@@ -2877,6 +2888,7 @@ function toggleCal(){renderCal();}
 function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
 function closeModal(id){
   if(id==='modal-det'){
+    _flushDetCalToast();
     document.querySelectorAll('#modal-det-body .art-det-inputs input[type="number"]').forEach(inp=>{inp.dispatchEvent(new Event('change'));});
     ords.forEach(o=>{if(!o.items||!o.items.length)return;const tuttiDone=o.items.every(it=>it.done);if(tuttiDone&&o.stato==='evadere')o.stato='completato';if(!tuttiDone&&o.stato==='completato')o.stato='evadere';});
     saveData();
