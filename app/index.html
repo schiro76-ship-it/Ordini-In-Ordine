@@ -148,9 +148,9 @@ body.portrait-phone #sf-ritirato.active-filt{background:#6B7280!important;border
 body.portrait-phone .sc-filt.active-filt .sn,body.portrait-phone .sc-filt.active-filt .sl{color:#fff!important}
 body.portrait-phone .pcontent{padding-top:0}
 /* Il banner precede il page-wrap (che ha già il suo padding-top sotto la cover): serve un padding-top statico proprio, altrimenti in PWA standalone finisce parzialmente sotto lo status-bar-cover */
-#banners-wrap{flex-shrink:0}
-body.portrait-phone #banners-wrap{position:sticky;top:0;z-index:32;padding-top:calc(9px + env(safe-area-inset-top,44px))}
-body.portrait-phone #verify-banner,body.portrait-phone #ios-install-banner{padding-top:9px!important}
+body.portrait-phone #verify-banner{padding-top:calc(9px + env(safe-area-inset-top,44px))!important}
+body.portrait-phone #ios-install-banner{padding-top:calc(9px + env(safe-area-inset-top,44px))!important}
+body.portrait-phone.vb-active #ios-install-banner{padding-top:9px!important}
 body.portrait-phone{background:#2C3E50}
 html:has(body.portrait-phone){background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
@@ -680,7 +680,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </nav>
   </aside>
   <div class="pcontent">
-    <div id="banners-wrap">
     <div id="verify-banner" style="display:none;background:#FEF3E2;border-bottom:1px solid #F5D9A8;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#92400E;flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
       <span><i class="ti ti-alert-triangle"></i> Verifica la tua email per proteggere il tuo account</span>
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="reinviaVerificaEmail()">Reinvia email di verifica</button>
@@ -689,7 +688,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <span><i class="ti ti-download"></i> Aggiungi OrdinInOrdine alla schermata Home per ricevere le notifiche</span>
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="showIosInstallInstructions()">Come si fa</button>
       <button onclick="dismissIosInstallBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
-    </div>
     </div>
     <div class="topbar">
       <button class="tb-menu" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
