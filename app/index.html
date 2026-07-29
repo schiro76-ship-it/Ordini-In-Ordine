@@ -838,16 +838,16 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="phdr"><h2>Impostazioni</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
         <div class="pbody">
           <div class="card">
+            <div class="ch"><div class="ct"><i class="ti ti-tag"></i> Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderCatList();openModal('modal-cat')"><i class="ti ti-pencil"></i> Gestisci</button></div>
+            <div class="cb"><div class="um-list" id="cat-display"></div></div>
+          </div>
+          <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Articoli</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderArtM();resetArtNuovo();openModal('modal-articoli')"><i class="ti ti-pencil"></i> Gestisci</button></div>
             <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Catalogo: <span id="acb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
           </div>
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-ruler-2"></i> Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-um')"><i class="ti ti-plus"></i> Aggiungi</button></div>
             <div class="cb"><div class="um-list" id="um-display"></div></div>
-          </div>
-          <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-tag"></i> Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderCatList();openModal('modal-cat')"><i class="ti ti-pencil"></i> Gestisci</button></div>
-            <div class="cb"><div class="um-list" id="cat-display"></div></div>
           </div>
           <div class="card">
             <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-database"></i> Dati</div><div style="font-size:13px;color:var(--sub);font-weight:600">Crea una copia di sicurezza di tutti i tuoi ordini e articoli, e ripristinala quando vuoi.</div></div>
@@ -1931,7 +1931,7 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     const _bgA=v.urgente?'var(--urg)':tuttiDone?'var(--g)':'var(--ev)';
     const _fmtA=fmtRpData(_oA);
     const _dataLabel=_fmtA.r2?'<span>'+_fmtA.r1+'</span><span>'+_fmtA.r2+'</span>':'<span>'+_fmtA.r1+'</span>';
-    const dettaglio=exp?v.ordini.map(x=>{
+    const dettaglio=exp?v.ordini.slice().sort((a,b)=>priScore(a.ordine)-priScore(b.ordine)).map(x=>{
       const q=parseFloat(x.qty)||1;const qs=q%1===0?q:q.toFixed(2).replace(/\.?0+$/,'');
       const isUrg=isUrgente(x.ordine);
       const bg=x.done?'var(--gs)':isUrg?'var(--urgs)':'var(--evs)';
