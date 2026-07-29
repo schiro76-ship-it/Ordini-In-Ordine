@@ -40,7 +40,7 @@ img{max-width:100%;display:block}
 /* Header */
 .site-header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:20px 0;
+  padding-top:20px;padding-bottom:20px;
 }
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
 .brand img{width:40px;height:40px;border-radius:10px}
@@ -61,7 +61,7 @@ img{max-width:100%;display:block}
 }
 
 /* Hero */
-.hero{padding:56px 0 40px}
+.hero{padding-top:56px;padding-bottom:40px}
 .hero h1{font-size:clamp(32px,5vw,52px);color:var(--navy)}
 .hero .lede{font-size:19px;color:var(--muted);max-width:560px}
 .hero-actions{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap}
@@ -76,6 +76,15 @@ img{max-width:100%;display:block}
   padding:14px 22px;border-radius:999px;font-size:16px;display:inline-block;
   border:1.5px solid var(--border);background:var(--paper);
 }
+
+/* Foto hero — operatore che consegna l'ordine */
+.hero-photo{max-width:420px;margin:0 auto}
+.hero-photo img{
+  width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;
+  border-radius:var(--radius);
+  box-shadow:0 18px 40px -20px rgba(22,35,61,.35);
+}
+@media (max-width:800px){.hero-photo{max-width:340px}}
 
 /* Etichetta mockup — elemento firma, uguale a quella che l'app stampa davvero */
 .label-mock{
@@ -130,7 +139,7 @@ img{max-width:100%;display:block}
 .activity-card span{font-weight:600;font-size:14.5px}
 
 /* Footer */
-.site-footer{padding:40px 0;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+.site-footer{padding-top:40px;padding-bottom:40px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
 .site-footer a{color:var(--muted);text-decoration:underline}
 .footer-links{margin-top:8px}
 .footer-links a{margin-right:14px}
