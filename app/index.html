@@ -690,6 +690,11 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="showIosInstallInstructions()">Come si fa</button>
       <button onclick="dismissIosInstallBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
     </div>
+    <div id="android-install-banner" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
+      <span><i class="ti ti-download"></i> Aggiungi OrdinInOrdine alla schermata Home</span>
+      <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="promptAndroidInstall()">Installa</button>
+      <button onclick="dismissAndroidInstallBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
+    </div>
     <div class="topbar">
       <button class="tb-menu" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
       <div class="tb-title" id="topbar-title" style="font-family:'Nunito',sans-serif;font-weight:900"><span style="color:#2C3E50">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#2C3E50">nOrdine</span></div>
@@ -1152,7 +1157,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.4.1';
+const APP_VERSION='2.4.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1235,6 +1240,49 @@ function dismissIosInstallBanner(){
 function showIosInstallInstructions(){
   openModal('modal-ios-install');
 }
+
+// Banner "Aggiungi a Home" per Android — a differenza di iOS, Chrome/Edge/Samsung Internet
+// espongono l'evento beforeinstallprompt: lo intercettiamo per mostrare un banner coerente
+// col resto dell'app e per far scattare il prompt nativo con un tap, invece di istruzioni manuali.
+// Browser Android privi di questo evento (es. Firefox, che non supporta più l'installazione PWA)
+// semplicemente non fanno mai scattare il banner: nessun bottone "morto" da mostrare.
+var _androidInstallPromptEvent=null;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  _androidInstallPromptEvent=e;
+  checkAndroidInstallBanner();
+});
+function checkAndroidInstallBanner(){
+  const el=document.getElementById('android-install-banner');
+  if(!el)return;
+  if(!_androidInstallPromptEvent||isStandaloneApp()){el.style.display='none';return;}
+  try{
+    const dismissedAt=localStorage.getItem('android-install-banner-dismissed');
+    if(dismissedAt){
+      const giorniPassati=(Date.now()-parseInt(dismissedAt,10))/(1000*60*60*24);
+      if(giorniPassati<14){el.style.display='none';return;}
+    }
+  }catch(e){}
+  el.style.display='flex';
+}
+function dismissAndroidInstallBanner(){
+  const el=document.getElementById('android-install-banner');
+  if(el)el.style.display='none';
+  try{localStorage.setItem('android-install-banner-dismissed',String(Date.now()));}catch(e){}
+}
+async function promptAndroidInstall(){
+  const el=document.getElementById('android-install-banner');
+  if(!_androidInstallPromptEvent){if(el)el.style.display='none';return;}
+  _androidInstallPromptEvent.prompt();
+  try{await _androidInstallPromptEvent.userChoice;}catch(e){}
+  _androidInstallPromptEvent=null;
+  if(el)el.style.display='none';
+}
+window.addEventListener('appinstalled',()=>{
+  _androidInstallPromptEvent=null;
+  const el=document.getElementById('android-install-banner');
+  if(el)el.style.display='none';
+});
 
 async function boot(){applyTheme(DEFAULT_THEME);try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
   try{
