@@ -105,7 +105,7 @@ img{max-width:100%;display:block}
 .section-dark h2{color:#fff}
 .section-dark .muted{color:#B8C2D6}
 .two-col{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
-@media (max-width:800px){.two-col{grid-template-columns:1fr}}
+@media (max-width:800px){.two-col{grid-template-columns:1fr}.hero-photo{order:-1;margin-bottom:8px}}
 
 .pain{font-size:17px;color:var(--ink)}
 
