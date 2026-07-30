@@ -125,6 +125,8 @@ img{max-width:100%;display:block}
 @media (max-width:800px){.features{grid-template-columns:1fr}}
 .feature{background:var(--paper);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
 .feature i{font-size:26px;color:var(--blue);margin-bottom:12px;display:block}
+.feature-icons{display:flex;gap:10px;margin-bottom:12px}
+.feature-icons i{margin-bottom:0}
 .feature h3{font-family:'Nunito',sans-serif;font-weight:600;font-size:16px;margin-bottom:6px;color:var(--navy)}
 .feature p{font-size:14.5px;color:var(--muted);margin:0}
 
