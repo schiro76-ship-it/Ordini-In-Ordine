@@ -55,13 +55,21 @@ img{max-width:100%;display:block}
 
 /* Eyebrow */
 .eyebrow{
-  display:inline-block;font-size:13px;font-weight:600;letter-spacing:.04em;
-  text-transform:uppercase;color:var(--blue);background:rgba(37,107,193,.09);
-  padding:6px 14px;border-radius:999px;margin-bottom:18px;
+  display:inline-block;font-size:13px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--blue);margin-bottom:14px;
 }
 
 /* Hero */
-.hero{padding-top:56px;padding-bottom:40px}
+.hero{
+  padding-top:40px;padding-bottom:40px;
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  grid-template-areas:"eyebrow photo" "text photo";
+  column-gap:56px;row-gap:10px;
+  align-items:start;
+}
+.hero .eyebrow{grid-area:eyebrow;margin-bottom:0}
+.hero-text{grid-area:text}
 .hero h1{font-size:clamp(32px,5vw,52px);color:var(--navy)}
 .hero .lede{font-size:19px;color:var(--muted);max-width:560px}
 .hero-actions{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap}
@@ -78,13 +86,16 @@ img{max-width:100%;display:block}
 }
 
 /* Foto hero — operatore che consegna l'ordine */
-.hero-photo{max-width:420px;margin:0 auto}
+.hero-photo{grid-area:photo;max-width:420px;margin:0 auto}
 .hero-photo img{
   width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;
   border-radius:var(--radius);
   box-shadow:0 18px 40px -20px rgba(22,35,61,.35);
 }
-@media (max-width:800px){.hero-photo{max-width:340px}}
+@media (max-width:800px){
+  .hero{grid-template-columns:1fr;grid-template-areas:"eyebrow" "photo" "text";row-gap:16px}
+  .hero-photo{max-width:340px}
+}
 
 /* Etichetta mockup — elemento firma, uguale a quella che l'app stampa davvero */
 .label-mock{
@@ -105,7 +116,7 @@ img{max-width:100%;display:block}
 .section-dark h2{color:#fff}
 .section-dark .muted{color:#B8C2D6}
 .two-col{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
-@media (max-width:800px){.two-col{grid-template-columns:1fr}.hero-photo{order:-1;margin-bottom:8px}}
+@media (max-width:800px){.two-col{grid-template-columns:1fr}}
 
 .pain{font-size:17px;color:var(--ink)}
 
