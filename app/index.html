@@ -1189,7 +1189,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.5.9';
+const APP_VERSION='2.6.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3502,10 +3502,33 @@ document.addEventListener('keydown',function(e){
   const t=e.target;
   if(!t||!t.closest||!t.closest('#tab-nuovo'))return;
   const idx=_nuovoFieldOrder.indexOf(t.id);
-  if(idx===-1||idx===_nuovoFieldOrder.length-1)return;
+  if(idx===-1)return;
   e.preventDefault();
+  if(idx===_nuovoFieldOrder.length-1){salvaOrdine();return;}
   const next=document.getElementById(_nuovoFieldOrder[idx+1]);
   if(next)next.focus();
+});
+// Invio = attiva il bottone principale del campo in cui ci si trova (Accedi, Conferma, Salva, ecc.).
+// Mappatura esplicita campo->funzione, non generica: evita che l'Invio scatti per errore in campi
+// di ricerca/filtro (es. "Cerca nel catalogo") dove non deve succedere nulla.
+const _enterSubmitMap={
+  'login-email':doLogin,'login-pwd':doLogin,
+  'reg-attivita':doRegister,'reg-email':doRegister,'reg-pwd':doRegister,'reg-pwd2':doRegister,
+  'reg-rag-sociale':doRegister,'reg-piva':doRegister,'reg-cf':doRegister,'reg-indirizzo':doRegister,'reg-sdi':doRegister,
+  'rimdisp-pwd':confermaRimuoviDispositivoPwd,
+  'edit-art-nome':salvaEditArt,'edit-art-nuova-input':salvaEditArt,
+  'qan':addArtRapido,'qnuova-cat-input':addArtRapido,
+  'an':addArt,'nuova-cat-input':addArt,
+  'cat-new':addCatVolo,
+  'um-new':addUM
+};
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;
+  const t=e.target;
+  const fn=t&&t.id?_enterSubmitMap[t.id]:null;
+  if(!fn)return;
+  e.preventDefault();
+  fn();
 });
 document.addEventListener('focusin',function(e){
   const t=e.target;
