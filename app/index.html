@@ -264,6 +264,8 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .sbox .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:19px}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease}
+.oc.oc-evidenzia{animation:ocEvidenzia 1.6s ease}
+@keyframes ocEvidenzia{0%{box-shadow:0 0 0 3px var(--azione)}100%{box-shadow:var(--sh)}}
 .oc.evadere{border-left-color:var(--ev)}.oc.completato{border-left-color:var(--g)}.oc.ritirato{border-left-color:var(--gr);opacity:0.85}
 .oc.ritirato .tb,.oc.ritirato .act-btn,.oc.ritirato .stato-badge{filter:grayscale(1);opacity:0.7}
 .oc.urgente{border-left-color:var(--urg)!important}
@@ -426,7 +428,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 #riepilogo-list .rp-art{font-size:18px}
 .rp-qty{font-size:16px;font-weight:900;color:var(--ev)}
 .rp-um{font-size:16px;font-weight:900;color:var(--ev)}
-@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody{max-width:calc(100% - var(--sbw))}}
+@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody,body:not(.portrait-phone) #tab-nuovo .pbody{max-width:calc(100% - var(--sbw))}}
 body:not(.portrait-phone) #storico-riepilogo{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 16px;align-items:stretch}
 body:not(.portrait-phone) #storico-riepilogo>p{grid-column:1/-1}
 body:not(.portrait-phone) #storico-riepilogo .rp-row{margin-bottom:0}
@@ -586,7 +588,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div id="reg-privacy-wrap" style="padding:8px;margin:0 -8px 8px -8px;border:2px solid transparent;border-radius:8px;transition:border-color 0.2s ease">
         <div style="display:flex;align-items:flex-start;gap:8px">
           <input type="checkbox" id="reg-privacy-accept" style="margin-top:3px;width:16px;height:16px;flex-shrink:0;cursor:pointer">
-          <label for="reg-privacy-accept" style="font-size:13px;color:#6B7280;font-weight:600;cursor:pointer">Ho letto e accettato i seguenti documenti:</label>
+          <label for="reg-privacy-accept" style="font-size:13px;color:#6B7280;font-weight:600;cursor:pointer">Ho letto e accettato:</label>
         </div>
         <div style="display:flex;flex-direction:column;margin-top:4px;margin-left:24px">
           <a class="link-legale" href="termini.html" target="_blank" style="color:#FF6B35;font-weight:800;text-decoration:underline;font-size:13px;padding:6px 4px">Termini e Condizioni</a>
@@ -1108,7 +1110,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 <div class="ov" id="modal-rimuovi-dispositivo">
   <div class="modal" style="max-width:360px">
     <div class="mta"><i class="ti ti-trash"></i> Rimuovi dispositivo</div>
-    <p style="color:var(--sub);font-size:14px;font-weight:600;margin-bottom:14px">Per sicurezza, conferma la tua identità prima di rimuovere questo dispositivo — così un collaboratore non può rimuoverne un altro per errore.</p>
     <div id="rimdisp-pwd-wrap">
       <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="rimdisp-pwd" placeholder="La tua password"></div>
       <button class="btn br btn-full" onclick="confermaRimuoviDispositivoPwd()">Conferma e rimuovi</button>
@@ -1190,7 +1191,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.5.6';
+const APP_VERSION='2.5.7';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1463,13 +1464,26 @@ function goTab(name){
   const nav=document.getElementById('bottom-nav');
   if(nav&&document.body.classList.contains('portrait-phone'))nav.style.display='flex';
   if(name==='impostazioni'){renderArtM();renderUMDisplay();applyDateFormatUI();applyCalSettings();applyUrgSettings();applyNotifSettings();renderDispositiviList();}
-  if(name==='ordini')renderOrdini();
+  if(name==='ordini'){if(_scrollToOrdineId){ft='tutti';ftData='tutti';}renderOrdini();}
   if(name==='riepilogo'){_rpOrdineCongelato=null;rpExpanded={};rpDayFilter=null;renderRiepilogo();}
   if(name==='storico'){renderStoricoMensile();renderStoricoRiepilogo();setTimeout(syncStickyHeaderHeights,0);}
   if(pw){
-    const target=(name==='nuovo')?0:(_scrollPositions[name]||0);
-    pw.scrollTop=target;
-    setTimeout(function(){pw.scrollTop=target;},0);
+    if(name==='ordini'&&_scrollToOrdineId){
+      const oid=_scrollToOrdineId;
+      _scrollToOrdineId=null;
+      setTimeout(function(){
+        const card=document.querySelector('#ordini-list [data-oid="'+oid+'"]');
+        if(card){
+          card.scrollIntoView({behavior:'smooth',block:'center'});
+          card.classList.add('oc-evidenzia');
+          setTimeout(function(){card.classList.remove('oc-evidenzia');},1600);
+        }
+      },50);
+    }else{
+      const target=(name==='nuovo')?0:(_scrollPositions[name]||0);
+      pw.scrollTop=target;
+      setTimeout(function(){pw.scrollTop=target;},0);
+    }
   }
 }
 function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open')}
@@ -1562,6 +1576,7 @@ function buildOcHTML(lista){
   }).join('');
 }
 let ftData='tutti';
+let _scrollToOrdineId=null;
 function setFtData(d){ftData=d;renderOrdini()}
 function renderOrdini(animate){
   const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=fmtDataByFormat(d);return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data!==ftData)return false;if(c)return o.nome.toLowerCase().includes(c)||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.nome.toLowerCase().includes(c)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});
@@ -2584,7 +2599,7 @@ function renderSP(){const card=document.getElementById('card-sel'),el=document.g
   const umPills=unitaMisura.map(u=>`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi foto</button></div>`:`<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px"><i class="ti ti-camera"></i> Immagine<input type="file" accept="image/*" style="display:none" onchange="onPickImgSel(${s.id},this)"></label>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.1" min="0.1" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
-async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un articolo!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:'articolo';if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');goTab('ordini');
+async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un articolo!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:'articolo';if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
   // Caricamento foto in background: l'ordine è già salvato, l'utente non deve aspettare l'upload
   const _daCaricare=_selSnapshot.filter(s=>s.imgBlob);
   if(_daCaricare.length){
