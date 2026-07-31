@@ -1190,7 +1190,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.5.3';
+const APP_VERSION='2.5.4';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1358,8 +1358,13 @@ async function checkESaveDispositivo(){
       return true;
     }
     const tipo=rilevaTipoDispositivoLabel();
-    let nome=(prompt('Come vuoi chiamare questo dispositivo? Puoi personalizzarlo, ad es. "Telefono di Mario".',tipo)||'').trim();
-    if(!nome)nome=tipo;
+    let nome=tipo;
+    try{
+      const scelto=(prompt('Come vuoi chiamare questo dispositivo? Puoi personalizzarlo, ad es. "Telefono di Mario".',tipo)||'').trim();
+      if(scelto)nome=scelto;
+    }catch(e){
+      console.warn('Popup nome dispositivo non disponibile, uso il nome di default',e);
+    }
     _dispositivi[_deviceId]={primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo};
     await ref.set({dispositivi:{[_deviceId]:{primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo}}},{merge:true});
     return false;
@@ -1375,9 +1380,11 @@ function mostraDispositivoRimosso(){
   const dl=document.getElementById('device-limit-screen');if(dl)dl.style.display='none';
   const el=document.getElementById('device-removed-screen');if(el)el.style.display='flex';
 }
+let _unsubDatiListener=null;
 async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
   try{
-    db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
+    if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
+    _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
       const d=snap.data();
       arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;
@@ -3251,7 +3258,7 @@ function stampaEtichetta(id){
 const auth=firebase.auth();
 auth.languageCode='it';
 let currentUser=null;
-auth.onAuthStateChanged(function(user){if(user){currentUser=user;document.getElementById('login-screen').style.display='none';boot();if(!user.emailVerified&&user.providerData&&user.providerData[0]&&user.providerData[0].providerId==='password'){setInterval(function(){if(!currentUser)return;currentUser.reload().then(function(){if(currentUser.emailVerified)refreshAll();});},20000);}}else{currentUser=null;document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';}});
+auth.onAuthStateChanged(function(user){if(user){currentUser=user;document.getElementById('login-screen').style.display='none';boot();if(!user.emailVerified&&user.providerData&&user.providerData[0]&&user.providerData[0].providerId==='password'){setInterval(function(){if(!currentUser)return;currentUser.reload().then(function(){if(currentUser.emailVerified)refreshAll();});},20000);}}else{currentUser=null;document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}}});
 function salvaAttivita(){const nome=document.getElementById('input-attivita').value.trim();if(!nome){toast('Inserisci il nome attività!','err');return;}if(!currentUser){toast('Non sei loggato','err');return;}currentUser.updateProfile({displayName:nome}).then(function(){return db.collection('profili').doc(currentUser.uid).set({attivita:nome,email:currentUser.email,aggiornato:new Date().toISOString()},{merge:true});}).then(function(){const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita)sbAttivita.textContent=nome;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita)inputAttivita.value=nome;toast('Nome attività salvato','v');}).catch(function(e){toast('Errore: '+e.message,'err');});}
 function switchLoginTab(tab){document.getElementById('form-login').style.display=tab==='login'?'block':'none';document.getElementById('form-reg').style.display=tab==='registrati'?'block':'none';document.getElementById('tab-login-btn').classList.toggle('active',tab==='login');document.getElementById('tab-reg-btn').classList.toggle('active',tab==='registrati');document.getElementById('login-err').textContent='';const ls=document.getElementById('login-screen');if(ls)ls.scrollTop=0;}
 function loginErr(msg){document.getElementById('login-err').textContent=msg;}
