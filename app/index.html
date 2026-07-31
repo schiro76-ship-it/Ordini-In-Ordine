@@ -1189,7 +1189,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.6.2';
+const APP_VERSION='2.6.3';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3496,7 +3496,7 @@ function checkPortrait(){
     else nav.style.display='';
   }
 }
-const _nuovoFieldOrder=['nn','note-ordine','can'];
+const _nuovoFieldOrder=['cal-time-inp','nn','note-ordine','can'];
 document.addEventListener('keydown',function(e){
   if(e.key!=='Enter')return;
   const t=e.target;
