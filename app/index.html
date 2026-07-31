@@ -1183,7 +1183,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.5.0';
+const APP_VERSION='2.5.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1316,6 +1316,18 @@ window.addEventListener('appinstalled',()=>{
   if(el)el.style.display='none';
 });
 
+// Rileva un'etichetta di tipo dispositivo (Telefono/Tablet/PC-Mac) da proporre come nome di default
+// alla prima registrazione — l'utente può sempre personalizzarla (es. "Telefono di Mario").
+function rilevaTipoDispositivoLabel(){
+  const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  if(!isTouch)return'PC/Mac';
+  return window.innerWidth<=639?'Telefono':'Tablet';
+}
+function iconePerTipoDispositivo(tipo){
+  if(tipo==='PC/Mac')return'ti-device-desktop';
+  if(tipo==='Tablet')return'ti-device-tablet';
+  return'ti-device-mobile';
+}
 // Verifica il limite di dispositivi collegati simultaneamente (LIMITE_DISPOSITIVI) e registra/aggiorna
 // questo dispositivo nella mappa. Ritorna true se il dispositivo va bloccato (limite raggiunto e dispositivo
 // non già noto), false se può proseguire normalmente. In caso di problemi di rete non blocca (fail-open),
@@ -1329,16 +1341,20 @@ async function checkESaveDispositivo(){
     _dispositivi=(d.dispositivi&&typeof d.dispositivi==='object'&&!Array.isArray(d.dispositivi))?d.dispositivi:{};
     const now=new Date().toISOString();
     if(_dispositivi[_deviceId]){
-      const primo=_dispositivi[_deviceId].primoAccesso||now;
-      _dispositivi[_deviceId]={primoAccesso:primo,ultimoAccesso:now};
+      const esistente=_dispositivi[_deviceId];
+      const primo=esistente.primoAccesso||now;
+      _dispositivi[_deviceId]=Object.assign({},esistente,{primoAccesso:primo,ultimoAccesso:now});
       await ref.set({dispositivi:{[_deviceId]:{primoAccesso:primo,ultimoAccesso:now}}},{merge:true});
       return false;
     }
     if(Object.keys(_dispositivi).length>=LIMITE_DISPOSITIVI){
       return true;
     }
-    _dispositivi[_deviceId]={primoAccesso:now,ultimoAccesso:now};
-    await ref.set({dispositivi:{[_deviceId]:{primoAccesso:now,ultimoAccesso:now}}},{merge:true});
+    const tipo=rilevaTipoDispositivoLabel();
+    let nome=(prompt('Come vuoi chiamare questo dispositivo? Puoi personalizzarlo, ad es. "Telefono di Mario".',tipo)||'').trim();
+    if(!nome)nome=tipo;
+    _dispositivi[_deviceId]={primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo};
+    await ref.set({dispositivi:{[_deviceId]:{primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo}}},{merge:true});
     return false;
   }catch(e){
     console.warn('Verifica limite dispositivi non riuscita, procedo comunque',e);
@@ -3284,15 +3300,32 @@ function renderDispositiviList(){
   el.innerHTML=entries.map(function(entry){
     const id=entry[0],info=entry[1]||{};
     const isQuesto=id===_deviceId;
+    const nome=info.nome||info.tipo||('Dispositivo · '+id.slice(-6));
+    const icona=iconePerTipoDispositivo(info.tipo);
     return`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--brd)">
-      <span style="font-size:20px;color:var(--sub);flex-shrink:0"><i class="ti ti-device-mobile"></i></span>
+      <span style="font-size:20px;color:var(--sub);flex-shrink:0"><i class="ti ${icona}"></i></span>
       <div style="flex:1;min-width:0">
-        <div style="font-size:15px;font-weight:800">${isQuesto?'Questo dispositivo':'Dispositivo · '+id.slice(-6)}</div>
+        <div style="font-size:15px;font-weight:800">${nome}${isQuesto?' <span style="font-size:12px;color:var(--azione);font-weight:800">(questo)</span>':''}</div>
         <div style="font-size:12px;color:var(--sub);font-weight:600">Ultimo accesso: ${fmtDataOraDispositivo(info.ultimoAccesso)}</div>
       </div>
-      ${isQuesto?'':`<button class="ibtn d" onclick="confRimuoviDispositivo('${id}')"><i class="ti ti-trash"></i></button>`}
+      ${isQuesto?`<button class="ibtn" onclick="rinominaDispositivo('${id}')" aria-label="Rinomina dispositivo"><i class="ti ti-pencil"></i></button>`:`<button class="ibtn d" onclick="confRimuoviDispositivo('${id}')" aria-label="Rimuovi dispositivo"><i class="ti ti-trash"></i></button>`}
     </div>`;
   }).join('');
+}
+async function rinominaDispositivo(deviceId){
+  if(deviceId!==_deviceId)return; // si può rinominare solo il proprio dispositivo, per evitare scherzi/casino tra colleghi
+  if(!currentUser||!_dispositivi[deviceId])return;
+  const attuale=_dispositivi[deviceId].nome||_dispositivi[deviceId].tipo||'';
+  const nuovo=(prompt('Nome di questo dispositivo:',attuale)||'').trim();
+  if(!nuovo||nuovo===attuale)return;
+  try{
+    await db.collection('dati').doc(currentUser.uid).set({dispositivi:{[deviceId]:{nome:nuovo}}},{merge:true});
+    _dispositivi[deviceId].nome=nuovo;
+    renderDispositiviList();
+    toast('Nome aggiornato','v');
+  }catch(e){
+    toast('Errore: '+e.message,'err');
+  }
 }
 let _dispositivoDaRimuovere=null;
 function confRimuoviDispositivo(deviceId){
