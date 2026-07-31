@@ -426,7 +426,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 #riepilogo-list .rp-art{font-size:18px}
 .rp-qty{font-size:16px;font-weight:900;color:var(--ev)}
 .rp-um{font-size:16px;font-weight:900;color:var(--ev)}
-@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody,body:not(.portrait-phone) #tab-nuovo .pbody{max-width:calc(100% - var(--sbw))}}
+@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody,body:not(.portrait-phone) #tab-nuovo .pbody,body:not(.portrait-phone) #tab-nuovo .phdr{max-width:calc(100% - var(--sbw))}}
 body:not(.portrait-phone) #storico-riepilogo{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 16px;align-items:stretch}
 body:not(.portrait-phone) #storico-riepilogo>p{grid-column:1/-1}
 body:not(.portrait-phone) #storico-riepilogo .rp-row{margin-bottom:0}
@@ -1189,7 +1189,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.6.0';
+const APP_VERSION='2.6.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3501,6 +3501,7 @@ document.addEventListener('keydown',function(e){
   if(e.key!=='Enter')return;
   const t=e.target;
   if(!t||!t.closest||!t.closest('#tab-nuovo'))return;
+  if(t.id&&t.id.indexOf('nota-')===0){e.preventDefault();tornaRicerca();return;}
   const idx=_nuovoFieldOrder.indexOf(t.id);
   if(idx===-1)return;
   e.preventDefault();
