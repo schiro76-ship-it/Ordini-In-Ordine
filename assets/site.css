@@ -61,10 +61,10 @@ img{max-width:100%;display:block}
 
 /* Hero */
 .hero{
-  padding-top:40px;padding-bottom:40px;
+  padding-top:20px;padding-bottom:40px;
   display:grid;
   grid-template-columns:1.1fr .9fr;
-  grid-template-areas:"question question" "eyebrow photo" "text photo";
+  grid-template-areas:"question photo" "eyebrow photo" "text photo";
   column-gap:56px;row-gap:10px;
   align-items:start;
 }
