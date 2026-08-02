@@ -281,8 +281,8 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .oc-acts-row{display:flex;align-items:stretch;gap:8px;padding:10px 14px 14px;border-top:1px solid var(--brd);margin-top:2px}
 .oc-acts-row>.act-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px}
 .act-placeholder{visibility:hidden}
-.oc-acts-mini{display:flex;gap:6px;flex:1;min-width:0}
-.oc-acts-mini .act-btn-mini{flex:1}
+.oc-acts-mini{display:flex;gap:6px;flex:0 0 auto}
+.oc-acts-mini .act-btn-mini{flex:0 0 40px;width:40px}
 .act-btn{border:none;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:8px 13px;transition:background 0.15s,opacity 0.15s;white-space:nowrap}
 .act-btn i{font-size:16px;vertical-align:-2px}
 .act-btn-mini{padding:0;min-height:38px}
@@ -1189,7 +1189,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.6.3';
+const APP_VERSION='2.6.4';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
