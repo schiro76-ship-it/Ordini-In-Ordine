@@ -1189,7 +1189,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.6.8';
+const APP_VERSION='2.6.9';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -2166,7 +2166,16 @@ async function setStato(id,stato,skipItemReset){
   _updateCardColor(id,stato);
   if(_moves)_snapAndAnimate(id);const o=ords.find(x=>x.id===id);if(!o)return;o.stato=stato;if(stato==='ritirato')o.ritirato_il=new Date().toISOString();if(stato==='completato'&&!skipItemReset)o.items.forEach(function(it){it.done=true});if(stato==='evadere'&&!skipItemReset)o.items.forEach(function(it){it.done=false});renderOrdini(_moves);toast(stato==='completato'?'Completato':stato==='ritirato'?'Ritirato':'Riaperto','v');saveData();}
 function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+o.nome+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};openModal('modal-del-conf');}
-async function delOrd(id){ords=ords.filter(x=>x.id!==id);await saveData();renderOrdini();toast('Ordine eliminato','v');}
+async function delOrd(id){
+  const el=document.querySelector('#ordini-list [data-oid="'+id+'"]');
+  const finish=async()=>{ords=ords.filter(x=>x.id!==id);await saveData();renderOrdini();toast('Ordine eliminato','v');};
+  if(el){
+    el.style.transition='transform 0.3s ease, opacity 0.3s ease';
+    el.style.transform='translateX(60px)';
+    el.style.opacity='0';
+    setTimeout(finish,300);
+  } else { finish(); }
+}
 function openDet(id){const o=ords.find(x=>x.id===id);if(!o)return;renderDetModal(o);openModal('modal-det')}
 let detCatFilter='Tutti';
 function setDetCat(c,oid){detCatFilter=c;renderDetArtGrid(oid);}
