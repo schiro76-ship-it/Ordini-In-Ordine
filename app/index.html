@@ -1189,7 +1189,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.6.7';
+const APP_VERSION='2.6.8';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -2119,7 +2119,7 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     const a=arts.find(x=>x.id===v.artId);
     const nome=a?a.nome:'?';
     const righeDaFare={};
-    v.ordini.filter(x=>!x.done).forEach(x=>{const um=x.um||'';if(!righeDaFare[um])righeDaFare[um]=0;righeDaFare[um]+=(parseFloat(x.qty)||1);});
+    v.ordini.filter(x=>!x.done&&(rpDayFilter===null||!x.ordine.data||x.ordine.data<=rpDayFilter)).forEach(x=>{const um=x.um||'';if(!righeDaFare[um])righeDaFare[um]=0;righeDaFare[um]+=(parseFloat(x.qty)||1);});
     const tuttiDone=v.ordini.every(x=>x.done);
     const _rpCol=v.urgente?'var(--urg)':tuttiDone?'var(--g)':'var(--ev)';
     const qStr=Object.entries(righeDaFare).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span style="white-space:nowrap"><span class="rp-qty" style="color:${_rpCol}">${q}</span><span class="rp-um" style="color:${_rpCol}">${um?' '+um:''}</span></span>`;}).join(' <span style="color:var(--sub)">+</span> ');
