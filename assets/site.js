@@ -1,8 +1,9 @@
 // OrdinInOrdine — sito marketing — lightbox screenshot
-// Ingrandisce al click gli screenshot desktop (.app-shot .shot-desktop).
-// Su smartphone non serve: .shot-mobile è già a schermo quasi intero e
-// .shot-desktop è nascosta sotto gli 800px (vedi site.css), quindi il
-// listener non trova nulla su cui agganciarsi in quel contesto.
+// Al click su uno screenshot desktop, mostra TUTTI gli screenshot desktop
+// della pagina insieme, affiancati (Ordini + Riepilogo hanno senso solo
+// visti uno accanto all'altro, per apprezzare l'aggregazione automatica).
+// Su smartphone non serve: .shot-desktop è nascosta sotto gli 800px
+// (vedi site.css), quindi il listener non trova nulla su cui agganciarsi.
 
 (function () {
   document.addEventListener('DOMContentLoaded', function () {
@@ -11,17 +12,27 @@
 
     var overlay = document.createElement('div');
     overlay.className = 'lightbox-overlay';
-    overlay.innerHTML =
-      '<button class="lightbox-close" type="button" aria-label="Chiudi">&times;</button>' +
-      '<img src="" alt="">';
+
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'lightbox-close';
+    closeBtn.setAttribute('aria-label', 'Chiudi');
+    closeBtn.innerHTML = '&times;';
+    overlay.appendChild(closeBtn);
+
+    var imagesWrap = document.createElement('div');
+    imagesWrap.className = 'lightbox-images';
+    shots.forEach(function (img) {
+      var clone = document.createElement('img');
+      clone.src = img.currentSrc || img.src;
+      clone.alt = img.alt || '';
+      imagesWrap.appendChild(clone);
+    });
+    overlay.appendChild(imagesWrap);
+
     document.body.appendChild(overlay);
 
-    var overlayImg = overlay.querySelector('img');
-    var closeBtn = overlay.querySelector('.lightbox-close');
-
-    function openLightbox(src, alt) {
-      overlayImg.src = src;
-      overlayImg.alt = alt || '';
+    function openLightbox() {
       overlay.classList.add('active');
     }
 
@@ -30,9 +41,7 @@
     }
 
     shots.forEach(function (img) {
-      img.addEventListener('click', function () {
-        openLightbox(img.currentSrc || img.src, img.alt);
-      });
+      img.addEventListener('click', openLightbox);
     });
 
     overlay.addEventListener('click', function (e) {

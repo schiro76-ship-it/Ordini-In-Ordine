@@ -131,8 +131,12 @@ img{max-width:100%;display:block}
   z-index:1000;padding:40px;
 }
 .lightbox-overlay.active{display:flex}
-.lightbox-overlay img{
-  max-width:90vw;max-height:85vh;
+.lightbox-images{
+  display:flex;gap:28px;align-items:flex-start;justify-content:center;
+  flex-wrap:wrap;max-width:100%;
+}
+.lightbox-images img{
+  max-width:min(44vw,520px);max-height:85vh;
   border-radius:var(--radius);
   box-shadow:0 30px 60px -20px rgba(0,0,0,.5);
   cursor:default;
