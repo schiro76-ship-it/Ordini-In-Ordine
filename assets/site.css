@@ -120,6 +120,9 @@ img{max-width:100%;display:block}
   .hero-shot{max-width:340px}
 }
 
+/* Due screenshot impilati in verticale nello slot hero (pagine attività: Ordini sopra, Riepilogo sotto) */
+.hero-shot-stack{display:flex;flex-direction:column;gap:16px}
+
 /* Doppio screenshot Ordini + Riepilogo, sempre omologo per dispositivo */
 .app-shots-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:8px}
 @media (max-width:800px){
