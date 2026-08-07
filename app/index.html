@@ -630,10 +630,13 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div style="text-align:center;padding:24px 0 20px">
       <div style="font-size:19px;font-weight:800;color:#1A1A2E">Ecco come funziona OrdinInOrdine</div>
     </div>
+    <div id="ob-attivita-corrente" style="display:none;text-align:center;margin-top:-14px;margin-bottom:20px">
+      <span style="font-size:13px;font-weight:700;color:#6B7280">Attività: <b id="ob-attivita-corrente-nome" style="color:#1A1A2E"></b> · <span onclick="obTornaScelta()" style="color:var(--azione);font-weight:800;text-decoration:underline;cursor:pointer">cambia</span></span>
+    </div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:32px">
       <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
         <span style="font-size:22px;color:#6B7280;flex-shrink:0;margin-top:1px"><i class="ti ti-clipboard-list"></i></span>
-        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Ordini</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Registra gli ordini dei tuoi clienti con articoli, note e data di ritiro. Stampa le etichette e tieni tutto in ordine</div></div>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Ordini</div><div id="ob-info-ordini-desc" style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Registra gli ordini dei tuoi clienti con articoli, note e data di ritiro. Stampa le etichette e tieni tutto in ordine</div></div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
         <span style="font-size:22px;color:#6B7280;flex-shrink:0;margin-top:1px"><i class="ti ti-chart-bar"></i></span>
@@ -748,7 +751,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="pbody">
           <div class="card card-sticky-host" style="margin-bottom:20px">
             <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
-              <div class="ct"><i class="ti ti-history"></i> Storico articoli</div>
+              <div class="ct"><i class="ti ti-history"></i> <span id="lbl-storico-articoli">Storico articoli</span></div>
               <span id="storico-articoli-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
             <div class="cb" id="storico-articoli-fields" style="display:none">
@@ -839,7 +842,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card" style="margin-bottom:14px">
-            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Aggiungi articoli</div><button class="btn-outline-r" onclick="openQArt()"><i class="ti ti-plus"></i> Nuovo</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> <span id="lbl-aggiungi-articoli">Aggiungi articoli</span></div><button class="btn-outline-r" onclick="openQArt()"><i class="ti ti-plus"></i> Nuovo</button></div>
             <div class="cb" style="padding-bottom:8px">
               <div class="cp" id="pills" style="margin-bottom:8px"></div>
               <div class="sbox" style="margin-bottom:6px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="can" placeholder="Cerca articolo…" oninput="renderArtS()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
@@ -861,7 +864,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cb"><div class="um-list" id="cat-display"></div></div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> Articoli</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderArtM();resetArtNuovo();openModal('modal-articoli')"><i class="ti ti-pencil"></i> Gestisci</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> <span id="lbl-articoli-settings">Articoli</span></div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderArtM();resetArtNuovo();openModal('modal-articoli')"><i class="ti ti-pencil"></i> Gestisci</button></div>
             <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Catalogo: <span id="acb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
           </div>
           <div class="card">
@@ -869,7 +872,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cb"><div class="um-list" id="um-display"></div></div>
           </div>
           <div class="card">
-            <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-database"></i> Dati</div><div style="font-size:13px;color:var(--sub);font-weight:600">Crea una copia di sicurezza di tutti i tuoi ordini e articoli, e ripristinala quando vuoi.</div></div>
+            <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-database"></i> Dati</div><div id="lbl-dati-desc" style="font-size:13px;color:var(--sub);font-weight:600">Crea una copia di sicurezza di tutti i tuoi ordini e articoli, e ripristinala quando vuoi.</div></div>
             <div class="cb" style="display:flex;flex-direction:column;gap:10px">
               <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="esportaDati()"><span style="font-size:20px"><i class="ti ti-upload"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Salva una copia</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Scarica un file con tutti i tuoi dati</div></div></button>
               <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="document.getElementById('import-file').click()"><span style="font-size:20px"><i class="ti ti-download"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Ripristina da una copia</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Carica un file salvato in precedenza</div></div></button>
@@ -989,7 +992,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 
 <div class="ov" id="modal-articoli">
   <div class="modal" style="display:flex;flex-direction:column;overflow-y:hidden">
-    <div class="mta"><i class="ti ti-folder"></i> Catalogo articoli</div>
+    <div class="mta"><i class="ti ti-folder"></i> <span id="modal-articoli-titolo">Catalogo articoli</span></div>
     <div style="overflow-y:auto;flex:1;min-height:0">
       <div onclick="toggleArtNuovo()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0 14px;user-select:none">
         <span style="font-size:16px;font-weight:900;color:var(--txt)">Nuovo</span>
@@ -1002,7 +1005,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <select class="fi" id="ac2" onchange="onCatChange(this)"><option value="">— Nessuna —</option></select>
           <div id="nuova-cat-wrap" style="display:none;margin-top:8px"><input class="fi" type="text" id="nuova-cat-input" placeholder="Nome nuova categoria…"></div>
         </div>
-        <button class="btn br btn-full" onclick="addArt()">+ Aggiungi articolo</button>
+        <button class="btn br btn-full" onclick="addArt()"><span id="btn-addart-label">+ Aggiungi articolo</span></button>
       </div>
       <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0;padding-bottom:6px;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)"><span id="acb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
@@ -1013,7 +1016,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 </div>
 <div class="ov" id="modal-edit-art">
   <div class="modal" style="max-width:440px">
-    <div class="mta"><i class="ti ti-pencil"></i> Modifica articolo</div>
+    <div class="mta"><i class="ti ti-pencil"></i> <span id="modal-edit-art-titolo">Modifica articolo</span></div>
     <input type="hidden" id="edit-art-id">
     <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="edit-art-nome" placeholder="Nome articolo"></div>
     <div class="fg">
@@ -1084,7 +1087,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 </div>
 <div class="ov" id="modal-qart">
   <div class="modal-qart-inner">
-    <div class="mta"><i class="ti ti-plus"></i> Nuovo articolo</div>
+    <div class="mta"><i class="ti ti-plus"></i> <span id="modal-qart-titolo">Nuovo articolo</span></div>
     <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="qan" placeholder="Es. Nome articolo"></div>
     <div class="fg">
       <label class="fl">Categoria</label>
@@ -1166,8 +1169,42 @@ const ATTIVITA_TYPES=[
   {id:'altro',label:'Altro',emoji:'<i class="ti ti-package"></i>',cats:['Categoria 1','Categoria 2','Varie'],arts:[],um:['kg','g','fette','pezzi','vaschette','bustine']},
 ];
 function getAttivitaById(id){return ATTIVITA_TYPES.find(a=>a.id===id)||ATTIVITA_TYPES[ATTIVITA_TYPES.length-1];}
+// Mappa lo slug usato nelle pagine del sito marketing (es. articoli-regalo.html) all'id interno di ATTIVITA_TYPES,
+// dove i due non coincidono (negozio_regalo, pastificio). Usata dal link "?attivita=" per saltare lo step di scelta.
+const SLUG_ATTIVITA_MAP={macelleria:'macelleria',pescheria:'pescheria',pasticceria:'pasticceria',panificio:'panificio',gastronomia:'gastronomia',salumeria:'salumeria',caseificio:'caseificio',enoteca:'enoteca',cioccolateria:'cioccolateria',conserve:'conserve','pasta-fresca':'pastificio',fruttivendolo:'fruttivendolo',fioraio:'fioraio',erboristeria:'erboristeria','articoli-regalo':'negozio_regalo',ceramica:'ceramica',lavanderia:'lavanderia'};
+function getAttivitaSlugFromURL(){
+  try{
+    const params=new URLSearchParams(window.location.search);
+    const raw=(params.get('attivita')||'').toLowerCase().trim();
+    if(!raw)return null;
+    const id=SLUG_ATTIVITA_MAP[raw];
+    if(id&&ATTIVITA_TYPES.some(a=>a.id===id))return id;
+  }catch(e){}
+  return null;
+}
 const DEFAULT_THEME={r:'#C0392B',rs:'#F9EDED',g:'#1E8A6E',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'};
 let obSelectedAttivita=null;
+let _tipoAttivitaCorrente=null;
+function _isLavanderia(){return (_tipoAttivitaCorrente||obSelectedAttivita)==='lavanderia';}
+function lblArt(plurale,maiuscola){const w=_isLavanderia()?(plurale?'servizi':'servizio'):(plurale?'articoli':'articolo');return maiuscola?(w.charAt(0).toUpperCase()+w.slice(1)):w;}
+function applicaLabelArticoli(){
+  const el1=document.getElementById('ob-info-ordini-desc');if(el1)el1.textContent='Registra gli ordini dei tuoi clienti con '+lblArt(true)+', note e data di ritiro. Stampa le etichette e tieni tutto in ordine';
+  const co=document.getElementById('co');if(co)co.placeholder='Cerca per nome, numero, '+lblArt(false)+'…';
+  const rc=document.getElementById('riepilogo-cerca');if(rc)rc.placeholder='Cerca '+lblArt(false)+'…';
+  const lsa=document.getElementById('lbl-storico-articoli');if(lsa)lsa.textContent='Storico '+lblArt(true);
+  const sac=document.getElementById('st-art-cerca');if(sac)sac.placeholder='Cerca '+lblArt(false)+'…';
+  const laa=document.getElementById('lbl-aggiungi-articoli');if(laa)laa.textContent='Aggiungi '+lblArt(true);
+  const can=document.getElementById('can');if(can)can.placeholder='Cerca '+lblArt(false)+'…';
+  const las=document.getElementById('lbl-articoli-settings');if(las)las.textContent=lblArt(true,true);
+  const ldd=document.getElementById('lbl-dati-desc');if(ldd)ldd.textContent='Crea una copia di sicurezza di tutti i tuoi ordini e '+lblArt(true)+', e ripristinala quando vuoi.';
+  const mat=document.getElementById('modal-articoli-titolo');if(mat)mat.textContent='Catalogo '+lblArt(true);
+  const an=document.getElementById('an');if(an)an.placeholder='Es. Nome '+lblArt(false);
+  const bal=document.getElementById('btn-addart-label');if(bal)bal.textContent='+ Aggiungi '+lblArt(false);
+  const meat=document.getElementById('modal-edit-art-titolo');if(meat)meat.textContent='Modifica '+lblArt(false);
+  const ean=document.getElementById('edit-art-nome');if(ean)ean.placeholder='Nome '+lblArt(false,true);
+  const mqat=document.getElementById('modal-qart-titolo');if(mqat)mqat.textContent='Nuovo '+lblArt(false);
+  const qan=document.getElementById('qan');if(qan)qan.placeholder='Es. Nome '+lblArt(false);
+}
 function showOnboarding(){obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.display='flex';el.style.zIndex='99999';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}
 function renderObAttivita(){const grid=document.getElementById('ob-attivita-grid');if(!grid||!ATTIVITA_TYPES)return;grid.innerHTML='';ATTIVITA_TYPES.forEach(function(a){const sel=(obSelectedAttivita&&obSelectedAttivita===a.id)?' selected':'';const div=document.createElement('div');div.className='ob-card'+sel;div.innerHTML='<div class="ob-emoji">'+a.emoji+'</div><div class="ob-label">'+a.label+'</div>';div.onclick=function(){selectAttivita(a.id);};grid.appendChild(div);});}
 function selectAttivita(id){obSelectedAttivita=id;renderObAttivita();const btn=document.getElementById('ob-btn1');if(btn){btn.disabled=false;btn.style.opacity='1';}}
@@ -1175,25 +1212,37 @@ function obNext(){
   if(!obSelectedAttivita)return;
   document.getElementById('ob-step1').style.display='none';
   document.getElementById('ob-step2').style.display='flex';
+  applicaLabelArticoli();
   const obVerifyEl=document.getElementById('ob-verify-email');
   if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';
+}
+// Richiamata dal chip "Attività: X · cambia" nello step 2 — copre il caso di chi è atterrato
+// per errore sulla pagina marketing sbagliata (link ?attivita= sbagliato) e se ne accorge
+// solo in questo passaggio. Torna allo step 1 con la griglia di scelta, senza toccare account/dati
+// (siamo ancora prima di obConfirm, quindi nessun rischio equivalente al bug "Cambia tipo attività").
+function obTornaScelta(){
+  const chip=document.getElementById('ob-attivita-corrente');
+  if(chip)chip.style.display='none';
+  document.getElementById('ob-step2').style.display='none';
+  document.getElementById('ob-step1').style.display='flex';
+  renderObAttivita();
 }
 
 
 
-async function obConfirm(){if(!obSelectedAttivita)return;const attivita=getAttivitaById(obSelectedAttivita);const defaultTheme=getAttivitaById('macelleria');cats=[...attivita.cats];arts=attivita.arts.map((a,i)=>({id:i+1,...a}));unitaMisura=[...(attivita.um||DEFAULT_UM)];ords=[];await saveData();if(currentUser){await db.collection('profili').doc(currentUser.uid).set({attivita:currentUser.displayName||'',email:currentUser.email,tipoAttivita:obSelectedAttivita,tema:'macelleria',onboardingCompleto:true,creato:new Date().toISOString()},{merge:true});}applyTheme(DEFAULT_THEME);document.getElementById('onboarding-screen').style.display='none';refreshAll();toast('Benvenuto!','v');}
+async function obConfirm(){if(!obSelectedAttivita)return;const attivita=getAttivitaById(obSelectedAttivita);const defaultTheme=getAttivitaById('macelleria');cats=[...attivita.cats];arts=attivita.arts.map((a,i)=>({id:i+1,...a}));unitaMisura=[...(attivita.um||DEFAULT_UM)];ords=[];await saveData();if(currentUser){await db.collection('profili').doc(currentUser.uid).set({attivita:currentUser.displayName||'',email:currentUser.email,tipoAttivita:obSelectedAttivita,tema:'macelleria',onboardingCompleto:true,creato:new Date().toISOString()},{merge:true});}_tipoAttivitaCorrente=obSelectedAttivita;applicaLabelArticoli();applyTheme(DEFAULT_THEME);document.getElementById('onboarding-screen').style.display='none';refreshAll();toast('Benvenuto!','v');}
 function applyTheme(theme){const root=document.documentElement;root.style.setProperty('--r',theme.r);root.style.setProperty('--rs',theme.rs);root.style.setProperty('--g',theme.g);root.style.setProperty('--gs',theme.gs);root.style.setProperty('--bg',theme.bg);const sb=document.querySelector('.sidebar');if(sb)sb.style.background=theme.sb;const ext=document.getElementById('sidebar-extender');if(ext)ext.style.background=theme.sb;const cover=document.getElementById('status-bar-cover');if(cover)cover.style.background=theme.sb;}
 
-async function checkOnboarding(){if(!currentUser)return;try{const snap=await db.collection('profili').doc(currentUser.uid).get();if(snap.exists&&snap.data().onboardingCompleto){applyTheme(DEFAULT_THEME);}else{showOnboarding();}}catch(e){console.warn('checkOnboarding: verifica non riuscita (probabile problema di rete), onboarding NON mostrato per sicurezza',e);}}
+async function checkOnboarding(){if(!currentUser)return;try{const snap=await db.collection('profili').doc(currentUser.uid).get();if(snap.exists&&snap.data().onboardingCompleto){_tipoAttivitaCorrente=snap.data().tipoAttivita||null;applicaLabelArticoli();applyTheme(DEFAULT_THEME);refreshAll();}else{showOnboarding();}}catch(e){console.warn('checkOnboarding: verifica non riuscita (probabile problema di rete), onboarding NON mostrato per sicurezza',e);}}
 function resetOnboarding(){if(!currentUser)return;document.getElementById('modal-del-txt').textContent='Cambiare tipo di attività?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');confermaResetOnboarding();};openModal('modal-del-conf');}
-async function confermaResetOnboarding(){if(!currentUser)return;await db.collection('profili').doc(currentUser.uid).set({onboardingCompleto:false},{merge:true});obSelectedAttivita=null;showOnboarding();toast('Scegli il tipo di attività','v');}
+async function confermaResetOnboarding(){if(!currentUser)return;await db.collection('profili').doc(currentUser.uid).set({onboardingCompleto:false},{merge:true});obSelectedAttivita=null;_tipoAttivitaCorrente=null;showOnboarding();toast('Scegli il tipo di attività','v');}
 
 const firebaseConfig={apiKey:"AIzaSyByjm6Hcp-4VhousgnJC5Jhf_oiQZLIrHo",authDomain:"ordini-in-ordine-f4966.firebaseapp.com",projectId:"ordini-in-ordine-f4966",storageBucket:"ordini-in-ordine-f4966.firebasestorage.app",messagingSenderId:"621333481193",appId:"1:621333481193:web:332edbad10053665239278"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.6.9';
+const APP_VERSION='2.7.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1386,7 +1435,7 @@ function mostraDispositivoRimosso(){
 let _unsubDatiListener=null;
 let _deviceVistoPresente=false;
 let _timerBloccoDispositivo=null;
-async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
   try{
     if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
@@ -1528,7 +1577,7 @@ function isUrgente(o){if(!o.data||o.stato!=='evadere')return false;return o.data
 function priScore(o){if(!o.data)return Number.MAX_SAFE_INTEGER;const base=new Date(o.data+'T00:00:00').getTime();if(o.ora){const parts=o.ora.split(':');return base+(parseInt(parts[0])||0)*3600000+(parseInt(parts[1])||0)*60000;}return base+(o.turno==='pomeriggio'?43200000:0);}
 function isRitiratoVecchio(o){if(o.stato!=='ritirato')return false;const ref=o.ritirato_il||o.creato;if(!ref)return false;return(Date.now()-new Date(ref).getTime())>24*60*60*1000;}
 function buildOcHTML(lista){
-  if(!lista.length)return`<div class="empty"><div class="ei"><i class="ti ti-clipboard-list"></i></div><p>Nessun ordine trovato.</p>${ords.length===0?'<p style="font-size:14px;color:var(--sub);font-weight:600;margin-top:12px;line-height:1.6">Trovi già alcuni articoli preimpostati di esempio.<br>Puoi aggiungerne altri da <b>Impostazioni → Articoli</b><br>o direttamente quando crei un nuovo ordine.</p>':''}</div>`;
+  if(!lista.length)return`<div class="empty"><div class="ei"><i class="ti ti-clipboard-list"></i></div><p>Nessun ordine trovato.</p>${ords.length===0?'<p style="font-size:14px;color:var(--sub);font-weight:600;margin-top:12px;line-height:1.6">Trovi già alcuni '+lblArt(true)+' preimpostati di esempio.<br>Puoi aggiungerne altri da <b>Impostazioni → '+lblArt(true,true)+'</b><br>o direttamente quando crei un nuovo ordine.</p>':''}</div>`;
   return lista.map(o=>{
     const urg=isUrgente(o);
     const nc={evadere:urg?'urg':'ev',completato:'co',ritirato:'ri'}[o.stato];
@@ -1850,7 +1899,7 @@ function renderStoricoRiepilogo(){
     if(!ordsF.length){el.innerHTML='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun ordine ritirato nel periodo selezionato.</p>';}
     else{
       let html=`<p style="font-size:13px;color:var(--sub);font-weight:700;margin-bottom:10px">${ordsF.length} ordini ritirati nel periodo</p>`;
-      if(!filtrate.length){html+='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun articolo trovato.</p>';}
+      if(!filtrate.length){html+='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun '+lblArt(false)+' trovato.</p>';}
       else{html+=filtrate.map(v=>{const qStr=Object.entries(v.ums).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span class="rp-qty" style="color:var(--azione)">${q}</span><span class="rp-um" style="color:var(--azione)">${um?' '+um:''}</span>`;}).join('<span style="color:var(--sub);margin:0 3px">+</span>');return`<div class="rp-row" style="flex-wrap:wrap;row-gap:2px"><div class="rp-art" style="white-space:normal;padding:14px 0;flex-shrink:1;min-width:0">${v.nome}${v.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${v.cat}</span>`:''}</div><div style="margin-left:auto;flex-shrink:0;display:flex;align-items:baseline;gap:6px;white-space:nowrap"><span>${qStr}</span><span style="font-size:12px;color:var(--sub);font-weight:700">${v.nOrdini} ordini</span></div></div>`;}).join('');}
       el.innerHTML=html;
     }
@@ -1899,7 +1948,7 @@ function renderStoricoRiepilogo(){
       </div>
       <div style="position:relative;margin-bottom:8px">
         <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:17px"><i class="ti ti-search"></i></span>
-        <input type="text" id="st-det-cerca" value="${_stDetCerca}" placeholder="Cerca per nome, numero, articolo…" oninput="_stDetCerca=this.value;renderStoricoRiepilogo()" style="width:100%;padding:10px 14px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none">
+        <input type="text" id="st-det-cerca" value="${_stDetCerca}" placeholder="Cerca per nome, numero, ${lblArt(false)}…" oninput="_stDetCerca=this.value;renderStoricoRiepilogo()" style="width:100%;padding:10px 14px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none">
       </div>
       <div class="cp">${stDetPills}</div>
     </div>`;
@@ -2261,15 +2310,15 @@ function renderDetModal(o){
     </div>
     <div style="margin-bottom:14px;border-bottom:1px solid var(--brd);padding-bottom:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase">Aggiungi articolo</span>
+        <span style="font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase">Aggiungi ${lblArt(false)}</span>
         <button class="btn-outline-r" onclick="openDetQArt(${o.id})"><i class="ti ti-plus"></i> Nuovo</button>
       </div>
       <div class="cp" id="det-cat-pills" style="margin-bottom:8px"></div>
-      <div class="sbox" style="margin-bottom:8px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="det-search-art" placeholder="Cerca articolo…" style="width:100%;padding:9px 13px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id})"></div>
+      <div class="sbox" style="margin-bottom:8px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="det-search-art" placeholder="Cerca ${lblArt(false)}…" style="width:100%;padding:9px 13px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id})"></div>
       <div id="det-art-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;max-height:180px;overflow-y:auto"></div>
     </div>
-    <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:14px;margin-bottom:8px">Nessun articolo.</p>'}</div>
-    <div style="font-size:12px;font-weight:800;color:var(--sub);text-transform:uppercase;margin-top:8px;margin-bottom:4px">Articoli <span style="background:var(--bg);border-radius:10px;padding:1px 7px;color:var(--txt)">${(o.items||[]).length}</span></div>
+    <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:14px;margin-bottom:8px">Nessun '+lblArt(false)+'.</p>'}</div>
+    <div style="font-size:12px;font-weight:800;color:var(--sub);text-transform:uppercase;margin-top:8px;margin-bottom:4px">${lblArt(true,true)} <span style="background:var(--bg);border-radius:10px;padding:1px 7px;color:var(--txt)">${(o.items||[]).length}</span></div>
     <div style="display:flex;gap:7px;margin-top:14px;border-top:1px solid var(--brd);padding-top:12px;flex-wrap:wrap">
       ${o.stato!=='evadere'?`<button class="btn modal-act-del" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'evadere')">Da evadere</button>`:''}
       ${o.stato!=='completato'?`<button class="btn modal-act-green" style="flex:1;min-width:90px;font-size:13px;padding:9px" onclick="setStatoD(${o.id},'completato')">Completato</button>`:''}
@@ -2517,7 +2566,7 @@ function detFocusCerca(oid){
 function confDelItem(oid,idx){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const a=arts.find(x=>x.id===(o.items[idx]||{}).artId);
-  document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:'articolo')+'" dall\'ordine?';
+  document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:lblArt(false))+'" dall\'ordine?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delItemFromOrd(oid,idx);};
   openModal('modal-del-conf');
 }
@@ -2529,7 +2578,7 @@ function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getE
 function getCats(){return['Tutti',...cats.sort()]}
 function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" onclick="setC('${c}')">${c}</span>`).join('')}
 function setC(c){catS=c;renderPills();renderArtS()}
-function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c))).sort((a,b)=>a.nome.localeCompare(b.nome));agrid.innerHTML=l.length?l.map(a=>{const s=sel.find(x=>x.id===a.id);return`<button class="ac ${s?'sel':''}" onclick="togArt(${a.id})">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}${s?'<span style="position:absolute;bottom:5px;right:7px;font-size:13px;color:var(--azione);font-weight:900"><i class="ti ti-check"></i></span>':''}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun articolo trovato.</p>';}
+function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c))).sort((a,b)=>a.nome.localeCompare(b.nome));agrid.innerHTML=l.length?l.map(a=>{const s=sel.find(x=>x.id===a.id);return`<button class="ac ${s?'sel':''}" onclick="togArt(${a.id})">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}${s?'<span style="position:absolute;bottom:5px;right:7px;font-size:13px;color:var(--azione);font-weight:900"><i class="ti ti-check"></i></span>':''}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun '+lblArt(false)+' trovato.</p>';}
 function tornaRicerca(){
   const can=document.getElementById('can');
   if(can){can.value='';can.focus();}
@@ -2538,7 +2587,7 @@ function tornaRicerca(){
 }
 function confRimArt(id){
   const a=arts.find(x=>x.id===id);
-  document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:'articolo')+'" dall\'ordine?';
+  document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:lblArt(false))+'" dall\'ordine?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');togArt(id);};
   openModal('modal-del-conf');
 }
@@ -2613,11 +2662,11 @@ function rimuoviImgSel(id){
   delete s.imgBlob;delete s.imgPreviewUrl;delete s.itemId;
   renderSP();
 }
-function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent='Articoli '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
+function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent=lblArt(true,true)+' '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
   const umPills=unitaMisura.map(u=>`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi foto</button></div>`:`<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px"><i class="ti ti-camera"></i> Immagine<input type="file" accept="image/*" style="display:none" onchange="onPickImgSel(${s.id},this)"></label>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.1" min="0.1" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
-async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un articolo!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:'articolo';if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
+async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
   // Caricamento foto in background: l'ordine è già salvato, l'utente non deve aspettare l'upload
   const _daCaricare=_selSnapshot.filter(s=>s.imgBlob);
   if(_daCaricare.length){
@@ -2634,10 +2683,10 @@ async function salvaOrdine(){const nome=document.getElementById('nn').value.trim
     renderOrdini();
   }
 }
-function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo articolo dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun articolo.</p></div>';}
+function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||a.nome.toLowerCase().includes(c)||(a.cat||'').toLowerCase().includes(c)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo '+lblArt(false)+' dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun '+lblArt(false)+'.</p></div>';}
 function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';openModal('modal-edit-art');}
 async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato','v');}
-async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;const ni=document.getElementById('nuova-cat-input');if(s.value==='__nuova__'&&ni&&ni.value.trim())c=ni.value.trim();if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}if(articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' articoli del piano gratuito','err');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});articoliCreatiTotale++;
+async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;const ni=document.getElementById('nuova-cat-input');if(s.value==='__nuova__'&&ni&&ni.value.trim())c=ni.value.trim();if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}if(articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' '+lblArt(true)+' del piano gratuito','err');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});articoliCreatiTotale++;
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
   if(detQArtOid){await addItemToOrd(detQArtOid,id);detQArtOid=null;}
   else{sel.push({id:id,qty:'',um:'',nota:'',done:false});catS='Tutti';renderPills();renderArtS();renderSP();}
@@ -2651,7 +2700,7 @@ function renderUMDisplay(){document.getElementById('um-display').innerHTML=unita
 function renderUMModal(){document.getElementById('um-modal-list').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')"><i class="ti ti-x"></i></span></span>`).join('')}
 async function addUM(){const v=document.getElementById('um-new').value.trim().toLowerCase();if(!v||unitaMisura.includes(v)){toast(v?'Già presente!':'Inserisci nome!','err');return}unitaMisura.push(v);document.getElementById('um-new').value='';await saveData();renderUMDisplay();renderUMModal();toast('"'+v+'" aggiunto','v');}
 async function delUM(u){if(unitaMisura.length<=1){toast('Almeno una unità di misura!','err');return}unitaMisura=unitaMisura.filter(x=>x!==u);await saveData();renderUMDisplay();renderUMModal();toast('Rimosso','v');}
-function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} articoli</span><button class="ibtn" onclick="rinominaCat('${c}')"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questa categoria?'))delCat('${c}')"><i class="ti ti-trash"></i></button></div>`).join('');}
+function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} ${lblArt(true)}</span><button class="ibtn" onclick="rinominaCat('${c}')"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questa categoria?'))delCat('${c}')"><i class="ti ti-trash"></i></button></div>`).join('');}
 async function delCat(nome){cats=cats.filter(x=>x!==nome);arts.forEach(function(a){if(a.cat===nome)a.cat=''});await saveData();refreshAll();renderCatList();toast('Categoria eliminata','v');}
 async function addCatVolo(){const v=document.getElementById('cat-new').value.trim();if(!v){toast('Inserisci nome!','err');return}if(cats.includes(v)){toast('Già presente!','err');return}cats.push(v);cats.sort();await saveData();document.getElementById('cat-new').value='';refreshAll();renderCatList();toast('"'+v+'" aggiunta','v');}
 async function rinominaCat(nome){const v=(prompt('Nuovo nome per la categoria:',nome)||'').trim();if(!v||v===nome)return;if(cats.includes(v)){toast('Già presente!','err');return}cats=cats.map(c=>c===nome?v:c);cats.sort();arts.forEach(function(a){if(a.cat===nome)a.cat=v});await saveData();refreshAll();renderCatList();toast('Categoria rinominata','v');}
@@ -2667,7 +2716,7 @@ async function addArtRapido(){
   const qi=document.getElementById('qnuova-cat-input');if(qs.value==='__qnuova__'&&qi&&qi.value.trim())c=qi.value.trim();
   if(!n){toast('Inserisci il nome!','err');return}
   if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}
-  if(articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' articoli del piano gratuito','err');return}
+  if(articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' '+lblArt(true)+' del piano gratuito','err');return}
   const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
   arts.push({id:id,nome:n,cat:c});
@@ -3143,7 +3192,7 @@ function importaDati(input){const file=input.files[0];if(!file)return;const read
   if(typeof d.ordiniCreatiTotale==='number')ordiniCreatiTotale=d.ordiniCreatiTotale;
   if(typeof d.articoliCreatiTotale==='number')articoliCreatiTotale=d.articoliCreatiTotale;
   if(d.ordiniPerMese&&typeof d.ordiniPerMese==='object')ordiniPerMese=d.ordiniPerMese;
-  await saveData();refreshAll();toast('Importati '+ords.length+' ordini e '+arts.length+' articoli','v');}catch(err){toast('Errore nel file!','err')}};reader.readAsText(file);input.value='';}
+  await saveData();refreshAll();toast('Importati '+ords.length+' ordini e '+arts.length+' '+lblArt(true),'v');}catch(err){toast('Errore nel file!','err')}};reader.readAsText(file);input.value='';}
 function toast(m,t){var e=document.getElementById('toast');var icona=t==='v'?'<i class="ti ti-circle-check" style="margin-right:6px;vertical-align:-2px"></i>':t==='err'?'<i class="ti ti-alert-triangle" style="margin-right:6px;vertical-align:-2px"></i>':'';e.innerHTML=icona+m;e.className='show'+(t?' '+t:'');clearTimeout(e._t);e._t=setTimeout(function(){e.className=''},2700)}
 
 function _disegnaEtichetta(o,artIdEvidenziato){
