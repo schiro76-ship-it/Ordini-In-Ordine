@@ -1242,7 +1242,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.7.0';
+const APP_VERSION='2.7.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3221,11 +3221,18 @@ function _disegnaEtichetta(o,artIdEvidenziato){
     if(isEv){
       const maxN=W-pad*2-16;
       const nR=misuraRigheTmp(a.nome,'900 48px sans-serif',maxN);
-      yTmp+=nR*60+56+16+10;
+      let notaH=0;
+      if(it.nota){const nNota=misuraRigheTmp(it.nota,'italic 600 30px sans-serif',maxN);notaH=nNota*34+18;}
+      yTmp+=nR*60+56+16+notaH+10;
     } else {
+      const secRidotto=!!artIdEvidenziato;
+      const font=secRidotto?'500 29px sans-serif':'500 34px sans-serif';
+      const lineH=secRidotto?36:42;
       const maxN=W-pad*2-100;
-      const nR=misuraRigheTmp(a.nome,'500 34px sans-serif',maxN);
-      yTmp+=nR*42+18;
+      const nR=misuraRigheTmp(a.nome,font,maxN);
+      let notaBlockH=0;
+      if(it.nota){const nNota=misuraRigheTmp(it.nota,'italic 500 24px sans-serif',W-pad*2);notaBlockH=nNota*28+8;}
+      yTmp+=nR*lineH+18+notaBlockH;
     }
   });
   if(o.note){
@@ -3294,22 +3301,40 @@ function _disegnaEtichetta(o,artIdEvidenziato){
     if(isEv){
       const maxN=W-pad*2-16;
       const nR=misuraRighe(a.nome,'900 48px sans-serif',maxN);
-      const boxH=nR*60+56+16;
-      ctx.fillStyle='#FEF3E2';ctx.fillRect(pad-6,y-4,W-pad*2+12,boxH);
+      let nNota=0;
+      if(it.nota)nNota=misuraRighe(it.nota,'italic 600 30px sans-serif',maxN);
+      const notaH=it.nota?(nNota*34+18):0;
+      const boxH=nR*60+56+16+notaH;
       ctx.strokeStyle='#256BC1';ctx.lineWidth=3;ctx.strokeRect(pad-6,y-4,W-pad*2+12,boxH);
       scriviWrap(a.nome,'900 48px sans-serif','#256BC1',pad+8,y+48,maxN,60,'left');
       ctx.fillStyle='#256BC1';ctx.font='900 44px sans-serif';ctx.textAlign='right';
       ctx.fillText(qty,W-pad-8,y+nR*60+50);
-      ctx.textAlign='left';y+=boxH+10;
+      ctx.textAlign='left';
+      if(it.nota){
+        scriviWrap(it.nota,'italic 600 30px sans-serif','#5B6472',pad+8,y+nR*60+50+34,maxN,34,'left');
+      }
+      y+=boxH+10;
     } else {
+      const secRidotto=!!artIdEvidenziato;
+      const font=secRidotto?'500 29px sans-serif':'500 34px sans-serif';
+      const fontQty=secRidotto?'700 27px sans-serif':'700 32px sans-serif';
+      const lineH=secRidotto?36:42;
+      const baseOff=secRidotto?30:36;
       const maxN=W-pad*2-100;
-      const nR=misuraRighe(a.nome,'500 34px sans-serif',maxN);
-      scriviWrap(a.nome,'500 34px sans-serif','#333333',pad,y+36,maxN,42,'left');
-      ctx.fillStyle='#444444';ctx.font='700 32px sans-serif';ctx.textAlign='right';
-      ctx.fillText(qty,W-pad,y+36);ctx.textAlign='left';
+      const nR=misuraRighe(a.nome,font,maxN);
+      scriviWrap(a.nome,font,'#333333',pad,y+baseOff,maxN,lineH,'left');
+      ctx.fillStyle='#444444';ctx.font=fontQty;ctx.textAlign='right';
+      ctx.fillText(qty,W-pad,y+baseOff);ctx.textAlign='left';
+      let notaBlockH=0;
+      if(it.nota){
+        const notaFont='italic 500 24px sans-serif';
+        const nNota=misuraRighe(it.nota,notaFont,W-pad*2);
+        scriviWrap(it.nota,notaFont,'#8A93A3',pad,y+nR*lineH+baseOff-6,W-pad*2,28,'left');
+        notaBlockH=nNota*28+8;
+      }
       ctx.strokeStyle='#F0F0F0';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(pad,y+nR*42+10);ctx.lineTo(W-pad,y+nR*42+10);ctx.stroke();
-      y+=nR*42+18;
+      ctx.beginPath();ctx.moveTo(pad,y+nR*lineH+10+notaBlockH);ctx.lineTo(W-pad,y+nR*lineH+10+notaBlockH);ctx.stroke();
+      y+=nR*lineH+18+notaBlockH;
     }
   });
 
@@ -3332,7 +3357,7 @@ function _mostraCanvasNelModal(canvas){
   const el=document.getElementById('etichetta-content');if(!el)return;
   el.innerHTML=`<div style="text-align:center">
     <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
-    <button id="btn-condividi-etichetta" class="btn-condividi-print" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Condividi / Stampa</button>
+    <button id="btn-condividi-etichetta" class="btn-condividi-print" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
   </div>`;
   openModal('modal-etichetta');
   // Attach condividi dopo render
