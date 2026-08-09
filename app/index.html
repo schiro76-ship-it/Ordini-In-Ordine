@@ -173,6 +173,7 @@ body.portrait-phone .phdr input[type=number],body.portrait-phone .phdr span{colo
 body.portrait-phone #tab-ordini .empty .ei,body.portrait-phone #tab-riepilogo .empty .ei{color:rgba(255,255,255,0.6)}
 body:not(.portrait-phone) .phdr input[type=number]{color:var(--azione)!important}
 body:not(.portrait-phone) .phdr span{color:var(--azione)!important}
+body:not(.portrait-phone) .phdr-stampa span{color:#fff!important}
 body:not(.portrait-phone) #sel-count{color:var(--azione)!important}
 body.portrait-phone .phdr button:not(.phdr-invita):not(.phdr-stampa){background:var(--bg)!important;color:var(--sub)!important;border:1.5px solid var(--brd)!important}
 body.portrait-phone .phdr input[type=number]{border-bottom-color:#fff!important}
@@ -1045,7 +1046,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
   </div>
 </div>
-<div class="ov" id="modal-img-view" style="align-items:center;justify-content:center;padding:20px;z-index:210;background:rgba(0,0,0,0.85)">
+<div class="ov" id="modal-img-view" style="align-items:center;justify-content:center;padding:20px;z-index:600;background:rgba(0,0,0,0.85)">
   <div style="position:relative;max-width:100%;max-height:100%;display:flex;align-items:center;justify-content:center">
     <button onclick="closeModal('modal-img-view')" style="position:absolute;top:-44px;right:0;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;line-height:1;padding:6px"><i class="ti ti-x"></i></button>
     <div id="img-view-loading" style="display:none;color:#fff;font-family:'Nunito',sans-serif;font-weight:700"><i class="ti ti-loader-2"></i> Caricamento…</div>
@@ -1258,7 +1259,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.12.0';
+const APP_VERSION='2.12.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
