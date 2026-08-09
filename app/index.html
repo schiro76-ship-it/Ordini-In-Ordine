@@ -1242,7 +1242,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.8.5';
+const APP_VERSION='2.8.6';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1435,7 +1435,7 @@ function mostraDispositivoRimosso(){
 let _unsubDatiListener=null;
 let _deviceVistoPresente=false;
 let _timerBloccoDispositivo=null;
-async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_ripristinaStatoDopoStampa();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
   try{
     if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
@@ -1481,41 +1481,6 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
       }
     });
   }catch(e){console.warn('Realtime error',e);}
-}
-// Ripristina la vista (tab, filtri, ricerca, scroll) salvata prima del
-// refresh automatico post-stampa, se presente e recente (max 60s).
-function _ripristinaStatoDopoStampa(){
-  try{
-    const raw=sessionStorage.getItem('_statoPreStampa');
-    if(!raw)return;
-    sessionStorage.removeItem('_statoPreStampa');
-    const st=JSON.parse(raw);
-    if(!st||!st.ts||(Date.now()-st.ts)>60000)return;
-    if(st.ft){
-      const cidMap={tutti:'sf-tutti',evadere:'sf-evadere',completato:'sf-completato',ritirato:'sf-ritirato'};
-      setFT(st.ft,cidMap[st.ft]||'sf-tutti');
-    }
-    if(typeof st.ftData==='string')ftData=st.ftData;
-    const coEl=document.getElementById('co');
-    if(coEl&&typeof st.co==='string')coEl.value=st.co;
-    if(st.tab&&st.tab!=='ordini'){
-      goTab(st.tab);
-      if(st.tab==='riepilogo'){
-        // goTab azzera rpDayFilter/rpExpanded/rpCatFilter per default:
-        // li riapplichiamo subito dopo e ri-renderizziamo.
-        if(typeof st.rpDayFilter!=='undefined')rpDayFilter=st.rpDayFilter;
-        if(typeof st.rpCatFilter==='string')rpCatFilter=st.rpCatFilter;
-        if(st.rpExpanded&&typeof st.rpExpanded==='object')rpExpanded=st.rpExpanded;
-        const rpCercaEl=document.getElementById('riepilogo-cerca');
-        if(rpCercaEl&&typeof st.rpCerca==='string')rpCercaEl.value=st.rpCerca;
-        renderRiepilogo();
-      }
-    }else renderOrdini();
-    setTimeout(function(){
-      const pw=document.querySelector('.page-wrap');
-      if(pw&&typeof st.scrollTop==='number')pw.scrollTop=st.scrollTop;
-    },200);
-  }catch(e){console.warn('ripristino stato dopo stampa fallito',e);}
 }
 
 function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';document.body.classList.toggle('vb-active',showVb);const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');const btnCambiaAtt=document.getElementById('btn-cambia-attivita');if(btnCambiaAtt)btnCambiaAtt.style.display=ords.length>0?'none':'';}
@@ -3457,27 +3422,6 @@ function _mostraCanvasNelModal(canvas){
     btn.addEventListener('click',function(){
       stampeCount=(stampeCount||0)+1;saveData();
       _stampaViaIframe(url);
-      // Salva la vista corrente prima del refresh automatico, cosi dopo il
-      // ricaricamento si puo' tornare esattamente dove si era (tab, filtri,
-      // ricerca, scroll) invece di ripartire dalla vista di default.
-      try{
-        const pw=document.querySelector('.page-wrap');
-        const coEl=document.getElementById('co');
-        const rpCercaEl=document.getElementById('riepilogo-cerca');
-        sessionStorage.setItem('_statoPreStampa',JSON.stringify({
-          tab:_currentTab,
-          ft:ft,
-          ftData:ftData,
-          co:coEl?coEl.value:'',
-          rpDayFilter:rpDayFilter,
-          rpCatFilter:rpCatFilter,
-          rpCerca:rpCercaEl?rpCercaEl.value:'',
-          rpExpanded:rpExpanded,
-          scrollTop:pw?pw.scrollTop:0,
-          ts:Date.now()
-        }));
-      }catch(e){}
-      setTimeout(function(){location.reload();},900);
     });
   },100);
 }
