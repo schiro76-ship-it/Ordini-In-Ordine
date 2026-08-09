@@ -165,7 +165,7 @@ body.portrait-phone .phdr h2{color:#fff}
 .phdr-invita{display:none}
 body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
 body.portrait-phone .phdr-invita i{font-size:18px}
-.phdr-stampa{display:none;align-items:center;gap:6px;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;background:var(--txt);border:1.5px solid var(--txt);color:#fff}
+.phdr-stampa{display:none;align-items:center;gap:6px;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;background:var(--azione);border:1.5px solid var(--azione);color:#fff}
 .phdr-stampa.visible{display:flex}
 .phdr-stampa i{font-size:18px}
 body.portrait-phone .phdr-stampa{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff}
@@ -1258,7 +1258,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.11.2';
+const APP_VERSION='2.12.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -2201,7 +2201,7 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     const _fmtA=fmtRpData(_oA);
     const _dataLabel=_fmtA.r2?'<span>'+_fmtA.r1+'</span><span>'+_fmtA.r2+'</span>':'<span>'+_fmtA.r1+'</span>';
     const _ordFiltrati=v.ordini.slice().filter(x=>rpDayFilter===null||!x.ordine.data||x.ordine.data<=rpDayFilter).sort((a,b)=>priScore(a.ordine)-priScore(b.ordine));
-    const _rigaStampaTutte=_ordFiltrati.length>=2?`<div onclick="event.stopPropagation();aggiungiArticoloAlGruppoStampa(${v.artId})" style="padding:2px 10px 2px;font-size:13px;font-weight:800;color:#256BC1;cursor:pointer;text-align:right;text-decoration:underline;text-underline-offset:2px">Stampa tutte (${_ordFiltrati.length})</div>`:'';
+    const _rigaStampaTutte=_ordFiltrati.length>=2?`<div onclick="event.stopPropagation();aggiungiArticoloAlGruppoStampa(${v.artId})" style="padding:0 10px 6px;font-size:13px;font-weight:800;color:#256BC1;cursor:pointer;text-align:right;text-decoration:underline;text-underline-offset:2px">Aggiungi tutte alla coda di stampa (${_ordFiltrati.length})</div>`:'';
     const dettaglio=exp?_ordFiltrati.map(x=>{
       const q=parseFloat(x.qty)||1;const qs=q%1===0?q:q.toFixed(2).replace(/\.?0+$/,'');
       const isUrg=isUrgente(x.ordine);
@@ -3516,7 +3516,7 @@ function _aggiornaBadgeGruppo(){
   const lOrd=document.getElementById('phdr-stampa-ordini-label');
   if(bOrd&&lOrd){
     if(n>0){
-      lOrd.textContent='Stampa '+n;
+      lOrd.textContent='Coda ('+n+')';
       bOrd.onclick=apriModalGruppoStampa;
     } else {
       lOrd.textContent='Stampa tutti';
@@ -3529,7 +3529,7 @@ function _aggiornaBadgeGruppo(){
     if(!b||!l)return;
     if(n>0){
       b.classList.add('visible');
-      l.textContent='Stampa '+n;
+      l.textContent='Coda ('+n+')';
     } else {
       b.classList.remove('visible');
     }
@@ -3608,13 +3608,25 @@ function apriModalGruppoStampa(){
   openModal('modal-gruppo-stampa');
 }
 
+let _gruppoThumbUrls={};
+function visualizzaMiniaturaGruppo(i){
+  const url=_gruppoThumbUrls[i];
+  if(!url)return;
+  const imgEl=document.getElementById('img-view-el');
+  const loadEl=document.getElementById('img-view-loading');
+  if(loadEl)loadEl.style.display='none';
+  if(imgEl){imgEl.src=url;imgEl.style.display='block';}
+  openModal('modal-img-view');
+}
+
 function renderGruppoStampaModal(){
   const el=document.getElementById('gruppo-stampa-lista');
   if(!el)return;
+  _gruppoThumbUrls={};
   const conIndice=_gruppoStampa.map(function(g,i){return {g:g,i:i};});
   const ordiniInteri=conIndice.filter(function(x){return !x.g.artId;});
   const articoli=conIndice.filter(function(x){return !!x.g.artId;});
-  const separatore=(ordiniInteri.length&&articoli.length)?'<div style="border-top:1px solid #E5E7EB;margin:6px 0"></div>':'';
+  const separatore=(ordiniInteri.length&&articoli.length)?'<div style="border-top:2px solid #C7CBD1;margin:8px 0"></div>':'';
   function rigaHtml(x){
     const g=x.g,i=x.i;
     const o=ords.find(function(y){return y.id===g.oid;});
@@ -3626,7 +3638,8 @@ function renderGruppoStampaModal(){
     try{
       const canvas=_disegnaEtichetta(o,g.artId);
       const url=canvas.toDataURL('image/png');
-      thumb='<img src="'+url+'" style="width:69px;height:69px;object-fit:cover;object-position:top;border:1.5px solid '+(a?'#256BC1':'#1A1A2E')+';border-radius:6px;flex-shrink:0;background:#fff">';
+      _gruppoThumbUrls[i]=url;
+      thumb='<img src="'+url+'" onclick="visualizzaMiniaturaGruppo('+i+')" style="width:69px;height:69px;object-fit:cover;object-position:top;border:1.5px solid '+(a?'#256BC1':'#1A1A2E')+';border-radius:6px;flex-shrink:0;background:#fff;cursor:pointer">';
     }catch(e){
       thumb='<div style="width:69px;height:69px;flex-shrink:0;border:1.5px solid #ddd;border-radius:6px"></div>';
     }
