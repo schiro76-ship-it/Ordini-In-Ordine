@@ -76,7 +76,6 @@ body.portrait-phone .sb-overlay{display:none!important}
 body.portrait-phone .topbar{display:none!important}
 body.portrait-phone .page-wrap{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 body.portrait-phone #bottom-nav{display:flex}
-body.portrait-phone #badge-gruppo-stampa{bottom:90px}
 #bottom-nav{
   display:none;
   position:fixed;bottom:0;left:0;right:0;
@@ -166,6 +165,9 @@ body.portrait-phone .phdr h2{color:#fff}
 .phdr-invita{display:none}
 body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
 body.portrait-phone .phdr-invita i{font-size:18px}
+.phdr-stampa{display:none;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.phdr-stampa.visible{display:flex}
+.phdr-stampa i{font-size:18px}
 body.portrait-phone .phdr input[type=number],body.portrait-phone .phdr span{color:#fff!important}
 body.portrait-phone #tab-ordini .empty .ei,body.portrait-phone #tab-riepilogo .empty .ei{color:rgba(255,255,255,0.6)}
 body:not(.portrait-phone) .phdr input[type=number]{color:var(--azione)!important}
@@ -719,14 +721,11 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
     <div class="page-wrap">
       <div class="sec active" id="tab-ordini">
-        <div class="phdr"><h2>Ordini</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
+        <div class="phdr"><h2>Ordini</h2><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label">Stampa tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
         <div class="pbody">
           <div class="ordini-sticky">
             <div class="ordini-sticky-top">
-              <div style="display:flex;gap:8px;align-items:center">
-                <div class="sbox" style="flex:1;margin-bottom:0"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini()"></div>
-                <button onclick="aggiungiTuttiAlGruppoStampa()" title="Aggiungi al gruppo di stampa tutti gli ordini visibili" style="display:flex;align-items:center;gap:6px;padding:0 14px;height:44px;background:#fff;border:1.5px solid var(--brd,#DDE0E8);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:#2C3E50;cursor:pointer;white-space:nowrap;flex-shrink:0"><i class="ti ti-printer"></i> Stampa tutti</button>
-              </div>
+              <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini()"></div>
               <div class="ordini-filt-row">
                 <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" onclick="setFT('tutti','sf-tutti')"><span class="sn" id="st-tot" style="color:var(--azione)">0</span><span class="sl" style="color:var(--azione)">Tutti</span></div>
                 <div class="sc sc-filt sc-filt-ev" id="sf-evadere" onclick="setFT('evadere','sf-evadere')"><span class="sn" id="st-ev" style="color:var(--ev)">0</span><span class="sl" id="sl-ev" style="color:var(--ev)">Da evadere</span></div>
@@ -740,7 +739,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-riepilogo">
-        <div class="phdr"><h2>Riepilogo</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
+        <div class="phdr"><h2>Riepilogo</h2><button class="phdr-stampa" id="phdr-stampa-riepilogo" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-riepilogo-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
         <div class="pbody">
           <div class="list-sticky">
             <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo()"></div>
@@ -751,7 +750,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-storico">
-        <div class="phdr"><h2>Storico</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
+        <div class="phdr"><h2>Storico</h2><button class="phdr-stampa" id="phdr-stampa-storico" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-storico-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
         <div class="pbody">
           <div class="card card-sticky-host" style="margin-bottom:20px">
             <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
@@ -861,7 +860,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-impostazioni">
-        <div class="phdr"><h2>Impostazioni</h2><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
+        <div class="phdr"><h2>Impostazioni</h2><button class="phdr-stampa" id="phdr-stampa-impostazioni" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-impostazioni-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
         <div class="pbody">
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-tag"></i> Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderCatList();openModal('modal-cat')"><i class="ti ti-pencil"></i> Gestisci</button></div>
@@ -1151,7 +1150,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
   </div>
 </div>
-<div id="badge-gruppo-stampa" onclick="apriModalGruppoStampa()" style="display:none;position:fixed;right:18px;bottom:24px;z-index:400;background:#256BC1;color:#fff;border-radius:30px;padding:12px 18px;box-shadow:0 4px 14px rgba(0,0,0,0.28);cursor:pointer;font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;align-items:center;gap:8px"><i class="ti ti-printer" style="font-size:19px"></i><span id="badge-gruppo-stampa-count">0</span></div>
 <div id="toast"></div>
 <div id="print-label"></div>
 
@@ -1259,7 +1257,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.10.0';
+const APP_VERSION='2.11.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1452,7 +1450,7 @@ function mostraDispositivoRimosso(){
 let _unsubDatiListener=null;
 let _deviceVistoPresente=false;
 let _timerBloccoDispositivo=null;
-async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_aggiornaBadgeGruppo();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
   try{
     if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
@@ -2201,7 +2199,9 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     const _bgA=v.urgente?'var(--urg)':tuttiDone?'var(--g)':'var(--ev)';
     const _fmtA=fmtRpData(_oA);
     const _dataLabel=_fmtA.r2?'<span>'+_fmtA.r1+'</span><span>'+_fmtA.r2+'</span>':'<span>'+_fmtA.r1+'</span>';
-    const dettaglio=exp?v.ordini.slice().filter(x=>rpDayFilter===null||!x.ordine.data||x.ordine.data<=rpDayFilter).sort((a,b)=>priScore(a.ordine)-priScore(b.ordine)).map(x=>{
+    const _ordFiltrati=v.ordini.slice().filter(x=>rpDayFilter===null||!x.ordine.data||x.ordine.data<=rpDayFilter).sort((a,b)=>priScore(a.ordine)-priScore(b.ordine));
+    const _rigaStampaTutte=_ordFiltrati.length>=2?`<div onclick="event.stopPropagation();aggiungiArticoloAlGruppoStampa(${v.artId})" style="padding:8px 10px 2px;font-size:13px;font-weight:800;color:#256BC1;cursor:pointer">Stampa tutte (${_ordFiltrati.length}) <i class="ti ti-arrow-right" style="font-size:12px;vertical-align:-1px"></i></div>`:'';
+    const dettaglio=exp?_ordFiltrati.map(x=>{
       const q=parseFloat(x.qty)||1;const qs=q%1===0?q:q.toFixed(2).replace(/\.?0+$/,'');
       const isUrg=isUrgente(x.ordine);
       const bg=x.done?'var(--gs)':isUrg?'var(--urgs)':'var(--evs)';
@@ -2214,8 +2214,8 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
       const _qtySpanR=`<span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}`;
       const _qtyFotoR=`<span style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px">${_fotoBtn}<span style="white-space:nowrap">${_qtySpanR}</span>${_printBtnR}</span>`;
       return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px"><div class="${circleClass}" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})" style="border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px"><span style="flex:1 1 0%;min-width:150px;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?` <span style="color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}</span>${_qtyFotoR}</div></div></div>`;
-    }).join(''):'';
-    return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;gap:0"><div onclick="toggleRp(${v.artId})" style="display:flex;align-items:center;gap:8px;cursor:pointer"><div class="rp-pri" style="width:58px;min-width:58px;align-self:stretch;border-radius:11px;padding:5px 4px;font-size:13px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.25;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0;padding:12px 0"><div class="rp-art" style="padding:0;white-space:normal;flex:1 1 auto;min-width:0">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="flex-shrink:0;text-align:right;font-size:16px;font-weight:900;white-space:nowrap">${qStr}</div></div><button class="act-print-rp" onclick="event.stopPropagation();aggiungiArticoloAlGruppoStampa(${v.artId})" title="Aggiungi al gruppo di stampa un'etichetta per ogni ordine" style="border-radius:8px;padding:8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center;flex-shrink:0;align-self:center"><i class="ti ti-printer"></i></button><span class="exp-arrow" style="flex-shrink:0">${exp?'<i class="ti ti-chevron-up"></i>':'<i class="ti ti-chevron-down"></i>'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden;padding-top:6px">${dettaglio}</div>`:''}</div>`;
+    }).join('')+_rigaStampaTutte:'';
+    return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;gap:0"><div onclick="toggleRp(${v.artId})" style="display:flex;align-items:center;gap:8px;cursor:pointer"><div class="rp-pri" style="width:58px;min-width:58px;align-self:stretch;border-radius:11px;padding:5px 4px;font-size:13px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.25;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0;padding:12px 0"><div class="rp-art" style="padding:0;white-space:normal;flex:1 1 auto;min-width:0">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="flex-shrink:0;text-align:right;font-size:16px;font-weight:900;white-space:nowrap">${qStr}</div></div><span class="exp-arrow" style="flex-shrink:0">${exp?'<i class="ti ti-chevron-up"></i>':'<i class="ti ti-chevron-down"></i>'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden;padding-top:6px">${dettaglio}</div>`:''}</div>`;
   }).join('');
 }
 
@@ -3431,7 +3431,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
     <button id="btn-stampa-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
     <button id="btn-condividi-etichetta" class="btn-condividi-print" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:1.5px solid var(--brd,#DDE0E8);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-share-2"></i> Condividi</button>
-    <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px dashed #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi al gruppo di stampa</button>
+    <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px solid #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi alla coda</button>
     <div style="font-size:12px;color:#888;margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa"</div>
   </div>`;
   openModal('modal-etichetta');
@@ -3464,6 +3464,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     if(btnGruppo&&typeof oid!=='undefined'){
       btnGruppo.addEventListener('click',function(){
         aggiungiAlGruppoStampa(oid,artId||null);
+        closeModal('modal-etichetta');
       });
     }
   },100);
@@ -3509,25 +3510,39 @@ function _gruppoTrovaIndice(oid,artId){
 }
 
 function _aggiornaBadgeGruppo(){
-  const badge=document.getElementById('badge-gruppo-stampa');
-  const countEl=document.getElementById('badge-gruppo-stampa-count');
-  if(!badge||!countEl)return;
-  if(_gruppoStampa.length>0){
-    badge.style.display='flex';
-    countEl.textContent=_gruppoStampa.length;
-  } else {
-    badge.style.display='none';
+  const n=_gruppoStampa.length;
+  const bOrd=document.getElementById('phdr-stampa-ordini');
+  const lOrd=document.getElementById('phdr-stampa-ordini-label');
+  if(bOrd&&lOrd){
+    if(n>0){
+      lOrd.textContent='Stampa '+n;
+      bOrd.onclick=apriModalGruppoStampa;
+    } else {
+      lOrd.textContent='Stampa tutti';
+      bOrd.onclick=aggiungiTuttiAlGruppoStampa;
+    }
   }
+  ['riepilogo','storico','impostazioni'].forEach(function(tab){
+    const b=document.getElementById('phdr-stampa-'+tab);
+    const l=document.getElementById('phdr-stampa-'+tab+'-label');
+    if(!b||!l)return;
+    if(n>0){
+      b.classList.add('visible');
+      l.textContent='Stampa '+n;
+    } else {
+      b.classList.remove('visible');
+    }
+  });
 }
 
 function aggiungiAlGruppoStampa(oid,artId){
   if(_gruppoTrovaIndice(oid,artId)!==-1){
-    toast('Etichetta già nel gruppo di stampa','err');
+    toast('Etichetta già in coda','err');
     return;
   }
   _gruppoStampa.push({oid:oid,artId:artId||null});
   _aggiornaBadgeGruppo();
-  toast('Aggiunta al gruppo di stampa','v');
+  toast('Aggiunta alla coda','v');
 }
 
 // Aggiunge al gruppo un'etichetta per ogni ordine attualmente filtrato/
@@ -3550,8 +3565,8 @@ function aggiungiTuttiAlGruppoStampa(){
     }
   });
   _aggiornaBadgeGruppo();
-  if(aggiunte>0)toast(aggiunte+' etichette aggiunte al gruppo','v');
-  else toast('Erano già tutte nel gruppo','err');
+  if(aggiunte>0)toast(aggiunte+' etichette aggiunte alla coda','v');
+  else toast('Erano già tutte in coda','err');
 }
 
 // Aggiunge al gruppo un'etichetta (con quell'articolo evidenziato) per
@@ -3575,8 +3590,8 @@ function aggiungiArticoloAlGruppoStampa(artId){
     }
   });
   _aggiornaBadgeGruppo();
-  if(aggiunte>0)toast(aggiunte+' etichette aggiunte al gruppo','v');
-  else toast('Erano già tutte nel gruppo','err');
+  if(aggiunte>0)toast(aggiunte+' etichette aggiunte alla coda','v');
+  else toast('Erano già tutte in coda','err');
 }
 
 function rimuoviDalGruppoStampa(idx){
@@ -3587,7 +3602,7 @@ function rimuoviDalGruppoStampa(idx){
 }
 
 function apriModalGruppoStampa(){
-  if(!_gruppoStampa.length){toast('Nessuna etichetta nel gruppo','err');return;}
+  if(!_gruppoStampa.length){toast('Nessuna etichetta in coda','err');return;}
   renderGruppoStampaModal();
   openModal('modal-gruppo-stampa');
 }
@@ -3595,16 +3610,35 @@ function apriModalGruppoStampa(){
 function renderGruppoStampaModal(){
   const el=document.getElementById('gruppo-stampa-lista');
   if(!el)return;
-  el.innerHTML=_gruppoStampa.map(function(g,i){
-    const o=ords.find(x=>x.id===g.oid);
+  const conIndice=_gruppoStampa.map(function(g,i){return {g:g,i:i};});
+  const ordiniInteri=conIndice.filter(function(x){return !x.g.artId;});
+  const articoli=conIndice.filter(function(x){return !!x.g.artId;});
+  const separatore=(ordiniInteri.length&&articoli.length)?'<div style="border-top:1px solid #E5E7EB;margin:6px 0"></div>':'';
+  function rigaHtml(x){
+    const g=x.g,i=x.i;
+    const o=ords.find(function(y){return y.id===g.oid;});
     if(!o)return '';
-    const a=g.artId?arts.find(x=>x.id===g.artId):null;
-    const label='#'+o.num+' '+o.nome+(a?' · '+a.nome:'');
-    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F0F0F0">'
-      +'<div style="flex:1;min-width:0;font-size:15px;font-weight:700;color:var(--txt)">'+label+'</div>'
+    const a=g.artId?arts.find(function(y){return y.id===g.artId;}):null;
+    const label='#'+o.num+' '+o.nome;
+    const sub=a?a.nome:'';
+    let thumb;
+    try{
+      const canvas=_disegnaEtichetta(o,g.artId);
+      const url=canvas.toDataURL('image/png');
+      thumb='<img src="'+url+'" style="width:52px;height:52px;object-fit:cover;object-position:top;border:1.5px solid '+(a?'#256BC1':'#1A1A2E')+';border-radius:6px;flex-shrink:0;background:#fff">';
+    }catch(e){
+      thumb='<div style="width:52px;height:52px;flex-shrink:0;border:1.5px solid #ddd;border-radius:6px"></div>';
+    }
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F0F0F0">'
+      +thumb
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:15px;font-weight:700;color:var(--txt)">'+label+'</div>'
+      +(sub?'<div style="font-size:13px;font-weight:700;color:#256BC1">'+sub+'</div>':'')
+      +'</div>'
       +'<button onclick="rimuoviDalGruppoStampa('+i+')" style="background:#F5F6F8;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#888"><i class="ti ti-x" style="font-size:16px"></i></button>'
       +'</div>';
-  }).join('');
+  }
+  el.innerHTML=ordiniInteri.map(rigaHtml).join('')+separatore+articoli.map(rigaHtml).join('');
   const btn=document.getElementById('btn-stampa-gruppo');
   if(btn)btn.innerHTML='<i class="ti ti-printer"></i> Stampa ('+_gruppoStampa.length+')';
 }
