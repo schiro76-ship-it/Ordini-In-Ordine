@@ -1242,7 +1242,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.7.5';
+const APP_VERSION='2.7.6';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3415,6 +3415,12 @@ function _mostraCanvasNelModal(canvas){
     <button id="btn-stampa-diretta-test" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:2px dashed #2C3E50;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-flask"></i> Stampa diretta (test)</button>
     <div style="font-size:12px;color:#888;margin-top:6px">Bottone temporaneo solo per test, verrà rimosso</div>
   </div>`;
+  // Prepara in anticipo l'area di stampa dedicata, cosi il tap sul bottone
+  // di test chiama window.print() senza nessuna scrittura nel DOM nello
+  // stesso istante (Safari altrimenti puo' non riconoscerlo come gesto
+  // diretto dell'utente e mostrare il prompt "impedito di stampare").
+  const plPrep=document.getElementById('print-label');
+  if(plPrep)plPrep.innerHTML=`<img src="${url}" style="width:100%">`;
   openModal('modal-etichetta');
   // Attach condividi dopo render
   setTimeout(function(){
@@ -3436,8 +3442,6 @@ function _mostraCanvasNelModal(canvas){
     const btnTest=document.getElementById('btn-stampa-diretta-test');
     if(!btnTest)return;
     btnTest.addEventListener('click',function(){
-      const pl=document.getElementById('print-label');
-      if(pl)pl.innerHTML=`<img src="${url}" style="width:100%">`;
       window.print();
     });
   },100);
