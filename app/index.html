@@ -1242,7 +1242,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.8.7';
+const APP_VERSION='2.8.8';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3413,8 +3413,6 @@ function _mostraCanvasNelModal(canvas){
   el.innerHTML=`<div style="text-align:center">
     <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
     <button id="btn-condividi-etichetta" class="btn-condividi-print" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
-    <button id="btn-stampa-nuova-finestra-test" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:2px dashed #2C3E50;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-flask"></i> Stampa in nuova finestra (test)</button>
-    <div style="font-size:12px;color:#888;margin-top:6px">Bottone temporaneo solo per test, verrà rimosso</div>
   </div>`;
   openModal('modal-etichetta');
   // Attach al bottone dopo render
@@ -3425,42 +3423,7 @@ function _mostraCanvasNelModal(canvas){
       stampeCount=(stampeCount||0)+1;saveData();
       _stampaViaIframe(url);
     });
-    const btnTest=document.getElementById('btn-stampa-nuova-finestra-test');
-    if(!btnTest)return;
-    btnTest.addEventListener('click',function(){
-      _stampaViaNuovaFinestra(url);
-    });
   },100);
-}
-
-// Stampa aprendo una finestra/scheda nuova (invece di un iframe nascosto):
-// tentativo per vedere se una nuova finestra viene trattata da Safari come
-// "sessione pulita", evitando il prompt di conferma dalla seconda stampa
-// in poi. La finestra si chiude da sola dopo la stampa.
-function _stampaViaNuovaFinestra(url){
-  const win=window.open('','_blank');
-  if(!win){
-    console.warn('Impossibile aprire una nuova finestra, uso iframe come fallback');
-    _stampaViaIframe(url);
-    return;
-  }
-  win.document.open();
-  win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Etichetta</title><style>@page{margin:0}body{margin:0}img{width:100%;display:block}</style></head><body><img src="'+url+'"></body></html>');
-  win.document.close();
-  function doPrint(){
-    try{
-      win.focus();
-      win.print();
-    }catch(e){console.warn('errore stampa nuova finestra',e);}
-  }
-  const img=win.document.querySelector('img');
-  if(img&&img.complete)doPrint();
-  else if(img){img.onload=doPrint;img.onerror=doPrint;}
-  else doPrint();
-  // Chiusura automatica: subito dopo che il dialog di stampa si chiude
-  // (se supportato dal browser), con un timeout di sicurezza altrimenti.
-  try{win.onafterprint=function(){win.close();};}catch(e){}
-  setTimeout(function(){try{if(!win.closed)win.close();}catch(e){}},60000);
 }
 
 // Stampa isolata in un iframe nascosto, creato/scritto al momento del tap:
