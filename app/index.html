@@ -1242,7 +1242,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.8.10';
+const APP_VERSION='2.9.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3412,17 +3412,36 @@ function _mostraCanvasNelModal(canvas){
   const el=document.getElementById('etichetta-content');if(!el)return;
   el.innerHTML=`<div style="text-align:center">
     <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
-    <button id="btn-condividi-etichetta" class="btn-condividi-print" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
+    <button id="btn-stampa-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
+    <button id="btn-condividi-etichetta" class="btn-condividi-print" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:1.5px solid var(--brd,#DDE0E8);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-share-2"></i> Condividi</button>
+    <div style="font-size:12px;color:#888;margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa"</div>
   </div>`;
   openModal('modal-etichetta');
-  // Attach al bottone dopo render
+  // Attach ai bottoni dopo render
   setTimeout(function(){
-    const btn=document.getElementById('btn-condividi-etichetta');
-    if(!btn)return;
-    btn.addEventListener('click',function(){
-      stampeCount=(stampeCount||0)+1;saveData();
-      _stampaViaIframe(url);
-    });
+    const btnStampa=document.getElementById('btn-stampa-etichetta');
+    if(btnStampa){
+      btnStampa.addEventListener('click',function(){
+        stampeCount=(stampeCount||0)+1;saveData();
+        _stampaViaIframe(url);
+      });
+    }
+    const btnCondividi=document.getElementById('btn-condividi-etichetta');
+    if(btnCondividi){
+      btnCondividi.addEventListener('click',async function(){
+        stampeCount=(stampeCount||0)+1;saveData();
+        try{
+          const blob=await(await fetch(url)).blob();
+          const file=new File([blob],'etichetta.png',{type:'image/png'});
+          if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+            await navigator.share({files:[file],title:'Etichetta ordine'});
+            return;
+          }
+        }catch(e){console.warn('share error',e);}
+        // Fallback download
+        const a=document.createElement('a');a.href=url;a.download='etichetta.png';a.click();
+      });
+    }
   },100);
 }
 
