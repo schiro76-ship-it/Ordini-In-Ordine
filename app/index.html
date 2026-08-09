@@ -1242,7 +1242,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.8.0';
+const APP_VERSION='2.8.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3413,12 +3413,6 @@ function _mostraCanvasNelModal(canvas){
     <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
     <button id="btn-condividi-etichetta" class="btn-condividi-print" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
   </div>`;
-  // Prepara subito l'iframe di stampa con l'immagine gia' caricata, cosi
-  // al tap sul bottone restano solo focus()+print() senza nessuna attesa
-  // in mezzo (chiamata sincrona rispetto al gesto dell'utente: evita sia
-  // il ritardo dovuto al layout dell'intera app sia il prompt di conferma
-  // stampa di Safari in tab browser normale).
-  _preparaIframeStampa(url);
   openModal('modal-etichetta');
   // Attach al bottone dopo render
   setTimeout(function(){
@@ -3431,9 +3425,11 @@ function _mostraCanvasNelModal(canvas){
   },100);
 }
 
-// Crea (o riusa) l'iframe nascosto e ci carica subito l'immagine
-// dell'etichetta, cosi e' gia' pronto quando l'utente toccherà "Stampa".
-function _preparaIframeStampa(url){
+// Stampa isolata in un iframe nascosto, creato/scritto al momento del tap:
+// il browser calcola il layout di stampa solo per questo mini-documento
+// (solo immagine), non per l'intera app - evita ritardi dovuti al ricalcolo
+// dell'intera SPA.
+function _stampaViaIframe(url){
   let ifr=document.getElementById('print-iframe-etichetta');
   if(!ifr){
     ifr=document.createElement('iframe');
@@ -3445,37 +3441,12 @@ function _preparaIframeStampa(url){
   doc.open();
   doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{margin:0}body{margin:0}img{width:100%;display:block}</style></head><body><img src="'+url+'"></body></html>');
   doc.close();
-  ifr.dataset.ready='0';
-  const img=doc.querySelector('img');
-  function segnaPronto(){ifr.dataset.ready='1';}
-  if(img&&img.complete)segnaPronto();
-  else if(img){img.onload=segnaPronto;img.onerror=segnaPronto;}
-  else segnaPronto();
-}
-
-// Stampa isolata in un iframe nascosto: il browser calcola il layout di
-// stampa solo per questo mini-documento (solo immagine), non per l'intera
-// app - evita ritardi dovuti al ricalcolo dell'intera SPA. Se l'iframe e'
-// gia' pronto (immagine gia' caricata da _preparaIframeStampa), la
-// chiamata a print() resta sincrona rispetto al tap, evitando anche il
-// prompt di conferma di Safari in tab browser normale.
-function _stampaViaIframe(url){
-  let ifr=document.getElementById('print-iframe-etichetta');
   function doPrint(){
     try{
       ifr.contentWindow.focus();
       ifr.contentWindow.print();
     }catch(e){console.warn('iframe print error',e);}
   }
-  if(ifr&&ifr.dataset.ready==='1'){
-    doPrint();
-    return;
-  }
-  // Fallback: iframe non ancora pronto (tap molto rapido), lo prepariamo
-  // ora e stampiamo appena l'immagine e' caricata.
-  _preparaIframeStampa(url);
-  ifr=document.getElementById('print-iframe-etichetta');
-  const doc=ifr.contentDocument||ifr.contentWindow.document;
   const img=doc.querySelector('img');
   if(img&&img.complete)doPrint();
   else if(img){img.onload=doPrint;img.onerror=doPrint;}
