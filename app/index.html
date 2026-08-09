@@ -1242,7 +1242,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.8.8';
+const APP_VERSION='2.8.9';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3426,27 +3426,32 @@ function _mostraCanvasNelModal(canvas){
   },100);
 }
 
-// Stampa isolata in un iframe nascosto, creato/scritto al momento del tap:
-// il browser calcola il layout di stampa solo per questo mini-documento
-// (solo immagine), non per l'intera app - evita ritardi dovuti al ricalcolo
-// dell'intera SPA.
+// Stampa isolata in un iframe nascosto, creato ex novo e distrutto ad
+// ogni singola stampa (non riusato tra una stampa e l'altra): il browser
+// calcola il layout di stampa solo per questo mini-documento (solo
+// immagine), non per l'intera app - evita ritardi dovuti al ricalcolo
+// dell'intera SPA. La distruzione post-stampa e' un tentativo per vedere
+// se un iframe "usa e getta" viene trattato da Safari come contesto pulito
+// ad ogni volta, evitando il prompt di conferma dalla seconda stampa in poi.
 function _stampaViaIframe(url){
-  let ifr=document.getElementById('print-iframe-etichetta');
-  if(!ifr){
-    ifr=document.createElement('iframe');
-    ifr.id='print-iframe-etichetta';
-    ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
-    document.body.appendChild(ifr);
-  }
+  const ifr=document.createElement('iframe');
+  ifr.id='print-iframe-etichetta-'+Date.now();
+  ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+  document.body.appendChild(ifr);
   const doc=ifr.contentDocument||ifr.contentWindow.document;
   doc.open();
   doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{margin:0}body{margin:0}img{width:100%;display:block}</style></head><body><img src="'+url+'"></body></html>');
   doc.close();
+  function cleanup(){try{if(ifr.parentNode)ifr.parentNode.removeChild(ifr);}catch(e){}}
   function doPrint(){
     try{
       ifr.contentWindow.focus();
       ifr.contentWindow.print();
     }catch(e){console.warn('iframe print error',e);}
+    try{ifr.contentWindow.onafterprint=cleanup;}catch(e){}
+    // Timeout di sicurezza: distrugge comunque l'iframe anche se il
+    // browser non supporta/non emette l'evento onafterprint.
+    setTimeout(cleanup,60000);
   }
   const img=doc.querySelector('img');
   if(img&&img.complete)doPrint();
