@@ -1264,7 +1264,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.14.5';
+const APP_VERSION='2.14.6';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3445,7 +3445,6 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     <button id="btn-stampa-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
     <button id="btn-condividi-etichetta" class="btn-condividi-print" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:1.5px solid var(--brd,#DDE0E8);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-share-2"></i> Condividi</button>
     <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px solid #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi alla coda</button>
-    <button id="btn-stampa-finestra-test" style="width:100%;padding:12px;background:#fff;color:#059669;border:1.5px dashed #059669;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-flask"></i> Stampa in nuova scheda (test)</button>
     <div style="font-size:12px;color:#888;margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa", o se l'etichetta esce tagliata/ridimensionata male</div>
   </div>`;
   openModal('modal-etichetta');
@@ -3481,37 +3480,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
         closeModal('modal-etichetta');
       });
     }
-    const btnFinestraTest=document.getElementById('btn-stampa-finestra-test');
-    if(btnFinestraTest){
-      btnFinestraTest.addEventListener('click',function(){
-        _stampaFinestraTest(url);
-      });
-    }
   },100);
-}
-
-// TEST: apre una vera scheda/finestra di primo livello (non un iframe
-// incorporato) navigata direttamente all'immagine, poi stampa da li' -
-// per verificare se una finestra separata viene trattata diversamente da
-// un iframe ai fini della stampa.
-function _stampaFinestraTest(dataUrl){
-  const win=window.open(dataUrl,'_blank');
-  if(!win){
-    toast('Finestra bloccata dal browser','err');
-    return;
-  }
-  let printed=false;
-  function doPrint(){
-    if(printed)return;
-    printed=true;
-    try{
-      win.focus();
-      win.print();
-    }catch(e){console.warn('errore stampa finestra test',e);}
-  }
-  win.onload=doPrint;
-  // Timeout di sicurezza nel caso onload non scatti per una navigazione a data:
-  setTimeout(doPrint,700);
 }
 
 // Stampa isolata in un iframe nascosto, creato/scritto al momento del tap
