@@ -165,7 +165,7 @@ body.portrait-phone .phdr h2{color:#fff}
 .phdr-invita{display:none}
 body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
 body.portrait-phone .phdr-invita i{font-size:18px}
-.phdr-stampa{display:none;align-items:center;gap:6px;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;background:#fff;border:1.5px solid var(--azione);color:var(--azione)}
+.phdr-stampa{display:none;align-items:center;gap:6px;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;background:#EEF2FF;border:1.5px solid rgba(79,70,229,0.25);color:#4F46E5}
 .phdr-stampa.visible{display:flex}
 .phdr-stampa i{font-size:18px}
 body.portrait-phone .phdr-stampa{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff}
@@ -173,6 +173,7 @@ body.portrait-phone .phdr input[type=number],body.portrait-phone .phdr span{colo
 body.portrait-phone #tab-ordini .empty .ei,body.portrait-phone #tab-riepilogo .empty .ei{color:rgba(255,255,255,0.6)}
 body:not(.portrait-phone) .phdr input[type=number]{color:var(--azione)!important}
 body:not(.portrait-phone) .phdr span{color:var(--azione)!important}
+body:not(.portrait-phone) .phdr-stampa span{color:#4F46E5!important}
 body:not(.portrait-phone) #sel-count{color:var(--azione)!important}
 body.portrait-phone .phdr button:not(.phdr-invita):not(.phdr-stampa){background:var(--bg)!important;color:var(--sub)!important;border:1.5px solid var(--brd)!important}
 body.portrait-phone .phdr input[type=number]{border-bottom-color:#fff!important}
@@ -430,7 +431,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 #riepilogo-list .rp-art{font-size:18px}
 .rp-qty{font-size:16px;font-weight:900;color:var(--ev)}
 .rp-um{font-size:16px;font-weight:900;color:var(--ev)}
-@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody,body:not(.portrait-phone) #tab-nuovo .pbody,body:not(.portrait-phone) #tab-nuovo .phdr{max-width:calc(100% - var(--sbw))}}
+@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody,body:not(.portrait-phone) #tab-nuovo .pbody,body:not(.portrait-phone) #tab-nuovo .phdr,body:not(.portrait-phone) #tab-ordini .phdr,body:not(.portrait-phone) #tab-riepilogo .phdr,body:not(.portrait-phone) #tab-storico .phdr,body:not(.portrait-phone) #tab-impostazioni .phdr{max-width:calc(100% - var(--sbw))}}
 body:not(.portrait-phone) #storico-riepilogo{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 16px;align-items:stretch}
 body:not(.portrait-phone) #storico-riepilogo>p{grid-column:1/-1}
 body:not(.portrait-phone) #storico-riepilogo .rp-row{margin-bottom:0}
@@ -1258,7 +1259,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.12.2';
+const APP_VERSION='2.12.3';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
