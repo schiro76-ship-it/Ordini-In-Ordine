@@ -162,8 +162,9 @@ body.portrait-phone #status-bar-cover{display:block}
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
 body.portrait-phone.vb-active .page-wrap{padding-top:0}
 body.portrait-phone .phdr h2{color:#fff}
-.phdr{position:sticky;top:0;z-index:55;background:var(--bg);-webkit-transform:translateZ(0);transform:translateZ(0)}
+.phdr{position:sticky;top:0;z-index:55;background:var(--bg);padding-bottom:16px!important;-webkit-transform:translateZ(0);transform:translateZ(0)}
 body.portrait-phone .phdr{background:#2C3E50}
+body:not(.portrait-phone) .phdr{background:#DDE0E8}
 .ordini-sticky .phdr,.list-sticky .phdr{position:static;top:auto;z-index:auto;background:transparent;padding:0 0 12px!important;margin:0}
 .phdr-invita{display:none}
 body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
@@ -435,7 +436,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 #riepilogo-list .rp-art{font-size:18px}
 .rp-qty{font-size:16px;font-weight:900;color:var(--ev)}
 .rp-um{font-size:16px;font-weight:900;color:var(--ev)}
-@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody,body:not(.portrait-phone) #tab-storico .pbody,body:not(.portrait-phone) #tab-nuovo .pbody,body:not(.portrait-phone) #tab-nuovo .phdr,body:not(.portrait-phone) #tab-storico .phdr,body:not(.portrait-phone) #tab-impostazioni .phdr,body:not(.portrait-phone) .ordini-sticky,body:not(.portrait-phone) .list-sticky{max-width:calc(100% - var(--sbw))}}
+@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody,body:not(.portrait-phone) #tab-nuovo .pbody,body:not(.portrait-phone) #tab-nuovo .phdr,body:not(.portrait-phone) #tab-impostazioni .phdr,body:not(.portrait-phone) .ordini-sticky,body:not(.portrait-phone) .list-sticky{max-width:calc(100% - var(--sbw))}}
 body:not(.portrait-phone) #storico-riepilogo{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 16px;align-items:stretch}
 body:not(.portrait-phone) #storico-riepilogo>p{grid-column:1/-1}
 body:not(.portrait-phone) #storico-riepilogo .rp-row{margin-bottom:0}
@@ -1263,7 +1264,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.13.2';
+const APP_VERSION='2.13.3';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
