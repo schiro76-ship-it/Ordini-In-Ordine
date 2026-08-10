@@ -331,10 +331,10 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .itag-circle.ritirato{border-color:var(--gr);background:var(--gr);color:#fff}
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .card-sticky-host{overflow:visible}
-.card-sticky-host .ch{position:sticky;top:0;z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.card-sticky-host .ch{position:sticky;top:var(--phdr-h,0px);z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .card-sticky-host.anim-lock .ch{position:relative!important}
 .card-sticky-host.anim-lock .list-sticky{position:relative!important;top:auto!important}
-.card-sticky-host .list-sticky{background:#fff!important;top:var(--ch-h,50px)}
+.card-sticky-host .list-sticky{background:#fff!important;top:calc(var(--phdr-h,0px) + var(--ch-h,50px))}
 .ch{padding:15px 18px 13px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center}
 .ct{font-size:16px;font-weight:900}
 .ct i{font-size:20px;vertical-align:-3px;margin-right:3px}
@@ -436,7 +436,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 #riepilogo-list .rp-art{font-size:18px}
 .rp-qty{font-size:16px;font-weight:900;color:var(--ev)}
 .rp-um{font-size:16px;font-weight:900;color:var(--ev)}
-@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody,body:not(.portrait-phone) #tab-nuovo .pbody,body:not(.portrait-phone) #tab-nuovo .phdr,body:not(.portrait-phone) #tab-impostazioni .phdr,body:not(.portrait-phone) .ordini-sticky,body:not(.portrait-phone) .list-sticky{max-width:calc(100% - var(--sbw))}}
+@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody,body:not(.portrait-phone) #tab-nuovo .pbody,body:not(.portrait-phone) #tab-nuovo .phdr,body:not(.portrait-phone) #tab-impostazioni .phdr,body:not(.portrait-phone) .ordini-sticky,body:not(.portrait-phone) #tab-riepilogo>.pbody>.list-sticky{max-width:calc(100% - var(--sbw))}}
 body:not(.portrait-phone) #storico-riepilogo{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 16px;align-items:stretch}
 body:not(.portrait-phone) #storico-riepilogo>p{grid-column:1/-1}
 body:not(.portrait-phone) #storico-riepilogo .rp-row{margin-bottom:0}
@@ -1264,7 +1264,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.13.3';
+const APP_VERSION='2.13.4';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
