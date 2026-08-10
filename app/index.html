@@ -162,6 +162,8 @@ body.portrait-phone #status-bar-cover{display:block}
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
 body.portrait-phone.vb-active .page-wrap{padding-top:0}
 body.portrait-phone .phdr h2{color:#fff}
+.phdr{position:sticky;top:0;z-index:55;background:var(--bg);-webkit-transform:translateZ(0);transform:translateZ(0)}
+body.portrait-phone .phdr{background:#2C3E50}
 .phdr-invita{display:none}
 body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
 body.portrait-phone .phdr-invita i{font-size:18px}
@@ -249,8 +251,8 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
    dimensioni tramite selettori per id, più specifici delle vecchie regole .sc/.sc-filt-*,
    senza bisogno di toccarle. */
 .exp-arrow{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;color:var(--sub);font-size:19px;transition:transform 0.2s;flex-shrink:0}
-.ordini-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
-.list-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
+.ordini-sticky{position:sticky;top:var(--phdr-h,0px);z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
+.list-sticky{position:sticky;top:var(--phdr-h,0px);z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
 body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#2C3E50}
 .list-sticky .sbox{margin-bottom:8px}
 .list-sticky .cp:last-child{margin-bottom:8px}
@@ -1259,7 +1261,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.12.3';
+const APP_VERSION='2.13.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1452,7 +1454,7 @@ function mostraDispositivoRimosso(){
 let _unsubDatiListener=null;
 let _deviceVistoPresente=false;
 let _timerBloccoDispositivo=null;
-async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_aggiornaBadgeGruppo();checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
   try{
     if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
@@ -1536,6 +1538,7 @@ function goTab(name){
   if(name==='ordini'){if(_scrollToOrdineId){ft='tutti';ftData='tutti';}renderOrdini();}
   if(name==='riepilogo'){_rpOrdineCongelato=null;rpExpanded={};rpDayFilter=null;renderRiepilogo();}
   if(name==='storico'){renderStoricoMensile();renderStoricoRiepilogo();setTimeout(syncStickyHeaderHeights,0);}
+  setTimeout(syncPhdrHeight,0);
   if(pw){
     if(name==='ordini'&&_scrollToOrdineId){
       const oid=_scrollToOrdineId;
@@ -1862,6 +1865,10 @@ function renderStoricoMensile(){
   el.innerHTML=rigaMese(meseCorrente)+chiaviAltre.map(rigaMese).join('');
 }
 function syncStickyHeaderHeights(){document.querySelectorAll('.card-sticky-host').forEach(function(card){const ch=card.querySelector('.ch');if(ch)card.style.setProperty('--ch-h',ch.offsetHeight+'px');});}
+function syncPhdrHeight(){
+  const phdr=document.querySelector('.sec.active .phdr');
+  if(phdr)document.documentElement.style.setProperty('--phdr-h',phdr.offsetHeight+'px');
+}
 function smoothToggle(bodyEl,arrowEl,headerEl){
   if(!bodyEl)return;
   const hostCard=bodyEl.closest('.card-sticky-host');
@@ -3535,6 +3542,7 @@ function _aggiornaBadgeGruppo(){
       b.classList.remove('visible');
     }
   });
+  setTimeout(syncPhdrHeight,0);
 }
 
 function aggiungiAlGruppoStampa(oid,artId){
@@ -3964,6 +3972,7 @@ document.addEventListener('focusin',function(e){
   },300);
 });
 window.addEventListener('resize',checkPortrait);
+window.addEventListener('resize',syncPhdrHeight);
 window.addEventListener('resize',function(){if(document.getElementById('tab-storico').classList.contains('active'))syncStickyHeaderHeights();});
 window.addEventListener('resize',function(){if(document.getElementById('tab-storico').classList.contains('active'))equalizeStorico();});
 
