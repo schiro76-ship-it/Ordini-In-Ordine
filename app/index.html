@@ -164,6 +164,7 @@ body.portrait-phone.vb-active .page-wrap{padding-top:0}
 body.portrait-phone .phdr h2{color:#fff}
 .phdr{position:sticky;top:0;z-index:55;background:var(--bg);-webkit-transform:translateZ(0);transform:translateZ(0)}
 body.portrait-phone .phdr{background:#2C3E50}
+.ordini-sticky .phdr,.list-sticky .phdr{position:static;top:auto;z-index:auto;background:transparent;padding:0 0 12px!important;margin:0}
 .phdr-invita{display:none}
 body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
 body.portrait-phone .phdr-invita i{font-size:18px}
@@ -251,8 +252,9 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
    dimensioni tramite selettori per id, più specifici delle vecchie regole .sc/.sc-filt-*,
    senza bisogno di toccarle. */
 .exp-arrow{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;color:var(--sub);font-size:19px;transition:transform 0.2s;flex-shrink:0}
-.ordini-sticky{position:sticky;top:var(--phdr-h,0px);z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
+.ordini-sticky{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
 .list-sticky{position:sticky;top:var(--phdr-h,0px);z-index:50;background:var(--bg);padding-top:2px;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
+#tab-riepilogo>.pbody>.list-sticky{top:0}
 body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#2C3E50}
 .list-sticky .sbox{margin-bottom:8px}
 .list-sticky .cp:last-child{margin-bottom:8px}
@@ -433,7 +435,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 #riepilogo-list .rp-art{font-size:18px}
 .rp-qty{font-size:16px;font-weight:900;color:var(--ev)}
 .rp-um{font-size:16px;font-weight:900;color:var(--ev)}
-@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody,body:not(.portrait-phone) #tab-nuovo .pbody,body:not(.portrait-phone) #tab-nuovo .phdr,body:not(.portrait-phone) #tab-ordini .phdr,body:not(.portrait-phone) #tab-riepilogo .phdr,body:not(.portrait-phone) #tab-storico .phdr,body:not(.portrait-phone) #tab-impostazioni .phdr{max-width:calc(100% - var(--sbw))}}
+@media(min-width:900px){body:not(.portrait-phone) #ordini-list,body:not(.portrait-phone) #riepilogo-list,body:not(.portrait-phone) #tab-impostazioni .pbody,body:not(.portrait-phone) #tab-nuovo .pbody,body:not(.portrait-phone) #tab-nuovo .phdr,body:not(.portrait-phone) #tab-storico .phdr,body:not(.portrait-phone) #tab-impostazioni .phdr,body:not(.portrait-phone) .ordini-sticky,body:not(.portrait-phone) .list-sticky{max-width:calc(100% - var(--sbw))}}
 body:not(.portrait-phone) #storico-riepilogo{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 16px;align-items:stretch}
 body:not(.portrait-phone) #storico-riepilogo>p{grid-column:1/-1}
 body:not(.portrait-phone) #storico-riepilogo .rp-row{margin-bottom:0}
@@ -725,9 +727,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
     <div class="page-wrap">
       <div class="sec active" id="tab-ordini">
-        <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label">Stampa tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
         <div class="pbody">
           <div class="ordini-sticky">
+            <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label">Stampa tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
             <div class="ordini-sticky-top">
               <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini()"></div>
               <div class="ordini-filt-row">
@@ -743,9 +745,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-riepilogo">
-        <div class="phdr"><h2>Riepilogo</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-riepilogo" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-riepilogo-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
         <div class="pbody">
           <div class="list-sticky">
+            <div class="phdr"><h2>Riepilogo</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-riepilogo" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-riepilogo-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
             <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo()"></div>
             <div class="cp" id="riepilogo-day-pills"></div>
             <div class="cp" id="riepilogo-cat-pills"></div>
@@ -1261,7 +1263,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.13.0';
+const APP_VERSION='2.13.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1866,8 +1868,9 @@ function renderStoricoMensile(){
 }
 function syncStickyHeaderHeights(){document.querySelectorAll('.card-sticky-host').forEach(function(card){const ch=card.querySelector('.ch');if(ch)card.style.setProperty('--ch-h',ch.offsetHeight+'px');});}
 function syncPhdrHeight(){
-  const phdr=document.querySelector('.sec.active .phdr');
+  const phdr=document.querySelector('.sec.active>.phdr');
   if(phdr)document.documentElement.style.setProperty('--phdr-h',phdr.offsetHeight+'px');
+  else document.documentElement.style.setProperty('--phdr-h','0px');
 }
 function smoothToggle(bodyEl,arrowEl,headerEl){
   if(!bodyEl)return;
