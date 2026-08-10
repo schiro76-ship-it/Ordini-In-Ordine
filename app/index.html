@@ -165,7 +165,7 @@ body.portrait-phone .phdr h2{color:#fff}
 .phdr-invita{display:none}
 body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
 body.portrait-phone .phdr-invita i{font-size:18px}
-.phdr-stampa{display:none;align-items:center;gap:6px;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;background:var(--azione);border:1.5px solid var(--azione);color:#fff}
+.phdr-stampa{display:none;align-items:center;gap:6px;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;background:#fff;border:1.5px solid var(--azione);color:var(--azione)}
 .phdr-stampa.visible{display:flex}
 .phdr-stampa i{font-size:18px}
 body.portrait-phone .phdr-stampa{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff}
@@ -173,7 +173,6 @@ body.portrait-phone .phdr input[type=number],body.portrait-phone .phdr span{colo
 body.portrait-phone #tab-ordini .empty .ei,body.portrait-phone #tab-riepilogo .empty .ei{color:rgba(255,255,255,0.6)}
 body:not(.portrait-phone) .phdr input[type=number]{color:var(--azione)!important}
 body:not(.portrait-phone) .phdr span{color:var(--azione)!important}
-body:not(.portrait-phone) .phdr-stampa span{color:#fff!important}
 body:not(.portrait-phone) #sel-count{color:var(--azione)!important}
 body.portrait-phone .phdr button:not(.phdr-invita):not(.phdr-stampa){background:var(--bg)!important;color:var(--sub)!important;border:1.5px solid var(--brd)!important}
 body.portrait-phone .phdr input[type=number]{border-bottom-color:#fff!important}
@@ -723,7 +722,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
     <div class="page-wrap">
       <div class="sec active" id="tab-ordini">
-        <div class="phdr"><div style="display:flex;align-items:center;gap:10px"><h2>Ordini</h2><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label">Stampa tutti</span></button></div><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
+        <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label">Stampa tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
         <div class="pbody">
           <div class="ordini-sticky">
             <div class="ordini-sticky-top">
@@ -741,7 +740,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-riepilogo">
-        <div class="phdr"><div style="display:flex;align-items:center;gap:10px"><h2>Riepilogo</h2><button class="phdr-stampa" id="phdr-stampa-riepilogo" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-riepilogo-label">Stampa</span></button></div><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
+        <div class="phdr"><h2>Riepilogo</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-riepilogo" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-riepilogo-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
         <div class="pbody">
           <div class="list-sticky">
             <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo()"></div>
@@ -752,7 +751,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-storico">
-        <div class="phdr"><div style="display:flex;align-items:center;gap:10px"><h2>Storico</h2><button class="phdr-stampa" id="phdr-stampa-storico" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-storico-label">Stampa</span></button></div><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
+        <div class="phdr"><h2>Storico</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-storico" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-storico-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
         <div class="pbody">
           <div class="card card-sticky-host" style="margin-bottom:20px">
             <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
@@ -862,7 +861,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-impostazioni">
-        <div class="phdr"><div style="display:flex;align-items:center;gap:10px"><h2>Impostazioni</h2><button class="phdr-stampa" id="phdr-stampa-impostazioni" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-impostazioni-label">Stampa</span></button></div><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div>
+        <div class="phdr"><h2>Impostazioni</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-impostazioni" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-impostazioni-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
         <div class="pbody">
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-tag"></i> Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderCatList();openModal('modal-cat')"><i class="ti ti-pencil"></i> Gestisci</button></div>
@@ -1259,7 +1258,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.12.1';
+const APP_VERSION='2.12.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
