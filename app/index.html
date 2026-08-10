@@ -302,6 +302,7 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .act-mod{background:var(--azione-s);color:var(--azione);transition:filter 0.15s}.act-mod:hover{filter:brightness(0.92)}.act-mod:active{filter:brightness(0.85)}
 .act-del{background:var(--rs);color:var(--r);transition:filter 0.15s}.act-del:hover{filter:brightness(0.92)}.act-del:active{filter:brightness(0.85)}
 .act-print{background:#EEF2FF;color:#4F46E5;transition:filter 0.15s}.act-print:hover{filter:brightness(0.92)}.act-print:active{filter:brightness(0.85)}
+.btn-condividi-print:hover{background:#F0F2F5;border-color:#256BC1;color:#256BC1;transition:background 0.15s,border-color 0.15s,color 0.15s}
 @media(min-width:640px){
   .oc-acts-row>.act-btn:not(.act-btn-mini){flex:none}
   .oc-acts-row .act-placeholder{display:none}
@@ -309,7 +310,6 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
   .oc-acts-mini .act-btn-mini{flex:none;width:38px}
 }
 .act-print-rp{background:#EEF2FF;color:#4F46E5;border:1.5px solid rgba(79,70,229,0.25);transition:filter 0.15s}.act-print-rp:hover{filter:brightness(0.92)}.act-print-rp:active{filter:brightness(0.85)}
-.btn-condividi-print:hover{background:#F0F2F5;border-color:#256BC1;color:#256BC1;transition:background 0.15s,border-color 0.15s,color 0.15s}
 .modal-act-green{background:#C6E8D5;color:var(--g);border:1.5px solid var(--g);transition:filter 0.15s}.modal-act-green:hover{filter:brightness(0.92)}.modal-act-green:active{filter:brightness(0.85)}
 .modal-act-grey{background:#E5E7EB;color:#374151;border:1.5px solid #6B7280;transition:filter 0.15s}.modal-act-grey:hover{filter:brightness(0.92)}.modal-act-grey:active{filter:brightness(0.85)}
 .modal-act-del{background:var(--rm);color:var(--r);border:1.5px solid var(--r);transition:filter 0.15s}.modal-act-del:hover{filter:brightness(0.92)}.modal-act-del:active{filter:brightness(0.85)}
@@ -1264,7 +1264,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.13.4';
+const APP_VERSION='2.14.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3445,7 +3445,8 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     <button id="btn-stampa-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
     <button id="btn-condividi-etichetta" class="btn-condividi-print" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:1.5px solid var(--brd,#DDE0E8);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-share-2"></i> Condividi</button>
     <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px solid #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi alla coda</button>
-    <div style="font-size:12px;color:#888;margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa"</div>
+    <button id="btn-stampa-immagine-test" style="width:100%;padding:12px;background:#fff;color:#059669;border:1.5px dashed #059669;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-flask"></i> Stampa come immagine (test)</button>
+    <div style="font-size:12px;color:#888;margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa", o se l'etichetta esce tagliata/ridimensionata male</div>
   </div>`;
   openModal('modal-etichetta');
   // Attach ai bottoni dopo render
@@ -3480,7 +3481,39 @@ function _mostraCanvasNelModal(canvas,oid,artId){
         closeModal('modal-etichetta');
       });
     }
+    const btnTest=document.getElementById('btn-stampa-immagine-test');
+    if(btnTest){
+      btnTest.addEventListener('click',function(){
+        _stampaComeImmagineTest(url);
+      });
+    }
   },100);
+}
+
+// TEST: carica l'immagine come risorsa diretta in un iframe (nessun
+// involucro HTML attorno) invece di un <img> dentro una pagina - tentativo
+// per far riconoscere al sistema di stampa un'immagine invece di un
+// "documento web", cosi' da ottenere dimensioni esatte in mm invece di A4.
+function _stampaComeImmagineTest(dataUrl){
+  fetch(dataUrl).then(function(r){return r.blob();}).then(function(blob){
+    const blobUrl=URL.createObjectURL(blob);
+    let ifr=document.getElementById('print-iframe-immagine-test');
+    if(!ifr){
+      ifr=document.createElement('iframe');
+      ifr.id='print-iframe-immagine-test';
+      ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+      document.body.appendChild(ifr);
+    }
+    function doPrint(){
+      try{
+        ifr.contentWindow.focus();
+        ifr.contentWindow.print();
+      }catch(e){console.warn('errore stampa immagine diretta',e);}
+      setTimeout(function(){URL.revokeObjectURL(blobUrl);},60000);
+    }
+    ifr.onload=doPrint;
+    ifr.src=blobUrl;
+  }).catch(function(e){console.warn('errore preparazione immagine',e);});
 }
 
 // Stampa isolata in un iframe nascosto, creato/scritto al momento del tap
