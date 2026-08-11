@@ -886,6 +886,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cb" style="display:flex;flex-direction:column;gap:10px">
               <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="esportaDati()"><span style="font-size:20px"><i class="ti ti-upload"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Salva una copia</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Scarica un file con tutti i tuoi dati</div></div></button>
               <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="document.getElementById('import-file').click()"><span style="font-size:20px"><i class="ti ti-download"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Ripristina da una copia</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Carica un file salvato in precedenza</div></div></button>
+              <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="apriModalBackup()"><span style="font-size:20px"><i class="ti ti-history"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Backup automatico</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Ripristina una copia salvata automaticamente</div></div></button>
             </div>
           </div>
           <div class="card">
@@ -1087,6 +1088,26 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-ios-install')">Ho capito</button></div>
   </div>
 </div>
+<div class="ov" id="modal-backup" style="align-items:center;padding:20px;z-index:200">
+  <div class="modal" style="max-width:400px">
+    <div class="mta"><i class="ti ti-history"></i> Backup automatico</div>
+    <p style="color:var(--sub);font-size:13px;font-weight:600;margin:-4px 0 14px">Ogni giorno salviamo automaticamente una copia dei tuoi ordini e articoli. Puoi ripristinarne una se serve.</p>
+    <div id="backup-list" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto"></div>
+    <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-backup')">Chiudi</button></div>
+  </div>
+</div>
+<div class="ov" id="modal-backup-conf" style="align-items:center;padding:20px;z-index:210">
+  <div class="modal" style="max-width:340px;text-align:center;border-radius:18px">
+    <div style="font-size:36px;margin-bottom:12px"><i class="ti ti-history"></i></div>
+    <div class="mta" id="modal-backup-conf-txt" style="font-size:18px"></div>
+    <p style="color:var(--sub);font-size:14px;font-weight:600;margin-bottom:14px">Gli ordini e gli articoli attuali verranno sostituiti con quelli salvati in questa data.</p>
+    <button class="btn bg2 btn-full" style="margin-bottom:16px;font-size:13px" onclick="closeModal('modal-backup-conf');esportaDati()"><i class="ti ti-upload"></i> Salva prima una copia di quello che hai adesso</button>
+    <div class="ma">
+      <button class="btn bg2" style="flex:1" onclick="closeModal('modal-backup-conf')">Annulla</button>
+      <button class="btn btn-danger" style="flex:1" id="modal-backup-conf-btn">Ripristina</button>
+    </div>
+  </div>
+</div>
 <div class="ov" id="modal-um">
   <div class="modal">
     <div class="mta"><i class="ti ti-ruler-2"></i> Unità di misura</div>
@@ -1264,7 +1285,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.14.6';
+const APP_VERSION='2.14.8';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1297,6 +1318,7 @@ const LIMITE_DISPOSITIVI=5;
 let _dispositivi={};
 const DEFAULT_UM=['kg','g','fette','pezzi','vaschette','bustine'];
 const DEFAULT_ARTS=getAttivitaById('macelleria').arts.map((a,i)=>({id:i+1,...a}));
+async function incrementaStampeCount(n){stampeCount=(stampeCount||0)+n;try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).update({stampeCount:firebase.firestore.FieldValue.increment(n)});}catch(e){console.warn('Incremento stampeCount fallito',e);}}
 async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}
 _notifSettingsAll[_deviceId]={nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti};
 const _orNuovo=Object.values(_notifSettingsAll).some(v=>v&&v.nuovoOrdine!==false);
@@ -3189,7 +3211,7 @@ function closeModal(id){
   if(!document.querySelector('.ov.open'))document.body.style.overflow='';
   if(id==='modal-det')renderOrdini();
 }
-document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
+document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo','modal-backup','modal-backup-conf'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
 function apriSegnalaProblema(){document.getElementById('segnala-testo').value='';openModal('modal-segnala');}
 async function inviaSegnalazione(){
   const testo=document.getElementById('segnala-testo').value.trim();
@@ -3453,14 +3475,14 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     const btnStampa=document.getElementById('btn-stampa-etichetta');
     if(btnStampa){
       btnStampa.addEventListener('click',function(){
-        stampeCount=(stampeCount||0)+1;saveData();
+        incrementaStampeCount(1);
         _stampaViaIframe(url,canvas.width,canvas.height);
       });
     }
     const btnCondividi=document.getElementById('btn-condividi-etichetta');
     if(btnCondividi){
       btnCondividi.addEventListener('click',async function(){
-        stampeCount=(stampeCount||0)+1;saveData();
+        incrementaStampeCount(1);
         try{
           const blob=await(await fetch(url)).blob();
           const file=new File([blob],'etichetta.png',{type:'image/png'});
@@ -3620,6 +3642,10 @@ function rimuoviDalGruppoStampa(idx){
   else closeModal('modal-gruppo-stampa');
 }
 
+function formattaDataBackup(iso){const d=new Date(iso+'T00:00:00');const oggi=new Date();oggi.setHours(0,0,0,0);const diffGiorni=Math.round((oggi-d)/86400000);if(diffGiorni===0)return 'Oggi';if(diffGiorni===1)return 'Ieri';return d.toLocaleDateString('it-IT',{day:'numeric',month:'long'})+' · '+diffGiorni+' giorni fa';}
+async function apriModalBackup(){const wrap=document.getElementById('backup-list');wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub);font-size:13px">Caricamento…</div>';openModal('modal-backup');try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).collection('backups').orderBy(firebase.firestore.FieldPath.documentId(),'desc').limit(14).get();if(snap.empty){wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub);font-size:13px">Nessun backup disponibile ancora. Il primo verrà creato entro le prossime 24 ore.</div>';return;}wrap.innerHTML='';snap.docs.forEach(function(doc,i){const dataId=doc.id;const isFirst=i===0;const btn=document.createElement('button');btn.className='btn '+(isFirst?'br':'bg2')+' btn-full';btn.style.cssText='justify-content:flex-start;gap:12px;text-align:left';btn.innerHTML='<span style="font-size:18px"><i class="ti ti-'+(isFirst?'star':'calendar-event')+'"></i></span><div><div style="font-size:14px;font-weight:900">'+formattaDataBackup(dataId)+'</div>'+(isFirst?'<div style="font-size:11px;font-weight:700;opacity:.85">Più recente disponibile</div>':'')+'</div>';btn.onclick=function(){apriConfermaRipristinoBackup(dataId);};wrap.appendChild(btn);});}catch(e){console.warn('Errore caricamento backup',e);wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub);font-size:13px">Errore nel caricamento dei backup.</div>';}}
+function apriConfermaRipristinoBackup(dataId){closeModal('modal-backup');document.getElementById('modal-backup-conf-txt').textContent='Ripristinare i dati a '+formattaDataBackup(dataId).toLowerCase()+'?';document.getElementById('modal-backup-conf-btn').onclick=function(){closeModal('modal-backup-conf');eseguiRipristinoBackup(dataId);};openModal('modal-backup-conf');}
+async function eseguiRipristinoBackup(dataId){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).collection('backups').doc(dataId).get();if(!snap.exists){toast('Backup non trovato','err');return;}const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};await saveData();refreshAll();toast('Dati ripristinati','v');}catch(e){console.warn('Errore ripristino backup',e);toast('Errore nel ripristino','err');}}
 function apriModalGruppoStampa(){
   if(!_gruppoStampa.length){toast('Nessuna etichetta in coda','err');return;}
   renderGruppoStampaModal();
@@ -3685,7 +3711,7 @@ function stampaGruppo(){
     urls.push(canvas.toDataURL('image/png'));
   });
   if(!urls.length){toast('Nessuna etichetta valida da stampare','err');return;}
-  stampeCount=(stampeCount||0)+urls.length;saveData();
+  incrementaStampeCount(urls.length);
   _stampaMultiplaViaIframe(urls);
   _gruppoStampa=[];
   _aggiornaBadgeGruppo();
