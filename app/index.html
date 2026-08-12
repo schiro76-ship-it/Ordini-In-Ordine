@@ -1284,7 +1284,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.15.1';
+const APP_VERSION='2.15.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1319,6 +1319,29 @@ const DEFAULT_UM=['kg','g','fette','pezzi','vaschette','bustine'];
 const DEFAULT_ARTS=getAttivitaById('macelleria').arts.map((a,i)=>({id:i+1,...a}));
 async function incrementaStampeCount(n){stampeCount=(stampeCount||0)+n;try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).update({stampeCount:firebase.firestore.FieldValue.increment(n)});}catch(e){console.warn('Incremento stampeCount fallito',e);}}
 async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}
+// --- Controllo conflitti (agosto 2026, dopo l'incidente di perdita dati): prima di scrivere,
+// verifica che nessun ordine presente su Firestore sia assente dalla memoria locale. Un ordine
+// remoto sconosciuto qui significa che un altro dispositivo lo ha aggiunto nel frattempo (es.
+// questo dispositivo era rimasto in background a lungo) — in quel caso NON si scrive (si
+// eviterebbe di sovrascriverlo), si ricaricano i dati freschi e si avvisa l'utente. Non blocca
+// invece se manca un ordine che questo stesso dispositivo ha appena cancellato: si guarda solo
+// agli ID remoti assenti in locale, mai il contrario.
+try{
+  const uid=currentUser?currentUser.uid:DOC_ID;
+  const remoteSnap=await db.collection('dati').doc(uid).get();
+  if(remoteSnap.exists){
+    const remoteOrds=remoteSnap.data().ords||[];
+    const idLocali=new Set(ords.map(o=>o.id));
+    const nuoviAltrove=remoteOrds.filter(o=>!idLocali.has(o.id));
+    if(nuoviAltrove.length>0){
+      console.warn('saveData bloccato: '+nuoviAltrove.length+' ordine/i su Firestore assente/i in memoria locale (probabile scrittura da un altro dispositivo)');
+      await loadData();
+      refreshAll();
+      toast('Dati aggiornati da un altro dispositivo: ricontrolla prima di salvare di nuovo','err');
+      return;
+    }
+  }
+}catch(e){console.warn('Controllo conflitti saveData fallito, procedo comunque',e);}
 _notifSettingsAll[_deviceId]={nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti};
 const _orNuovo=Object.values(_notifSettingsAll).some(v=>v&&v.nuovoOrdine!==false);
 const _orUrg=Object.values(_notifSettingsAll).some(v=>v&&v.ordiniUrgenti!==false);
