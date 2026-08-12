@@ -302,7 +302,6 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .act-mod{background:var(--azione-s);color:var(--azione);transition:filter 0.15s}.act-mod:hover{filter:brightness(0.92)}.act-mod:active{filter:brightness(0.85)}
 .act-del{background:var(--rs);color:var(--r);transition:filter 0.15s}.act-del:hover{filter:brightness(0.92)}.act-del:active{filter:brightness(0.85)}
 .act-print{background:#EEF2FF;color:#4F46E5;transition:filter 0.15s}.act-print:hover{filter:brightness(0.92)}.act-print:active{filter:brightness(0.85)}
-.btn-condividi-print:hover{background:#F0F2F5;border-color:#256BC1;color:#256BC1;transition:background 0.15s,border-color 0.15s,color 0.15s}
 @media(min-width:640px){
   .oc-acts-row>.act-btn:not(.act-btn-mini){flex:none}
   .oc-acts-row .act-placeholder{display:none}
@@ -1285,7 +1284,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.14.9';
+const APP_VERSION='2.15.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3465,24 +3464,14 @@ function _mostraCanvasNelModal(canvas,oid,artId){
   el.innerHTML=`<div style="text-align:center">
     <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
     <button id="btn-stampa-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
-    <button id="btn-condividi-etichetta" class="btn-condividi-print" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:1.5px solid var(--brd,#DDE0E8);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-share-2"></i> Condividi</button>
     <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px solid #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi alla coda</button>
-    <button id="btn-stampa-blob-test" style="width:100%;padding:12px;background:#fff;color:#059669;border:1.5px dashed #059669;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-flask"></i> Stampa al volo (test blob)</button>
-    <div style="font-size:12px;color:#888;margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa", o se l'etichetta esce tagliata/ridimensionata male</div>
   </div>`;
   openModal('modal-etichetta');
   // Attach ai bottoni dopo render
   setTimeout(function(){
     const btnStampa=document.getElementById('btn-stampa-etichetta');
     if(btnStampa){
-      btnStampa.addEventListener('click',function(){
-        incrementaStampeCount(1);
-        _stampaViaIframe(url,canvas.width,canvas.height);
-      });
-    }
-    const btnCondividi=document.getElementById('btn-condividi-etichetta');
-    if(btnCondividi){
-      btnCondividi.addEventListener('click',async function(){
+      btnStampa.addEventListener('click',async function(){
         incrementaStampeCount(1);
         try{
           const blob=await(await fetch(url)).blob();
@@ -3503,80 +3492,13 @@ function _mostraCanvasNelModal(canvas,oid,artId){
         closeModal('modal-etichetta');
       });
     }
-    const btnBlobTest=document.getElementById('btn-stampa-blob-test');
-    if(btnBlobTest){
-      btnBlobTest.addEventListener('click',function(){
-        stampaEtichettaAlVolo(url);
-      });
-    }
   },100);
 }
 
-// TEST: come _stampaViaIframe ma con URL blob: (invece di data: o
-// dell'iframe con <img> incapsulato in HTML) - tentativo per vedere se
-// una finestra di primo livello navigata a un blob: URL viene trattata
-// diversamente ai fini della stampa rispetto a un data: URI o a un iframe.
-function stampaEtichettaAlVolo(urlImmagine){
-  fetch(urlImmagine)
-    .then(function(response){return response.blob();})
-    .then(function(blob){
-      const blobURL=URL.createObjectURL(blob);
-      const winStampa=window.open(blobURL,'_blank');
-      if(!winStampa){
-        toast('Finestra bloccata dal browser','err');
-        URL.revokeObjectURL(blobURL);
-        return;
-      }
-      let printed=false;
-      function doPrint(){
-        if(printed)return;
-        printed=true;
-        try{winStampa.print();}catch(e){console.warn('errore stampa blob',e);}
-        setTimeout(function(){URL.revokeObjectURL(blobURL);},60000);
-      }
-      winStampa.onload=doPrint;
-      setTimeout(doPrint,700);
-    })
-    .catch(function(err){console.error("Errore nel recupero dell'immagine per la stampa:",err);});
-}
-
-// Stampa isolata in un iframe nascosto, creato/scritto al momento del tap
-// e riusato tra una stampa e l'altra (stesso elemento, non ricreato ogni
-// volta): il browser calcola il layout di stampa solo per questo
-// mini-documento (solo immagine), non per l'intera app - evita ritardi
-// dovuti al ricalcolo dell'intera SPA. Dimensioni pagina forzate in mm
-// (calcolate dalle dimensioni reali del canvas, sapendo che 591px=62mm,
-// larghezza del rotolo) invece di lasciare che il browser assuma A4.
-function _stampaViaIframe(url,wPx,hPx){
-  const MM_PER_PX=62/591;
-  const wMm=((wPx||591)*MM_PER_PX).toFixed(2);
-  const hMm=((hPx||wPx||591)*MM_PER_PX).toFixed(2);
-  let ifr=document.getElementById('print-iframe-etichetta');
-  if(!ifr){
-    ifr=document.createElement('iframe');
-    ifr.id='print-iframe-etichetta';
-    ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
-    document.body.appendChild(ifr);
-  }
-  const doc=ifr.contentDocument||ifr.contentWindow.document;
-  doc.open();
-  doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:'+wMm+'mm '+hMm+'mm;margin:0}body{margin:0}img{width:100%;display:block}</style></head><body><img src="'+url+'"></body></html>');
-  doc.close();
-  function doPrint(){
-    try{
-      ifr.contentWindow.focus();
-      ifr.contentWindow.print();
-    }catch(e){console.warn('iframe print error',e);}
-  }
-  const img=doc.querySelector('img');
-  if(img&&img.complete)doPrint();
-  else if(img){img.onload=doPrint;img.onerror=doPrint;}
-  else doPrint();
-}
-
-// ── GRUPPO DI STAMPA (stampa multipla di più etichette in un'unica
-// sessione di print(), per non far ricomparire il prompt di conferma di
-// Safari dopo la prima stampa) ──
+// ── GRUPPO DI STAMPA (stampa multipla di più etichette: al momento della
+// stampa, tutte le immagini vengono condivise insieme in un'unica
+// chiamata a navigator.share(), cosi' l'utente sceglie "Stampa" una sola
+// volta per l'intero lotto) ──
 let _gruppoStampa=[]; // array di {oid, artId} (artId null = etichetta ordine intero)
 
 function _gruppoTrovaIndice(oid,artId){
@@ -3736,60 +3658,30 @@ function renderGruppoStampaModal(){
   if(btn)btn.innerHTML='<i class="ti ti-printer"></i> Stampa ('+_gruppoStampa.length+')';
 }
 
-function stampaGruppo(){
+async function stampaGruppo(){
   if(!_gruppoStampa.length)return;
-  const urls=[];
-  _gruppoStampa.forEach(function(g){
+  const files=[];
+  let idx=0;
+  for(const g of _gruppoStampa){
     const o=ords.find(x=>x.id===g.oid);
-    if(!o)return;
+    if(!o)continue;
     const canvas=_disegnaEtichetta(o,g.artId);
-    urls.push(canvas.toDataURL('image/png'));
-  });
-  if(!urls.length){toast('Nessuna etichetta valida da stampare','err');return;}
-  incrementaStampeCount(urls.length);
-  _stampaMultiplaViaIframe(urls);
+    const url=canvas.toDataURL('image/png');
+    try{
+      const blob=await(await fetch(url)).blob();
+      files.push(new File([blob],'etichetta-'+(++idx)+'.png',{type:'image/png'}));
+    }catch(e){console.warn('errore preparazione etichetta gruppo',e);}
+  }
+  if(!files.length){toast('Nessuna etichetta valida da stampare','err');return;}
+  incrementaStampeCount(files.length);
+  try{
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:files})){
+      await navigator.share({files:files,title:'Etichette ordini'});
+    }
+  }catch(e){console.warn('share error (gruppo)',e);}
   _gruppoStampa=[];
   _aggiornaBadgeGruppo();
   closeModal('modal-gruppo-stampa');
-}
-
-// Come _stampaViaIframe ma con più immagini, una per pagina (interruzione
-// di pagina dopo ognuna tranne l'ultima) - una sola chiamata a print()
-// per tutto il lotto, cosi la stampante taglia ogni etichetta
-// singolarmente sul rotolo continuo senza far ricomparire il prompt di
-// conferma di Safari per ogni singola etichetta.
-function _stampaMultiplaViaIframe(urls){
-  let ifr=document.getElementById('print-iframe-etichetta');
-  if(!ifr){
-    ifr=document.createElement('iframe');
-    ifr.id='print-iframe-etichetta';
-    ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
-    document.body.appendChild(ifr);
-  }
-  const doc=ifr.contentDocument||ifr.contentWindow.document;
-  const imgsHtml=urls.map(function(u){return '<img src="'+u+'">';}).join('');
-  doc.open();
-  doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{margin:0}body{margin:0}img{width:100%;display:block;page-break-after:always}img:last-child{page-break-after:auto}</style></head><body>'+imgsHtml+'</body></html>');
-  doc.close();
-  function doPrint(){
-    try{
-      ifr.contentWindow.focus();
-      ifr.contentWindow.print();
-    }catch(e){console.warn('iframe print error (multipla)',e);}
-  }
-  const imgs=doc.querySelectorAll('img');
-  if(!imgs.length){doPrint();return;}
-  let caricate=0;
-  const tot=imgs.length;
-  imgs.forEach(function(im){
-    if(im.complete){
-      caricate++;
-    } else {
-      im.onload=function(){caricate++;if(caricate===tot)doPrint();};
-      im.onerror=function(){caricate++;if(caricate===tot)doPrint();};
-    }
-  });
-  if(caricate===tot)doPrint();
 }
 
 function stampaEtichetta(id){
