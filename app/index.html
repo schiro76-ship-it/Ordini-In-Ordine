@@ -1283,7 +1283,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.18.0';
+const APP_VERSION='2.18.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -2098,55 +2098,21 @@ async function toggleRp(key){
     container.querySelectorAll('[data-artid]').forEach(el=>{
       rpFirst[el.dataset.artid]=el.getBoundingClientRect().top;
     });
-    const tuttiDoneIds=new Set();
+    if(!altreEspanse)_rpOrdineCongelato=null;
+    renderRiepilogo(true);
     container.querySelectorAll('[data-artid]').forEach(el=>{
-      const aid=parseInt(el.dataset.artid);
-      const m={};
-      ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done))).forEach(o=>(o.items||[]).forEach(it=>{const k=String(it.artId);if(!m[k])m[k]={artId:it.artId,ordini:[]};m[k].ordini.push(Object.assign({},it,{ordine:o}));}));
-      const v=Object.values(m).find(v=>v.artId===aid);
-      if(v&&v.ordini.every(x=>x.done))tuttiDoneIds.add(el.dataset.artid);
+      const aid=el.dataset.artid;
+      if(rpFirst[aid]===undefined)return;
+      const dy=rpFirst[aid]-el.getBoundingClientRect().top;
+      if(Math.abs(dy)<2)return;
+      el.style.transition='none';
+      el.style.transform='translateY('+dy+'px)';
+      requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+        el.style.transition='transform 0.42s cubic-bezier(0.25,0.8,0.25,1)';
+        el.style.transform='translateY(0)';
+        el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
+      });});
     });
-    const doReorder=()=>{
-      if(altreEspanse){
-        if(tuttiDoneIds.has(String(key))){
-          const el=container.querySelector('[data-artid="'+key+'"]');
-          if(el){
-            el.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
-            el.style.transform='translateX(100px)';el.style.opacity='0';
-            setTimeout(()=>renderRiepilogo(true),280);
-          } else { renderRiepilogo(true); }
-        } else { renderRiepilogo(true); }
-        return;
-      }
-      const slideOutEls=[];
-      tuttiDoneIds.forEach(aid=>{
-        const el=container.querySelector('[data-artid="'+aid+'"]');
-        if(el){
-          el.style.transition='transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.28s ease';
-          el.style.transform='translateX(100px)';el.style.opacity='0';
-          slideOutEls.push(aid);
-        }
-      });
-      const doFlip=()=>{
-        _rpOrdineCongelato=null;
-        renderRiepilogo(true);
-        container.querySelectorAll('[data-artid]').forEach(el=>{
-          const aid=el.dataset.artid;
-          if(rpFirst[aid]===undefined||tuttiDoneIds.has(aid))return;
-          const dy=rpFirst[aid]-el.getBoundingClientRect().top;
-          if(Math.abs(dy)<2)return;
-          el.style.transition='none';
-          el.style.transform='translateY('+dy+'px)';
-          requestAnimationFrame(()=>{requestAnimationFrame(()=>{
-            el.style.transition='transform 0.42s cubic-bezier(0.25,0.8,0.25,1)';
-            el.style.transform='translateY(0)';
-            el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
-          });});
-        });
-      };
-      if(slideOutEls.length>0){setTimeout(doFlip,280);}else{doFlip();}
-    };
-    doReorder();
   } else {
     renderRiepilogo();
     const container=document.getElementById('riepilogo-list');
