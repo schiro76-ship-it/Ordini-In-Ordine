@@ -1285,7 +1285,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.19.1';
+const APP_VERSION='2.19.3';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -2320,7 +2320,7 @@ function renderDetModal(o){
         ${umPills}
       </div>
       <div style="display:flex;align-items:center;gap:6px">
-        <input class="sel-input-nota" type="text" placeholder="Nota" value="${(it.nota||'').replace(/"/g,'&quot;')}" ${isRitirato?'disabled':''} oninput="updItem(${o.id},${idx},'nota',this.value)" style="flex:1">
+        <input class="sel-input-nota" type="text" placeholder="Nota" value="${(it.nota||'').replace(/"/g,'&quot;')}" data-oid="${o.id}" ${isRitirato?'disabled':''} oninput="updItem(${o.id},${idx},'nota',this.value)" style="flex:1">
         <button class="qty-search" onmousedown="event.preventDefault()" onclick="detFocusCerca(${o.id})" style="${isRitirato?'visibility:hidden':''}"><i class="ti ti-search"></i></button>
       </div>
       ${imgRow}
@@ -2330,9 +2330,9 @@ function renderDetModal(o){
     <div style="background:${hBg};color:#fff;padding:14px 16px;border-radius:12px;margin-bottom:14px">
       <div style="display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:end;margin-bottom:8px">
         <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">#Num</div>
-          <input type="text" inputmode="numeric" pattern="[0-9]*" value="${o.num}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;color:#fff;outline:none;" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="det-num" value="${o.num}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;color:#fff;outline:none;caret-color:#fff" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
         <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Nome *</div>
-          <input value="${o.nome.replace(/"/g,'&quot;')}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
+          <input id="det-nome" value="${o.nome.replace(/"/g,'&quot;')}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
         <div style="display:flex;flex-direction:column;flex-shrink:0"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Data</div>
           <button onclick="toggleDetCal(${o.id})" style="height:36px;box-sizing:border-box;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px">
             <i class="ti ti-calendar" style="font-size:16px"></i> <span id="det-data-lbl">${o.data?o.data:'—'}${o.ora?' <i class="ti ti-clock" style="font-size:16px"></i>'+o.ora:o.turno?' '+(o.turno==='mattina'?'<i class="ti ti-sun" style="font-size:16px"></i>':'<i class="ti ti-sunset-2" style="font-size:16px"></i>'):''}</span>
@@ -2340,7 +2340,7 @@ function renderDetModal(o){
         </div>
       </div>
       <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700"><i class="ti ti-notes"></i> Note</div>
-        <input class="det-note-input" value="${(o.note||'').replace(/"/g,'&quot;')}" placeholder="Es. Pagato, consegnare a domicilio…" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none" oninput="updOrdCampo(${o.id},'note',this.value)"></div>
+        <input class="det-note-input" id="det-note" value="${(o.note||'').replace(/"/g,'&quot;')}" placeholder="Es. Pagato, consegnare a domicilio…" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'note',this.value)"></div>
       <div id="det-cal-wrap" style="display:none;margin-top:6px">
         <div class="cal-compact" id="det-cal-compact">
           <div class="cal-nav"><button onclick="detCalNav(${o.id},-1)">‹</button><span class="cn-lbl" id="det-cal-lbl"></span><button onclick="detCalNav(${o.id},+1)">›</button></div>
@@ -3983,6 +3983,21 @@ document.addEventListener('keydown',function(e){
   e.preventDefault();
   if(idx===_nuovoFieldOrder.length-1){salvaOrdine();return;}
   const next=document.getElementById(_nuovoFieldOrder[idx+1]);
+  if(next)next.focus();
+});
+// Stesso comportamento del tasto Invio anche in Modifica ordine (modal-det): dalla nota di un
+// articolo torna alla ricerca, e tra i campi principali (numero/nome/note/ricerca) passa al successivo.
+const _detFieldOrder=['det-cal-time-inp','det-num','det-nome','det-note','det-search-art'];
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;
+  const t=e.target;
+  if(!t||!t.closest||!t.closest('#modal-det'))return;
+  if(t.classList&&t.classList.contains('sel-input-nota')){e.preventDefault();detFocusCerca(parseInt(t.dataset.oid));return;}
+  const idx=_detFieldOrder.indexOf(t.id);
+  if(idx===-1)return;
+  e.preventDefault();
+  if(idx===_detFieldOrder.length-1){closeModal('modal-det');return;}
+  const next=document.getElementById(_detFieldOrder[idx+1]);
   if(next)next.focus();
 });
 // Invio = attiva il bottone principale del campo in cui ci si trova (Accedi, Conferma, Salva, ecc.).
