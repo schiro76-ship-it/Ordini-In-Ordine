@@ -1284,7 +1284,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.15.2';
+const APP_VERSION='2.16.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -3496,16 +3496,27 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     if(btnStampa){
       btnStampa.addEventListener('click',async function(){
         incrementaStampeCount(1);
-        try{
-          const blob=await(await fetch(url)).blob();
-          const file=new File([blob],'etichetta.png',{type:'image/png'});
-          if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-            await navigator.share({files:[file],title:'Etichetta ordine'});
-            return;
-          }
-        }catch(e){console.warn('share error',e);}
-        // Fallback download
-        const a=document.createElement('a');a.href=url;a.download='etichetta.png';a.click();
+        if(_isTouchDevice()){
+          // Touch (telefono/tablet): pannello di condivisione, l'utente
+          // sceglie "Stampa" da li' - unico percorso che da' dimensioni
+          // corrette su iOS/Android.
+          try{
+            const blob=await(await fetch(url)).blob();
+            const file=new File([blob],'etichetta.png',{type:'image/png'});
+            if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+              await navigator.share({files:[file],title:'Etichetta ordine'});
+              return;
+            }
+          }catch(e){console.warn('share error',e);}
+          // Fallback download
+          const a=document.createElement('a');a.href=url;a.download='etichetta.png';a.click();
+        } else {
+          // Desktop (mouse/trackpad): il pannello di condivisione non ha
+          // "Stampa" tra le opzioni su macOS/Windows/Linux - qui si usa
+          // il dialog di stampa diretto del browser, che su desktop non
+          // ha mai avuto i problemi di formato riscontrati su iOS.
+          _stampaViaIframe(url,canvas.width,canvas.height);
+        }
       });
     }
     const btnGruppo=document.getElementById('btn-aggiungi-gruppo-etichetta');
@@ -3516,6 +3527,87 @@ function _mostraCanvasNelModal(canvas,oid,artId){
       });
     }
   },100);
+}
+
+// Rileva se il dispositivo e' touch-primary (telefono/tablet) o punta con
+// mouse/trackpad (desktop/laptop) - stesso criterio gia' usato altrove
+// nell'app (checkPortrait) per distinguere i due contesti.
+function _isTouchDevice(){
+  return ('ontouchstart' in window)||navigator.maxTouchPoints>0;
+}
+
+// Stampa diretta via iframe nascosto, per desktop: il browser calcola il
+// layout di stampa solo per questo mini-documento (solo immagine), non
+// per l'intera app. Dimensioni pagina forzate in mm (calcolate dalle
+// dimensioni reali del canvas, sapendo che 591px=62mm, larghezza del
+// rotolo) invece di lasciare che il browser assuma A4.
+function _stampaViaIframe(url,wPx,hPx){
+  const MM_PER_PX=62/591;
+  const wMm=((wPx||591)*MM_PER_PX).toFixed(2);
+  const hMm=((hPx||wPx||591)*MM_PER_PX).toFixed(2);
+  let ifr=document.getElementById('print-iframe-etichetta');
+  if(!ifr){
+    ifr=document.createElement('iframe');
+    ifr.id='print-iframe-etichetta';
+    ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+    document.body.appendChild(ifr);
+  }
+  const doc=ifr.contentDocument||ifr.contentWindow.document;
+  doc.open();
+  doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:'+wMm+'mm '+hMm+'mm;margin:0}body{margin:0}img{width:100%;display:block}</style></head><body><img src="'+url+'"></body></html>');
+  doc.close();
+  function doPrint(){
+    try{
+      ifr.contentWindow.focus();
+      ifr.contentWindow.print();
+    }catch(e){console.warn('iframe print error',e);}
+  }
+  const img=doc.querySelector('img');
+  if(img&&img.complete)doPrint();
+  else if(img){img.onload=doPrint;img.onerror=doPrint;}
+  else doPrint();
+}
+
+// Come _stampaViaIframe ma per più etichette insieme (usata da stampaGruppo
+// su desktop): una per pagina, interruzione di pagina dopo ognuna tranne
+// l'ultima, una sola chiamata a print() per l'intero lotto. L'altezza
+// pagina resta "auto" (il browser desktop la adatta al contenuto reale
+// di ogni pagina), solo la larghezza è forzata in mm.
+function _stampaMultiplaViaIframe(items){
+  let ifr=document.getElementById('print-iframe-etichetta');
+  if(!ifr){
+    ifr=document.createElement('iframe');
+    ifr.id='print-iframe-etichetta';
+    ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+    document.body.appendChild(ifr);
+  }
+  const doc=ifr.contentDocument||ifr.contentWindow.document;
+  const MM_PER_PX=62/591;
+  const maxWpx=Math.max.apply(null,items.map(function(it){return it.w||591;}));
+  const wMm=(maxWpx*MM_PER_PX).toFixed(2);
+  const imgsHtml=items.map(function(it){return '<img src="'+it.url+'">';}).join('');
+  doc.open();
+  doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:'+wMm+'mm auto;margin:0}body{margin:0}img{width:100%;display:block;page-break-after:always}img:last-child{page-break-after:auto}</style></head><body>'+imgsHtml+'</body></html>');
+  doc.close();
+  function doPrint(){
+    try{
+      ifr.contentWindow.focus();
+      ifr.contentWindow.print();
+    }catch(e){console.warn('iframe print error (multipla)',e);}
+  }
+  const imgs=doc.querySelectorAll('img');
+  if(!imgs.length){doPrint();return;}
+  let caricate=0;
+  const tot=imgs.length;
+  imgs.forEach(function(im){
+    if(im.complete){
+      caricate++;
+    } else {
+      im.onload=function(){caricate++;if(caricate===tot)doPrint();};
+      im.onerror=function(){caricate++;if(caricate===tot)doPrint();};
+    }
+  });
+  if(caricate===tot)doPrint();
 }
 
 // ── GRUPPO DI STAMPA (stampa multipla di più etichette: al momento della
@@ -3683,25 +3775,41 @@ function renderGruppoStampaModal(){
 
 async function stampaGruppo(){
   if(!_gruppoStampa.length)return;
-  const files=[];
-  let idx=0;
-  for(const g of _gruppoStampa){
-    const o=ords.find(x=>x.id===g.oid);
-    if(!o)continue;
-    const canvas=_disegnaEtichetta(o,g.artId);
-    const url=canvas.toDataURL('image/png');
-    try{
-      const blob=await(await fetch(url)).blob();
-      files.push(new File([blob],'etichetta-'+(++idx)+'.png',{type:'image/png'}));
-    }catch(e){console.warn('errore preparazione etichetta gruppo',e);}
-  }
-  if(!files.length){toast('Nessuna etichetta valida da stampare','err');return;}
-  incrementaStampeCount(files.length);
-  try{
-    if(navigator.share&&navigator.canShare&&navigator.canShare({files:files})){
-      await navigator.share({files:files,title:'Etichette ordini'});
+  if(_isTouchDevice()){
+    // Touch (telefono/tablet): tutte le etichette condivise insieme in
+    // un'unica chiamata, l'utente sceglie "Stampa" una volta sola.
+    const files=[];
+    let idx=0;
+    for(const g of _gruppoStampa){
+      const o=ords.find(x=>x.id===g.oid);
+      if(!o)continue;
+      const canvas=_disegnaEtichetta(o,g.artId);
+      const url=canvas.toDataURL('image/png');
+      try{
+        const blob=await(await fetch(url)).blob();
+        files.push(new File([blob],'etichetta-'+(++idx)+'.png',{type:'image/png'}));
+      }catch(e){console.warn('errore preparazione etichetta gruppo',e);}
     }
-  }catch(e){console.warn('share error (gruppo)',e);}
+    if(!files.length){toast('Nessuna etichetta valida da stampare','err');return;}
+    incrementaStampeCount(files.length);
+    try{
+      if(navigator.share&&navigator.canShare&&navigator.canShare({files:files})){
+        await navigator.share({files:files,title:'Etichette ordini'});
+      }
+    }catch(e){console.warn('share error (gruppo)',e);}
+  } else {
+    // Desktop: dialog di stampa diretto, un'etichetta per pagina.
+    const urls=[];
+    _gruppoStampa.forEach(function(g){
+      const o=ords.find(x=>x.id===g.oid);
+      if(!o)return;
+      const canvas=_disegnaEtichetta(o,g.artId);
+      urls.push({url:canvas.toDataURL('image/png'),w:canvas.width,h:canvas.height});
+    });
+    if(!urls.length){toast('Nessuna etichetta valida da stampare','err');return;}
+    incrementaStampeCount(urls.length);
+    _stampaMultiplaViaIframe(urls);
+  }
   _gruppoStampa=[];
   _aggiornaBadgeGruppo();
   closeModal('modal-gruppo-stampa');
