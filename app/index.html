@@ -1289,7 +1289,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.20.3';
+const APP_VERSION='2.20.4';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -2792,12 +2792,19 @@ async function addArtRapido(){
     detQArtOid=null;
   } else {
     sel.push({id:id,qty:'',um:'',nota:'',done:false});
+    // Crea input temporaneo e focus sincrono prima del render — unico modo per aprire tastiera su iOS
+    const _tmp=document.createElement('input');
+    _tmp.setAttribute('type','number');
+    _tmp.style.cssText='position:fixed;top:0;left:0;opacity:0;width:1px;height:1px;';
+    document.body.appendChild(_tmp);
+    _tmp.focus();
     catS='Tutti';renderPills();renderArtS();renderSP();
     setTimeout(function(){
       const card=document.querySelector('[data-sp-id="'+id+'"]')||document.getElementById('qin-'+id);
       if(card)card.scrollIntoView({behavior:'smooth',block:'center'});
       const inp=document.getElementById('qin-'+id);
       if(inp)inp.focus();
+      if(_tmp.parentNode)_tmp.parentNode.removeChild(_tmp);
     },80);
     saveData();
     toast('"'+n+'" aggiunto','v');
