@@ -1284,9 +1284,9 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.17.3';
+const APP_VERSION='2.17.4';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
-let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
+let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
 let fcmTokens={}; // Mappa {deviceId: token} — un solo token per dispositivo, sincronizzata su Firestore
 // ID dispositivo persistente, generato una volta sola per browser/installazione — NON sincronizzato (deve restare locale)
@@ -1332,7 +1332,7 @@ try{
   if(remoteSnap.exists){
     const remoteOrds=remoteSnap.data().ords||[];
     const idLocali=new Set(ords.map(o=>o.id));
-    const nuoviAltrove=remoteOrds.filter(o=>!idLocali.has(o.id));
+    const nuoviAltrove=remoteOrds.filter(o=>!idLocali.has(o.id)&&!_deletedIds.has(o.id));
     if(nuoviAltrove.length>0){
       console.warn('saveData bloccato: '+nuoviAltrove.length+' ordine/i su Firestore assente/i in memoria locale (probabile scrittura da un altro dispositivo)');
       await loadData();
@@ -2296,7 +2296,7 @@ async function setStato(id,stato,skipItemReset){
 function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+o.nome+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};openModal('modal-del-conf');}
 async function delOrd(id){
   const el=document.querySelector('#ordini-list [data-oid="'+id+'"]');
-  const finish=async()=>{ords=ords.filter(x=>x.id!==id);await saveData();renderOrdini();toast('Ordine eliminato','v');};
+  const finish=async()=>{_deletedIds.add(id);ords=ords.filter(x=>x.id!==id);await saveData();_deletedIds.delete(id);renderOrdini();toast('Ordine eliminato','v');};
   if(el){
     el.style.transition='transform 0.3s ease, opacity 0.3s ease';
     el.style.transform='translateX(60px)';
