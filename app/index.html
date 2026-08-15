@@ -1285,7 +1285,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.19.3';
+const APP_VERSION='2.20.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -2299,9 +2299,9 @@ function renderDetModal(o){
     unitaMisura.forEach(function(u){
       const sel=it.um===u;
       const dis=isRitirato?'disabled':'' ;
-      umPills+=`<button ${dis} onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detUpdUM(${o.id},${idx},'${u}')" onclick="detUpdUM(${o.id},${idx},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--azione)':'var(--brd)'};background:${sel?'var(--azione)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
+      umPills+=`<button ${dis} class="um-pill${sel?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detUpdUM(${o.id},${idx},'${u}')" onclick="detUpdUM(${o.id},${idx},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--azione)':'var(--brd)'};background:${sel?'var(--azione)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
     });
-    if(!isRitirato)umPills+=`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVoloDet(${o.id},${idx})" onclick="addUMVoloDet(${o.id},${idx})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
+    if(!isRitirato)umPills+=`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVoloDet(${o.id},${idx})" onclick="addUMVoloDet(${o.id},${idx})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
     const imgRow=it.itemId&&it.imgCaricata
       ?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px">
           <button type="button" class="act-print-rp" onclick="visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:8px 10px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"><i class="ti ti-photo"></i></button>
@@ -2313,9 +2313,9 @@ function renderDetModal(o){
         <div class="sel-card-name">${nome}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div>
         <button class="sel-rm" style="${isRitirato?'visibility:hidden':''}" onclick="confDelItem(${o.id},${idx})"><i class="ti ti-trash"></i></button>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+      <div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
         <button ${isRitirato?'disabled':''} class="qty-minus" onclick="detChQtyDirect(${o.id},${idx},-1)">−</button>
-        <input id="det-qty-${o.id}-${idx}" class="sel-input" type="number" step="0.1" min="0.1" value="${it.qty||''}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" ${isRitirato?'disabled':''} oninput="updItem(${o.id},${idx},'qty',this.value)" onchange="updItem(${o.id},${idx},'qty',parseFloat(this.value)||this.value)">
+        <input id="det-qty-${o.id}-${idx}" class="sel-input" type="text" inputmode="decimal" value="${it.qty||''}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" ${isRitirato?'disabled':''} oninput="updItem(${o.id},${idx},'qty',this.value)" onchange="updItem(${o.id},${idx},'qty',parseFloat(this.value)||this.value)">
         <button ${isRitirato?'disabled':''} class="qty-plus" onclick="detChQtyDirect(${o.id},${idx},+1)">+</button>
         ${umPills}
       </div>
@@ -2718,9 +2718,9 @@ function rimuoviImgSel(id){
   renderSP();
 }
 function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent=lblArt(true,true)+' '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
-  const umPills=unitaMisura.map(u=>`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
+  const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi foto</button></div>`:`<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px"><i class="ti ti-camera"></i> Immagine<input type="file" accept="image/*" style="display:none" onchange="onPickImgSel(${s.id},this)"></label>`;
-  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="number" step="0.1" min="0.1" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
+  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
 async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseFloat(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseFloat(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseFloat(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
   // Caricamento foto in background: l'ordine è già salvato, l'utente non deve aspettare l'upload
   const _daCaricare=_selSnapshot.filter(s=>s.imgBlob);
@@ -3984,6 +3984,42 @@ document.addEventListener('keydown',function(e){
   if(idx===_nuovoFieldOrder.length-1){salvaOrdine();return;}
   const next=document.getElementById(_nuovoFieldOrder[idx+1]);
   if(next)next.focus();
+});
+// Navigazione da tastiera quantità → UM: dal campo quantità, freccia destra con cursore già a
+// fine testo entra nelle pillole UM (sulla già selezionata, o la prima) — se il cursore è ancora
+// in mezzo alle cifre, la freccia si comporta normalmente. Tra le pillole, sinistra/destra passano
+// alla precedente/successiva (ciclico, includendo "+ Nuova"); da lì, sinistra sulla prima pillola
+// torna alla quantità. La conferma con Invio/Spazio su una pillola e lo spostamento del fuoco
+// sulla nota sono già gestiti dentro selUMpill/detUpdUM. Vale sia in Nuovo Ordine che in Modifica
+// ordine. Il campo quantità è type="text" con inputmode="decimal" (non type="number") apposta:
+// solo così è possibile leggere via JS la posizione del cursore (Safari/Chrome non lo permettono
+// su input type="number"), mantenendo comunque il tastierino numerico su mobile.
+document.addEventListener('keydown',function(e){
+  if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;
+  const t=e.target;
+  if(!t||!t.closest)return;
+  if(!t.closest('#tab-nuovo')&&!t.closest('#modal-det'))return;
+  if(e.key==='ArrowRight'&&t.classList&&t.classList.contains('sel-input')){
+    if(t.selectionStart!==t.value.length||t.selectionEnd!==t.value.length)return;
+    const row=t.closest('.qty-um-row');
+    if(!row)return;
+    const pills=[...row.querySelectorAll('.um-pill')];
+    if(!pills.length)return;
+    e.preventDefault();
+    (pills.find(p=>p.classList.contains('active'))||pills[0]).focus();
+    return;
+  }
+  if(t.classList&&(t.classList.contains('um-pill')||t.classList.contains('um-nuova-btn'))){
+    const row=t.closest('.qty-um-row');
+    if(!row)return;
+    const group=[...row.querySelectorAll('.um-pill, .um-nuova-btn')];
+    const idx=group.indexOf(t);
+    if(idx===-1)return;
+    e.preventDefault();
+    if(e.key==='ArrowRight'){group[(idx+1)%group.length].focus();return;}
+    if(idx===0){const qty=row.querySelector('.sel-input');if(qty)qty.focus();return;}
+    group[idx-1].focus();
+  }
 });
 // Stesso comportamento del tasto Invio anche in Modifica ordine (modal-det): dalla nota di un
 // articolo torna alla ricerca, e tra i campi principali (numero/nome/note/ricerca) passa al successivo.
