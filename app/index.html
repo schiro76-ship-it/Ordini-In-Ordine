@@ -1284,7 +1284,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.17.2';
+const APP_VERSION='2.17.3';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1689,7 +1689,7 @@ function buildOcHTML(lista){
         </div>
         ${o.note?`<div style="font-size:15px;color:var(--sub);font-style:italic;font-weight:700;margin-top:2px">"${o.note}"</div>`:''}
       </div>
-      ${tags?`<div class="oc-items">${tags}${(o.items||[]).length>=2?`<div style="font-size:12px;color:var(--sub);font-weight:700;text-align:left;padding-left:8px">${(o.items||[]).length} articoli</div>`:''}</div>`:''}
+      ${tags?`<div class="oc-items">${tags}${(o.items||[]).length>=2?`<div style="font-size:12px;color:var(--sub);font-weight:700;text-align:left;padding-left:8px">${(o.items||[]).length} ${lblArt(true)}</div>`:''}</div>`:''}
       <div class="oc-acts-row">
         ${statoBtn}
         <button class="act-btn act-mod" onclick="openDet(${o.id})"><i class="ti ti-edit"></i> Modifica</button>
@@ -3427,7 +3427,7 @@ function _disegnaEtichetta(o,artIdEvidenziato){
   const nArtEtichetta=(o.items||[]).length;
   if(!artIdEvidenziato&&nArtEtichetta>=2){
     ctx.fillStyle='#888888';ctx.font='700 24px sans-serif';ctx.textAlign='left';
-    ctx.fillText(nArtEtichetta+' articoli',pad,y+6+20);
+    ctx.fillText(nArtEtichetta+' '+lblArt(true),pad,y+6+20);
     y+=6+26;
   }
 
