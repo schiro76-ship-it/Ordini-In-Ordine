@@ -1289,7 +1289,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.21.0';
+const APP_VERSION='2.22.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1773,7 +1773,7 @@ function ricercaIntelligente(query,testo){
   return true;
 }
 function renderOrdini(animate){
-  const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=fmtDataByFormat(d);return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data!==ftData)return false;if(c)return ricercaIntelligente(c,o.nome)||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});
+  const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=fmtDataByFormat(d);return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;if(c)return ricercaIntelligente(c,o.nome)||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});
   if(animate){flipRenderOrdini(l);}else{document.getElementById('ordini-list').innerHTML=buildOcHTML(l);}
   stats();}
 
@@ -1788,7 +1788,7 @@ function _willChangePosition(oid, newStato){
   const lista=ords.filter(o=>{
     if(isRitiratoVecchio(o))return false;
     if(ft!=='tutti'&&(o.id===oid?newStato:o.stato)!==ft)return false;
-    if(ftData!=='tutti'&&o.data!==ftData)return false;
+    if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;
     return true;
   }).map(o=>({id:o.id,stato:o.id===oid?newStato:o.stato,score:priScore(o)}))
     .sort((a,b)=>s[a.stato]!==s[b.stato]?s[a.stato]-s[b.stato]:a.score-b.score);
@@ -3672,7 +3672,7 @@ function aggiungiTuttiAlGruppoStampa(){
   const lista=ords.filter(function(o){
     if(isRitiratoVecchio(o))return false;
     if(ft!=='tutti'&&o.stato!==ft)return false;
-    if(ftData!=='tutti'&&o.data!==ftData)return false;
+    if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;
     if(c)return ricercaIntelligente(c,o.nome)||String(o.num).includes(c)||(o.items||[]).some(function(it){const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome);});
     return true;
   });
