@@ -1284,7 +1284,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.17.0';
+const APP_VERSION='2.17.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1689,8 +1689,7 @@ function buildOcHTML(lista){
         </div>
         ${o.note?`<div style="font-size:15px;color:var(--sub);font-style:italic;font-weight:700;margin-top:2px">"${o.note}"</div>`:''}
       </div>
-      ${tags?`<div class="oc-items">${tags}</div>`:''}
-      ${(o.items||[]).length>=2?`<div style="font-size:12px;color:var(--sub);font-weight:700;text-align:right;margin:2px 2px 0 0">${(o.items||[]).length} articoli</div>`:''}
+      ${tags?`<div class="oc-items">${tags}${(o.items||[]).length>=2?`<div style="font-size:12px;color:var(--sub);font-weight:700;text-align:right;padding-right:8px">${(o.items||[]).length} articoli</div>`:''}</div>`:''}
       <div class="oc-acts-row">
         ${statoBtn}
         <button class="act-btn act-mod" onclick="openDet(${o.id})"><i class="ti ti-edit"></i> Modifica</button>
@@ -3318,6 +3317,10 @@ function _disegnaEtichetta(o,artIdEvidenziato){
     if(it.nota){const notaLineH=notaSize+4;const nNota=misuraRigheTmp(it.nota,'italic 500 '+notaSize+'px sans-serif',maxFull);notaBlockH=nNota*notaLineH+8;}
     yTmp+=totalLines*lineH+18+notaBlockH;
   });
+  const _nArtEtichetta=(o.items||[]).length;
+  if(!artIdEvidenziato&&_nArtEtichetta>=2){
+    yTmp+=6+26;
+  }
   if(o.note){
     yTmp+=10+30;
     const maxNote=W-pad*2;
@@ -3420,6 +3423,14 @@ function _disegnaEtichetta(o,artIdEvidenziato){
     y+=totalLines*lineH+18+notaBlockH;
   });
 
+  // Numero articoli (solo etichetta ordine intero, non articolo singolo)
+  const nArtEtichetta=(o.items||[]).length;
+  if(!artIdEvidenziato&&nArtEtichetta>=2){
+    ctx.fillStyle='#888888';ctx.font='700 24px sans-serif';ctx.textAlign='left';
+    ctx.fillText(nArtEtichetta+' articoli',pad,y+6+20);
+    y+=6+26;
+  }
+
   // Nota ordine
   if(o.note){
     y+=10;
@@ -3437,12 +3448,8 @@ function _disegnaEtichetta(o,artIdEvidenziato){
 function _mostraCanvasNelModal(canvas,oid,artId){
   const url=canvas.toDataURL('image/png');
   const el=document.getElementById('etichetta-content');if(!el)return;
-  const _oPerConteggio=typeof oid!=='undefined'?ords.find(x=>x.id===oid):null;
-  const _nArt=_oPerConteggio?(_oPerConteggio.items||[]).length:0;
-  const _rigaNArt=(!artId&&_nArt>=2)?`<div style="font-size:12px;color:#888;font-weight:700;margin-bottom:10px">${_nArt} articoli</div>`:'';
   el.innerHTML=`<div style="text-align:center">
     <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
-    ${_rigaNArt}
     <button id="btn-stampa-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
     <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px solid #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi alla coda</button>
   </div>`;
