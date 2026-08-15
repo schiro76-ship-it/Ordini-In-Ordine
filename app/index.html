@@ -269,9 +269,12 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 #sf-tutti .sl,#sf-evadere .sl,#sf-completato .sl,#sf-ritirato .sl{font-size:13px;font-weight:800;text-transform:none;letter-spacing:normal;margin-top:0}
 .sbox{position:relative;margin-bottom:12px}
 @media(min-width:900px){body:not(.portrait-phone) .ordini-sticky .sbox,body:not(.portrait-phone) #riepilogo-cerca{max-width:calc(100% - var(--sbw))}}
-.sbox input{width:100%;padding:12px 14px 12px 44px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none;transition:border-color 0.2s}
+.sbox input{width:100%;padding:12px 40px 12px 44px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none;transition:border-color 0.2s}
 .sbox input:focus{border-color:var(--azione)}
 .sbox .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:19px}
+.sbox-clear{display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:none;background:none;padding:0;margin:0;cursor:pointer;color:var(--sub);font-size:17px;align-items:center;justify-content:center;border-radius:50%}
+.sbox-clear.show{display:flex}
+.sbox-clear:active{background:rgba(0,0,0,0.08)}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease}
 .oc.evadere{border-left-color:var(--ev)}.oc.completato{border-left-color:var(--g)}.oc.ritirato{border-left-color:var(--gr);opacity:0.85}
@@ -730,7 +733,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <div class="ordini-sticky">
             <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label">Stampa tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
             <div class="ordini-sticky-top">
-              <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini()"></div>
+              <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div class="ordini-filt-row">
                 <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" onclick="setFT('tutti','sf-tutti')"><span class="sn" id="st-tot" style="color:var(--azione)">0</span><span class="sl" style="color:var(--azione)">Tutti</span></div>
                 <div class="sc sc-filt sc-filt-ev" id="sf-evadere" onclick="setFT('evadere','sf-evadere')"><span class="sn" id="st-ev" style="color:var(--ev)">0</span><span class="sl" id="sl-ev" style="color:var(--ev)">Da evadere</span></div>
@@ -747,7 +750,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="pbody">
           <div class="list-sticky">
             <div class="phdr"><h2>Riepilogo</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-riepilogo" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-riepilogo-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
-            <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo()"></div>
+            <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('riepilogo-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
             <div class="cp" id="riepilogo-day-pills"></div>
             <div class="cp" id="riepilogo-cat-pills"></div>
           </div>
@@ -783,7 +786,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                     <div class="cal-grid" id="st-cal-grid"></div>
                   </div>
                 </div>
-                <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="st-art-cerca" placeholder="Cerca articolo…" oninput="renderStoricoRiepilogo()"></div>
+                <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="st-art-cerca" placeholder="Cerca articolo…" oninput="renderStoricoRiepilogo();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('st-art-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
                 <div class="cp" id="st-cat-pills"></div>
               </div>
               <div id="storico-riepilogo" style="contain:layout style"></div>
@@ -853,7 +856,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="ch"><div class="ct"><i class="ti ti-folder"></i> <span id="lbl-aggiungi-articoli">Aggiungi articoli</span></div><button class="btn-outline-r" onclick="openQArt()"><i class="ti ti-plus"></i> Nuovo</button></div>
             <div class="cb" style="padding-bottom:8px">
               <div class="cp" id="pills" style="margin-bottom:8px"></div>
-              <div class="sbox" style="margin-bottom:6px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="can" placeholder="Cerca articolo…" oninput="renderArtS()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
+              <div class="sbox" style="margin-bottom:6px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="can" placeholder="Cerca articolo…" oninput="renderArtS();toggleClearBtn(this)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="sbox-clear" onclick="clearSearchInput('can')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div id="agrid"></div>
             </div>
           </div>
@@ -1016,7 +1019,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
         <button class="btn br btn-full" onclick="addArt()"><span id="btn-addart-label">+ Aggiungi articolo</span></button>
       </div>
-      <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM()"></div>
+      <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" placeholder="Cerca nel catalogo…" oninput="renderArtM();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('cam')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0;padding-bottom:6px;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)"><span id="acb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
       <div class="slist" id="aml"></div>
     </div>
@@ -1283,7 +1286,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.18.1';
+const APP_VERSION='2.19.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -1703,6 +1706,17 @@ function buildOcHTML(lista){
 let ftData='tutti';
 let _scrollToOrdineId=null;
 function setFtData(d){ftData=d;renderOrdini()}
+function toggleClearBtn(inp){
+  const btn=inp.nextElementSibling;
+  if(btn&&btn.classList.contains('sbox-clear'))btn.classList.toggle('show',!!inp.value);
+}
+function clearSearchInput(id){
+  const inp=document.getElementById(id);
+  if(!inp)return;
+  inp.value='';
+  inp.focus();
+  inp.dispatchEvent(new Event('input',{bubbles:true}));
+}
 function renderOrdini(animate){
   const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=fmtDataByFormat(d);return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data!==ftData)return false;if(c)return o.nome.toLowerCase().includes(c)||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.nome.toLowerCase().includes(c)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});
   if(animate){flipRenderOrdini(l);}else{document.getElementById('ordini-list').innerHTML=buildOcHTML(l);}
@@ -2020,7 +2034,8 @@ function renderStoricoRiepilogo(){
       </div>
       <div style="position:relative;margin-bottom:8px">
         <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:17px"><i class="ti ti-search"></i></span>
-        <input type="text" id="st-det-cerca" value="${_stDetCerca}" placeholder="Cerca per nome, numero, ${lblArt(false)}…" oninput="_stDetCerca=this.value;renderStoricoRiepilogo()" style="width:100%;padding:10px 14px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none">
+        <input type="text" id="st-det-cerca" value="${_stDetCerca}" placeholder="Cerca per nome, numero, ${lblArt(false)}…" oninput="_stDetCerca=this.value;renderStoricoRiepilogo()" style="width:100%;padding:10px 40px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none">
+        <button type="button" class="sbox-clear${_stDetCerca?' show':''}" onclick="clearSearchInput('st-det-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button>
       </div>
       <div class="cp">${stDetPills}</div>
     </div>`;
@@ -2355,7 +2370,7 @@ function renderDetModal(o){
         <button class="btn-outline-r" onclick="openDetQArt(${o.id})"><i class="ti ti-plus"></i> Nuovo</button>
       </div>
       <div class="cp" id="det-cat-pills" style="margin-bottom:8px"></div>
-      <div class="sbox" style="margin-bottom:8px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="det-search-art" placeholder="Cerca ${lblArt(false)}…" style="width:100%;padding:9px 13px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id})"></div>
+      <div class="sbox" style="margin-bottom:8px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="det-search-art" placeholder="Cerca ${lblArt(false)}…" style="width:100%;padding:9px 36px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id});toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('det-search-art')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
       <div id="det-art-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;max-height:180px;overflow-y:auto"></div>
     </div>
     <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:14px;margin-bottom:8px">Nessun '+lblArt(false)+'.</p>'}</div>
