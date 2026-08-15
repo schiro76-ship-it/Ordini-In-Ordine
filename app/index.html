@@ -376,6 +376,10 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .sel-card-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .sel-input{width:100%;padding:9px 11px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none;background:#fff}
 .sel-input:focus{border-color:var(--azione)}
+/* Safari non mostra un anello di focus visibile sui <button> a meno che l'utente non abbia
+   attivato "Accesso completo da tastiera" — serve uno stile esplicito per rendere visibile
+   dove ci si trova durante la navigazione con le frecce tra quantità e pillole UM. */
+.um-pill:focus,.um-nuova-btn:focus{outline:2px solid var(--azione);outline-offset:1px}
 .sel-input-nota{width:100%;padding:9px 11px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none;background:#fff}
 .sel-input-nota::placeholder{color:var(--sub);font-weight:500}
 .det-note-input::placeholder{color:rgba(255,255,255,0.75);font-weight:600}
@@ -1285,7 +1289,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.20.1';
+const APP_VERSION='2.20.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
