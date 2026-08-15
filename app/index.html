@@ -1283,7 +1283,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.17.5';
+const APP_VERSION='2.18.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -2174,7 +2174,7 @@ function setRpDay(d){rpDayFilter=d;_rpOrdineCongelato=null;renderRiepilogo()}
 function setRpCat(c){rpCatFilter=c;if(!Object.values(rpExpanded).some(Boolean))_rpOrdineCongelato=null;renderRiepilogo()}
 
 function renderRiepilogo(skipPills){if(_rpLocked)return;
-  const ev=ords.filter(o=>o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(it=>it.done)&&Object.keys(rpExpanded).some(k=>rpExpanded[k]&&(o.items||[]).some(it=>String(it.artId)===String(k)))));
+  const ev=ords.filter(o=>o.stato==='evadere'||o.stato==='completato');
   if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><p>Nessun ordine da evadere!</p></div>';return}
   const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''}).filter(Boolean)))].sort();
   // Day pills: giorni con ordini pendenti, filtro "fino a"
@@ -2198,7 +2198,6 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     map[k].ordini.push(Object.assign({},it,{ordine:o}));
   }));
   let voci=Object.values(map)
-    .filter(v=>v.ordini.some(x=>!x.done)||rpExpanded[v.artId])
     .map(v=>Object.assign({},v,{
       minScore:v.ordini.some(x=>!x.done)?Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,
       urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))
@@ -2232,6 +2231,8 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     const a=arts.find(x=>x.id===v.artId);
     if(rpCatFilter!=='Tutte'&&(a&&a.cat||'')!==rpCatFilter)return false;
     if(rpDayFilter!==null){
+      // Righe interamente completate: sempre visibili (in fondo), indipendentemente dal filtro giorno
+      if(v.ordini.every(x=>x.done))return true;
       // Se la card è espansa, non filtrarla (stesso comportamento di "tutti i giorni")
       if(rpExpanded[v.artId])return true;
       // Mostra solo articoli con almeno un ordine in scadenza entro la data selezionata
@@ -2244,8 +2245,8 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     const a=arts.find(x=>x.id===v.artId);
     const nome=a?a.nome:'?';
     const righeDaFare={};
-    v.ordini.filter(x=>!x.done&&(rpDayFilter===null||!x.ordine.data||x.ordine.data<=rpDayFilter)).forEach(x=>{const um=x.um||'';if(!righeDaFare[um])righeDaFare[um]=0;righeDaFare[um]+=(parseFloat(x.qty)||1);});
     const tuttiDone=v.ordini.every(x=>x.done);
+    (tuttiDone?v.ordini:v.ordini.filter(x=>!x.done&&(rpDayFilter===null||!x.ordine.data||x.ordine.data<=rpDayFilter))).forEach(x=>{const um=x.um||'';if(!righeDaFare[um])righeDaFare[um]=0;righeDaFare[um]+=(parseFloat(x.qty)||1);});
     const _rpCol=v.urgente?'var(--urg)':tuttiDone?'var(--g)':'var(--ev)';
     const qStr=Object.entries(righeDaFare).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span style="white-space:nowrap"><span class="rp-qty" style="color:${_rpCol}">${q}</span><span class="rp-um" style="color:${_rpCol}">${um?' '+um:''}</span></span>`;}).join(' <span style="color:var(--sub)">+</span> ');
     const rowClass=`rp-row ${v.urgente?'rp-urgente':tuttiDone?'rp-completato':''}`;
