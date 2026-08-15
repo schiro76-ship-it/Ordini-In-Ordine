@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>OrdinInOrdine</title>
+<meta name="description" content="App per gestire gli ordini di macellerie, pescherie, panetterie, fioristi e altre attività commerciali e artigianali: il gestionale semplice e intelligente.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ordininordine.it/app/">
+<meta property="og:title" content="OrdinInOrdine — gestione ordini per attività commerciali e artigianali">
+<meta property="og:description" content="App per gestire gli ordini di macellerie, pescherie, panetterie, fioristi e altre attività commerciali e artigianali: il gestionale semplice e intelligente.">
+<meta property="og:image" content="https://ordininordine.it/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OrdinInOrdine — gestione ordini per attività commerciali e artigianali">
+<meta name="twitter:description" content="App per gestire gli ordini di macellerie, pescherie, panetterie, fioristi e altre attività commerciali e artigianali: il gestionale semplice e intelligente.">
+<meta name="twitter:image" content="https://ordininordine.it/assets/og-image.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="OrdinInOrdine">
@@ -1289,7 +1301,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.22.0';
+const APP_VERSION='2.22.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
