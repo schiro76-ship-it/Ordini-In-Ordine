@@ -817,7 +817,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div id="storico-dettaglio-list" style="contain:layout style"></div>
             </div>
           </div>
-          <div class="card card-sticky-host" style="margin-bottom:20px">
+          <div class="card" style="margin-bottom:20px">
             <div class="ch" onclick="toggleStoricoMensile()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
               <div class="ct"><i class="ti ti-chart-bar"></i> Ordini mensili</div>
               <span id="storico-mensile-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
@@ -1301,7 +1301,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.22.2';
+const APP_VERSION='2.22.3';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
