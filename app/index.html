@@ -1301,7 +1301,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.22.3';
+const APP_VERSION='2.22.4';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -2008,7 +2008,7 @@ function syncPhdrHeight(){
 function smoothToggle(bodyEl,arrowEl,headerEl){
   if(!bodyEl)return;
   const hostCard=bodyEl.closest('.card-sticky-host');
-  if(hostCard)hostCard.classList.add('anim-lock');
+  const startAnim=()=>{
   const isClosed=bodyEl.style.display==='none'||getComputedStyle(bodyEl).display==='none';
   if(isClosed){
     bodyEl.style.display='block';
@@ -2045,6 +2045,20 @@ function smoothToggle(bodyEl,arrowEl,headerEl){
         syncStickyHeaderHeights();
       },{once:true});
     });});
+  }
+  };
+  if(hostCard){
+    // L'intestazione sticky va disattivata (classe anim-lock, vedi CSS) PRIMA di far partire
+    // l'animazione di altezza — se le due cose partono nello stesso istante, Safari a volte non fa
+    // in tempo ad "sganciare" l'header dallo sticky (la posizione sticky viene ricalcolata su un
+    // thread separato dal rendering) e per una frazione di secondo l'header resta agganciato alla
+    // sua posizione sullo schermo mentre il contenuto sotto si apre/chiude, dando l'effetto di un
+    // "salto". Aspettare due frame prima di avviare l'animazione dà al browser il tempo di
+    // applicare davvero il cambio prima che qualcosa si muova.
+    hostCard.classList.add('anim-lock');
+    requestAnimationFrame(()=>requestAnimationFrame(startAnim));
+  }else{
+    startAnim();
   }
 }
 function toggleStoricoArticoli(){const f=document.getElementById('storico-articoli-fields');const a=document.getElementById('storico-articoli-arrow');const h=f.previousElementSibling;smoothToggle(f,a,h);}
