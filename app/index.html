@@ -344,10 +344,10 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .itag-circle.ritirato{border-color:var(--gr);background:var(--gr);color:#fff}
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .card-sticky-host{overflow:visible}
-.card-sticky-host .ch{position:sticky;top:var(--phdr-h,0px);z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-.card-sticky-host.anim-lock .ch{position:relative!important;transform:none!important;-webkit-transform:none!important;will-change:auto!important}
-.card-sticky-host.anim-lock .list-sticky{position:relative!important;top:auto!important;transform:none!important;-webkit-transform:none!important;will-change:auto!important}
-.card-sticky-host .list-sticky{background:#fff!important;top:calc(var(--phdr-h,0px) + var(--ch-h,50px))}
+.card-sticky-host .ch{position:relative;z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
+.card-sticky-host.sticky-on .ch{position:sticky;top:var(--phdr-h,0px);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.card-sticky-host .list-sticky{position:relative!important;top:auto!important;background:#fff!important}
+.card-sticky-host.sticky-on .list-sticky{position:sticky!important;top:calc(var(--phdr-h,0px) + var(--ch-h,50px))!important;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .ch{padding:15px 18px 13px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center}
 .ct{font-size:16px;font-weight:900}
 .ct i{font-size:20px;vertical-align:-3px;margin-right:3px}
@@ -1313,7 +1313,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.22.6';
+const APP_VERSION='2.22.7';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -2065,7 +2065,9 @@ function smoothToggle(bodyEl,arrowEl,headerEl){
       bodyEl.addEventListener('transitionend',function te(){
         bodyEl.style.maxHeight='';bodyEl.style.overflow='';bodyEl.style.transition='';
         bodyEl.removeEventListener('transitionend',te);
-        if(hostCard)hostCard.classList.remove('anim-lock');
+        // Lo sticky si accende solo ORA, ad espansione conclusa e pagina ferma — mai acceso
+        // durante l'animazione né mentre la card è chiusa. Vedi nota sotto sul perché.
+        if(hostCard)hostCard.classList.add('sticky-on');
         syncStickyHeaderHeights();
       },{once:true});
     });});
@@ -2082,21 +2084,21 @@ function smoothToggle(bodyEl,arrowEl,headerEl){
       bodyEl.addEventListener('transitionend',function te(){
         bodyEl.style.display='none';bodyEl.style.maxHeight='';bodyEl.style.overflow='';bodyEl.style.transition='';
         bodyEl.removeEventListener('transitionend',te);
-        if(hostCard)hostCard.classList.remove('anim-lock');
         syncStickyHeaderHeights();
       },{once:true});
     });});
   }
   };
   if(hostCard){
-    // L'intestazione sticky va disattivata (classe anim-lock, vedi CSS) PRIMA di far partire
-    // l'animazione di altezza — se le due cose partono nello stesso istante, Safari a volte non fa
-    // in tempo ad "sganciare" l'header dallo sticky (la posizione sticky viene ricalcolata su un
-    // thread separato dal rendering) e per una frazione di secondo l'header resta agganciato alla
-    // sua posizione sullo schermo mentre il contenuto sotto si apre/chiude, dando l'effetto di un
-    // "salto". Aspettare due frame prima di avviare l'animazione dà al browser il tempo di
-    // applicare davvero il cambio prima che qualcosa si muova.
-    hostCard.classList.add('anim-lock');
+    // Modello "opt-in": lo sticky è spento di default (vedi CSS, niente più .anim-lock) e si accende
+    // solo con la classe .sticky-on, aggiunta esclusivamente a fine apertura (sopra), mai durante
+    // un'animazione. Qui, prima di aprire O chiudere, ci si assicura solo che sia spento e si
+    // aspettano due frame perché il browser assorba il cambio prima di iniziare a muovere qualcosa
+    // — invertendo così il problema visto in precedenza: prima si cercava di "staccare" un header
+    // già sticky proprio mentre partiva l'animazione (una corsa contro il tempo che su Safari non
+    // vinceva sempre); ora l'header non è mai sticky finché non è tutto fermo, quindi non c'è nulla
+    // da staccare in corsa durante apertura/chiusura.
+    hostCard.classList.remove('sticky-on');
     requestAnimationFrame(()=>requestAnimationFrame(startAnim));
   }else{
     startAnim();
