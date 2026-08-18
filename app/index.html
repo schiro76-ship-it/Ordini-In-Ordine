@@ -815,7 +815,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <span id="storico-dettaglio-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
             <div class="cb" id="storico-dettaglio-fields" style="display:none">
-              <div id="storico-dettaglio-sticky"></div>
+              <div id="storico-dettaglio-sticky" class="list-sticky"></div>
               <div id="storico-dettaglio-list" style="contain:layout style"></div>
             </div>
           </div>
@@ -1313,7 +1313,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.22.8';
+const APP_VERSION='2.22.9';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
@@ -2146,8 +2146,7 @@ function renderStoricoRiepilogo(){
   const elDetSticky=document.getElementById('storico-dettaglio-sticky');
   const elDet=document.getElementById('storico-dettaglio-list');
   if(elDet){
-    let htmlStickyDet=`<div class="list-sticky">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
+    let htmlStickyDet=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
         <div style="display:flex;align-items:center;gap:5px">
           <label style="font-size:13px;font-weight:800;color:var(--sub)">Dal</label>
           <button onclick="toggleStDetCal('dal')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetDal?'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> '+fmtD(stDetDal):'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> —'}</button>
@@ -2169,8 +2168,7 @@ function renderStoricoRiepilogo(){
         <input type="text" id="st-det-cerca" value="${_stDetCerca}" placeholder="Cerca per nome, numero, ${lblArt(false)}…" oninput="_stDetCerca=this.value;renderStoricoRiepilogo()" style="width:100%;padding:10px 40px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none">
         <button type="button" class="sbox-clear${_stDetCerca?' show':''}" onclick="clearSearchInput('st-det-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button>
       </div>
-      <div class="cp">${stDetPills}</div>
-    </div>`;
+      <div class="cp">${stDetPills}</div>`;
     const _wasStDetCercaFocus=document.activeElement&&document.activeElement.id==='st-det-cerca';
     const _stDetCercaSelStart=_wasStDetCercaFocus?document.activeElement.selectionStart:null;
     const _stDetCercaSelEnd=_wasStDetCercaFocus?document.activeElement.selectionEnd:null;
