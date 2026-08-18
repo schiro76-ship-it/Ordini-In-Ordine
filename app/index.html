@@ -344,11 +344,11 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .itag-circle.ritirato{border-color:var(--gr);background:var(--gr);color:#fff}
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .card-sticky-host{overflow:visible}
-.card-sticky-host .ch{position:relative;z-index:52;background:#fff;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
+.card-sticky-host .ch{position:relative;z-index:52;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
 .card-sticky-host.sticky-on .ch{position:sticky;top:var(--phdr-h,0px);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .card-sticky-host .list-sticky{position:relative!important;top:auto!important;background:#fff!important}
 .card-sticky-host.sticky-on .list-sticky{position:sticky!important;top:calc(var(--phdr-h,0px) + var(--ch-h,50px))!important;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-.ch{padding:15px 18px 13px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center}
+.ch{padding:15px 18px 13px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center;background:#fff}
 .ct{font-size:16px;font-weight:900}
 .ct i{font-size:20px;vertical-align:-3px;margin-right:3px}
 .cb{padding:16px 18px}
@@ -820,7 +820,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card" style="margin-bottom:20px">
-            <div class="ch" onclick="toggleStoricoMensile()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
+            <div class="ch" onclick="toggleStoricoMensile()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad);box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)">
               <div class="ct"><i class="ti ti-chart-bar"></i> Ordini mensili</div>
               <span id="storico-mensile-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
@@ -1313,7 +1313,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.22.7';
+const APP_VERSION='2.22.8';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
