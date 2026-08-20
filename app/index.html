@@ -901,6 +901,10 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cb"><div class="um-list" id="cat-display"></div></div>
           </div>
           <div class="card">
+            <div class="ch"><div class="ct"><i class="ti ti-users"></i> Clienti</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderClientiM();openModal('modal-clienti')"><i class="ti ti-pencil"></i> Gestisci</button></div>
+            <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Anagrafica: <span id="clienti-cb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
+          </div>
+          <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-folder"></i> <span id="lbl-articoli-settings">Articoli</span></div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderArtM();resetArtNuovo();openModal('modal-articoli')"><i class="ti ti-pencil"></i> Gestisci</button></div>
             <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Catalogo: <span id="acb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
           </div>
@@ -1090,6 +1094,51 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div class="ma">
       <button class="btn bg2" style="flex:1" onclick="closeModal('modal-edit-art')">Annulla</button>
       <button class="btn br" style="flex:1" onclick="salvaEditArt()"><i class="ti ti-check"></i> Salva</button>
+    </div>
+  </div>
+</div>
+<div class="ov" id="modal-clienti">
+  <div class="modal" style="display:flex;flex-direction:column;overflow-y:hidden">
+    <div class="mta"><i class="ti ti-users"></i> Clienti</div>
+    <div style="overflow-y:auto;flex:1;min-height:0">
+      <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="ccm" placeholder="Cerca cliente…" oninput="renderClientiM();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('ccm')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0;padding-bottom:6px;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)"><span id="ccb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
+      <div class="slist" id="cml"></div>
+    </div>
+    <div class="ma" style="flex-shrink:0"><button class="btn bg2 btn-full" onclick="closeModal('modal-clienti')">Chiudi</button></div>
+  </div>
+</div>
+<div class="ov" id="modal-edit-cliente">
+  <div class="modal" style="max-width:440px">
+    <div class="mta"><i class="ti ti-pencil"></i> Modifica cliente</div>
+    <input type="hidden" id="edit-cliente-id">
+    <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="edit-cliente-nome" placeholder="Nome cliente"></div>
+    <div class="fg"><label class="fl">Telefono</label><input class="fi" type="tel" id="edit-cliente-telefono" placeholder="Facoltativo" inputmode="tel"></div>
+    <div class="ma">
+      <button class="btn bg2" style="flex:1" onclick="closeModal('modal-edit-cliente')">Annulla</button>
+      <button class="btn br" style="flex:1" onclick="salvaEditCliente()"><i class="ti ti-check"></i> Salva</button>
+    </div>
+  </div>
+</div>
+<div class="ov" id="modal-unisci-pick">
+  <div class="modal" style="display:flex;flex-direction:column;overflow-y:hidden;max-width:440px">
+    <div class="mta"><i class="ti ti-git-merge"></i> Unisci con…</div>
+    <div style="overflow-y:auto;flex:1;min-height:0">
+      <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="ucm" placeholder="Cerca il secondo cliente…" oninput="renderUnisciPick();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('ucm')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
+      <div class="slist" id="ucml"></div>
+    </div>
+    <div class="ma" style="flex-shrink:0"><button class="btn bg2 btn-full" onclick="closeModal('modal-unisci-pick')">Annulla</button></div>
+  </div>
+</div>
+<div class="ov" id="modal-unisci-conferma" style="align-items:center;padding:20px">
+  <div class="modal" style="max-width:400px">
+    <div class="mta"><i class="ti ti-git-merge"></i> Unisci clienti</div>
+    <p style="color:var(--sub);font-size:14px;font-weight:600;margin-bottom:14px">Scegli quale nome e telefono tenere. Tutti gli ordini di entrambi verranno collegati al cliente risultante — anche quelli passati.</p>
+    <div class="fg"><label class="fl">Nome</label><div class="cp" id="unisci-nome-pills" style="flex-wrap:wrap"></div></div>
+    <div class="fg"><label class="fl">Telefono</label><div class="cp" id="unisci-tel-pills" style="flex-wrap:wrap"></div></div>
+    <div class="ma">
+      <button class="btn bg2" style="flex:1" onclick="closeModal('modal-unisci-conferma')">Annulla</button>
+      <button class="btn br" style="flex:1" onclick="eseguiUnioneClienti()"><i class="ti ti-check"></i> Unisci</button>
     </div>
   </div>
 </div>
@@ -1357,7 +1406,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.24.2';
+const APP_VERSION='2.25.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1661,7 +1710,7 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
   }catch(e){console.warn('Realtime error',e);}
 }
 
-function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';document.body.classList.toggle('vb-active',showVb);const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');const btnCambiaAtt=document.getElementById('btn-cambia-attivita');if(btnCambiaAtt)btnCambiaAtt.style.display=ords.length>0?'none':'';}
+function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';document.body.classList.toggle('vb-active',showVb);const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderClientiM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');const btnCambiaAtt=document.getElementById('btn-cambia-attivita');if(btnCambiaAtt)btnCambiaAtt.style.display=ords.length>0?'none':'';}
 
 
 const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni',invita:'Ricevi 5 €'};
@@ -1795,7 +1844,7 @@ function buildOcHTML(lista){
       <div class="oc-top">
         <div class="oc-head">
           <div class="oc-num ${nc}">#${o.num}</div>
-          <div class="oc-nome">${o.nome}</div>
+          <div class="oc-nome">${nomeAttuale(o)}</div>
           ${ds?ds:''}
           ${sb2}${pr}
         </div>
@@ -1891,6 +1940,14 @@ function ricercaIntelligente(query,testo){
 function telefonoAttuale(o){
   if(o&&o.clienteId){const c=clienti.find(x=>x.id===o.clienteId);if(c&&c.telefono)return c.telefono;}
   return(o&&o.telefono)||'';
+}
+// Stesso principio di telefonoAttuale ma per il nome: da quando il nome di un cliente si
+// può correggere dalla vista Clienti (o unendo due doppioni), la correzione deve vedersi
+// ovunque, anche sugli ordini passati — a differenza del "congelamento" storico usato per
+// gli articoli dell'ordine, che restano invece invariati.
+function nomeAttuale(o){
+  if(o&&o.clienteId){const c=clienti.find(x=>x.id===o.clienteId);if(c&&c.nome)return c.nome;}
+  return(o&&o.nome)||'';
 }
 // Controlla riga per riga (ogni card ha un numero diverso di icone: telefono/stampa/elimina
 // variano ordine per ordine) se "Modifica" con testo entra nello spazio disponibile; se no,
@@ -2258,7 +2315,7 @@ function renderStoricoRiepilogo(){
     htmlDet+=ordsFiltered.sort((a,b)=>new Date(a.data+'T00:00:00')-new Date(b.data+'T00:00:00')).map(o=>{
       const turnoLabel=o.ora?'<i class="ti ti-clock"></i> '+o.ora:o.turno==='mattina'?'<i class="ti ti-sun"></i> Mat.':o.turno==='pomeriggio'?'<i class="ti ti-sunset-2"></i> Pom.':'';
       const items=(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return'';const qty=(it.qty?(parseQty(it.qty)||''):'—')+(it.um?' '+it.um:'');return`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:14px"><span style="color:var(--txt);font-weight:600">${a.nome}</span><span style="font-weight:800;color:var(--sub)">${qty}</span></div>`;}).join('');
-      return`<div class="storico-ord-card" style="background:var(--azione-s);border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px;font-weight:900;color:var(--azione)">#${o.num}</span><span style="font-size:16px;font-weight:800;flex:1">${o.nome}</span></div><div style="font-size:13px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
+      return`<div class="storico-ord-card" style="background:var(--azione-s);border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px;font-weight:900;color:var(--azione)">#${o.num}</span><span style="font-size:16px;font-weight:800;flex:1">${nomeAttuale(o)}</span></div><div style="font-size:13px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
     }).join('');
     if(!ordsFiltered.length)htmlDet+='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun ordine trovato.</p>';
     elDet.innerHTML=htmlDet;
@@ -2458,7 +2515,7 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
       const _printBtnR=`<button class="act-print-rp" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center"><i class="ti ti-printer"></i></button>`;
       const _qtySpanR=`<span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}`;
       const _qtyFotoR=`<span style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px">${_fotoBtn}<span style="white-space:nowrap">${_qtySpanR}</span>${_printBtnR}</span>`;
-      return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px"><div class="${circleClass}" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})" style="border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px"><span style="flex:1 1 0%;min-width:150px;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${x.ordine.nome}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?` <span style="color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}</span>${_qtyFotoR}</div></div></div>`;
+      return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px"><div class="${circleClass}" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})" style="border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px"><span style="flex:1 1 0%;min-width:150px;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${nomeAttuale(x.ordine)}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?` <span style="color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}</span>${_qtyFotoR}</div></div></div>`;
     }).join('')+_rigaStampaTutte:'';
     return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;gap:0"><div onclick="toggleRp(${v.artId})" style="display:flex;align-items:center;gap:8px;cursor:pointer"><div class="rp-pri" style="width:58px;min-width:58px;align-self:stretch;border-radius:11px;padding:5px 4px;font-size:13px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.25;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0;padding:12px 0"><div class="rp-art" style="padding:0;white-space:normal;flex:1 1 auto;min-width:0">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="flex-shrink:0;text-align:right;font-size:16px;font-weight:900;white-space:nowrap">${qStr}</div></div><span class="exp-arrow" style="flex-shrink:0">${exp?'<i class="ti ti-chevron-up"></i>':'<i class="ti ti-chevron-down"></i>'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden;padding-top:6px">${dettaglio}</div>`:''}</div>`;
   }).join('');
@@ -2481,7 +2538,7 @@ async function setStato(id,stato,skipItemReset){
   const _moves=_willChangePosition(id,stato);
   _updateCardColor(id,stato);
   if(_moves)_snapAndAnimate(id);const o=ords.find(x=>x.id===id);if(!o)return;o.stato=stato;if(stato==='ritirato')o.ritirato_il=new Date().toISOString();if(stato==='completato'&&!skipItemReset)o.items.forEach(function(it){it.done=true});if(stato==='evadere'&&!skipItemReset)o.items.forEach(function(it){it.done=false});renderOrdini(_moves);toast(stato==='completato'?'Completato':stato==='ritirato'?'Ritirato':'Riaperto','v');saveData();}
-function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+o.nome+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};openModal('modal-del-conf');}
+function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+nomeAttuale(o)+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};openModal('modal-del-conf');}
 async function delOrd(id){
   const el=document.querySelector('#ordini-list [data-oid="'+id+'"]');
   const finish=async()=>{_deletedIds.add(id);ords=ords.filter(x=>x.id!==id);await saveData();_deletedIds.delete(id);renderOrdini();toast('Ordine eliminato','v');};
@@ -2540,7 +2597,7 @@ function renderDetModal(o){
         <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">#Num</div>
           <input type="text" inputmode="numeric" pattern="[0-9]*" id="det-num" value="${o.num}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;color:#fff;outline:none;caret-color:#fff" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
         <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Nome *</div>
-          <input id="det-nome" value="${o.nome.replace(/"/g,'&quot;')}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
+          <input id="det-nome" value="${nomeAttuale(o).replace(/"/g,'&quot;')}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
         <div style="display:flex;flex-direction:column;flex-shrink:0"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Data</div>
           <button onclick="toggleDetCal(${o.id})" style="height:36px;box-sizing:border-box;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px">
             <i class="ti ti-calendar" style="font-size:16px"></i> <span id="det-data-lbl">${o.data?o.data:'—'}${o.ora?' <i class="ti ti-clock" style="font-size:16px"></i>'+o.ora:o.turno?' '+(o.turno==='mattina'?'<i class="ti ti-sun" style="font-size:16px"></i>':'<i class="ti ti-sunset-2" style="font-size:16px"></i>'):''}</span>
@@ -3170,9 +3227,102 @@ function syncClienteDaOrdine(o){
   const c=clienti.find(x=>x.id===o.clienteId);
   if(c){c.nome=o.nome;c.telefono=o.telefono||'';}
 }
+// --- Vista Clienti in Impostazioni: elenco, modifica, elimina, unisci doppioni ---
+function renderClientiM(){
+  const c=(document.getElementById('ccm')&&document.getElementById('ccm').value||'').toLowerCase().trim();
+  const l=clienti.filter(x=>!c||ricercaIntelligente(c,x.nome)||(x.telefono&&x.telefono.includes(c))).sort((a,b)=>a.nome.localeCompare(b.nome));
+  document.getElementById('ccb').textContent=clienti.length+' totali';
+  const summaryEl=document.getElementById('clienti-cb-summary');if(summaryEl)summaryEl.textContent=clienti.length+' totali';
+  document.getElementById('cml').innerHTML=l.length?l.map(cl=>{
+    const n=ords.filter(o=>o.clienteId===cl.id).length;
+    return`<div class="ar"><div style="flex:1;min-width:0"><div class="ar-name">${cl.nome}</div><div style="font-size:13px;color:var(--sub);font-weight:700">${cl.telefono?cl.telefono+' · ':''}${n} ordin${n===1?'e':'i'}</div></div><button class="ibtn" onclick="editCliente(${cl.id})" aria-label="Modifica"><i class="ti ti-pencil"></i></button><button class="ibtn" onclick="apriUnisciCliente(${cl.id})" aria-label="Unisci con un altro cliente"><i class="ti ti-git-merge"></i></button><button class="ibtn d" onclick="confermaEliminaCliente(${cl.id})" aria-label="Elimina"><i class="ti ti-trash"></i></button></div>`;
+  }).join(''):'<div class="empty"><div class="ei"><i class="ti ti-users"></i></div><p>Nessun cliente.</p></div>';
+}
+function editCliente(id){
+  const c=clienti.find(x=>x.id===id);if(!c)return;
+  document.getElementById('edit-cliente-id').value=id;
+  document.getElementById('edit-cliente-nome').value=c.nome;
+  document.getElementById('edit-cliente-telefono').value=c.telefono||'';
+  openModal('modal-edit-cliente');
+}
+async function salvaEditCliente(){
+  const id=parseInt(document.getElementById('edit-cliente-id').value);
+  const c=clienti.find(x=>x.id===id);if(!c)return;
+  const nome=document.getElementById('edit-cliente-nome').value.trim();
+  if(!nome){toast('Inserisci il nome!','err');return;}
+  c.nome=nome;
+  c.telefono=(document.getElementById('edit-cliente-telefono').value||'').trim();
+  await saveData();
+  closeModal('modal-edit-cliente');
+  renderClientiM();
+  renderOrdini();
+  toast('Cliente aggiornato','v');
+}
+function confermaEliminaCliente(id){
+  const c=clienti.find(x=>x.id===id);if(!c)return;
+  const n=ords.filter(o=>o.clienteId===id).length;
+  document.getElementById('modal-del-txt').textContent='Eliminare '+c.nome+'?'+(n?' Ha '+n+' ordin'+(n===1?'e':'i')+' collegat'+(n===1?'o':'i')+': restano invariati ma perdono il collegamento.':'');
+  document.getElementById('modal-del-btn').onclick=async function(){
+    closeModal('modal-del-conf');
+    clienti=clienti.filter(x=>x.id!==id);
+    await saveData();
+    renderClientiM();
+    renderOrdini();
+    toast('Cliente eliminato','v');
+  };
+  openModal('modal-del-conf');
+}
+let _unisciDaId=null,_unisciA=null,_unisciB=null,_unisciNomeScelta='',_unisciTelScelta='';
+function apriUnisciCliente(id){
+  _unisciDaId=id;
+  const ucmEl=document.getElementById('ucm');if(ucmEl)ucmEl.value='';
+  renderUnisciPick();
+  openModal('modal-unisci-pick');
+}
+function renderUnisciPick(){
+  const c=(document.getElementById('ucm')&&document.getElementById('ucm').value||'').toLowerCase().trim();
+  const l=clienti.filter(x=>x.id!==_unisciDaId&&(!c||ricercaIntelligente(c,x.nome)||(x.telefono&&x.telefono.includes(c)))).sort((a,b)=>a.nome.localeCompare(b.nome));
+  document.getElementById('ucml').innerHTML=l.length?l.map(cl=>`<div class="ar" style="cursor:pointer" onclick="apriConfermaUnione(${cl.id})"><div style="flex:1;min-width:0"><div class="ar-name">${cl.nome}</div>${cl.telefono?`<div style="font-size:13px;color:var(--sub);font-weight:700">${cl.telefono}</div>`:''}</div><i class="ti ti-chevron-right" style="color:var(--sub)"></i></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-users"></i></div><p>Nessun altro cliente trovato.</p></div>';
+}
+function apriConfermaUnione(idB){
+  _unisciA=clienti.find(x=>x.id===_unisciDaId);
+  _unisciB=clienti.find(x=>x.id===idB);
+  if(!_unisciA||!_unisciB)return;
+  closeModal('modal-unisci-pick');
+  _unisciNomeScelta=_unisciA.nome;
+  _unisciTelScelta=_unisciA.telefono||_unisciB.telefono||'';
+  renderUnisciConferma();
+  openModal('modal-unisci-conferma');
+}
+function scegliUnisciCampo(campo,valore){
+  if(campo==='nome')_unisciNomeScelta=valore;else _unisciTelScelta=valore;
+  renderUnisciConferma();
+}
+function renderUnisciConferma(){
+  if(!_unisciA||!_unisciB)return;
+  const esc=v=>(v||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  const nomeOpts=[_unisciA.nome,_unisciB.nome].filter((v,i,arr)=>arr.indexOf(v)===i);
+  document.getElementById('unisci-nome-pills').innerHTML=nomeOpts.map(v=>`<span class="pill ${v===_unisciNomeScelta?'active':''}" onclick="scegliUnisciCampo('nome','${esc(v)}')">${v}</span>`).join('');
+  const telOpts=[_unisciA.telefono||'',_unisciB.telefono||''].filter((v,i,arr)=>arr.indexOf(v)===i);
+  document.getElementById('unisci-tel-pills').innerHTML=telOpts.map(v=>`<span class="pill ${v===_unisciTelScelta?'active':''}" onclick="scegliUnisciCampo('telefono','${esc(v)}')">${v||'Nessuno'}</span>`).join('');
+}
+async function eseguiUnioneClienti(){
+  if(!_unisciA||!_unisciB)return;
+  _unisciA.nome=_unisciNomeScelta||_unisciA.nome;
+  _unisciA.telefono=_unisciTelScelta||'';
+  const idB=_unisciB.id;
+  ords.forEach(o=>{if(o.clienteId===idB){o.clienteId=_unisciA.id;o.nome=_unisciA.nome;o.telefono=_unisciA.telefono;}});
+  clienti=clienti.filter(x=>x.id!==idB);
+  await saveData();
+  closeModal('modal-unisci-conferma');
+  renderClientiM();
+  renderOrdini();
+  toast('Clienti uniti','v');
+  _unisciA=null;_unisciB=null;
+}
 function apriSceltaContatto(oid){
   const o=ords.find(x=>x.id===oid);const tel=telefonoAttuale(o);if(!o||!tel)return;
-  document.getElementById('modal-tel-txt').textContent='Contatta '+o.nome;
+  document.getElementById('modal-tel-txt').textContent='Contatta '+nomeAttuale(o);
   document.getElementById('modal-tel-chiama').href=telHrefTel(tel);
   document.getElementById('modal-tel-wa').href=telHrefWa(tel);
   openModal('modal-tel-menu');
@@ -3537,7 +3687,7 @@ function closeModal(id){
   if(!document.querySelector('.ov.open'))document.body.style.overflow='';
   if(id==='modal-det')renderOrdini();
 }
-document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo','modal-backup','modal-backup-conf'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
+document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo','modal-backup','modal-backup-conf','modal-clienti','modal-edit-cliente','modal-unisci-pick','modal-unisci-conferma'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
 function apriSegnalaProblema(){document.getElementById('segnala-testo').value='';openModal('modal-segnala');}
 async function inviaSegnalazione(){
   const testo=document.getElementById('segnala-testo').value.trim();
@@ -3577,6 +3727,7 @@ function toast(m,t){var e=document.getElementById('toast');var icona=t==='v'?'<i
 
 function _disegnaEtichetta(o,artIdEvidenziato){
   const W=591,pad=28;
+  const _nomeStampa=nomeAttuale(o); // sempre il nome più aggiornato del cliente, anche su ordini vecchi ristampati
   const tmpCanvas=document.createElement('canvas');
   tmpCanvas.width=W;tmpCanvas.height=10;
   const tmpCtx=tmpCanvas.getContext('2d');
@@ -3598,7 +3749,7 @@ function _disegnaEtichetta(o,artIdEvidenziato){
   const metaStrTmp=[dataStrTmp,turnoLabelTmp].filter(Boolean).join(' · ');
   let yTmp=pad+16;
   yTmp+=155;
-  const nNomeTmp=misuraRigheTmp(o.nome,'900 54px sans-serif',W-pad*2);
+  const nNomeTmp=misuraRigheTmp(_nomeStampa,'900 54px sans-serif',W-pad*2);
   yTmp+=nNomeTmp*62+8;
   if(metaStrTmp)yTmp+=52;
   yTmp+=28;
@@ -3675,8 +3826,8 @@ function _disegnaEtichetta(o,artIdEvidenziato){
 
   // Nome cliente — adattivo
   ctx.fillStyle='#1A1A2E';
-  const nNome=misuraRighe(o.nome,'900 54px sans-serif',W-pad*2);
-  scriviWrap(o.nome,'900 54px sans-serif','#1A1A2E',W/2,y+48,W-pad*2,62,'center');
+  const nNome=misuraRighe(_nomeStampa,'900 54px sans-serif',W-pad*2);
+  scriviWrap(_nomeStampa,'900 54px sans-serif','#1A1A2E',W/2,y+48,W-pad*2,62,'center');
   y+=nNome*62+8;
 
   // Data e turno
@@ -4027,7 +4178,7 @@ function renderGruppoStampaModal(){
     const o=ords.find(function(y){return y.id===g.oid;});
     if(!o)return '';
     const a=g.artId?arts.find(function(y){return y.id===g.artId;}):null;
-    const label='#'+o.num+' '+o.nome;
+    const label='#'+o.num+' '+nomeAttuale(o);
     const sub=a?a.nome:'';
     let thumb;
     try{
