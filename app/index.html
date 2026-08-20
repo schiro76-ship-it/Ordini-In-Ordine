@@ -901,16 +901,16 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cb"><div class="um-list" id="cat-display"></div></div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-users"></i> Clienti</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderClientiM();openModal('modal-clienti')"><i class="ti ti-pencil"></i> Gestisci</button></div>
-            <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Anagrafica: <span id="clienti-cb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
-          </div>
-          <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-folder"></i> <span id="lbl-articoli-settings">Articoli</span></div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderArtM();resetArtNuovo();openModal('modal-articoli')"><i class="ti ti-pencil"></i> Gestisci</button></div>
             <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Catalogo: <span id="acb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
           </div>
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-ruler-2"></i> Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-um')"><i class="ti ti-plus"></i> Aggiungi</button></div>
             <div class="cb"><div class="um-list" id="um-display"></div></div>
+          </div>
+          <div class="card">
+            <div class="ch"><div class="ct"><i class="ti ti-users"></i> Clienti</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderClientiM();openModal('modal-clienti')"><i class="ti ti-pencil"></i> Gestisci</button></div>
+            <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Anagrafica: <span id="clienti-cb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
           </div>
           <div class="card">
             <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-database"></i> Dati</div><div id="lbl-dati-desc" style="font-size:13px;color:var(--sub);font-weight:600">Crea una copia di sicurezza di tutti i tuoi ordini e articoli, e ripristinala quando vuoi.</div></div>
@@ -1406,7 +1406,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.25.0';
+const APP_VERSION='2.25.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2604,10 +2604,10 @@ function renderDetModal(o){
           </button>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700"><i class="ti ti-notes"></i> Note</div>
-        <input class="det-note-input" id="det-note" value="${(o.note||'').replace(/"/g,'&quot;')}" placeholder="Es. Pagato, consegnare a domicilio…" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'note',this.value)"></div>
       <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700"><i class="ti ti-phone"></i> Telefono</div>
         <input class="det-note-input" id="det-telefono" type="tel" inputmode="tel" value="${telefonoAttuale(o).replace(/"/g,'&quot;')}" placeholder="Facoltativo" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'telefono',this.value)"></div>
+      <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700"><i class="ti ti-notes"></i> Note</div>
+        <input class="det-note-input" id="det-note" value="${(o.note||'').replace(/"/g,'&quot;')}" placeholder="Es. Pagato, consegnare a domicilio…" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'note',this.value)"></div>
       <div id="det-cal-wrap" style="display:none;margin-top:6px">
         <div class="cal-compact" id="det-cal-compact">
           <div class="cal-nav"><button onclick="detCalNav(${o.id},-1)">‹</button><span class="cn-lbl" id="det-cal-lbl"></span><button onclick="detCalNav(${o.id},+1)">›</button></div>
@@ -4499,7 +4499,7 @@ document.addEventListener('keydown',function(e){
 });
 // Stesso comportamento del tasto Invio anche in Modifica ordine (modal-det): dalla nota di un
 // articolo torna alla ricerca, e tra i campi principali (numero/nome/note/ricerca) passa al successivo.
-const _detFieldOrder=['det-cal-time-inp','det-num','det-nome','det-note','det-telefono','det-search-art'];
+const _detFieldOrder=['det-cal-time-inp','det-num','det-nome','det-telefono','det-note','det-search-art'];
 document.addEventListener('keydown',function(e){
   if(e.key!=='Enter')return;
   const t=e.target;
