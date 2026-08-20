@@ -975,7 +975,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card">
-            <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-list-numbers"></i> Numerazione ordini</div><div style="font-size:13px;color:var(--sub);font-weight:600">Il numero suggerito per i nuovi ordini avanza sempre in avanti, mai indietro</div></div>
+            <div class="ch"><div class="ct"><i class="ti ti-list-numbers"></i> Numerazione ordini</div></div>
             <div class="cb">
               <div style="padding:6px 0 4px;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px">Azzeramento automatico</div>
               <div style="display:flex;flex-direction:column;gap:2px" id="num-reset-options">
@@ -996,7 +996,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <div style="font-size:16px;font-weight:700">Mai in automatico</div>
                 </label>
               </div>
-              <button class="btn br" style="margin-top:10px;width:100%" onclick="confAzzeraNumerazione()"><i class="ti ti-refresh"></i> Azzera numerazione ora</button>
+              <button class="btn br" style="margin-top:10px;padding:10px 16px" onclick="confAzzeraNumerazione()"><i class="ti ti-refresh"></i> Azzera numerazione ora</button>
             </div>
           </div>
           <div class="card">
@@ -1406,7 +1406,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.25.3';
+const APP_VERSION='2.25.5';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
