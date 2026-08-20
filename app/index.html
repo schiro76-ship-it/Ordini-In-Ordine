@@ -303,7 +303,7 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .tb{display:inline-flex;align-items:center;gap:3px;font-size:13px;font-weight:800;padding:3px 9px;border-radius:20px}
 .tb.m{background:var(--mats);color:var(--mat)}.tb.p{background:var(--poms);color:var(--pom)}
 .oc-acts-row{display:flex;align-items:stretch;gap:6px;padding:10px 12px 14px;border-top:1px solid var(--brd);margin-top:2px}
-.oc-acts-row>.act-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+.oc-acts-row>.act-btn{flex:1 1 0%;max-width:150px;display:inline-flex;align-items:center;justify-content:center;gap:4px}
 .act-placeholder{visibility:hidden}
 .oc-acts-mini{display:flex;gap:5px;flex:0 0 auto}
 .oc-acts-mini .act-btn-mini{flex:0 0 38px;width:38px}
@@ -316,6 +316,7 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .act-mod{background:var(--azione-s);color:var(--azione);transition:filter 0.15s}.act-mod:hover{filter:brightness(0.92)}.act-mod:active{filter:brightness(0.85)}
 .act-del{background:var(--rs);color:var(--r);transition:filter 0.15s}.act-del:hover{filter:brightness(0.92)}.act-del:active{filter:brightness(0.85)}
 .act-print{background:#EEF2FF;color:#4F46E5;transition:filter 0.15s}.act-print:hover{filter:brightness(0.92)}.act-print:active{filter:brightness(0.85)}
+.act-tel{background:#DCFCE7;color:#15803D;transition:filter 0.15s}.act-tel:hover{filter:brightness(0.95)}.act-tel:active{filter:brightness(0.88)}
 @media(min-width:640px){
   .oc-acts-row>.act-btn:not(.act-btn-mini){flex:none}
   .oc-acts-row .act-placeholder{display:none}
@@ -356,6 +357,11 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .fl{display:block;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
 .fi{width:100%;padding:12px 14px;border:1.5px solid var(--brd);border-radius:11px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);background:#fff;outline:none;transition:border-color 0.2s}
 .fi:focus{border-color:var(--azione)}
+.fg-rel{position:relative}
+.cliente-sugg{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1.5px solid var(--brd);border-radius:11px;box-shadow:var(--sh);z-index:30;max-height:220px;overflow-y:auto}
+.cliente-sugg-row{padding:10px 14px;cursor:pointer;font-size:15px;border-bottom:1px solid var(--brd)}
+.cliente-sugg-row:last-child{border-bottom:none}
+.cliente-sugg-row:hover,.cliente-sugg-row:active{background:var(--azione-s)}
 .cal-compact{background:#fff;border-radius:12px;border:1.5px solid var(--brd);overflow:hidden;max-width:320px}
 .cal-compact.has-val{border-color:var(--azione)}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--azione)}
@@ -860,7 +866,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <div class="card" style="margin-bottom:14px">
             <div class="ch"><div class="ct"><i class="ti ti-user"></i> Cliente</div></div>
             <div class="cb">
-              <div class="fg"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi" oninput="capWords(this)"></div>
+              <div class="fg fg-rel"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi" autocomplete="off" oninput="capWords(this);renderClienteSugg()" onblur="nascondiClienteSugg()" onfocus="renderClienteSugg()"><div class="cliente-sugg" id="nn-sugg"></div></div>
+              <div class="fg"><label class="fl">Telefono</label><input class="fi" type="tel" id="nn-tel" placeholder="Facoltativo" inputmode="tel"></div>
             </div>
           </div>
           <div class="card" style="margin-bottom:14px">
@@ -1105,6 +1112,16 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
   </div>
 </div>
+<div class="ov" id="modal-tel-menu" style="align-items:center;padding:20px;z-index:200">
+  <div class="modal" style="max-width:320px;text-align:center;border-radius:18px">
+    <div class="mta" id="modal-tel-txt" style="font-size:18px;margin-bottom:16px">Contatta il cliente</div>
+    <div class="ma" style="flex-direction:column;gap:10px">
+      <a class="btn br" id="modal-tel-chiama" style="width:100%;box-sizing:border-box;display:block;text-decoration:none" onclick="closeModal('modal-tel-menu')"><i class="ti ti-phone"></i> Chiama</a>
+      <a class="btn bg2" id="modal-tel-wa" style="width:100%;box-sizing:border-box;display:block;text-decoration:none" target="_blank" rel="noopener" onclick="closeModal('modal-tel-menu')"><i class="ti ti-brand-whatsapp"></i> WhatsApp</a>
+      <button class="btn bg2" style="width:100%;margin-top:4px" onclick="closeModal('modal-tel-menu')">Annulla</button>
+    </div>
+  </div>
+</div>
 <div class="ov" id="modal-img-view" style="align-items:center;justify-content:center;padding:20px;z-index:600;background:rgba(0,0,0,0.85)">
   <div style="position:relative;max-width:100%;max-height:100%;display:flex;align-items:center;justify-content:center">
     <button onclick="closeModal('modal-img-view')" style="position:absolute;top:-44px;right:0;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;line-height:1;padding:6px"><i class="ti ti-x"></i></button>
@@ -1338,9 +1355,10 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.23.1';
+const APP_VERSION='2.24.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
+let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
 // Frequenza di azzeramento automatico della numerazione ordini ('settimana'|'mese'|'anno'|'mai') e
 // periodo dell'ultimo azzeramento applicato (per accorgersi che si è entrati in un periodo nuovo).
 let _numResetFreq='anno';let _numResetPeriod='';
@@ -1406,7 +1424,7 @@ try{
 _notifSettingsAll[_deviceId]={nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti};
 const _orNuovo=Object.values(_notifSettingsAll).some(v=>v&&v.nuovoOrdine!==false);
 const _orUrg=Object.values(_notifSettingsAll).some(v=>v&&v.ordiniUrgenti!==false);
-const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
+const payload={arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
 function applyRemoteSettings(d){
   _urgDays=(typeof d.urgDays==='number'&&d.urgDays>=0)?d.urgDays:0;
   _calMode=d.calMode||'ora';
@@ -1426,7 +1444,7 @@ function applyRemoteSettings(d){
   }
   applyUrgSettings();applyCalSettings();applyDateFormatUI();applyNotifSettings();applyNumResetFreqUI();
 }
-async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
+async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;clienti=[];stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
 // Banner "Aggiungi a Home" per iOS — Safari, Chrome, Firefox, Edge su iOS usano tutti il motore WebKit,
 // quindi stesso comportamento su qualsiasi browser: nessun banner automatico di installazione come su Android,
 // va costruito manualmente. Non richiede alcuna infrastruttura Firebase, puro client-side.
@@ -1786,6 +1804,7 @@ function buildOcHTML(lista){
         ${statoBtn}
         <button class="act-btn act-mod" onclick="openDet(${o.id})"><i class="ti ti-edit"></i> Modifica</button>
         <div class="oc-acts-mini">
+          ${o.telefono?`<button class="act-btn act-btn-mini act-tel" onclick="apriSceltaContatto(${o.id})" aria-label="Chiama o scrivi al cliente"><i class="ti ti-phone"></i></button>`:''}
           <button class="act-btn act-btn-mini act-print" onclick="stampaEtichetta(${o.id})" aria-label="Stampa etichetta"><i class="ti ti-printer"></i></button>
           ${o.stato!=='ritirato'?`<button class="act-btn act-btn-mini act-del" onclick="eliminaOrd(${o.id})" aria-label="Elimina ordine"><i class="ti ti-trash"></i></button>`:''}
         </div>
@@ -2502,6 +2521,8 @@ function renderDetModal(o){
       </div>
       <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700"><i class="ti ti-notes"></i> Note</div>
         <input class="det-note-input" id="det-note" value="${(o.note||'').replace(/"/g,'&quot;')}" placeholder="Es. Pagato, consegnare a domicilio…" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'note',this.value)"></div>
+      <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700"><i class="ti ti-phone"></i> Telefono</div>
+        <input class="det-note-input" id="det-telefono" type="tel" inputmode="tel" value="${(o.telefono||'').replace(/"/g,'&quot;')}" placeholder="Facoltativo" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'telefono',this.value)"></div>
       <div id="det-cal-wrap" style="display:none;margin-top:6px">
         <div class="cal-compact" id="det-cal-compact">
           <div class="cal-nav"><button onclick="detCalNav(${o.id},-1)">‹</button><span class="cn-lbl" id="det-cal-lbl"></span><button onclick="detCalNav(${o.id},+1)">›</button></div>
@@ -2717,7 +2738,7 @@ async function rimuoviImmagineDet(oid,idx){
   renderRiepilogo();
   toast('Foto rimossa','v');
 }
-async function updOrdCampo(oid,campo,val){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;o[campo]=val||null;await saveData();renderOrdini();}
+async function updOrdCampo(oid,campo,val){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;o[campo]=val||null;if(campo==='nome'||campo==='telefono')syncClienteDaOrdine(o);await saveData();renderOrdini();}
 async function setStatoD(oid,stato){await setStato(oid,stato);const o=ords.find(x=>x.id===oid);if(o)renderDetModal(o);}
 async function addItemToOrd(oid,artId){
   _flushDetCalToast();
@@ -2848,7 +2869,7 @@ function applyNumResetFreqUI(){
     el.parentElement.style.background=active?'var(--azione-s)':'transparent';
   });
 }
-function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getElementById('nuovo-num-top');if(elTop)elTop.value=numLibero;const badge=document.getElementById('nuovo-num-badge');if(badge)badge.textContent='';document.getElementById('nn').value='';const noteResetEl=document.getElementById('note-ordine');if(noteResetEl)noteResetEl.value='';tNuovo=null;calSelDate=null;calOra=null;const tr=document.getElementById('cal-trigger');if(tr){tr.classList.remove('has-val');document.getElementById('cal-trigger-txt').textContent='Scegli giorno e turno…'}const cw=document.getElementById('cal-wrap');if(cw)cw.style.display='none';calInit();catS='Tutti';renderPills();const canEl=document.getElementById('can');if(canEl)canEl.value='';renderArtS();sel=[];renderSP();}
+function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getElementById('nuovo-num-top');if(elTop)elTop.value=numLibero;const badge=document.getElementById('nuovo-num-badge');if(badge)badge.textContent='';document.getElementById('nn').value='';const nnTelEl=document.getElementById('nn-tel');if(nnTelEl)nnTelEl.value='';nnClienteId=null;const nnSuggEl=document.getElementById('nn-sugg');if(nnSuggEl){nnSuggEl.style.display='none';nnSuggEl.innerHTML='';}const noteResetEl=document.getElementById('note-ordine');if(noteResetEl)noteResetEl.value='';tNuovo=null;calSelDate=null;calOra=null;const tr=document.getElementById('cal-trigger');if(tr){tr.classList.remove('has-val');document.getElementById('cal-trigger-txt').textContent='Scegli giorno e turno…'}const cw=document.getElementById('cal-wrap');if(cw)cw.style.display='none';calInit();catS='Tutti';renderPills();const canEl=document.getElementById('can');if(canEl)canEl.value='';renderArtS();sel=[];renderSP();}
 function getCats(){return['Tutti',...cats.sort()]}
 function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" onclick="setC('${c}')">${c}</span>`).join('')}
 function setC(c){catS=c;renderPills();renderArtS()}
@@ -2940,7 +2961,7 @@ function renderSP(){const card=document.getElementById('card-sel'),el=document.g
   const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi foto</button></div>`:`<button type="button" onclick="apriImmaginePicker('sel',${s.id})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
-async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseQty(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
+async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,telefono:telefono||'',clienteId:clienteId,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseQty(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
   // Caricamento foto in background: l'ordine è già salvato, l'utente non deve aspettare l'upload
   const _daCaricare=_selSnapshot.filter(s=>s.imgBlob);
   if(_daCaricare.length){
@@ -3079,6 +3100,55 @@ function applyUrgSettings(){
 let dateFormat='gg dd/mm';
 function saveDateFormat(fmt){dateFormat=fmt;applyDateFormatUI();refreshAll();saveData();}
 function applyDateFormatUI(){const map={'dd/mm':'dfr-ddmm','gg dd/mm':'dfr-ggddmm','dd/mm/yy':'dfr-ddmmyy','dd/mm/yyyy':'dfr-ddmmyyyy','gg dd mmm':'dfr-ggddmmm'};Object.entries(map).forEach(([fmt,id])=>{const el=document.getElementById(id);if(!el)return;const active=dateFormat===fmt;el.innerHTML=active?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';el.style.borderColor=active?'var(--azione)':'var(--brd)';el.style.background=active?'var(--azione)':'#fff';el.parentElement.style.background=active?'var(--azione-s)':'transparent';});}
+// --- Telefono cliente: normalizzazione per link tel:/WhatsApp e anagrafica clienti (agosto 2026) ---
+function soloCifreTel(t){return(t||'').replace(/[^\d+]/g,'');}
+function telHrefTel(t){const c=soloCifreTel(t);return c?'tel:'+c:'';}
+function telHrefWa(t){let c=soloCifreTel(t);if(!c)return'';c=c.replace(/^\+/,'');if(c.startsWith('39'))return'https://wa.me/'+c;if(c.startsWith('0'))c=c.slice(1);return'https://wa.me/39'+c;}
+let nnClienteId=null; // cliente collegato in Nuovo Ordine (selezionato dalla tendina suggerimenti)
+function renderClienteSugg(){
+  const inp=document.getElementById('nn');const wrap=document.getElementById('nn-sugg');if(!inp||!wrap)return;
+  const q=inp.value.trim();
+  if(!q||!clienti.length){wrap.style.display='none';wrap.innerHTML='';return;}
+  const l=clienti.filter(c=>ricercaIntelligente(q,c.nome)||(c.telefono&&c.telefono.includes(q))).slice(0,5);
+  if(!l.length){wrap.style.display='none';wrap.innerHTML='';return;}
+  wrap.innerHTML=l.map(c=>`<div class="cliente-sugg-row" onmousedown="event.preventDefault()" onclick="selezionaCliente(${c.id})"><span style="font-weight:800">${c.nome}</span>${c.telefono?`<span style="color:var(--sub);font-weight:700;margin-left:8px">${c.telefono}</span>`:''}</div>`).join('');
+  wrap.style.display='block';
+}
+function selezionaCliente(id){
+  const c=clienti.find(x=>x.id===id);if(!c)return;
+  const nnEl=document.getElementById('nn');const telEl=document.getElementById('nn-tel');
+  if(nnEl)nnEl.value=c.nome;if(telEl)telEl.value=c.telefono||'';
+  nnClienteId=id;
+  const wrap=document.getElementById('nn-sugg');if(wrap){wrap.style.display='none';wrap.innerHTML='';}
+}
+function nascondiClienteSugg(){setTimeout(()=>{const wrap=document.getElementById('nn-sugg');if(wrap)wrap.style.display='none';},150);}
+// Collega/aggiorna/crea il cliente al momento del salvataggio ordine. Se l'ordine era già
+// collegato a un cliente (clienteId) e nome/telefono sono stati corretti a mano, aggiorna
+// quel record invece di crearne uno nuovo — evita doppioni per semplici correzioni.
+function risolviCliente(nome,telefono){
+  if(nnClienteId){
+    const c=clienti.find(x=>x.id===nnClienteId);
+    if(c){c.nome=nome;c.telefono=telefono||'';return c.id;}
+  }
+  const nuovo={id:Date.now()+Math.floor(Math.random()*1000),nome:nome,telefono:telefono||'',creato:new Date().toISOString()};
+  clienti.push(nuovo);
+  return nuovo.id;
+}
+// Se l'ordine (in Modifica ordine) è collegato a un cliente, propaga le correzioni di
+// nome/telefono al record cliente collegato — stessa logica di risolviCliente ma per
+// modifiche fatte dopo il salvataggio dell'ordine.
+function syncClienteDaOrdine(o){
+  if(!o||!o.clienteId)return;
+  const c=clienti.find(x=>x.id===o.clienteId);
+  if(c){c.nome=o.nome;c.telefono=o.telefono||'';}
+}
+function apriSceltaContatto(oid){
+  const o=ords.find(x=>x.id===oid);if(!o||!o.telefono)return;
+  document.getElementById('modal-tel-txt').textContent='Contatta '+o.nome;
+  document.getElementById('modal-tel-chiama').href=telHrefTel(o.telefono);
+  document.getElementById('modal-tel-wa').href=telHrefWa(o.telefono);
+  openModal('modal-tel-menu');
+}
 function capWords(el){
   const pos=el.selectionStart;
   const before=el.value;
@@ -3460,7 +3530,7 @@ async function inviaSegnalazione(){
     toast('Errore invio: '+e.message,'err');
   }
 }
-function esportaDati(){const uid=currentUser?currentUser.uid:DOC_ID;const data=JSON.stringify({uid:uid,arts:arts,ords:ords,unitaMisura:unitaMisura,cats:cats,nextNum:nextNum,ordiniCreatiTotale:ordiniCreatiTotale,articoliCreatiTotale:articoliCreatiTotale,ordiniPerMese:ordiniPerMese},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='macelleria_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);toast('Backup scaricato','v');}
+function esportaDati(){const uid=currentUser?currentUser.uid:DOC_ID;const data=JSON.stringify({uid:uid,arts:arts,ords:ords,unitaMisura:unitaMisura,cats:cats,nextNum:nextNum,clienti:clienti,ordiniCreatiTotale:ordiniCreatiTotale,articoliCreatiTotale:articoliCreatiTotale,ordiniPerMese:ordiniPerMese},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='macelleria_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);toast('Backup scaricato','v');}
 function importaDati(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){try{const d=JSON.parse(e.target.result);if(!d.arts||!d.ords){toast('File non valido!','err');return}
   // Un backup può essere ripristinato solo sullo stesso account che lo ha esportato:
   // impedisce di trasferire dati/storico su un account "nuovo" per ottenere di nuovo
@@ -3470,6 +3540,7 @@ function importaDati(input){const file=input.files[0];if(!file)return;const read
   const uidCorrente=currentUser?currentUser.uid:DOC_ID;
   if(d.uid&&d.uid!==uidCorrente){toast('Questo file appartiene a un altro account: puoi importarlo solo sullo stesso account che lo ha esportato','err');input.value='';return;}
   arts=d.arts;ords=d.ords;unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;
+  if(Array.isArray(d.clienti))clienti=d.clienti; // backup pre-esistenti senza clienti: lascia l'anagrafica attuale invariata
   if(typeof d.ordiniCreatiTotale==='number')ordiniCreatiTotale=d.ordiniCreatiTotale;
   if(typeof d.articoliCreatiTotale==='number')articoliCreatiTotale=d.articoliCreatiTotale;
   if(d.ordiniPerMese&&typeof d.ordiniPerMese==='object')ordiniPerMese=d.ordiniPerMese;
@@ -4249,7 +4320,7 @@ document.addEventListener('keydown',function(e){
 });
 // Stesso comportamento del tasto Invio anche in Modifica ordine (modal-det): dalla nota di un
 // articolo torna alla ricerca, e tra i campi principali (numero/nome/note/ricerca) passa al successivo.
-const _detFieldOrder=['det-cal-time-inp','det-num','det-nome','det-note','det-search-art'];
+const _detFieldOrder=['det-cal-time-inp','det-num','det-nome','det-note','det-telefono','det-search-art'];
 document.addEventListener('keydown',function(e){
   if(e.key!=='Enter')return;
   const t=e.target;
