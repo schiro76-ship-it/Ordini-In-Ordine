@@ -962,6 +962,31 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card">
+            <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-list-numbers"></i> Numerazione ordini</div><div style="font-size:13px;color:var(--sub);font-weight:600">Il numero suggerito per i nuovi ordini avanza sempre in avanti, mai indietro</div></div>
+            <div class="cb">
+              <div style="padding:6px 0 4px;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px">Azzeramento automatico</div>
+              <div style="display:flex;flex-direction:column;gap:2px" id="num-reset-options">
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveNumResetFreq('settimana')">
+                  <span id="nrf-settimana" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
+                  <div style="font-size:16px;font-weight:700">Ogni settimana</div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveNumResetFreq('mese')">
+                  <span id="nrf-mese" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
+                  <div style="font-size:16px;font-weight:700">Ogni mese</div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveNumResetFreq('anno')">
+                  <span id="nrf-anno" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
+                  <div style="font-size:16px;font-weight:700">Ogni anno</div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveNumResetFreq('mai')">
+                  <span id="nrf-mai" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
+                  <div style="font-size:16px;font-weight:700">Mai in automatico</div>
+                </label>
+              </div>
+              <button class="btn br" style="margin-top:10px;width:100%" onclick="confAzzeraNumerazione()"><i class="ti ti-refresh"></i> Azzera numerazione ora</button>
+            </div>
+          </div>
+          <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-calendar"></i> Calendario</div></div>
             <div class="cb">
               <div style="padding:6px 0 4px;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px">Formato data</div>
@@ -1313,9 +1338,12 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.23.0';
+const APP_VERSION='2.23.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
+// Frequenza di azzeramento automatico della numerazione ordini ('settimana'|'mese'|'anno'|'mai') e
+// periodo dell'ultimo azzeramento applicato (per accorgersi che si è entrati in un periodo nuovo).
+let _numResetFreq='anno';let _numResetPeriod='';
 let _urgDays=0; // Soglia urgenza (giorni prima del ritiro) — sincronizzata su Firestore, uguale su tutti i dispositivi
 let fcmTokens={}; // Mappa {deviceId: token} — un solo token per dispositivo, sincronizzata su Firestore
 // ID dispositivo persistente, generato una volta sola per browser/installazione — NON sincronizzato (deve restare locale)
@@ -1378,11 +1406,13 @@ try{
 _notifSettingsAll[_deviceId]={nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti};
 const _orNuovo=Object.values(_notifSettingsAll).some(v=>v&&v.nuovoOrdine!==false);
 const _orUrg=Object.values(_notifSettingsAll).some(v=>v&&v.ordiniUrgenti!==false);
-const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
+const payload={arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
 function applyRemoteSettings(d){
   _urgDays=(typeof d.urgDays==='number'&&d.urgDays>=0)?d.urgDays:0;
   _calMode=d.calMode||'ora';
   dateFormat=d.dateFormat||'gg dd/mm';
+  _numResetFreq=d.numResetFreq||'anno';
+  _numResetPeriod=d.numResetPeriod||'';
   fcmTokens=(d.fcmTokens&&typeof d.fcmTokens==='object'&&!Array.isArray(d.fcmTokens))?d.fcmTokens:{};
   _notifSettingsAll=(d.notifSettings&&typeof d.notifSettings==='object'&&!Array.isArray(d.notifSettings))?d.notifSettings:{};
   const _mieNotif=_notifSettingsAll[_deviceId];
@@ -1394,9 +1424,9 @@ function applyRemoteSettings(d){
     _notifNuovoOrdine=d.notifNuovoOrdine!==false;
     _notifOrdiniUrgenti=d.notifOrdiniUrgenti!==false;
   }
-  applyUrgSettings();applyCalSettings();applyDateFormatUI();applyNotifSettings();
+  applyUrgSettings();applyCalSettings();applyDateFormatUI();applyNotifSettings();applyNumResetFreqUI();
 }
-async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
+async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
 // Banner "Aggiungi a Home" per iOS — Safari, Chrome, Firefox, Edge su iOS usano tutti il motore WebKit,
 // quindi stesso comportamento su qualsiasi browser: nessun banner automatico di installazione come su Android,
 // va costruito manualmente. Non richiede alcuna infrastruttura Firebase, puro client-side.
@@ -2759,7 +2789,65 @@ function confDelItem(oid,idx){
 async function delItemFromOrd(oid,idx){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;o.items.splice(idx,1);await saveData();renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso','v');}
 let sel=[],tNuovo=null,catS='Tutti';
 function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.innerHTML=usati.has(v)?'<i class="ti ti-alert-triangle"></i> già usato':'';}
-function minNumeroLibero(){const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));let n=1;while(usati.has(n))n++;return n;}
+// Calcola l'identificativo del periodo corrente in base alla frequenza di azzeramento scelta
+// (es. '2026' per anno, '2026-08' per mese, '2026-W34' per settimana). Usato per accorgersi che
+// si è entrati in un periodo nuovo rispetto all'ultimo azzeramento registrato.
+function _periodoAttuale(freq){
+  const d=new Date();
+  if(freq==='mai')return'';
+  if(freq==='anno')return String(d.getFullYear());
+  if(freq==='mese')return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  if(freq==='settimana'){
+    const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+    const giorno=(dt.getUTCDay()+6)%7;// lun=0 ... dom=6
+    dt.setUTCDate(dt.getUTCDate()-giorno+3);
+    const primoGio=new Date(Date.UTC(dt.getUTCFullYear(),0,4));
+    const settimana=1+Math.round(((dt-primoGio)/86400000-3+((primoGio.getUTCDay()+6)%7))/7);
+    return dt.getUTCFullYear()+'-W'+String(settimana).padStart(2,'0');
+  }
+  return String(d.getFullYear());
+}
+// Se si è entrati in un periodo nuovo rispetto all'ultimo azzeramento registrato, azzera la
+// numerazione (nextNum torna a 1) e aggiorna il periodo registrato. Nessun effetto se la
+// frequenza è 'mai'.
+function _checkAutoResetNumerazione(){
+  if(_numResetFreq==='mai')return;
+  const p=_periodoAttuale(_numResetFreq);
+  if(p!==_numResetPeriod){nextNum=1;_numResetPeriod=p;}
+}
+// Numero suggerito per il prossimo ordine: contatore progressivo (mai indietro), con azzeramento
+// automatico secondo la frequenza scelta in Impostazioni. Se il numero risultasse già in uso da un
+// ordine ancora aperto (può capitare solo subito dopo un azzeramento, manuale o automatico, con
+// ordini vecchi non ancora ritirati), salta al primo numero davvero libero.
+function minNumeroLibero(){
+  _checkAutoResetNumerazione();
+  const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));
+  let n=nextNum;
+  while(usati.has(n))n++;
+  return n;
+}
+// Azzeramento manuale della numerazione, richiamabile in qualsiasi momento da Impostazioni.
+function azzeraNumerazioneOra(){
+  nextNum=1;
+  _numResetPeriod=_periodoAttuale(_numResetFreq);
+  saveData();
+  toast('Numerazione azzerata: il prossimo ordine sarà #1 (o il primo libero)','v');
+  const elTop=document.getElementById('nuovo-num-top');
+  if(elTop)elTop.value=minNumeroLibero();
+}
+function confAzzeraNumerazione(){document.getElementById('modal-del-txt').textContent='Azzerare la numerazione degli ordini? Il prossimo ordine partirà da #1 (o dal primo numero libero, se già in uso da un ordine aperto).';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');azzeraNumerazioneOra();};openModal('modal-del-conf');}
+function saveNumResetFreq(freq){_numResetFreq=freq;applyNumResetFreqUI();saveData();}
+function applyNumResetFreqUI(){
+  const map={settimana:'nrf-settimana',mese:'nrf-mese',anno:'nrf-anno',mai:'nrf-mai'};
+  Object.entries(map).forEach(([freq,id])=>{
+    const el=document.getElementById(id);if(!el)return;
+    const active=_numResetFreq===freq;
+    el.innerHTML=active?'<i class="ti ti-check" style="color:#fff;font-size:13px"></i>':'';
+    el.style.borderColor=active?'var(--azione)':'var(--brd)';
+    el.style.background=active?'var(--azione)':'#fff';
+    el.parentElement.style.background=active?'var(--azione-s)':'transparent';
+  });
+}
 function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getElementById('nuovo-num-top');if(elTop)elTop.value=numLibero;const badge=document.getElementById('nuovo-num-badge');if(badge)badge.textContent='';document.getElementById('nn').value='';const noteResetEl=document.getElementById('note-ordine');if(noteResetEl)noteResetEl.value='';tNuovo=null;calSelDate=null;calOra=null;const tr=document.getElementById('cal-trigger');if(tr){tr.classList.remove('has-val');document.getElementById('cal-trigger-txt').textContent='Scegli giorno e turno…'}const cw=document.getElementById('cal-wrap');if(cw)cw.style.display='none';calInit();catS='Tutti';renderPills();const canEl=document.getElementById('can');if(canEl)canEl.value='';renderArtS();sel=[];renderSP();}
 function getCats(){return['Tutti',...cats.sort()]}
 function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" onclick="setC('${c}')">${c}</span>`).join('')}
@@ -2852,7 +2940,7 @@ function renderSP(){const card=document.getElementById('card-sel'),el=document.g
   const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi foto</button></div>`:`<button type="button" onclick="apriImmaginePicker('sel',${s.id})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
-async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseQty(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
+async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseQty(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
   // Caricamento foto in background: l'ordine è già salvato, l'utente non deve aspettare l'upload
   const _daCaricare=_selSnapshot.filter(s=>s.imgBlob);
   if(_daCaricare.length){
