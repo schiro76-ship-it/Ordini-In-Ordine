@@ -1406,7 +1406,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.25.1';
+const APP_VERSION='2.25.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1966,7 +1966,7 @@ function adjustActBtnFit(){
 let _actFitResizeT=null;
 window.addEventListener('resize',()=>{clearTimeout(_actFitResizeT);_actFitResizeT=setTimeout(adjustActBtnFit,150);});
 function renderOrdini(animate){
-  const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=fmtDataByFormat(d);return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;if(c)return ricercaIntelligente(c,o.nome)||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});
+  const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=fmtDataByFormat(d);return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;if(c)return ricercaIntelligente(c,nomeAttuale(o))||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});
   if(animate){flipRenderOrdini(l);}else{document.getElementById('ordini-list').innerHTML=buildOcHTML(l);}
   adjustActBtnFit();
   stats();}
@@ -2273,7 +2273,7 @@ function renderStoricoRiepilogo(){
   const stDetCats=['Tutte',...[...new Set(ordsDetBase.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||'';}).filter(Boolean)))].sort()];
   const stDetPills=stDetCats.map(c=>`<span class="pill ${c===stDetCat?'active':''}" onclick="_stDetCat='${c}';renderStoricoRiepilogo()">${c}</span>`).join('');
   const ordsFiltered=ordsDetBase.filter(o=>{
-    if(stDetCerca&&!ricercaIntelligente(stDetCerca,o.nome)&&!String(o.num).includes(stDetCerca)&&!(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(stDetCerca,a.nome);}))return false;
+    if(stDetCerca&&!ricercaIntelligente(stDetCerca,nomeAttuale(o))&&!String(o.num).includes(stDetCerca)&&!(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(stDetCerca,a.nome);}))return false;
     if(stDetCat!=='Tutte'&&!(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat===stDetCat;}))return false;
     return true;
   });
@@ -3310,8 +3310,11 @@ async function eseguiUnioneClienti(){
   if(!_unisciA||!_unisciB)return;
   _unisciA.nome=_unisciNomeScelta||_unisciA.nome;
   _unisciA.telefono=_unisciTelScelta||'';
-  const idB=_unisciB.id;
-  ords.forEach(o=>{if(o.clienteId===idB){o.clienteId=_unisciA.id;o.nome=_unisciA.nome;o.telefono=_unisciA.telefono;}});
+  const idA=_unisciA.id,idB=_unisciB.id;
+  // Aggiorna TUTTI gli ordini di entrambi (non solo quelli del cliente assorbito): se il nome/telefono
+  // scelto in fusione è diverso da quello originario del sopravvissuto, anche i suoi ordini già esistenti
+  // vanno riscritti, altrimenti restano su Firestore con il valore vecchio nonostante l'anagrafica sia unita.
+  ords.forEach(o=>{if(o.clienteId===idA||o.clienteId===idB){o.clienteId=idA;o.nome=_unisciA.nome;o.telefono=_unisciA.telefono;}});
   clienti=clienti.filter(x=>x.id!==idB);
   await saveData();
   closeModal('modal-unisci-conferma');
@@ -4086,7 +4089,7 @@ function aggiungiTuttiAlGruppoStampa(){
     if(isRitiratoVecchio(o))return false;
     if(ft!=='tutti'&&o.stato!==ft)return false;
     if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;
-    if(c)return ricercaIntelligente(c,o.nome)||String(o.num).includes(c)||(o.items||[]).some(function(it){const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome);});
+    if(c)return ricercaIntelligente(c,nomeAttuale(o))||String(o.num).includes(c)||(o.items||[]).some(function(it){const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome);});
     return true;
   });
   if(!lista.length){toast('Nessun ordine da aggiungere con questi filtri','err');return;}
