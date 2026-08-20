@@ -1099,7 +1099,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 </div>
 <div class="ov" id="modal-clienti">
   <div class="modal" style="display:flex;flex-direction:column;overflow-y:hidden">
-    <div class="mta"><i class="ti ti-users"></i> Clienti</div>
+    <div class="mta" style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span><i class="ti ti-users"></i> Clienti</span><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="apriNuovoCliente()"><i class="ti ti-plus"></i> Nuovo</button></div>
     <div style="overflow-y:auto;flex:1;min-height:0">
       <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="ccm" placeholder="Cerca cliente…" oninput="renderClientiM();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('ccm')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0;padding-bottom:6px;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)"><span id="ccb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
@@ -1110,7 +1110,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 </div>
 <div class="ov" id="modal-edit-cliente">
   <div class="modal" style="max-width:440px">
-    <div class="mta"><i class="ti ti-pencil"></i> Modifica cliente</div>
+    <div class="mta"><i class="ti ti-pencil"></i> <span id="modal-edit-cliente-titolo">Modifica cliente</span></div>
     <input type="hidden" id="edit-cliente-id">
     <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="edit-cliente-nome" placeholder="Nome cliente"></div>
     <div class="fg"><label class="fl">Telefono</label><input class="fi" type="tel" id="edit-cliente-telefono" placeholder="Facoltativo" inputmode="tel"></div>
@@ -1406,7 +1406,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.25.5';
+const APP_VERSION='2.26.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -3238,25 +3238,38 @@ function renderClientiM(){
     return`<div class="ar"><div style="flex:1;min-width:0"><div class="ar-name">${cl.nome}</div><div style="font-size:13px;color:var(--sub);font-weight:700">${cl.telefono?cl.telefono+' · ':''}${n} ordin${n===1?'e':'i'}</div></div><button class="ibtn" onclick="editCliente(${cl.id})" aria-label="Modifica"><i class="ti ti-pencil"></i></button><button class="ibtn" onclick="apriUnisciCliente(${cl.id})" aria-label="Unisci con un altro cliente"><i class="ti ti-git-merge"></i></button><button class="ibtn d" onclick="confermaEliminaCliente(${cl.id})" aria-label="Elimina"><i class="ti ti-trash"></i></button></div>`;
   }).join(''):'<div class="empty"><div class="ei"><i class="ti ti-users"></i></div><p>Nessun cliente.</p></div>';
 }
+function apriNuovoCliente(){
+  document.getElementById('modal-edit-cliente-titolo').textContent='Nuovo cliente';
+  document.getElementById('edit-cliente-id').value='';
+  document.getElementById('edit-cliente-nome').value='';
+  document.getElementById('edit-cliente-telefono').value='';
+  openModal('modal-edit-cliente');
+}
 function editCliente(id){
   const c=clienti.find(x=>x.id===id);if(!c)return;
+  document.getElementById('modal-edit-cliente-titolo').textContent='Modifica cliente';
   document.getElementById('edit-cliente-id').value=id;
   document.getElementById('edit-cliente-nome').value=c.nome;
   document.getElementById('edit-cliente-telefono').value=c.telefono||'';
   openModal('modal-edit-cliente');
 }
 async function salvaEditCliente(){
-  const id=parseInt(document.getElementById('edit-cliente-id').value);
-  const c=clienti.find(x=>x.id===id);if(!c)return;
+  const idVal=document.getElementById('edit-cliente-id').value;
   const nome=document.getElementById('edit-cliente-nome').value.trim();
   if(!nome){toast('Inserisci il nome!','err');return;}
-  c.nome=nome;
-  c.telefono=(document.getElementById('edit-cliente-telefono').value||'').trim();
+  const telefono=(document.getElementById('edit-cliente-telefono').value||'').trim();
+  if(idVal){
+    const c=clienti.find(x=>x.id===parseInt(idVal));if(!c)return;
+    c.nome=nome;
+    c.telefono=telefono;
+  }else{
+    clienti.push({id:Date.now()+Math.floor(Math.random()*1000),nome:nome,telefono:telefono,creato:new Date().toISOString()});
+  }
   await saveData();
   closeModal('modal-edit-cliente');
   renderClientiM();
   renderOrdini();
-  toast('Cliente aggiornato','v');
+  toast(idVal?'Cliente aggiornato':'Cliente aggiunto','v');
 }
 function confermaEliminaCliente(id){
   const c=clienti.find(x=>x.id===id);if(!c)return;
