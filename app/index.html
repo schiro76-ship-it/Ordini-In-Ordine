@@ -1406,7 +1406,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.26.0';
+const APP_VERSION='2.26.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2447,8 +2447,12 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
       minScore:v.ordini.some(x=>!x.done)?Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,
       urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))
     }));
+  // Items di un articolo "in ambito" rispetto al filtro giorno attivo: con "Tutti i giorni" sono
+  // tutti; con un giorno preciso, solo quelli che scadono entro quella data (gli altri, più avanti
+  // nel tempo, non contano né per il colore né per l'ordinamento in questa vista filtrata).
+  const _inScope=v=>rpDayFilter===null?v.ordini:v.ordini.filter(x=>!x.ordine.data||x.ordine.data<=rpDayFilter);
   const _rpCmp=(a,b)=>{
-    const aDone=v=>v.ordini.every(x=>x.done);
+    const aDone=v=>{const s=_inScope(v);return s.length>0&&s.every(x=>x.done)};
     const ad=aDone(a),bd=aDone(b);
     if(ad&&!bd)return 1;if(!ad&&bd)return -1;
     if(a.urgente&&!b.urgente)return -1;if(!a.urgente&&b.urgente)return 1;
@@ -2475,23 +2479,30 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
   document.getElementById('riepilogo-list').innerHTML=voci.filter(v=>{
     const a=arts.find(x=>x.id===v.artId);
     if(rpCatFilter!=='Tutte'&&(a&&a.cat||'')!==rpCatFilter)return false;
+    // La ricerca si applica sempre, indipendentemente da filtro giorno o riga già completata
+    if(cerca&&!(a&&ricercaIntelligente(cerca,a.nome)))return false;
     if(rpDayFilter!==null){
-      // Righe interamente completate: sempre visibili (in fondo), indipendentemente dal filtro giorno
-      if(v.ordini.every(x=>x.done))return true;
+      // Righe completate rispetto al periodo filtrato: sempre visibili (in fondo), anche se
+      // esistono altri ordini più avanti nel tempo (fuori dal periodo) non ancora pronti
+      const inScope=_inScope(v);
+      if(inScope.length&&inScope.every(x=>x.done))return true;
       // Se la card è espansa, non filtrarla (stesso comportamento di "tutti i giorni")
       if(rpExpanded[v.artId])return true;
       // Mostra solo articoli con almeno un ordine in scadenza entro la data selezionata
       const haOrdiniEntro=v.ordini.some(x=>!x.done&&(!x.ordine.data||x.ordine.data<=rpDayFilter));
       if(!haOrdiniEntro)return false;
     }
-    if(!cerca)return true;
-    return a&&ricercaIntelligente(cerca,a.nome);
+    return true;
   }).map((v,i)=>{
     const a=arts.find(x=>x.id===v.artId);
     const nome=a?a.nome:'?';
     const righeDaFare={};
-    const tuttiDone=v.ordini.every(x=>x.done);
-    (tuttiDone?v.ordini:v.ordini.filter(x=>!x.done&&(rpDayFilter===null||!x.ordine.data||x.ordine.data<=rpDayFilter))).forEach(x=>{const um=x.um||'';if(!righeDaFare[um])righeDaFare[um]=0;righeDaFare[um]+=(parseQty(x.qty)||1);});
+    // "Fatto" (colore verde, quantità mostrata) è calcolato sul sottoinsieme in ambito rispetto al
+    // filtro giorno: se tutto ciò che scade entro quella data è pronto, la riga è verde anche se
+    // esistono altri ordini più avanti (fuori dal periodo filtrato) non ancora pronti.
+    const inScope=_inScope(v);
+    const tuttiDone=inScope.length>0&&inScope.every(x=>x.done);
+    (tuttiDone?inScope:v.ordini.filter(x=>!x.done&&(rpDayFilter===null||!x.ordine.data||x.ordine.data<=rpDayFilter))).forEach(x=>{const um=x.um||'';if(!righeDaFare[um])righeDaFare[um]=0;righeDaFare[um]+=(parseQty(x.qty)||1);});
     const _rpCol=v.urgente?'var(--urg)':tuttiDone?'var(--g)':'var(--ev)';
     const qStr=Object.entries(righeDaFare).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span style="white-space:nowrap"><span class="rp-qty" style="color:${_rpCol}">${q}</span><span class="rp-um" style="color:${_rpCol}">${um?' '+um:''}</span></span>`;}).join(' <span style="color:var(--sub)">+</span> ');
     const rowClass=`rp-row ${v.urgente?'rp-urgente':tuttiDone?'rp-completato':''}`;
