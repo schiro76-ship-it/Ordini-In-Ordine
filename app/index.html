@@ -1406,7 +1406,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.26.2';
+const APP_VERSION='2.26.3';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1668,7 +1668,7 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
       const d=snap.data();
-      arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];
+      arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};
       applyRemoteSettings(d);
       _dispositivi=(d.dispositivi&&typeof d.dispositivi==='object'&&!Array.isArray(d.dispositivi))?d.dispositivi:{};
       if(!_dispositivi[_deviceId]){
@@ -1705,6 +1705,11 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
       const tabImp=document.getElementById('tab-impostazioni');
       if(tabImp&&tabImp.classList.contains('active')){
         renderDispositiviList();
+      }
+      const tabSto=document.getElementById('tab-storico');
+      if(tabSto&&tabSto.classList.contains('active')){
+        renderStoricoMensile();
+        renderStoricoRiepilogo();
       }
     });
   }catch(e){console.warn('Realtime error',e);}
