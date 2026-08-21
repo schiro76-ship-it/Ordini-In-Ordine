@@ -1406,7 +1406,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.26.1';
+const APP_VERSION='2.26.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1668,7 +1668,7 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists)return;
       const d=snap.data();
-      arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;
+      arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];
       applyRemoteSettings(d);
       _dispositivi=(d.dispositivi&&typeof d.dispositivi==='object'&&!Array.isArray(d.dispositivi))?d.dispositivi:{};
       if(!_dispositivi[_deviceId]){
@@ -1710,7 +1710,7 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
   }catch(e){console.warn('Realtime error',e);}
 }
 
-function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';document.body.classList.toggle('vb-active',showVb);const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderClientiM();renderArtS();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');const btnCambiaAtt=document.getElementById('btn-cambia-attivita');if(btnCambiaAtt)btnCambiaAtt.style.display=ords.length>0?'none':'';}
+function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';document.body.classList.toggle('vb-active',showVb);const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderClientiM();renderArtS();renderSP();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');const btnCambiaAtt=document.getElementById('btn-cambia-attivita');if(btnCambiaAtt)btnCambiaAtt.style.display=ords.length>0?'none':'';}
 
 
 const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni',invita:'Ricevi 5 €'};
