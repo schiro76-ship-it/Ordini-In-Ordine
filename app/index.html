@@ -1406,7 +1406,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.26.4';
+const APP_VERSION='2.26.5';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -3719,7 +3719,7 @@ function closeModal(id){
   if(!document.querySelector('.ov.open'))document.body.style.overflow='';
   if(id==='modal-det')renderOrdini();
 }
-document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo','modal-backup','modal-backup-conf','modal-clienti','modal-edit-cliente','modal-unisci-pick','modal-unisci-conferma'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
+document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo','modal-backup','modal-backup-conf','modal-clienti','modal-edit-cliente','modal-unisci-pick','modal-unisci-conferma','modal-tel-menu','modal-img-menu'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
 function apriSegnalaProblema(){document.getElementById('segnala-testo').value='';openModal('modal-segnala');}
 async function inviaSegnalazione(){
   const testo=document.getElementById('segnala-testo').value.trim();
