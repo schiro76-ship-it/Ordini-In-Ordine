@@ -1,5 +1,5 @@
 /* OrdinInOrdine — sito marketing — stile condiviso */
-
+/* Nota: il font viene idealmente caricato dall'<head> di ogni pagina (preconnect + link, vedi index.html) per evitare il flash del font. Questo @import resta come fallback per le pagine che non hanno ancora quei tag nell'head. */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 
 :root{
@@ -86,7 +86,7 @@ img{max-width:100%;display:block}
   border:1.5px solid var(--border);background:var(--paper);
 }
 
-/* Foto hero — operatore che consegna l'ordine (usata solo nella home) */
+/* Foto hero — operatore che consegna l'ordine */
 .hero-photo{grid-area:photo;max-width:420px;margin:0 auto}
 .hero-photo img{
   width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;
@@ -97,68 +97,6 @@ img{max-width:100%;display:block}
   .hero{grid-template-columns:1fr;grid-template-areas:"question" "eyebrow" "photo" "text";row-gap:16px}
   .hero-photo{max-width:340px}
 }
-
-/* Screenshot app — usata al posto della foto generica nelle pagine attività.
-   Omologo per dispositivo: su schermi larghi si vede lo screenshot desktop,
-   su schermi stretti quello da smartphone (stesso breakpoint di .hero-photo).
-   Componente riutilizzabile: .app-shot va combinato con img.shot-desktop / img.shot-mobile,
-   sia nell'hero (.hero-shot) sia in altre sezioni della pagina (.app-shots-grid). */
-.app-shot img{
-  width:100%;height:auto;
-  border-radius:var(--radius);
-  border:1px solid var(--border);
-  box-shadow:0 18px 40px -20px rgba(22,35,61,.35);
-}
-.app-shot .shot-desktop{display:block}
-.app-shot .shot-mobile{display:none}
-@media (max-width:800px){
-  .app-shot .shot-desktop{display:none}
-  .app-shot .shot-mobile{display:block}
-}
-.hero-shot{grid-area:photo;max-width:420px;margin:0 auto}
-@media (max-width:800px){
-  .hero-shot{max-width:340px}
-}
-
-/* Due screenshot impilati in verticale nello slot hero (pagine attività: Ordini sopra, Riepilogo sotto) */
-.hero-shot-stack{display:flex;flex-direction:column;gap:16px}
-
-/* Lightbox — ingrandimento screenshot al click (solo desktop: .shot-mobile è già nascosta oltre gli 800px) */
-.app-shot .shot-desktop{cursor:zoom-in}
-.lightbox-overlay{
-  position:fixed;inset:0;background:rgba(22,35,61,.92);
-  display:none;align-items:center;justify-content:center;
-  z-index:1000;padding:24px;overflow-y:auto;
-}
-.lightbox-overlay.active{display:flex}
-.lightbox-images{
-  display:flex;flex-direction:column;align-items:center;gap:24px;
-  max-width:100%;margin:auto;
-}
-.lightbox-images img{
-  max-width:min(92vw,1040px);max-height:80vh;width:auto;
-  border-radius:var(--radius);
-  box-shadow:0 30px 60px -20px rgba(0,0,0,.5);
-  cursor:default;
-}
-.lightbox-close{
-  position:absolute;top:24px;right:32px;
-  width:44px;height:44px;border-radius:50%;
-  background:rgba(255,255,255,.15);color:#fff;
-  border:none;font-size:24px;line-height:1;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .15s ease;
-}
-.lightbox-close:hover{background:rgba(255,255,255,.3)}
-
-/* Doppio screenshot Ordini + Riepilogo, sempre omologo per dispositivo */
-.app-shots-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:8px}
-@media (max-width:800px){
-  .app-shots-grid{grid-template-columns:1fr;max-width:340px;margin:8px auto 0}
-}
-.app-shot-card{text-align:center}
-.app-shot-card h3{margin:14px 0 0;font-family:'Nunito',sans-serif;font-weight:600;font-size:16px;color:var(--navy)}
-.app-shot-card p{font-size:14.5px;color:var(--muted);margin:4px 0 0}
 
 /* Etichetta mockup — elemento firma, uguale a quella che l'app stampa davvero */
 .label-mock{
