@@ -1,6 +1,20 @@
 /* OrdinInOrdine — sito marketing — stile condiviso */
-/* Nota: il font viene idealmente caricato dall'<head> di ogni pagina (preconnect + link, vedi index.html) per evitare il flash del font. Questo @import resta come fallback per le pagine che non hanno ancora quei tag nell'head. */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+/* Font Nunito ospitato direttamente sul dominio (invece di scaricarlo da Google Fonts): elimina il
+   collegamento a un server esterno, il download parte prima e finisce prima, riducendo al minimo
+   il "salto" visibile quando il font sostituisce quello di sistema. Solo i 3 pesi realmente usati
+   nel sito (400/600/700) — vedi assets/fonts/. */
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:400;font-display:swap;
+  src:url('fonts/nunito-400.woff2') format('woff2');
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:600;font-display:swap;
+  src:url('fonts/nunito-600.woff2') format('woff2');
+}
+@font-face{
+  font-family:'Nunito';font-style:normal;font-weight:700;font-display:swap;
+  src:url('fonts/nunito-700.woff2') format('woff2');
+}
 
 :root{
   --blue:#256BC1;
