@@ -1406,7 +1406,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.26.5';
+const APP_VERSION='2.26.6';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1928,9 +1928,13 @@ function ricercaIntelligente(query,testo){
     while(wi<tWords.length){
       const w=tWords[wi];wi++;
       if(w.startsWith(tok)){trovato=true;break;}
-      if(tok.length>=3){
+      // Tolleranza di battitura: solo per parole di almeno 5 lettere, e solo se la parola del
+      // testo ha una lunghezza simile — altrimenti si rischia di far combaciare per puro caso una
+      // parola corta con l'inizio troncato di una parola molto più lunga e diversa (es. "carne"
+      // che finiva per trovare "Cornetto" solo perché le prime lettere si assomigliano un po').
+      if(tok.length>=5&&Math.abs(w.length-tok.length)<=2){
         const dist=_levenshtein(tok,w.slice(0,tok.length));
-        const soglia=tok.length<=4?1:2;
+        const soglia=tok.length<=6?1:2;
         if(dist<=soglia){trovato=true;break;}
       }
     }
