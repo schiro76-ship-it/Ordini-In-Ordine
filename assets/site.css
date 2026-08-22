@@ -98,25 +98,20 @@ img{max-width:100%;display:block}
   .hero-photo{max-width:340px}
 }
 
-/* Screenshot hero (pagine attività) — Ordini + Riepilogo veri, sfalsati a "pila" */
+/* Screenshot hero (pagine attività) — Ordini + Riepilogo veri, in colonna, stessa dimensione */
 .hero-shot{grid-area:photo}
-.hero-shot-stack{position:relative;max-width:440px;margin:0 auto 44px}
+.hero-shot-stack{position:relative;max-width:440px;margin:0 auto 44px;display:flex;flex-direction:column;gap:16px}
 .app-shot{
   border-radius:var(--radius);overflow:hidden;
   box-shadow:0 18px 40px -20px rgba(22,35,61,.35);
   border:1px solid var(--border);background:var(--paper);
 }
 .app-shot img{width:100%;height:auto}
-.hero-shot-stack .app-shot:last-child{
-  margin-top:-36px;margin-left:16%;width:84%;position:relative;z-index:2;
-  box-shadow:0 22px 44px -16px rgba(22,35,61,.4);
-}
 .shot-desktop{cursor:zoom-in}
 @media (min-width:801px){.shot-mobile{display:none}}
 @media (max-width:800px){
   .shot-desktop{display:none}
-  .hero-shot-stack{max-width:230px;margin-bottom:36px}
-  .hero-shot-stack .app-shot:last-child{margin-top:-24px}
+  .hero-shot-stack{max-width:420px;width:100%;margin-bottom:36px;gap:14px}
 }
 
 /* Lightbox screenshot (click su shot-desktop, vedi site.js) */
