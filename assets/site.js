@@ -1,7 +1,7 @@
 // OrdinInOrdine — sito marketing — lightbox screenshot
 // Al click su uno screenshot desktop, mostra TUTTI gli screenshot desktop
-// della pagina insieme, affiancati (Ordini + Riepilogo hanno senso solo
-// visti uno accanto all'altro, per apprezzare l'aggregazione automatica).
+// della pagina insieme, in colonna (stessa impostazione della coppia
+// Ordini + Riepilogo nella hero, per coerenza visiva in tutto il sito).
 // Su smartphone non serve: .shot-desktop è nascosta sotto gli 800px
 // (vedi site.css), quindi il listener non trova nulla su cui agganciarsi.
 
