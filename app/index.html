@@ -1406,7 +1406,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.26.6';
+const APP_VERSION='2.26.7';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -3852,23 +3852,23 @@ function _disegnaEtichetta(o,artIdEvidenziato){
 
   // Sfondo bianco e bordo
   ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='#1A1A2E';ctx.lineWidth=5;ctx.strokeRect(6,6,W-12,H-12);
+  ctx.strokeStyle='#000000';ctx.lineWidth=5;ctx.strokeRect(6,6,W-12,H-12);
 
   let y=pad+16;
 
   // Numero ordine
-  ctx.fillStyle='#256BC1';ctx.font='900 160px sans-serif';ctx.textAlign='center';
+  ctx.fillStyle='#000000';ctx.font='900 160px sans-serif';ctx.textAlign='center';
   ctx.fillText('#'+o.num,W/2,y+130);y+=155;
 
   // Nome cliente — adattivo
-  ctx.fillStyle='#1A1A2E';
+  ctx.fillStyle='#000000';
   const nNome=misuraRighe(_nomeStampa,'900 54px sans-serif',W-pad*2);
-  scriviWrap(_nomeStampa,'900 54px sans-serif','#1A1A2E',W/2,y+48,W-pad*2,62,'center');
+  scriviWrap(_nomeStampa,'900 54px sans-serif','#000000',W/2,y+48,W-pad*2,62,'center');
   y+=nNome*62+8;
 
   // Data e turno
   if(metaStr){
-    ctx.fillStyle='#6B7280';ctx.font='600 38px sans-serif';ctx.textAlign='center';
+    ctx.fillStyle='#000000';ctx.font='600 38px sans-serif';ctx.textAlign='center';
     ctx.fillText(metaStr,W/2,y+36);y+=52;
   }
 
@@ -3896,10 +3896,10 @@ function _disegnaEtichetta(o,artIdEvidenziato){
     const lastLineW=ctx.measureText(righe[nR-1]).width;
     const qtyFits=(lastLineW+14+qtyW)<=maxFull;
     const totalLines=qtyFits?nR:nR+1;
-    ctx.fillStyle='#333333';ctx.textAlign='left';
+    ctx.fillStyle='#000000';ctx.textAlign='left';
     righe.forEach(function(l,i){ctx.fillText(l,pad,y+baseOff+i*lineH);});
     const qtyLineIdx=qtyFits?(nR-1):nR;
-    ctx.fillStyle='#444444';ctx.font=fontQty;ctx.textAlign='right';
+    ctx.fillStyle='#000000';ctx.font=fontQty;ctx.textAlign='right';
     ctx.fillText(qty,W-pad,y+baseOff+qtyLineIdx*lineH);
     ctx.textAlign='left';
     let notaBlockH=0;
@@ -3907,7 +3907,7 @@ function _disegnaEtichetta(o,artIdEvidenziato){
       const notaFont='italic 500 '+notaSize+'px sans-serif';
       const notaLineH=notaSize+4;
       const nNota=misuraRighe(it.nota,notaFont,maxFull);
-      scriviWrap(it.nota,notaFont,'#8A93A3',pad,y+totalLines*lineH+baseOff-6,maxFull,notaLineH,'left');
+      scriviWrap(it.nota,notaFont,'#000000',pad,y+totalLines*lineH+baseOff-6,maxFull,notaLineH,'left');
       notaBlockH=nNota*notaLineH+8;
     }
     ctx.strokeStyle='#F0F0F0';ctx.lineWidth=1;
@@ -3918,7 +3918,7 @@ function _disegnaEtichetta(o,artIdEvidenziato){
   // Numero articoli (solo etichetta ordine intero, non articolo singolo)
   const nArtEtichetta=(o.items||[]).length;
   if(!artIdEvidenziato&&nArtEtichetta>=2){
-    ctx.fillStyle='#888888';ctx.font='700 24px sans-serif';ctx.textAlign='left';
+    ctx.fillStyle='#000000';ctx.font='700 24px sans-serif';ctx.textAlign='left';
     ctx.fillText(nArtEtichetta+' '+lblArt(true),pad,y+6+20);
     y+=6+26;
   }
@@ -3931,7 +3931,7 @@ function _disegnaEtichetta(o,artIdEvidenziato){
     ctx.setLineDash([]);y+=30;
     const maxNote=W-pad*2;
     const nNote=misuraRighe(o.note,'italic 600 34px sans-serif',maxNote);
-    scriviWrap(o.note,'italic 600 34px sans-serif','#6B7280',pad,y+34,maxNote,42,'left');
+    scriviWrap(o.note,'italic 600 34px sans-serif','#000000',pad,y+34,maxNote,42,'left');
     y+=nNote*42+10;
   }
 
