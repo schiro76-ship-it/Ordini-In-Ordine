@@ -100,6 +100,19 @@ img{max-width:100%;display:block}
   border:1.5px solid var(--border);background:var(--paper);
 }
 
+/* Link testuali "leggeri" (esplorazione, non conversione) — usati nell'hero e nei box funzione */
+.hero-link{
+  display:inline-flex;align-items:center;gap:6px;margin-top:28px;
+  color:var(--blue);text-decoration:none;font-weight:600;font-size:16px;
+}
+.hero-link:hover{text-decoration:underline}
+.hero-link .arrow{display:inline-block;transition:transform .15s ease}
+.hero-link:hover .arrow{transform:translateX(4px)}
+.feature-link{
+  color:var(--blue);text-decoration:none;font-weight:600;white-space:nowrap;
+}
+.feature-link:hover{text-decoration:underline}
+
 /* Foto hero — operatore che consegna l'ordine */
 .hero-photo{grid-area:photo;max-width:420px;margin:0 auto}
 .hero-photo img{
