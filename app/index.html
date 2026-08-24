@@ -1053,10 +1053,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="phdr"><h2>Invita un amico</h2></div>
         <div class="pbody">
           <div class="card">
-            <div class="cb" style="text-align:center;padding:40px 20px">
+            <div class="cb" style="text-align:center;padding:32px 20px">
               <div style="font-size:48px;margin-bottom:12px"><i class="ti ti-gift"></i></div>
-              <div style="font-size:17px;font-weight:800;color:#1A1A2E;margin-bottom:8px">Presto disponibile</div>
-              <div style="font-size:14px;color:var(--sub);font-weight:600">Invita un amico: quando effettuerà il primo pagamento reale, riceverete entrambi un accredito di 5€ sulla carta.</div>
+              <div id="referral-box"></div>
             </div>
           </div>
         </div>
@@ -1356,6 +1355,16 @@ function getAttivitaSlugFromURL(){
   }catch(e){}
   return null;
 }
+// Legge il codice di invito dall'URL (?ref=CODICE), se presente, in fase di registrazione.
+// Solo lettera/numeri per evitare che qualcosa di strano finisca su Firestore.
+function getCodiceReferralFromURL(){
+  try{
+    const params=new URLSearchParams(window.location.search);
+    const raw=(params.get('ref')||'').toUpperCase().trim();
+    if(/^[A-Z0-9]{4,12}$/.test(raw))return raw;
+  }catch(e){}
+  return null;
+}
 const DEFAULT_THEME={r:'#C0392B',rs:'#F9EDED',g:'#1E8A6E',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'};
 let obSelectedAttivita=null;
 let _tipoAttivitaCorrente=null;
@@ -1416,7 +1425,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.28.0';
+const APP_VERSION='2.29.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1487,9 +1496,13 @@ const _orNuovo=Object.values(_notifSettingsAll).some(v=>v&&v.nuovoOrdine!==false
 const _orUrg=Object.values(_notifSettingsAll).some(v=>v&&v.ordiniUrgenti!==false);
 const payload={arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
 let _abbonamento=null; // {stato,piano,scadenza,stripeCustomerId,stripeSubscriptionId} — scritto solo dal webhook Stripe, mai dal client
+let _referral=null; // {codice,invitatoDa,creditoErogato} — codice generato dal client, invitatoDa/creditoErogato letti/scritti anche dal webhook
 function applyRemoteSettings(d){
   _abbonamento=(d.abbonamento&&typeof d.abbonamento==='object')?d.abbonamento:null;
   applyAbbonamentoUI();
+  _referral=(d.referral&&typeof d.referral==='object')?d.referral:null;
+  applyReferralUI();
+  ensureCodiceReferral();
   _urgDays=(typeof d.urgDays==='number'&&d.urgDays>=0)?d.urgDays:0;
   _calMode=d.calMode||'ora';
   dateFormat=d.dateFormat||'gg dd/mm';
@@ -1510,6 +1523,61 @@ function applyRemoteSettings(d){
 }
 // Aggiorna la card Account con lo stato abbonamento corrente. Il campo _abbonamento è scritto
 // esclusivamente dal webhook Stripe (mai dal client): qui ci limitiamo a leggerlo e mostrarlo.
+// Genera un codice invito personale la prima volta che serve (nessun codice ancora salvato per
+// questo account) e lo salva su Firestore. Non tocca invitatoDa/creditoErogato se già presenti:
+// costruiamo l'oggetto referral completo partendo da quello che c'è già, così il salvataggio con
+// merge non perde eventuali campi scritti nel frattempo dal webhook (es. creditoErogato).
+function ensureCodiceReferral(){
+  if(!_dataLoaded)return;
+  if(_referral&&_referral.codice)return;
+  const alfabeto='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // esclude 0/O e 1/I per evitare ambiguità quando il codice viene letto ad alta voce o scritto a mano
+  let codice='';
+  for(let i=0;i<6;i++)codice+=alfabeto[Math.floor(Math.random()*alfabeto.length)];
+  const nuovoReferral=Object.assign({},_referral||{},{codice:codice});
+  const uid=currentUser?currentUser.uid:DOC_ID;
+  db.collection('dati').doc(uid).set({referral:nuovoReferral},{merge:true}).then(function(){
+    _referral=nuovoReferral;
+    applyReferralUI();
+  }).catch(function(e){console.warn('Errore generazione codice referral',e);});
+}
+function linkReferral(){
+  if(!_referral||!_referral.codice)return '';
+  return 'https://ordininordine.it/app/?ref='+_referral.codice;
+}
+function applyReferralUI(){
+  const box=document.getElementById('referral-box');
+  if(!box)return;
+  const link=linkReferral();
+  if(!link){
+    box.innerHTML='<div style="font-size:14px;color:var(--sub);font-weight:600">Preparazione del tuo link in corso…</div>';
+    return;
+  }
+  box.innerHTML=
+    '<div style="font-size:14px;color:var(--sub);font-weight:600;margin-bottom:14px">Invita un amico: quando effettuerà il primo pagamento reale, riceverete entrambi 5€ di sconto sul pagamento successivo.</div>'+
+    '<div style="background:var(--bg);border-radius:12px;padding:14px;font-size:14px;font-weight:800;color:var(--txt);word-break:break-all;margin-bottom:14px">'+link+'</div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">'+
+    '<button class="btn br" style="padding:10px 16px" onclick="condividiLinkReferral()"><i class="ti ti-share"></i> Condividi</button>'+
+    '<button class="btn bg2" style="padding:10px 16px" onclick="copiaLinkReferral()"><i class="ti ti-copy"></i> Copia link</button>'+
+    '</div>';
+}
+function copiaLinkReferral(){
+  const link=linkReferral();
+  if(!link)return;
+  navigator.clipboard.writeText(link).then(function(){
+    toast('Link copiato','v');
+  }).catch(function(){
+    toast('Impossibile copiare il link','err');
+  });
+}
+function condividiLinkReferral(){
+  const link=linkReferral();
+  if(!link)return;
+  if(navigator.share){
+    navigator.share({title:'OrdinInOrdine',text:'Prova OrdinInOrdine, il gestionale ordini per la tua attività:',url:link}).catch(function(){});
+  }else{
+    copiaLinkReferral();
+  }
+}
 function applyAbbonamentoUI(){
   const stato=document.getElementById('abbonamento-stato');
   const azioni=document.getElementById('abbonamento-azioni');
@@ -4444,7 +4512,7 @@ function evidenziaCampo(id){
 }
 function doLogin(){const email=document.getElementById('login-email').value.trim();const pwd=document.getElementById('login-pwd').value;if(!email||!pwd){loginErr('Inserisci email e password');evidenziaCampo(!email?'login-email':'login-pwd');return;}auth.signInWithEmailAndPassword(email,pwd).catch(function(e){if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')loginErr('Email o password errati');else loginErr('Errore: '+e.message);});}
 function toggleBillingFields(){const f=document.getElementById('billing-fields');const a=document.getElementById('billing-arrow');const open=f.style.display!=='none';f.style.display=open?'none':'block';a.style.transform=open?'rotate(0deg)':'rotate(90deg)';}
-function doRegister(){isNewUser=true;const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString()}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');},function(e){toast('Errore invio verifica: '+e.code,'err');});});}).catch(function(e){if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
+function doRegister(){isNewUser=true;const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();if(_codiceRef){db.collection('dati').doc(cred.user.uid).set({referral:{invitatoDa:_codiceRef,creditoErogato:false}},{merge:true}).catch(function(e){console.warn('referral invitatoDa save error',e);});}return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString()}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');},function(e){toast('Errore invio verifica: '+e.code,'err');});});}).catch(function(e){if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
 function doResetPwd(){const email=document.getElementById('login-email').value.trim();if(!email){loginErr('Inserisci prima la tua email');return;}auth.sendPasswordResetEmail(email).then(function(){loginErr('Email di recupero inviata! Controlla la posta.');}).catch(function(e){loginErr('Email non trovata');});}
 function doGoogleLogin(){
   const formReg=document.getElementById('form-reg');
