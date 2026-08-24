@@ -720,14 +720,14 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       </div>
     </div>
     <div class="sb-nuovo-wrap" style="padding:12px 10px 4px">
-      <div class="ni-nuovo-top" onclick="goTab('nuovo')"><span class="ic" style="font-size:20px;font-weight:900">+</span>Nuovo Ordine</div>
+      <div class="ni-nuovo-top" onclick="apriNuovoOrdine()"><span class="ic" style="font-size:20px;font-weight:900">+</span>Nuovo Ordine</div>
     </div>
     <nav class="sb-nav">
       <div class="ni active" onclick="goTab('ordini')"><span class="ic"><i class="ti ti-clipboard-list"></i></span>Ordini</div>
       <div class="ni" onclick="goTab('riepilogo')"><span class="ic"><i class="ti ti-chart-bar"></i></span>Riepilogo</div>
       <div class="ni" onclick="goTab('storico')"><span class="ic"><i class="ti ti-calendar"></i></span>Storico</div>
       <div class="ni" onclick="goTab('impostazioni')"><span class="ic"><i class="ti ti-settings"></i></span>Impostazioni</div>
-      <div class="ni" onclick="goTab('invita')"><span class="ic"><i class="ti ti-gift"></i></span>Ricevi 5 €</div>
+      <div class="ni" onclick="goTab('invita')"><span class="ic"><i class="ti ti-gift"></i></span>Sconto di 5 €</div>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importaDati(this)">
       <input type="file" id="img-input-camera" accept="image/*" capture="environment" style="display:none" onchange="onImgPickerChange(this)">
       <input type="file" id="img-input-gallery" accept="image/*" style="display:none" onchange="onImgPickerChange(this)">
@@ -756,7 +756,15 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div class="sec active" id="tab-ordini">
         <div class="pbody">
           <div class="ordini-sticky">
-            <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label">Stampa tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
+            <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label">Stampa tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Sconto di 5 €</button></div></div>
+            <div id="banner-prova-scaduta" style="display:none;background:#FEF3E2;border:1.5px solid #F59E0B;border-radius:12px;padding:14px 16px;margin-bottom:14px;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+              <div style="font-size:14px;font-weight:700;color:#92400E">Il mese di prova è terminato. Puoi ancora consultare i tuoi ordini, ma per crearne di nuovi devi abbonarti.</div>
+              <button class="btn br" style="padding:8px 14px;white-space:nowrap" onclick="goTab('impostazioni')">Abbonati</button>
+            </div>
+            <div id="banner-prova-in-scadenza" style="display:none;background:#EFF6FF;border:1.5px solid #93C5FD;border-radius:12px;padding:14px 16px;margin-bottom:14px;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+              <div id="banner-prova-in-scadenza-testo" style="font-size:14px;font-weight:700;color:#1E40AF"></div>
+              <button class="btn br" style="padding:8px 14px;white-space:nowrap" onclick="goTab('impostazioni')">Abbonati</button>
+            </div>
             <div class="ordini-sticky-top">
               <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div class="ordini-filt-row">
@@ -774,7 +782,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div class="sec" id="tab-riepilogo">
         <div class="pbody">
           <div class="list-sticky">
-            <div class="phdr"><h2>Riepilogo</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-riepilogo" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-riepilogo-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
+            <div class="phdr"><h2>Riepilogo</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-riepilogo" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-riepilogo-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Sconto di 5 €</button></div></div>
             <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('riepilogo-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
             <div class="cp" id="riepilogo-day-pills"></div>
             <div class="cp" id="riepilogo-cat-pills"></div>
@@ -783,7 +791,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-storico">
-        <div class="phdr"><h2>Storico</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-storico" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-storico-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
+        <div class="phdr"><h2>Storico</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-storico" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-storico-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Sconto di 5 €</button></div></div>
         <div class="pbody">
           <div class="card card-sticky-host" style="margin-bottom:20px">
             <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
@@ -894,7 +902,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-impostazioni">
-        <div class="phdr"><h2>Impostazioni</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-impostazioni" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-impostazioni-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Ricevi 5 €</button></div></div>
+        <div class="phdr"><h2>Impostazioni</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-impostazioni" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-impostazioni-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Sconto di 5 €</button></div></div>
         <div class="pbody">
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-tag"></i> Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderCatList();openModal('modal-cat')"><i class="ti ti-pencil"></i> Gestisci</button></div>
@@ -1425,7 +1433,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.29.0';
+const APP_VERSION='2.30.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1497,12 +1505,19 @@ const _orUrg=Object.values(_notifSettingsAll).some(v=>v&&v.ordiniUrgenti!==false
 const payload={arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
 let _abbonamento=null; // {stato,piano,scadenza,stripeCustomerId,stripeSubscriptionId} — scritto solo dal webhook Stripe, mai dal client
 let _referral=null; // {codice,invitatoDa,creditoErogato} — codice generato dal client, invitatoDa/creditoErogato letti/scritti anche dal webhook
+let _datiCreato=null; // data di creazione account, per calcolare la scadenza del mese di prova
+let _provaScaduta=false;
+let _provaGiorniRimanenti=null; // null = non calcolabile o non prossima alla scadenza
 function applyRemoteSettings(d){
   _abbonamento=(d.abbonamento&&typeof d.abbonamento==='object')?d.abbonamento:null;
   applyAbbonamentoUI();
   _referral=(d.referral&&typeof d.referral==='object')?d.referral:null;
   applyReferralUI();
   ensureCodiceReferral();
+  _datiCreato=d.creato||null;
+  _provaScaduta=calcolaProvaScaduta();
+  _provaGiorniRimanenti=calcolaProvaGiorniRimanenti();
+  applyProvaScadutaUI();
   _urgDays=(typeof d.urgDays==='number'&&d.urgDays>=0)?d.urgDays:0;
   _calMode=d.calMode||'ora';
   dateFormat=d.dateFormat||'gg dd/mm';
@@ -1577,6 +1592,59 @@ function condividiLinkReferral(){
   }else{
     copiaLinkReferral();
   }
+}
+// Il mese di prova è gratuito e non richiede carta: si calcola semplicemente 30 giorni dalla
+// creazione dell'account. Se non conosciamo la data di creazione (account creati prima
+// dell'introduzione di questo campo) NON blocchiamo mai — meglio un falso negativo (qualcuno che
+// continua a usare gratis) che bloccare per errore un account esistente di cui non sappiamo la
+// vera data di iscrizione.
+function calcolaProvaScaduta(){
+  if(!_datiCreato)return false;
+  const creatoMs=new Date(_datiCreato).getTime();
+  if(isNaN(creatoMs))return false;
+  const TRENTA_GIORNI_MS=30*24*60*60*1000;
+  if(Date.now()<creatoMs+TRENTA_GIORNI_MS)return false; // ancora dentro il mese di prova
+  return !(_abbonamento&&_abbonamento.stato==='attivo'); // scaduto E non abbonato = blocco
+}
+// Giorni interi rimanenti prima della scadenza del mese di prova, SOLO se siamo negli ultimi 5
+// giorni (soglia di preavviso) e l'account non è già abbonato — altrimenti null, così il banner
+// morbido non appare né troppo presto né dopo che l'account si è già abbonato.
+const PREAVVISO_PROVA_GIORNI=5;
+function calcolaProvaGiorniRimanenti(){
+  if(!_datiCreato)return null;
+  if(_abbonamento&&_abbonamento.stato==='attivo')return null;
+  const creatoMs=new Date(_datiCreato).getTime();
+  if(isNaN(creatoMs))return null;
+  const TRENTA_GIORNI_MS=30*24*60*60*1000;
+  const scadenzaMs=creatoMs+TRENTA_GIORNI_MS;
+  const msRimanenti=scadenzaMs-Date.now();
+  if(msRimanenti<=0)return null; // già scaduto: gestito dal banner di blocco, non da questo
+  const giorni=Math.ceil(msRimanenti/(24*60*60*1000));
+  return giorni<=PREAVVISO_PROVA_GIORNI?giorni:null;
+}
+function applyProvaScadutaUI(){
+  const bannerScaduto=document.getElementById('banner-prova-scaduta');
+  const bannerAvviso=document.getElementById('banner-prova-in-scadenza');
+  const testoAvviso=document.getElementById('banner-prova-in-scadenza-testo');
+  if(bannerScaduto)bannerScaduto.style.display=_provaScaduta?'flex':'none';
+  if(bannerAvviso){
+    if(!_provaScaduta&&_provaGiorniRimanenti!==null){
+      if(testoAvviso)testoAvviso.textContent=_provaGiorniRimanenti===1?'Il tuo mese di prova termina domani. Abbonati per continuare senza interruzioni.':'Il tuo mese di prova termina tra '+_provaGiorniRimanenti+' giorni. Abbonati per continuare senza interruzioni.';
+      bannerAvviso.style.display='flex';
+    }else{
+      bannerAvviso.style.display='none';
+    }
+  }
+}
+// Punto di ingresso unico per "Nuovo Ordine" (sidebar + barra inferiore): se il mese di prova è
+// scaduto e non c'è un abbonamento attivo, reindirizza ad Impostazioni invece di aprire il form.
+function apriNuovoOrdine(){
+  if(_provaScaduta){
+    toast('Il mese di prova è terminato: abbonati per creare nuovi ordini.','err');
+    goTab('impostazioni');
+    return;
+  }
+  goTab('nuovo');
 }
 function applyAbbonamentoUI(){
   const stato=document.getElementById('abbonamento-stato');
@@ -1917,7 +1985,7 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
 function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';document.body.classList.toggle('vb-active',showVb);const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderClientiM();renderArtS();renderSP();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');const btnCambiaAtt=document.getElementById('btn-cambia-attivita');if(btnCambiaAtt)btnCambiaAtt.style.display=ords.length>0?'none':'';}
 
 
-const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni',invita:'Ricevi 5 €'};
+const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni',invita:'Sconto di 5 €'};
 const tabIdx={ordini:0,riepilogo:1,storico:2,impostazioni:3,invita:4};
 let _currentTab='ordini';
 let _tabPrimaDiNuovo='ordini';
@@ -3265,7 +3333,7 @@ function renderSP(){const card=document.getElementById('card-sel'),el=document.g
   const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi foto</button></div>`:`<button type="button" onclick="apriImmaginePicker('sel',${s.id})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
-async function salvaOrdine(){const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,telefono:telefono||'',clienteId:clienteId,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseQty(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
+async function salvaOrdine(){if(_provaScaduta){toast('Il mese di prova è terminato: abbonati per creare nuovi ordini.','err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,telefono:telefono||'',clienteId:clienteId,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseQty(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
   // Caricamento foto in background: l'ordine è già salvato, l'utente non deve aspettare l'upload
   const _daCaricare=_selSnapshot.filter(s=>s.imgBlob);
   if(_daCaricare.length){
@@ -4512,7 +4580,7 @@ function evidenziaCampo(id){
 }
 function doLogin(){const email=document.getElementById('login-email').value.trim();const pwd=document.getElementById('login-pwd').value;if(!email||!pwd){loginErr('Inserisci email e password');evidenziaCampo(!email?'login-email':'login-pwd');return;}auth.signInWithEmailAndPassword(email,pwd).catch(function(e){if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')loginErr('Email o password errati');else loginErr('Errore: '+e.message);});}
 function toggleBillingFields(){const f=document.getElementById('billing-fields');const a=document.getElementById('billing-arrow');const open=f.style.display!=='none';f.style.display=open?'none':'block';a.style.transform=open?'rotate(0deg)':'rotate(90deg)';}
-function doRegister(){isNewUser=true;const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();if(_codiceRef){db.collection('dati').doc(cred.user.uid).set({referral:{invitatoDa:_codiceRef,creditoErogato:false}},{merge:true}).catch(function(e){console.warn('referral invitatoDa save error',e);});}return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString()}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');},function(e){toast('Errore invio verifica: '+e.code,'err');});});}).catch(function(e){if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
+function doRegister(){isNewUser=true;const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString()}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');},function(e){toast('Errore invio verifica: '+e.code,'err');});});}).catch(function(e){if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
 function doResetPwd(){const email=document.getElementById('login-email').value.trim();if(!email){loginErr('Inserisci prima la tua email');return;}auth.sendPasswordResetEmail(email).then(function(){loginErr('Email di recupero inviata! Controlla la posta.');}).catch(function(e){loginErr('Email non trovata');});}
 function doGoogleLogin(){
   const formReg=document.getElementById('form-reg');
@@ -4882,7 +4950,7 @@ if('serviceWorker' in navigator){
   <button class="bn-item" id="bn-riepilogo" onclick="goTab('riepilogo')">
     <span class="bn-ic"><i class="ti ti-chart-bar"></i></span><span>Riepilogo</span>
   </button>
-  <button class="bn-item bn-new" id="bn-nuovo" onclick="goTab('nuovo')">
+  <button class="bn-item bn-new" id="bn-nuovo" onclick="apriNuovoOrdine()">
     <span class="bn-ic-wrap">+</span>
   </button>
   <button class="bn-item" id="bn-storico" onclick="goTab('storico')">
