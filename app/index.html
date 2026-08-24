@@ -1434,7 +1434,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.6';
+const APP_VERSION='2.30.7';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -3125,7 +3125,7 @@ async function rimuoviImmagineDet(oid,idx){
   renderRiepilogo();
   toast('Foto rimossa','v');
 }
-async function updOrdCampo(oid,campo,val){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;o[campo]=val||null;if(campo==='nome'||campo==='telefono')syncClienteDaOrdine(o);await saveData();renderOrdini();}
+async function updOrdCampo(oid,campo,val){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;if(campo==='num'){if(ords.filter(x=>x.id!==oid&&!isRitiratoVecchio(x)).find(x=>x.num===val)){toast('Il numero #'+val+' è già usato!','err');renderDetModal(o);return;}}o[campo]=val||null;if(campo==='nome'||campo==='telefono')syncClienteDaOrdine(o);await saveData();renderOrdini();}
 async function setStatoD(oid,stato){await setStato(oid,stato);const o=ords.find(x=>x.id===oid);if(o)renderDetModal(o);}
 async function addItemToOrd(oid,artId){
   _flushDetCalToast();
