@@ -923,19 +923,19 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-user"></i> Account</div></div>
             <div class="cb">
-              <div style="font-size:14px;font-weight:600;color:var(--sub);margin-bottom:14px" id="account-email"></div>
-              <div style="padding:12px 0;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);margin-bottom:14px">
-                <div id="abbonamento-stato" style="font-size:15px;font-weight:800">Nessun abbonamento attivo</div>
-                <div id="abbonamento-azioni" style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
-                  <button id="btn-abbonati-mensile" class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="avviaCheckout('mensile')"><span style="font-size:20px"><i class="ti ti-calendar-event"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Abbonamento mensile</div><div style="font-size:13px;font-weight:600;color:var(--sub)">9,99€ al mese</div></div></button>
-                  <button id="btn-abbonati-annuale" class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="avviaCheckout('annuale')"><span style="font-size:20px"><i class="ti ti-calendar-stats"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Abbonamento annuale</div><div style="font-size:13px;font-weight:600;color:var(--sub)">99€ all'anno</div></div></button>
-                </div>
-              </div>
-              <div class="fg">
+              <div class="fg" style="margin-bottom:14px">
                 <label class="fl">Nome attività</label>
                 <div style="display:flex;gap:8px">
                   <input class="fi" type="text" id="input-attivita" placeholder="Nome Attività" style="flex:1;margin:0">
                   <button class="btn br" style="padding:10px 16px;white-space:nowrap" onclick="salvaAttivita()">Salva</button>
+                </div>
+              </div>
+              <div style="font-size:14px;font-weight:600;color:var(--sub);margin-bottom:14px" id="account-email"></div>
+              <div style="padding:12px 0;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);margin-bottom:14px">
+                <div id="abbonamento-stato" style="font-size:15px;font-weight:800">Nessun abbonamento attivo</div>
+                <div id="abbonamento-azioni" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+                  <button id="btn-abbonati-mensile" class="btn br" style="padding:10px 16px" onclick="avviaCheckout('mensile')"><i class="ti ti-calendar-event"></i> Abbonamento mensile — 9,99€/mese</button>
+                  <button id="btn-abbonati-annuale" class="btn br" style="padding:10px 16px" onclick="avviaCheckout('annuale')"><i class="ti ti-calendar-stats"></i> Abbonamento annuale — 99€/anno</button>
                 </div>
               </div>
               <button id="btn-cambia-attivita" class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#1A1A2E;margin-top:4px" onclick="resetOnboarding()"><span style="font-size:20px"><i class="ti ti-refresh"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Cambia tipo attività</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Riavvia la configurazione iniziale</div></div></button>
@@ -1415,7 +1415,7 @@ const db=firebase.firestore();
 const functions=firebase.app().functions('europe-west1'); // le Cloud Functions girano in europe-west1, non nella regione di default
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.27.0';
+const APP_VERSION='2.27.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
