@@ -470,7 +470,7 @@ body:not(.portrait-phone) #storico-dettaglio-list{display:grid;grid-template-col
 body:not(.portrait-phone) #storico-dettaglio-list .storico-ord-card{margin-bottom:8px}
 .rp-urgente{border-left-color:var(--urg)!important}.rp-urgente .rp-pri{background:var(--urg)}.rp-urgente .rp-qty{color:var(--urg)}
 .rp-completato{border-left-color:var(--g)!important}.rp-completato .rp-pri{background:var(--g)}.rp-completato .rp-qty{color:var(--g)}
-#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--txt);color:#fff;padding:12px 22px;border-radius:28px;font-size:16px;font-weight:800;box-shadow:var(--shl);opacity:0;transition:all 0.25s ease;z-index:400;white-space:nowrap}
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--txt);color:#fff;padding:12px 22px;border-radius:28px;font-size:16px;font-weight:800;box-shadow:var(--shl);opacity:0;transition:all 0.25s ease;z-index:400;max-width:min(480px,calc(100vw - 32px));box-sizing:border-box;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.v{background:var(--g)}#toast.err{background:var(--r)}
 .um-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
@@ -748,6 +748,15 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="promptAndroidInstall()">Installa</button>
       <button onclick="dismissAndroidInstallBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
     </div>
+    <div id="banner-prova-scaduta" style="display:none;background:#FEF3E2;border-bottom:1px solid #F59E0B;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#92400E;flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
+      <span><i class="ti ti-lock"></i> Il mese di prova è terminato: abbonati per creare nuovi ordini.</span>
+      <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="goTab('impostazioni')">Abbonati</button>
+    </div>
+    <div id="banner-prova-in-scadenza" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
+      <span id="banner-prova-in-scadenza-testo"></span>
+      <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="goTab('impostazioni')">Abbonati</button>
+      <button onclick="dismissProvaInScadenzaBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
+    </div>
     <div class="topbar">
       <button class="tb-menu" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
       <div class="tb-title" id="topbar-title" style="font-family:'Nunito',sans-serif;font-weight:900"><span style="color:#2C3E50">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#2C3E50">nOrdine</span></div>
@@ -757,14 +766,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="pbody">
           <div class="ordini-sticky">
             <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label">Stampa tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Sconto di 5 €</button></div></div>
-            <div id="banner-prova-scaduta" style="display:none;background:#FEF3E2;border:1.5px solid #F59E0B;border-radius:12px;padding:14px 16px;margin-bottom:14px;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-              <div style="font-size:14px;font-weight:700;color:#92400E">Il mese di prova è terminato. Puoi ancora consultare i tuoi ordini, ma per crearne di nuovi devi abbonarti.</div>
-              <button class="btn br" style="padding:8px 14px;white-space:nowrap" onclick="goTab('impostazioni')">Abbonati</button>
-            </div>
-            <div id="banner-prova-in-scadenza" style="display:none;background:#EFF6FF;border:1.5px solid #93C5FD;border-radius:12px;padding:14px 16px;margin-bottom:14px;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-              <div id="banner-prova-in-scadenza-testo" style="font-size:14px;font-weight:700;color:#1E40AF"></div>
-              <button class="btn br" style="padding:8px 14px;white-space:nowrap" onclick="goTab('impostazioni')">Abbonati</button>
-            </div>
             <div class="ordini-sticky-top">
               <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div class="ordini-filt-row">
@@ -946,11 +947,11 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <button id="btn-abbonati-annuale" class="btn br" style="padding:10px 16px" onclick="avviaCheckout('annuale')"><i class="ti ti-calendar-stats"></i> Abbonamento annuale — 99€/anno</button>
                 </div>
                 <div id="abbonamento-gestisci" style="display:none;margin-top:10px">
-                  <button id="btn-gestisci-abbonamento" class="btn br" style="padding:10px 16px" onclick="apriGestioneAbbonamento()"><i class="ti ti-settings-dollar"></i> Gestisci abbonamento</button>
+                  <button id="btn-gestisci-abbonamento" class="btn br" style="padding:10px 16px;min-width:230px" onclick="apriGestioneAbbonamento()"><i class="ti ti-settings-dollar"></i> Gestisci abbonamento</button>
                 </div>
               </div>
               <button id="btn-cambia-attivita" class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#1A1A2E;margin-top:4px" onclick="resetOnboarding()"><span style="font-size:20px"><i class="ti ti-refresh"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Cambia tipo attività</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Riavvia la configurazione iniziale</div></div></button>
-              <button class="btn br" style="padding:10px 16px;margin-top:4px" onclick="doLogout()"><i class="ti ti-logout"></i> Esci</button>
+              <button class="btn br" style="padding:10px 16px;min-width:230px;margin-top:4px" onclick="doLogout()"><i class="ti ti-logout"></i> Esci</button>
             </div>
           </div>
           <div class="card">
@@ -1433,7 +1434,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.1';
+const APP_VERSION='2.30.3';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1628,13 +1629,21 @@ function applyProvaScadutaUI(){
   const testoAvviso=document.getElementById('banner-prova-in-scadenza-testo');
   if(bannerScaduto)bannerScaduto.style.display=_provaScaduta?'flex':'none';
   if(bannerAvviso){
-    if(!_provaScaduta&&_provaGiorniRimanenti!==null){
+    if(!_provaScaduta&&_provaGiorniRimanenti!==null&&!_provaAvvisoChiuso){
       if(testoAvviso)testoAvviso.textContent=_provaGiorniRimanenti===1?'Il tuo mese di prova termina domani. Abbonati per continuare senza interruzioni.':'Il tuo mese di prova termina tra '+_provaGiorniRimanenti+' giorni. Abbonati per continuare senza interruzioni.';
       bannerAvviso.style.display='flex';
     }else{
       bannerAvviso.style.display='none';
     }
   }
+}
+// Chiusura "di sessione": sparisce finché resti in questa visita dell'app, ma torna al
+// prossimo accesso/ricarica — non è mai un dismiss permanente, così l'avviso non passa
+// inosservato avvicinandosi davvero alla scadenza.
+let _provaAvvisoChiuso=false;
+function dismissProvaInScadenzaBanner(){
+  _provaAvvisoChiuso=true;
+  applyProvaScadutaUI();
 }
 // Punto di ingresso unico per "Nuovo Ordine" (sidebar + barra inferiore): se il mese di prova è
 // scaduto e non c'è un abbonamento attivo, reindirizza ad Impostazioni invece di aprire il form.
