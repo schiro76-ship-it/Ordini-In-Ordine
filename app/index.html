@@ -1413,7 +1413,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.27.2';
+const APP_VERSION='2.27.4';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1521,7 +1521,7 @@ function applyAbbonamentoUI(){
   const pianoLbl=a.piano==='annuale'?'annuale':'mensile';
   const dataScad=a.scadenza?new Date(a.scadenza).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
   if(a.stato==='attivo'){
-    stato.textContent='Abbonamento '+pianoLbl+(dataScad?' — rinnovo il '+dataScad:'');
+    stato.textContent='Abbonamento '+pianoLbl+' (attivo)'+(dataScad?' — rinnovo il '+dataScad:'');
     stato.style.color='#1D8A4A';
     azioni.style.display='none';
   }else if(a.stato==='cancellato'){
@@ -1544,6 +1544,25 @@ function applyAbbonamentoUI(){
 // oppure {error:...}), quindi il comportamento lato Cloud Function resta identico.
 // Nessuno stato viene scritto qui: sarà il webhook, dopo il pagamento, ad aggiornare
 // Firestore — questa funzione si limita ad aprire il pagamento.
+// Al ritorno da Stripe Checkout (?checkout=success/cancel nell'URL), porta l'utente
+// direttamente su Impostazioni così vede subito lo stato abbonamento aggiornato, invece di
+// lasciarlo sulla tab di default. Ripulisce poi l'URL (senza ricaricare la pagina) per evitare
+// che un refresh manuale riesegua lo stesso redirect a ripetizione.
+function gestisciRitornoCheckout(){
+  const params=new URLSearchParams(window.location.search);
+  const esito=params.get('checkout');
+  if(esito==='success'||esito==='cancel'){
+    goTab('impostazioni');
+    setTimeout(function(){
+      const el=document.getElementById('abbonamento-stato');
+      if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+    },300);
+    if(esito==='success')toast('Pagamento completato! Se non vedi subito l\'abbonamento attivo, attendi qualche secondo.','v');
+    const url=new URL(window.location.href);
+    url.searchParams.delete('checkout');
+    window.history.replaceState({},'',url);
+  }
+}
 async function avviaCheckout(piano){
   const btn=document.getElementById('btn-abbonati-'+piano);
   if(btn)btn.disabled=true;
@@ -1737,7 +1756,7 @@ function mostraDispositivoRimosso(){
 let _unsubDatiListener=null;
 let _deviceVistoPresente=false;
 let _timerBloccoDispositivo=null;
-async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);checkIosInstallBanner();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);checkIosInstallBanner();gestisciRitornoCheckout();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
   try{
     if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
