@@ -750,11 +750,11 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
     <div id="banner-prova-scaduta" style="display:none;background:#FEF3E2;border-bottom:1px solid #F59E0B;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#92400E;flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
       <span><i class="ti ti-lock"></i> Il mese di prova è terminato: abbonati per creare nuovi ordini.</span>
-      <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="goTab('impostazioni')">Abbonati</button>
+      <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="vaiAdAbbonamento()">Abbonati</button>
     </div>
     <div id="banner-prova-in-scadenza" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
       <span id="banner-prova-in-scadenza-testo"></span>
-      <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="goTab('impostazioni')">Abbonati</button>
+      <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="vaiAdAbbonamento()">Abbonati</button>
       <button onclick="dismissProvaInScadenzaBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
     </div>
     <div class="topbar">
@@ -1434,7 +1434,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.3';
+const APP_VERSION='2.30.4';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1701,15 +1701,21 @@ function applyAbbonamentoUI(){
 // direttamente su Impostazioni così vede subito lo stato abbonamento aggiornato, invece di
 // lasciarlo sulla tab di default. Ripulisce poi l'URL (senza ricaricare la pagina) per evitare
 // che un refresh manuale riesegua lo stesso redirect a ripetizione.
+// Apre Impostazioni e scorre fino alla card Account, dove si trova lo stato abbonamento e i
+// pulsanti per abbonarsi/gestire. Usata sia dai pulsanti "Abbonati" nei banner, sia dal ritorno
+// da Stripe Checkout — stesso comportamento, un solo posto da mantenere.
+function vaiAdAbbonamento(){
+  goTab('impostazioni');
+  setTimeout(function(){
+    const el=document.getElementById('abbonamento-stato');
+    if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+  },300);
+}
 function gestisciRitornoCheckout(){
   const params=new URLSearchParams(window.location.search);
   const esito=params.get('checkout');
   if(esito==='success'||esito==='cancel'||esito==='portal'){
-    goTab('impostazioni');
-    setTimeout(function(){
-      const el=document.getElementById('abbonamento-stato');
-      if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
-    },300);
+    vaiAdAbbonamento();
     if(esito==='success')toast('Pagamento completato! Se non vedi subito l\'abbonamento attivo, attendi qualche secondo.','v');
     const url=new URL(window.location.href);
     url.searchParams.delete('checkout');
