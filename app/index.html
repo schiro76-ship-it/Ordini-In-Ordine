@@ -950,7 +950,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <button id="btn-gestisci-abbonamento" class="btn br" style="padding:10px 16px;min-width:230px" onclick="apriGestioneAbbonamento()"><i class="ti ti-settings-dollar"></i> Gestisci abbonamento</button>
                 </div>
               </div>
-              <button id="btn-cambia-attivita" class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#1A1A2E;margin-top:4px" onclick="resetOnboarding()"><span style="font-size:20px"><i class="ti ti-refresh"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Cambia tipo attività</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Riavvia la configurazione iniziale</div></div></button>
+              <button id="btn-cambia-attivita" class="btn br" style="padding:10px 16px;min-width:230px;margin-bottom:10px" onclick="resetOnboarding()"><i class="ti ti-refresh"></i> Cambia tipo attività</button>
               <button class="btn br" style="padding:10px 16px;min-width:230px;margin-top:4px" onclick="doLogout()"><i class="ti ti-logout"></i> Esci</button>
             </div>
           </div>
@@ -1434,7 +1434,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.4';
+const APP_VERSION='2.30.5';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
