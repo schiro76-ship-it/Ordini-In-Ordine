@@ -1316,7 +1316,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
 
 <script>
 let isNewUser=false;
@@ -1412,10 +1411,9 @@ async function confermaResetOnboarding(){if(!currentUser)return;await db.collect
 const firebaseConfig={apiKey:"AIzaSyByjm6Hcp-4VhousgnJC5Jhf_oiQZLIrHo",authDomain:"ordini-in-ordine-f4966.firebaseapp.com",projectId:"ordini-in-ordine-f4966",storageBucket:"ordini-in-ordine-f4966.firebasestorage.app",messagingSenderId:"621333481193",appId:"1:621333481193:web:332edbad10053665239278"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
-const functions=firebase.app().functions('europe-west1'); // le Cloud Functions girano in europe-west1, non nella regione di default
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.27.1';
+const APP_VERSION='2.27.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1537,16 +1535,31 @@ function applyAbbonamentoUI(){
   }
 }
 // Chiama la Cloud Function creaSessioneCheckout e reindirizza l'utente alla pagina di pagamento
-// Stripe. Nessuno stato viene scritto qui: sarà il webhook, dopo il pagamento, ad aggiornare
+// Stripe. Usiamo fetch diretto invece di firebase.functions().httpsCallable(): quest'ultimo,
+// quando nella pagina è caricato anche firebase-messaging (per le notifiche push), tenta
+// automaticamente di allegare un token FCM alla richiesta e fallisce con un errore criptico
+// legato a pushManager — bug noto dell'SDK Firebase quando le due funzionalità coesistono.
+// Il fetch diretto segue lo stesso "protocollo callable" usato internamente da Firebase
+// (corpo {data:...}, header Authorization Bearer con il token utente, risposta {result:...}
+// oppure {error:...}), quindi il comportamento lato Cloud Function resta identico.
+// Nessuno stato viene scritto qui: sarà il webhook, dopo il pagamento, ad aggiornare
 // Firestore — questa funzione si limita ad aprire il pagamento.
 async function avviaCheckout(piano){
   const btn=document.getElementById('btn-abbonati-'+piano);
   if(btn)btn.disabled=true;
   try{
-    const creaSessioneCheckout=functions.httpsCallable('creaSessioneCheckout');
-    const res=await creaSessioneCheckout({piano:piano});
-    if(res&&res.data&&res.data.url){
-      window.location.href=res.data.url;
+    if(!currentUser)throw new Error('Devi essere autenticato');
+    const idToken=await currentUser.getIdToken();
+    const resp=await fetch('https://europe-west1-ordini-in-ordine-f4966.cloudfunctions.net/creaSessioneCheckout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken},
+      body:JSON.stringify({data:{piano:piano}})
+    });
+    const json=await resp.json();
+    if(json&&json.result&&json.result.url){
+      window.location.href=json.result.url;
+    }else if(json&&json.error){
+      toast('Errore avvio pagamento: '+(json.error.message||'sconosciuto'),'err');
     }else{
       toast('Errore: risposta inattesa dal server','err');
     }
