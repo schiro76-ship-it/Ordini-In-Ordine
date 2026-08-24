@@ -924,6 +924,13 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="ch"><div class="ct"><i class="ti ti-user"></i> Account</div></div>
             <div class="cb">
               <div style="font-size:14px;font-weight:600;color:var(--sub);margin-bottom:14px" id="account-email"></div>
+              <div style="padding:12px 0;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);margin-bottom:14px">
+                <div id="abbonamento-stato" style="font-size:15px;font-weight:800">Nessun abbonamento attivo</div>
+                <div id="abbonamento-azioni" style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+                  <button id="btn-abbonati-mensile" class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="avviaCheckout('mensile')"><span style="font-size:20px"><i class="ti ti-calendar-event"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Abbonamento mensile</div><div style="font-size:13px;font-weight:600;color:var(--sub)">9,99€ al mese</div></div></button>
+                  <button id="btn-abbonati-annuale" class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px" onclick="avviaCheckout('annuale')"><span style="font-size:20px"><i class="ti ti-calendar-stats"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Abbonamento annuale</div><div style="font-size:13px;font-weight:600;color:var(--sub)">99€ all'anno</div></div></button>
+                </div>
+              </div>
               <div class="fg">
                 <label class="fl">Nome attività</label>
                 <div style="display:flex;gap:8px">
@@ -1309,6 +1316,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
 
 <script>
 let isNewUser=false;
@@ -1404,9 +1412,10 @@ async function confermaResetOnboarding(){if(!currentUser)return;await db.collect
 const firebaseConfig={apiKey:"AIzaSyByjm6Hcp-4VhousgnJC5Jhf_oiQZLIrHo",authDomain:"ordini-in-ordine-f4966.firebaseapp.com",projectId:"ordini-in-ordine-f4966",storageBucket:"ordini-in-ordine-f4966.firebasestorage.app",messagingSenderId:"621333481193",appId:"1:621333481193:web:332edbad10053665239278"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
+const functions=firebase.app().functions('europe-west1'); // le Cloud Functions girano in europe-west1, non nella regione di default
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.26.7';
+const APP_VERSION='2.27.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1476,7 +1485,10 @@ _notifSettingsAll[_deviceId]={nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notif
 const _orNuovo=Object.values(_notifSettingsAll).some(v=>v&&v.nuovoOrdine!==false);
 const _orUrg=Object.values(_notifSettingsAll).some(v=>v&&v.ordiniUrgenti!==false);
 const payload={arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
+let _abbonamento=null; // {stato,piano,scadenza,stripeCustomerId,stripeSubscriptionId} — scritto solo dal webhook Stripe, mai dal client
 function applyRemoteSettings(d){
+  _abbonamento=(d.abbonamento&&typeof d.abbonamento==='object')?d.abbonamento:null;
+  applyAbbonamentoUI();
   _urgDays=(typeof d.urgDays==='number'&&d.urgDays>=0)?d.urgDays:0;
   _calMode=d.calMode||'ora';
   dateFormat=d.dateFormat||'gg dd/mm';
@@ -1494,6 +1506,56 @@ function applyRemoteSettings(d){
     _notifOrdiniUrgenti=d.notifOrdiniUrgenti!==false;
   }
   applyUrgSettings();applyCalSettings();applyDateFormatUI();applyNotifSettings();applyNumResetFreqUI();
+}
+// Aggiorna la card Account con lo stato abbonamento corrente. Il campo _abbonamento è scritto
+// esclusivamente dal webhook Stripe (mai dal client): qui ci limitiamo a leggerlo e mostrarlo.
+function applyAbbonamentoUI(){
+  const stato=document.getElementById('abbonamento-stato');
+  const azioni=document.getElementById('abbonamento-azioni');
+  if(!stato||!azioni)return;
+  const a=_abbonamento;
+  if(!a||!a.stato||a.stato==='nessuno'){
+    stato.textContent='Nessun abbonamento attivo';
+    stato.style.color='var(--sub)';
+    azioni.style.display='flex';
+    return;
+  }
+  const pianoLbl=a.piano==='annuale'?'annuale':'mensile';
+  const dataScad=a.scadenza?new Date(a.scadenza).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+  if(a.stato==='attivo'){
+    stato.textContent='Abbonamento '+pianoLbl+(dataScad?' — rinnovo il '+dataScad:'');
+    stato.style.color='#1D8A4A';
+    azioni.style.display='none';
+  }else if(a.stato==='cancellato'){
+    stato.textContent='Abbonamento cancellato'+(dataScad?' — attivo fino al '+dataScad:'');
+    stato.style.color='var(--sub)';
+    azioni.style.display='flex';
+  }else{
+    stato.textContent='Abbonamento scaduto';
+    stato.style.color='#C4372B';
+    azioni.style.display='flex';
+  }
+}
+// Chiama la Cloud Function creaSessioneCheckout e reindirizza l'utente alla pagina di pagamento
+// Stripe. Nessuno stato viene scritto qui: sarà il webhook, dopo il pagamento, ad aggiornare
+// Firestore — questa funzione si limita ad aprire il pagamento.
+async function avviaCheckout(piano){
+  const btn=document.getElementById('btn-abbonati-'+piano);
+  if(btn)btn.disabled=true;
+  try{
+    const creaSessioneCheckout=functions.httpsCallable('creaSessioneCheckout');
+    const res=await creaSessioneCheckout({piano:piano});
+    if(res&&res.data&&res.data.url){
+      window.location.href=res.data.url;
+    }else{
+      toast('Errore: risposta inattesa dal server','err');
+    }
+  }catch(e){
+    console.warn('Errore creazione checkout',e);
+    toast('Errore avvio pagamento: '+(e.message||e.code||'sconosciuto'),'err');
+  }finally{
+    if(btn)btn.disabled=false;
+  }
 }
 async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;clienti=[];stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
 // Banner "Aggiungi a Home" per iOS — Safari, Chrome, Firefox, Edge su iOS usano tutti il motore WebKit,
