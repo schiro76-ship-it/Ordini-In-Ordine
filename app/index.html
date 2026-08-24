@@ -937,9 +937,12 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <button id="btn-abbonati-mensile" class="btn br" style="padding:10px 16px" onclick="avviaCheckout('mensile')"><i class="ti ti-calendar-event"></i> Abbonamento mensile — 9,99€/mese</button>
                   <button id="btn-abbonati-annuale" class="btn br" style="padding:10px 16px" onclick="avviaCheckout('annuale')"><i class="ti ti-calendar-stats"></i> Abbonamento annuale — 99€/anno</button>
                 </div>
+                <div id="abbonamento-gestisci" style="display:none;margin-top:10px">
+                  <button id="btn-gestisci-abbonamento" class="btn br" style="padding:10px 16px" onclick="apriGestioneAbbonamento()"><i class="ti ti-settings-dollar"></i> Gestisci abbonamento</button>
+                </div>
               </div>
               <button id="btn-cambia-attivita" class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#1A1A2E;margin-top:4px" onclick="resetOnboarding()"><span style="font-size:20px"><i class="ti ti-refresh"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Cambia tipo attività</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Riavvia la configurazione iniziale</div></div></button>
-              <button class="btn bg2 btn-full" style="justify-content:flex-start;gap:12px;color:#1A1A2E;margin-top:4px" onclick="doLogout()"><span style="font-size:20px"><i class="ti ti-logout"></i></span><div style="text-align:left"><div style="font-size:15px;font-weight:900">Esci</div><div style="font-size:13px;font-weight:600;color:var(--sub)">Disconnetti questo dispositivo</div></div></button>
+              <button class="btn br" style="padding:10px 16px;margin-top:4px" onclick="doLogout()"><i class="ti ti-logout"></i> Esci</button>
             </div>
           </div>
           <div class="card">
@@ -1413,7 +1416,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.27.4';
+const APP_VERSION='2.28.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1510,28 +1513,33 @@ function applyRemoteSettings(d){
 function applyAbbonamentoUI(){
   const stato=document.getElementById('abbonamento-stato');
   const azioni=document.getElementById('abbonamento-azioni');
-  if(!stato||!azioni)return;
+  const gestisci=document.getElementById('abbonamento-gestisci');
+  if(!stato||!azioni||!gestisci)return;
   const a=_abbonamento;
   if(!a||!a.stato||a.stato==='nessuno'){
     stato.textContent='Nessun abbonamento attivo';
     stato.style.color='var(--sub)';
     azioni.style.display='flex';
+    gestisci.style.display='none';
     return;
   }
   const pianoLbl=a.piano==='annuale'?'annuale':'mensile';
   const dataScad=a.scadenza?new Date(a.scadenza).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
   if(a.stato==='attivo'){
-    stato.textContent='Abbonamento '+pianoLbl+' (attivo)'+(dataScad?' — rinnovo il '+dataScad:'');
+    stato.textContent='Abbonamento '+pianoLbl+' attivo'+(dataScad?' — rinnovo il '+dataScad:'');
     stato.style.color='#1D8A4A';
     azioni.style.display='none';
+    gestisci.style.display='block';
   }else if(a.stato==='cancellato'){
     stato.textContent='Abbonamento cancellato'+(dataScad?' — attivo fino al '+dataScad:'');
     stato.style.color='var(--sub)';
-    azioni.style.display='flex';
+    azioni.style.display='none';
+    gestisci.style.display='block';
   }else{
     stato.textContent='Abbonamento scaduto';
     stato.style.color='#C4372B';
     azioni.style.display='flex';
+    gestisci.style.display='none';
   }
 }
 // Chiama la Cloud Function creaSessioneCheckout e reindirizza l'utente alla pagina di pagamento
@@ -1551,7 +1559,7 @@ function applyAbbonamentoUI(){
 function gestisciRitornoCheckout(){
   const params=new URLSearchParams(window.location.search);
   const esito=params.get('checkout');
-  if(esito==='success'||esito==='cancel'){
+  if(esito==='success'||esito==='cancel'||esito==='portal'){
     goTab('impostazioni');
     setTimeout(function(){
       const el=document.getElementById('abbonamento-stato');
@@ -1561,6 +1569,35 @@ function gestisciRitornoCheckout(){
     const url=new URL(window.location.href);
     url.searchParams.delete('checkout');
     window.history.replaceState({},'',url);
+  }
+}
+// Apre il Customer Portal Stripe (stesso pattern fetch diretto di avviaCheckout, per lo stesso
+// motivo: evitare il bug httpsCallable+messaging). L'utente da lì può cancellare l'abbonamento,
+// cambiare piano, vedere lo storico fatture — tutto gestito da Stripe, non dal nostro codice.
+async function apriGestioneAbbonamento(){
+  const btn=document.getElementById('btn-gestisci-abbonamento');
+  if(btn)btn.disabled=true;
+  try{
+    if(!currentUser)throw new Error('Devi essere autenticato');
+    const idToken=await currentUser.getIdToken();
+    const resp=await fetch('https://europe-west1-ordini-in-ordine-f4966.cloudfunctions.net/creaSessionePortale',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken},
+      body:JSON.stringify({data:{}})
+    });
+    const json=await resp.json();
+    if(json&&json.result&&json.result.url){
+      window.location.href=json.result.url;
+    }else if(json&&json.error){
+      toast('Errore apertura gestione abbonamento: '+(json.error.message||'sconosciuto'),'err');
+    }else{
+      toast('Errore: risposta inattesa dal server','err');
+    }
+  }catch(e){
+    console.warn('Errore apertura Customer Portal',e);
+    toast('Errore apertura gestione abbonamento: '+(e.message||e.code||'sconosciuto'),'err');
+  }finally{
+    if(btn)btn.disabled=false;
   }
 }
 async function avviaCheckout(piano){
