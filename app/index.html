@@ -1434,7 +1434,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.10';
+const APP_VERSION='2.30.11';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4837,6 +4837,34 @@ document.addEventListener('keydown',function(e){
   const next=document.getElementById(_detFieldOrder[idx+1]);
   if(next)next.focus();
 });
+// Sui campi telefono, "enterkeyhint" da solo non basta su tutti i dispositivi: il pulsante
+// "Fatto"/spunta del tastierino numerico a volte chiude solo la tastiera, senza generare nessun
+// evento (né Invio né la perdita del focus) su cui agganciarsi — bug noto e documentato di WebKit,
+// non risolvibile intercettando gli eventi di tastiera/focus. L'unico segnale davvero affidabile è
+// il cambiamento reale delle dimensioni dello schermo visibile quando la tastiera si chiude
+// (visualViewport), indipendente da come il sistema operativo gestisce gli eventi di form.
+(function(){
+  if(!window.visualViewport)return;
+  let _lastTelFocused=null,_vvH=window.visualViewport.height;
+  ['nn-tel','det-telefono'].forEach(function(id){
+    document.addEventListener('focusin',function(e){
+      if(e.target&&e.target.id===id)_lastTelFocused=id;
+    });
+  });
+  window.visualViewport.addEventListener('resize',function(){
+    const vv=window.visualViewport;
+    const cresciuta=vv.height>_vvH+40;// la tastiera si è chiusa (schermo visibile più alto di prima)
+    _vvH=vv.height;
+    if(!cresciuta||!_lastTelFocused)return;
+    const id=_lastTelFocused;
+    _lastTelFocused=null;// consuma il segnale, evita scatti doppi su ridimensionamenti successivi
+    const chain=id==='nn-tel'?_nuovoFieldOrder:_detFieldOrder;
+    const idx=chain.indexOf(id);
+    if(idx===-1||idx===chain.length-1)return;
+    const next=document.getElementById(chain[idx+1]);
+    if(next)setTimeout(function(){next.focus();},50);
+  });
+})();
 // Invio = attiva il bottone principale del campo in cui ci si trova (Accedi, Conferma, Salva, ecc.).
 // Mappatura esplicita campo->funzione, non generica: evita che l'Invio scatti per errore in campi
 // di ricerca/filtro (es. "Cerca nel catalogo") dove non deve succedere nulla.
