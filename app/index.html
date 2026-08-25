@@ -1434,7 +1434,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.7';
+const APP_VERSION='2.30.8';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2734,10 +2734,17 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     map[k].ordini.push(Object.assign({},it,{ordine:o}));
   }));
   let voci=Object.values(map)
-    .map(v=>Object.assign({},v,{
-      minScore:v.ordini.some(x=>!x.done)?Math.min.apply(null,v.ordini.filter(x=>!x.done).map(x=>priScore(x.ordine))):99999,
-      urgente:v.ordini.filter(x=>!x.done).some(x=>isUrgente(x.ordine))
-    }));
+    .map(v=>{
+      // Anche "urgente" e "minScore" (usato per l'ordinamento) vanno calcolati solo sugli item in
+      // ambito rispetto al filtro giorno attivo — altrimenti un ordine fuori dal periodo filtrato
+      // (es. di due giorni dopo) può far apparire "urgente" una riga che, per la data selezionata,
+      // ha già tutto pronto: il colore urgente avrebbe la precedenza sul verde "fatto".
+      const daFare=v.ordini.filter(x=>!x.done&&(rpDayFilter===null||!x.ordine.data||x.ordine.data<=rpDayFilter));
+      return Object.assign({},v,{
+        minScore:daFare.length?Math.min.apply(null,daFare.map(x=>priScore(x.ordine))):99999,
+        urgente:daFare.some(x=>isUrgente(x.ordine))
+      });
+    });
   // Items di un articolo "in ambito" rispetto al filtro giorno attivo: con "Tutti i giorni" sono
   // tutti; con un giorno preciso, solo quelli che scadono entro quella data (gli altri, più avanti
   // nel tempo, non contano né per il colore né per l'ordinamento in questa vista filtrata).
