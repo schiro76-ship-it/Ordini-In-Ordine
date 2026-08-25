@@ -878,7 +878,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="ch"><div class="ct"><i class="ti ti-user"></i> Cliente</div></div>
             <div class="cb">
               <div class="fg fg-rel"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi" autocomplete="off" oninput="capWords(this);renderClienteSugg()" onblur="nascondiClienteSugg()" onfocus="renderClienteSugg()"><div class="cliente-sugg" id="nn-sugg"></div></div>
-              <div class="fg"><label class="fl">Telefono</label><input class="fi" type="tel" id="nn-tel" placeholder="Facoltativo" inputmode="tel"></div>
+              <div class="fg"><label class="fl">Telefono</label><input class="fi" type="tel" id="nn-tel" placeholder="Facoltativo" inputmode="tel" enterkeyhint="next"></div>
             </div>
           </div>
           <div class="card" style="margin-bottom:14px">
@@ -1434,7 +1434,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.9';
+const APP_VERSION='2.30.10';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2914,7 +2914,7 @@ function renderDetModal(o){
         </div>
       </div>
       <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700"><i class="ti ti-phone"></i> Telefono</div>
-        <input class="det-note-input" id="det-telefono" type="tel" inputmode="tel" value="${telefonoAttuale(o).replace(/"/g,'&quot;')}" placeholder="Facoltativo" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'telefono',this.value)"></div>
+        <input class="det-note-input" id="det-telefono" type="tel" inputmode="tel" enterkeyhint="next" value="${telefonoAttuale(o).replace(/"/g,'&quot;')}" placeholder="Facoltativo" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'telefono',this.value)"></div>
       <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700"><i class="ti ti-notes"></i> Note</div>
         <input class="det-note-input" id="det-note" value="${(o.note||'').replace(/"/g,'&quot;')}" placeholder="Es. Pagato, consegnare a domicilio…" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'note',this.value)"></div>
       <div id="det-cal-wrap" style="display:none;margin-top:6px">
@@ -4835,23 +4835,6 @@ document.addEventListener('keydown',function(e){
   e.preventDefault();
   if(idx===_detFieldOrder.length-1){closeModal('modal-det');return;}
   const next=document.getElementById(_detFieldOrder[idx+1]);
-  if(next)next.focus();
-});
-// Sui campi telefono (type="tel"), il tastierino numerico di iOS/Android mostra un pulsante
-// "Fatto"/spunta che NON genera un vero tasto Invio (a differenza della tastiera fisica, già
-// gestita sopra) — è un comportamento della piattaforma, non dipende dal nostro codice. L'unico
-// segnale disponibile in quel caso è la perdita del focus, quindi si intercetta con "focusout" e
-// si passa al campo successivo nella stessa catena già usata per il tasto Invio — ma solo se
-// l'utente non si è già spostato volontariamente su un altro campo specifico (relatedTarget con
-// un id), per non scavalcare una scelta sua.
-document.addEventListener('focusout',function(e){
-  const t=e.target;
-  if(!t||(t.id!=='nn-tel'&&t.id!=='det-telefono'))return;
-  if(e.relatedTarget&&e.relatedTarget.id)return;
-  const chain=t.id==='nn-tel'?_nuovoFieldOrder:_detFieldOrder;
-  const idx=chain.indexOf(t.id);
-  if(idx===-1||idx===chain.length-1)return;
-  const next=document.getElementById(chain[idx+1]);
   if(next)next.focus();
 });
 // Invio = attiva il bottone principale del campo in cui ci si trova (Accedi, Conferma, Salva, ecc.).
