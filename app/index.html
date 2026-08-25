@@ -1434,7 +1434,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.8';
+const APP_VERSION='2.30.9';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4835,6 +4835,23 @@ document.addEventListener('keydown',function(e){
   e.preventDefault();
   if(idx===_detFieldOrder.length-1){closeModal('modal-det');return;}
   const next=document.getElementById(_detFieldOrder[idx+1]);
+  if(next)next.focus();
+});
+// Sui campi telefono (type="tel"), il tastierino numerico di iOS/Android mostra un pulsante
+// "Fatto"/spunta che NON genera un vero tasto Invio (a differenza della tastiera fisica, già
+// gestita sopra) — è un comportamento della piattaforma, non dipende dal nostro codice. L'unico
+// segnale disponibile in quel caso è la perdita del focus, quindi si intercetta con "focusout" e
+// si passa al campo successivo nella stessa catena già usata per il tasto Invio — ma solo se
+// l'utente non si è già spostato volontariamente su un altro campo specifico (relatedTarget con
+// un id), per non scavalcare una scelta sua.
+document.addEventListener('focusout',function(e){
+  const t=e.target;
+  if(!t||(t.id!=='nn-tel'&&t.id!=='det-telefono'))return;
+  if(e.relatedTarget&&e.relatedTarget.id)return;
+  const chain=t.id==='nn-tel'?_nuovoFieldOrder:_detFieldOrder;
+  const idx=chain.indexOf(t.id);
+  if(idx===-1||idx===chain.length-1)return;
+  const next=document.getElementById(chain[idx+1]);
   if(next)next.focus();
 });
 // Invio = attiva il bottone principale del campo in cui ci si trova (Accedi, Conferma, Salva, ecc.).
