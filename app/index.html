@@ -436,6 +436,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .br{background:var(--azione);color:#fff}.bg2{background:var(--bg);color:var(--txt)}.bgg{background:var(--g);color:#fff}
 .br:hover{filter:brightness(0.85)}.br:active{filter:brightness(0.75)}
 .btn-danger{background:var(--r);color:#fff}.btn-danger:hover{filter:brightness(0.85)}.btn-danger:active{filter:brightness(0.75)}
+.btn-azione{background:var(--azione);color:#fff}.btn-azione:hover{filter:brightness(0.92)}.btn-azione:active{filter:brightness(0.85)}
 .br:hover{filter:brightness(0.85)}.br:active{filter:brightness(0.75)}
 .bgg:hover{filter:brightness(0.85)}.bgg:active{filter:brightness(0.75)}
 .btn-outline-r{background:#fff;border:2px solid var(--azione);color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background 0.15s}.btn-outline-r i{font-size:15px}.btn-outline-r:hover{background:var(--azione-s)}.btn-outline-r:active{filter:brightness(0.92)}
@@ -1177,9 +1178,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 </div>
 <div class="ov" id="modal-del-conf" style="align-items:center;padding:20px;z-index:200">
   <div class="modal" style="max-width:320px;text-align:center;border-radius:18px">
-    <div style="font-size:36px;margin-bottom:12px"><i class="ti ti-trash"></i></div>
+    <div style="font-size:36px;margin-bottom:12px" id="modal-del-icon"><i class="ti ti-trash"></i></div>
     <div class="mta" id="modal-del-txt" style="font-size:18px"></div>
-    <p style="color:var(--sub);font-size:15px;font-weight:600;margin-bottom:20px">Questa azione non può essere annullata.</p>
+    <p style="color:var(--sub);font-size:15px;font-weight:600;margin-bottom:20px" id="modal-del-sub">Questa azione non può essere annullata.</p>
     <div class="ma">
       <button class="btn bg2" style="flex:1" onclick="closeModal('modal-del-conf')">Annulla</button>
       <button class="btn btn-danger" style="flex:1" id="modal-del-btn">Elimina</button>
@@ -1441,7 +1442,35 @@ async function obConfirm(){if(!obSelectedAttivita)return;const attivita=getAttiv
 function applyTheme(theme){const root=document.documentElement;root.style.setProperty('--r',theme.r);root.style.setProperty('--rs',theme.rs);root.style.setProperty('--g',theme.g);root.style.setProperty('--gs',theme.gs);root.style.setProperty('--bg',theme.bg);const sb=document.querySelector('.sidebar');if(sb)sb.style.background=theme.sb;const ext=document.getElementById('sidebar-extender');if(ext)ext.style.background=theme.sb;const cover=document.getElementById('status-bar-cover');if(cover)cover.style.background=theme.sb;}
 
 async function checkOnboarding(){if(!currentUser)return;try{const snap=await db.collection('profili').doc(currentUser.uid).get();if(snap.exists&&snap.data().onboardingCompleto){_tipoAttivitaCorrente=snap.data().tipoAttivita||null;applicaLabelArticoli();applyTheme(DEFAULT_THEME);refreshAll();}else{showOnboarding();}}catch(e){console.warn('checkOnboarding: verifica non riuscita (probabile problema di rete), onboarding NON mostrato per sicurezza',e);}}
-function resetOnboarding(){if(!currentUser)return;document.getElementById('modal-del-txt').textContent='Cambiare tipo di attività?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');confermaResetOnboarding();};openModal('modal-del-conf');}
+// Il modal di conferma "modal-del-conf" è condiviso da più azioni: eliminazioni vere (ordine,
+// articolo, cliente) e azioni non distruttive (cambia attività, azzera numerazione) che lo
+// riusano ma con icona/bottone/sottotitolo diversi. Le eliminazioni vere richiamano questa
+// funzione per essere sicure di trovare sempre l'aspetto "distruttivo" di default, a prescindere
+// da quale sia stato l'ultimo uso del modal.
+function _modalDelResetDefault(){
+  const icon=document.getElementById('modal-del-icon');
+  const sub=document.getElementById('modal-del-sub');
+  const btn=document.getElementById('modal-del-btn');
+  if(icon)icon.innerHTML='<i class="ti ti-trash"></i>';
+  if(sub){sub.textContent='Questa azione non può essere annullata.';sub.style.display='';}
+  if(btn){btn.textContent='Elimina';btn.className='btn btn-danger';btn.style.flex='1';}
+}
+function resetOnboarding(){
+  if(!currentUser)return;
+  const icon=document.getElementById('modal-del-icon');
+  const sub=document.getElementById('modal-del-sub');
+  const btn=document.getElementById('modal-del-btn');
+  if(icon)icon.innerHTML='<i class="ti ti-refresh" style="color:var(--azione)"></i>';
+  // Il bottone che apre questo modal sparisce già al primo ordine o al primo articolo aggiunto a
+  // mano (vedi refreshAll) — quando è ancora visibile, il catalogo è sempre e solo quello di
+  // partenza, mai personalizzato: non c'è nulla di reale da perdere, quindi nessun sottotitolo di
+  // avviso (sarebbe fuorviante, non descrive un rischio vero in questo stato).
+  if(sub)sub.style.display='none';
+  if(btn){btn.textContent='Cambia';btn.className='btn btn-azione';btn.style.flex='1';}
+  document.getElementById('modal-del-txt').textContent='Cambiare tipo di attività?';
+  document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');confermaResetOnboarding();};
+  openModal('modal-del-conf');
+}
 async function confermaResetOnboarding(){if(!currentUser)return;await db.collection('profili').doc(currentUser.uid).set({onboardingCompleto:false},{merge:true});obSelectedAttivita=null;_tipoAttivitaCorrente=null;showOnboarding();toast('Scegli il tipo di attività','v');}
 
 const firebaseConfig={apiKey:"AIzaSyByjm6Hcp-4VhousgnJC5Jhf_oiQZLIrHo",authDomain:"ordini-in-ordine-f4966.firebaseapp.com",projectId:"ordini-in-ordine-f4966",storageBucket:"ordini-in-ordine-f4966.firebasestorage.app",messagingSenderId:"621333481193",appId:"1:621333481193:web:332edbad10053665239278"};
@@ -1449,7 +1478,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.14';
+const APP_VERSION='2.30.15';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2012,7 +2041,7 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
   }catch(e){console.warn('Realtime error',e);}
 }
 
-function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';document.body.classList.toggle('vb-active',showVb);const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderClientiM();renderArtS();renderSP();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');const btnCambiaAtt=document.getElementById('btn-cambia-attivita');if(btnCambiaAtt)btnCambiaAtt.style.display=ords.length>0?'none':'';}
+function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';document.body.classList.toggle('vb-active',showVb);const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderClientiM();renderArtS();renderSP();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');const btnCambiaAtt=document.getElementById('btn-cambia-attivita');if(btnCambiaAtt)btnCambiaAtt.style.display=(ords.length>0||articoliCreatiTotale>0)?'none':'';}
 
 
 const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni',invita:'Sconto di 5 €'};
@@ -2886,7 +2915,7 @@ async function setStato(id,stato,skipItemReset){
   const _moves=_willChangePosition(id,stato);
   _updateCardColor(id,stato);
   if(_moves)_snapAndAnimate(id);const o=ords.find(x=>x.id===id);if(!o)return;o.stato=stato;if(stato==='ritirato')o.ritirato_il=new Date().toISOString();if(stato==='completato'&&!skipItemReset)o.items.forEach(function(it){it.done=true});if(stato==='evadere'&&!skipItemReset)o.items.forEach(function(it){it.done=false});renderOrdini(_moves);toast(stato==='completato'?'Completato':stato==='ritirato'?'Ritirato':'Riaperto','v');saveData();}
-function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+nomeAttuale(o)+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};openModal('modal-del-conf');}
+function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;_modalDelResetDefault();document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+nomeAttuale(o)+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};openModal('modal-del-conf');}
 async function delOrd(id){
   const el=document.querySelector('#ordini-list [data-oid="'+id+'"]');
   const finish=async()=>{_deletedIds.add(id);ords=ords.filter(x=>x.id!==id);await saveData();_deletedIds.delete(id);renderOrdini();toast('Ordine eliminato','v');};
@@ -3236,6 +3265,7 @@ function detFocusCerca(oid){
 function confDelItem(oid,idx){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const a=arts.find(x=>x.id===(o.items[idx]||{}).artId);
+  _modalDelResetDefault();
   document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:lblArt(false))+'" dall\'ordine?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delItemFromOrd(oid,idx);};
   openModal('modal-del-conf');
@@ -3289,7 +3319,17 @@ function azzeraNumerazioneOra(){
   const elTop=document.getElementById('nuovo-num-top');
   if(elTop)elTop.value=minNumeroLibero();
 }
-function confAzzeraNumerazione(){document.getElementById('modal-del-txt').textContent='Azzerare la numerazione degli ordini? Il prossimo ordine partirà da #1 (o dal primo numero libero, se già in uso da un ordine aperto).';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');azzeraNumerazioneOra();};openModal('modal-del-conf');}
+function confAzzeraNumerazione(){
+  const icon=document.getElementById('modal-del-icon');
+  const sub=document.getElementById('modal-del-sub');
+  const btn=document.getElementById('modal-del-btn');
+  if(icon)icon.innerHTML='<i class="ti ti-refresh" style="color:var(--azione)"></i>';
+  if(sub)sub.style.display='none';// azione sempre correggibile a mano: nessun avviso "non annullabile"
+  if(btn){btn.textContent='Azzera';btn.className='btn btn-azione';btn.style.flex='1';}
+  document.getElementById('modal-del-txt').textContent='Azzerare la numerazione degli ordini? Il prossimo ordine partirà da #1.';
+  document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');azzeraNumerazioneOra();};
+  openModal('modal-del-conf');
+}
 function saveNumResetFreq(freq){_numResetFreq=freq;applyNumResetFreqUI();saveData();}
 function applyNumResetFreqUI(){
   const map={settimana:'nrf-settimana',mese:'nrf-mese',anno:'nrf-anno',mai:'nrf-mai'};
@@ -3315,6 +3355,7 @@ function tornaRicerca(){
 }
 function confRimArt(id){
   const a=arts.find(x=>x.id===id);
+  _modalDelResetDefault();
   document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:lblArt(false))+'" dall\'ordine?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');togArt(id);};
   openModal('modal-del-conf');
@@ -3622,6 +3663,7 @@ async function salvaEditCliente(){
 function confermaEliminaCliente(id){
   const c=clienti.find(x=>x.id===id);if(!c)return;
   const n=ords.filter(o=>o.clienteId===id).length;
+  _modalDelResetDefault();
   document.getElementById('modal-del-txt').textContent='Eliminare '+c.nome+'?'+(n?' Ha '+n+' ordin'+(n===1?'e':'i')+' collegat'+(n===1?'o':'i')+': restano invariati ma perdono il collegamento.':'');
   document.getElementById('modal-del-btn').onclick=async function(){
     closeModal('modal-del-conf');
