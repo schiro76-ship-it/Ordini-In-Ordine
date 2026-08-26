@@ -1478,7 +1478,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.16';
+const APP_VERSION='2.30.17';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4376,15 +4376,13 @@ function _devePassareDaCondivisione(){
   return _isTouchDevice()&&_isIOS();
 }
 
-// Stampa diretta via iframe nascosto, per desktop: il browser calcola il
-// layout di stampa solo per questo mini-documento (solo immagine), non
-// per l'intera app. Dimensioni pagina forzate in mm (calcolate dalle
-// dimensioni reali del canvas, sapendo che 591px=62mm, larghezza del
-// rotolo) invece di lasciare che il browser assuma A4.
+// Stampa diretta via iframe nascosto, per Android e desktop: il browser
+// calcola il layout di stampa solo per questo mini-documento (solo
+// immagine), non per l'intera app. Nessuna dimensione pagina forzata -
+// si lascia che il browser/sistema si adatti al contenuto (dichiarare
+// una dimensione esplicita in mm causava pagine doppie/formato errato
+// su Android e macOS).
 function _stampaViaIframe(url,wPx,hPx){
-  const MM_PER_PX=62/591;
-  const wMm=((wPx||591)*MM_PER_PX).toFixed(2);
-  const hMm=((hPx||wPx||591)*MM_PER_PX).toFixed(2);
   let ifr=document.getElementById('print-iframe-etichetta');
   if(!ifr){
     ifr=document.createElement('iframe');
@@ -4394,7 +4392,7 @@ function _stampaViaIframe(url,wPx,hPx){
   }
   const doc=ifr.contentDocument||ifr.contentWindow.document;
   doc.open();
-  doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:'+wMm+'mm '+hMm+'mm;margin:0}body{margin:0}img{width:100%;display:block}</style></head><body><img src="'+url+'"></body></html>');
+  doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{margin:0}body{margin:0}img{width:100%;display:block}</style></head><body><img src="'+url+'"></body></html>');
   doc.close();
   function doPrint(){
     try{
@@ -4409,10 +4407,9 @@ function _stampaViaIframe(url,wPx,hPx){
 }
 
 // Come _stampaViaIframe ma per più etichette insieme (usata da stampaGruppo
-// su desktop): una per pagina, interruzione di pagina dopo ognuna tranne
-// l'ultima, una sola chiamata a print() per l'intero lotto. L'altezza
-// pagina resta "auto" (il browser desktop la adatta al contenuto reale
-// di ogni pagina), solo la larghezza è forzata in mm.
+// su Android e desktop): una per pagina, interruzione di pagina dopo
+// ognuna tranne l'ultima, una sola chiamata a print() per l'intero lotto.
+// Nessuna dimensione pagina forzata, stesso motivo di sopra.
 function _stampaMultiplaViaIframe(items){
   let ifr=document.getElementById('print-iframe-etichetta');
   if(!ifr){
@@ -4422,12 +4419,9 @@ function _stampaMultiplaViaIframe(items){
     document.body.appendChild(ifr);
   }
   const doc=ifr.contentDocument||ifr.contentWindow.document;
-  const MM_PER_PX=62/591;
-  const maxWpx=Math.max.apply(null,items.map(function(it){return it.w||591;}));
-  const wMm=(maxWpx*MM_PER_PX).toFixed(2);
   const imgsHtml=items.map(function(it){return '<img src="'+it.url+'">';}).join('');
   doc.open();
-  doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:'+wMm+'mm auto;margin:0}body{margin:0}img{width:100%;display:block;page-break-after:always}img:last-child{page-break-after:auto}</style></head><body>'+imgsHtml+'</body></html>');
+  doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{margin:0}body{margin:0}img{width:100%;display:block;page-break-after:always}img:last-child{page-break-after:auto}</style></head><body>'+imgsHtml+'</body></html>');
   doc.close();
   function doPrint(){
     try{
