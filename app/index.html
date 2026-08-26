@@ -179,6 +179,16 @@ body.portrait-phone .phdr{background:#2C3E50}
 body:not(.portrait-phone) .phdr{background:#DDE0E8}
 .ordini-sticky .phdr,.list-sticky .phdr{position:static;top:auto;z-index:auto;background:transparent;padding:0 0 12px!important;margin:0}
 .phdr-invita{display:none}
+/* Etichette compatte (solo icona + parte essenziale) per le pillole dell'intestazione — attivate
+   via JS (adjustPhdrFit) solo quando il titolo della pagina va davvero a capo su due righe per
+   mancanza di spazio, non con una soglia di larghezza fissa. Le due pillole si riducono in modo
+   progressivo, non insieme: prima "Sconto di 5€" (usata occasionalmente), e solo se non basta
+   ancora anche "Stampa"/"Coda (N)" (azione di lavoro quotidiano, da tenere estesa più a lungo). */
+.phdr-label-compact{display:none}
+.phdr-compact-invita .phdr-invita .phdr-label-full{display:none}
+.phdr-compact-invita .phdr-invita .phdr-label-compact{display:inline}
+.phdr-compact-stampa .phdr-stampa .phdr-label-full{display:none}
+.phdr-compact-stampa .phdr-stampa .phdr-label-compact{display:inline}
 body.portrait-phone .phdr-invita{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
 body.portrait-phone .phdr-invita i{font-size:18px}
 .phdr-stampa{display:none;align-items:center;gap:6px;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;background:#EEF2FF;border:1.5px solid rgba(79,70,229,0.25);color:#4F46E5}
@@ -765,7 +775,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div class="sec active" id="tab-ordini">
         <div class="pbody">
           <div class="ordini-sticky">
-            <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label">Stampa tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Sconto di 5 €</button></div></div>
+            <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label" class="phdr-label-full">Stampa tutti</span><span id="phdr-stampa-ordini-label-compact" class="phdr-label-compact">Tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> <span class="phdr-label-full">Sconto di 5 €</span><span class="phdr-label-compact">5 €</span></button></div></div>
             <div class="ordini-sticky-top">
               <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div class="ordini-filt-row">
@@ -783,7 +793,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div class="sec" id="tab-riepilogo">
         <div class="pbody">
           <div class="list-sticky">
-            <div class="phdr"><h2>Riepilogo</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-riepilogo" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-riepilogo-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Sconto di 5 €</button></div></div>
+            <div class="phdr"><h2>Riepilogo</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-riepilogo" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-riepilogo-label" class="phdr-label-full">Stampa</span><span id="phdr-stampa-riepilogo-label-compact" class="phdr-label-compact"></span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> <span class="phdr-label-full">Sconto di 5 €</span><span class="phdr-label-compact">5 €</span></button></div></div>
             <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('riepilogo-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
             <div class="cp" id="riepilogo-day-pills"></div>
             <div class="cp" id="riepilogo-cat-pills"></div>
@@ -792,7 +802,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-storico">
-        <div class="phdr"><h2>Storico</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-storico" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-storico-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Sconto di 5 €</button></div></div>
+        <div class="phdr"><h2>Storico</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-storico" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-storico-label" class="phdr-label-full">Stampa</span><span id="phdr-stampa-storico-label-compact" class="phdr-label-compact"></span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> <span class="phdr-label-full">Sconto di 5 €</span><span class="phdr-label-compact">5 €</span></button></div></div>
         <div class="pbody">
           <div class="card card-sticky-host" style="margin-bottom:20px">
             <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
@@ -903,7 +913,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-impostazioni">
-        <div class="phdr"><h2>Impostazioni</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-impostazioni" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-impostazioni-label">Stampa</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> Sconto di 5 €</button></div></div>
+        <div class="phdr"><h2>Impostazioni</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-impostazioni" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-impostazioni-label" class="phdr-label-full">Stampa</span><span id="phdr-stampa-impostazioni-label-compact" class="phdr-label-compact"></span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> <span class="phdr-label-full">Sconto di 5 €</span><span class="phdr-label-compact">5 €</span></button></div></div>
         <div class="pbody">
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-tag"></i> Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderCatList();openModal('modal-cat')"><i class="ti ti-pencil"></i> Gestisci</button></div>
@@ -1434,7 +1444,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.12';
+const APP_VERSION='2.30.13';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1944,7 +1954,7 @@ function mostraDispositivoRimosso(){
 let _unsubDatiListener=null;
 let _deviceVistoPresente=false;
 let _timerBloccoDispositivo=null;
-async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);checkIosInstallBanner();gestisciRitornoCheckout();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);setTimeout(adjustPhdrFit,0);checkIosInstallBanner();gestisciRitornoCheckout();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
   try{
     if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
@@ -2034,6 +2044,7 @@ function goTab(name){
   if(name==='riepilogo'){_rpOrdineCongelato=null;rpExpanded={};renderRiepilogo();}
   if(name==='storico'){renderStoricoMensile();renderStoricoRiepilogo();setTimeout(syncStickyHeaderHeights,0);}
   setTimeout(syncPhdrHeight,0);
+  setTimeout(adjustPhdrFit,0);
   if(pw){
     if(name==='ordini'&&_scrollToOrdineId){
       const oid=_scrollToOrdineId;
@@ -2256,6 +2267,29 @@ function adjustActBtnFit(){
 }
 let _actFitResizeT=null;
 window.addEventListener('resize',()=>{clearTimeout(_actFitResizeT);_actFitResizeT=setTimeout(adjustActBtnFit,150);});
+// Stessa logica di adjustActBtnFit sopra, applicata al titolo di pagina + pillole in alto: se il
+// titolo va a capo su due righe (spazio insufficiente), si riduce prima la pillola "Sconto di 5€"
+// (usata occasionalmente) e solo se non basta ancora si riduce anche "Stampa"/"Coda (N)" (azione
+// di lavoro quotidiano, tenuta estesa il più a lungo possibile). Misura l'altezza effettiva del
+// titolo, non la larghezza dello schermo, perché lo spazio libero dipende sia dal dispositivo sia
+// da quanto sono lunghe in quel momento le etichette (es. "Coda (12)" vs "Tutti").
+function adjustPhdrFit(){
+  document.querySelectorAll('.phdr').forEach(function(phdr){
+    if(!phdr.offsetParent)return;// tab non visibile ora: non misurabile, si aggiorna quando torna attiva
+    const h2=phdr.querySelector('h2');
+    if(!h2)return;
+    phdr.classList.remove('phdr-compact-invita','phdr-compact-stampa');// riparte da zero
+    const cs=getComputedStyle(h2);
+    let lineH=parseFloat(cs.lineHeight);
+    if(!lineH||isNaN(lineH))lineH=parseFloat(cs.fontSize)*1.2;
+    const vaACapo=()=>h2.scrollHeight>lineH*1.4;
+    if(!vaACapo())return;// entra tutto disteso, niente da ridurre
+    phdr.classList.add('phdr-compact-invita');// primo tentativo: solo "Sconto di 5€"
+    if(vaACapo())phdr.classList.add('phdr-compact-stampa');// non basta: riduci anche "Stampa"/"Coda"
+  });
+}
+let _phdrFitResizeT=null;
+window.addEventListener('resize',()=>{clearTimeout(_phdrFitResizeT);_phdrFitResizeT=setTimeout(adjustPhdrFit,150);});
 function renderOrdini(animate){
   const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=fmtDataByFormat(d);return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;if(c)return ricercaIntelligente(c,nomeAttuale(o))||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});
   if(animate){flipRenderOrdini(l);}else{document.getElementById('ordini-list').innerHTML=buildOcHTML(l);}
@@ -4370,27 +4404,33 @@ function _aggiornaBadgeGruppo(){
   const n=_gruppoStampa.length;
   const bOrd=document.getElementById('phdr-stampa-ordini');
   const lOrd=document.getElementById('phdr-stampa-ordini-label');
+  const lOrdC=document.getElementById('phdr-stampa-ordini-label-compact');
   if(bOrd&&lOrd){
     if(n>0){
       lOrd.textContent='Coda ('+n+')';
+      if(lOrdC)lOrdC.textContent='('+n+')';
       bOrd.onclick=apriModalGruppoStampa;
     } else {
       lOrd.textContent='Stampa tutti';
+      if(lOrdC)lOrdC.textContent='Tutti';
       bOrd.onclick=aggiungiTuttiAlGruppoStampa;
     }
   }
   ['riepilogo','storico','impostazioni'].forEach(function(tab){
     const b=document.getElementById('phdr-stampa-'+tab);
     const l=document.getElementById('phdr-stampa-'+tab+'-label');
+    const lC=document.getElementById('phdr-stampa-'+tab+'-label-compact');
     if(!b||!l)return;
     if(n>0){
       b.classList.add('visible');
       l.textContent='Coda ('+n+')';
+      if(lC)lC.textContent='('+n+')';
     } else {
       b.classList.remove('visible');
     }
   });
   setTimeout(syncPhdrHeight,0);
+  setTimeout(adjustPhdrFit,0);
 }
 
 function aggiungiAlGruppoStampa(oid,artId){
