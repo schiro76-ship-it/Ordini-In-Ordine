@@ -480,7 +480,12 @@ body:not(.portrait-phone) #storico-dettaglio-list{display:grid;grid-template-col
 body:not(.portrait-phone) #storico-dettaglio-list .storico-ord-card{margin-bottom:8px}
 .rp-urgente{border-left-color:var(--urg)!important}.rp-urgente .rp-pri{background:var(--urg)}.rp-urgente .rp-qty{color:var(--urg)}
 .rp-completato{border-left-color:var(--g)!important}.rp-completato .rp-pri{background:var(--g)}.rp-completato .rp-qty{color:var(--g)}
-#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--txt);color:#fff;padding:12px 22px;border-radius:28px;font-size:16px;font-weight:800;box-shadow:var(--shl);opacity:0;transition:all 0.25s ease;z-index:400;max-width:min(480px,calc(100vw - 32px));box-sizing:border-box;text-align:center}
+/* width:max-content dice esplicitamente al browser di dimensionarsi al testo su una riga sola
+   (fin dove possibile entro max-width), invece di lasciargli calcolare da solo la larghezza in
+   base al contenuto ("shrink-to-fit") — calcolo che su elementi posizionati così (position:fixed,
+   centrati con left:50%+transform) a volte produce una larghezza più stretta del necessario,
+   causando più righe di quante servano davvero per testi di media lunghezza. */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--txt);color:#fff;padding:12px 22px;border-radius:28px;font-size:16px;font-weight:800;box-shadow:var(--shl);opacity:0;transition:all 0.25s ease;z-index:400;width:max-content;max-width:min(480px,calc(100vw - 32px));box-sizing:border-box;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.v{background:var(--g)}#toast.err{background:var(--r)}
 .um-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
@@ -1444,7 +1449,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.13';
+const APP_VERSION='2.30.14';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
