@@ -1478,7 +1478,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.15';
+const APP_VERSION='2.30.16';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4322,10 +4322,10 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     if(btnStampa){
       btnStampa.addEventListener('click',async function(){
         incrementaStampeCount(1);
-        if(_isTouchDevice()){
-          // Touch (telefono/tablet): pannello di condivisione, l'utente
-          // sceglie "Stampa" da li' - unico percorso che da' dimensioni
-          // corrette su iOS/Android.
+        if(_devePassareDaCondivisione()){
+          // Solo iOS/iPadOS: pannello di condivisione, l'utente sceglie
+          // "Stampa" da li' - unico percorso che da' dimensioni corrette
+          // su questa piattaforma.
           try{
             const blob=await(await fetch(url)).blob();
             const file=new File([blob],'etichetta.png',{type:'image/png'});
@@ -4337,10 +4337,9 @@ function _mostraCanvasNelModal(canvas,oid,artId){
           // Fallback download
           const a=document.createElement('a');a.href=url;a.download='etichetta.png';a.click();
         } else {
-          // Desktop (mouse/trackpad): il pannello di condivisione non ha
-          // "Stampa" tra le opzioni su macOS/Windows/Linux - qui si usa
-          // il dialog di stampa diretto del browser, che su desktop non
-          // ha mai avuto i problemi di formato riscontrati su iOS.
+          // Android e desktop: dialog di stampa diretto del browser, che
+          // in tutti i test fatti finora non ha mai avuto i problemi di
+          // formato riscontrati specificamente su iOS.
           _stampaViaIframe(url,canvas.width,canvas.height);
         }
       });
@@ -4360,6 +4359,21 @@ function _mostraCanvasNelModal(canvas,oid,artId){
 // nell'app (checkPortrait) per distinguere i due contesti.
 function _isTouchDevice(){
   return ('ontouchstart' in window)||navigator.maxTouchPoints>0;
+}
+
+// Rileva iOS/iPadOS specificamente (non Android): su iPadOS da iOS 13 in
+// poi lo user agent si dichiara come "Mac", quindi si distingue da un Mac
+// vero controllando anche il supporto touch multi-tocco.
+function _isIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+}
+
+// Solo su iOS/iPadOS la stampa diretta da' problemi di formato (A4,
+// ridimensionamento errato) - li' si passa dal pannello di condivisione.
+// Su Android la stampa diretta ha sempre funzionato bene nei test fatti,
+// quindi li' (come su desktop) si usa il percorso diretto, un tap in meno.
+function _devePassareDaCondivisione(){
+  return _isTouchDevice()&&_isIOS();
 }
 
 // Stampa diretta via iframe nascosto, per desktop: il browser calcola il
@@ -4617,9 +4631,9 @@ function renderGruppoStampaModal(){
 
 async function stampaGruppo(){
   if(!_gruppoStampa.length)return;
-  if(_isTouchDevice()){
-    // Touch (telefono/tablet): tutte le etichette condivise insieme in
-    // un'unica chiamata, l'utente sceglie "Stampa" una volta sola.
+  if(_devePassareDaCondivisione()){
+    // Solo iOS/iPadOS: tutte le etichette condivise insieme in un'unica
+    // chiamata, l'utente sceglie "Stampa" una volta sola.
     const files=[];
     let idx=0;
     for(const g of _gruppoStampa){
@@ -4640,7 +4654,7 @@ async function stampaGruppo(){
       }
     }catch(e){console.warn('share error (gruppo)',e);}
   } else {
-    // Desktop: dialog di stampa diretto, un'etichetta per pagina.
+    // Android e desktop: dialog di stampa diretto, un'etichetta per pagina.
     const urls=[];
     _gruppoStampa.forEach(function(g){
       const o=ords.find(x=>x.id===g.oid);
