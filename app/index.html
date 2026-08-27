@@ -1478,7 +1478,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.17';
+const APP_VERSION='2.30.18';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4333,9 +4333,15 @@ function _mostraCanvasNelModal(canvas,oid,artId){
               await navigator.share({files:[file],title:'Etichetta ordine'});
               return;
             }
-          }catch(e){console.warn('share error',e);}
-          // Fallback download
-          const a=document.createElement('a');a.href=url;a.download='etichetta.png';a.click();
+            // Condivisione non disponibile su questo browser: fallback download
+            const a=document.createElement('a');a.href=url;a.download='etichetta.png';a.click();
+          }catch(e){
+            // Se l'utente ha semplicemente annullato il pannello di
+            // condivisione, non facciamo nulla - nessun download
+            // automatico non richiesto (causava un salto/flash strano
+            // sull'interfaccia dopo la chiusura del pannello).
+            console.warn('share error',e);
+          }
         } else {
           // Android e desktop: dialog di stampa diretto del browser, che
           // in tutti i test fatti finora non ha mai avuto i problemi di
