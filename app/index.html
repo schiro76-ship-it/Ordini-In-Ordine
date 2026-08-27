@@ -1478,7 +1478,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.18';
+const APP_VERSION='2.30.19';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4313,7 +4313,9 @@ function _mostraCanvasNelModal(canvas,oid,artId){
   el.innerHTML=`<div style="text-align:center">
     <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
     <button id="btn-stampa-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
+    ${!_devePassareDaCondivisione()?`<button id="btn-condividi-etichetta" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:1.5px solid var(--brd,#DDE0E8);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-share-2"></i> Condividi</button>`:''}
     <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px solid #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi alla coda</button>
+    ${!_devePassareDaCondivisione()?`<div style="font-size:12px;color:#888;margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa" (es. stampanti Bluetooth non standard)</div>`:''}
   </div>`;
   openModal('modal-etichetta');
   // Attach ai bottoni dopo render
@@ -4347,6 +4349,28 @@ function _mostraCanvasNelModal(canvas,oid,artId){
           // in tutti i test fatti finora non ha mai avuto i problemi di
           // formato riscontrati specificamente su iOS.
           _stampaViaIframe(url,canvas.width,canvas.height);
+        }
+      });
+    }
+    // Bottone "Condividi" secondario (Android e desktop): via di uscita
+    // per chi ha una stampante non standard (es. Bluetooth) che la
+    // stampa diretta del browser non intercetta - stesso meccanismo gia'
+    // usato come percorso principale su iOS. Non tocca in nessun modo
+    // il bottone "Stampa" sopra.
+    const btnCondividi=document.getElementById('btn-condividi-etichetta');
+    if(btnCondividi){
+      btnCondividi.addEventListener('click',async function(){
+        incrementaStampeCount(1);
+        try{
+          const blob=await(await fetch(url)).blob();
+          const file=new File([blob],'etichetta.png',{type:'image/png'});
+          if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+            await navigator.share({files:[file],title:'Etichetta ordine'});
+            return;
+          }
+          const a=document.createElement('a');a.href=url;a.download='etichetta.png';a.click();
+        }catch(e){
+          console.warn('share error (condividi secondario)',e);
         }
       });
     }
