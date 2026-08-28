@@ -121,7 +121,7 @@ img{max-width:100%;display:block}
   box-shadow:0 18px 40px -20px rgba(22,35,61,.35);
 }
 @media (max-width:800px){
-  .hero{grid-template-columns:1fr;grid-template-areas:"question" "eyebrow" "photo" "text";row-gap:16px}
+  .hero{grid-template-columns:1fr;grid-template-areas:"question" "eyebrow" "text" "photo";row-gap:16px}
   .hero-photo{max-width:340px}
 }
 
