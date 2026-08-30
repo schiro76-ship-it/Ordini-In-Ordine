@@ -1343,6 +1343,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 let isNewUser=false;
@@ -1478,7 +1479,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.21';
+const APP_VERSION='2.30.22';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4318,6 +4319,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     <button id="btn-stampa-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
     ${!_devePassareDaCondivisione()?`<button id="btn-condividi-etichetta" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:1.5px solid var(--brd,#DDE0E8);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-share-2"></i> Condividi</button>`:''}
     <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px solid #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi alla coda</button>
+    ${_devePassareDaCondivisione()?`<button id="btn-stampa-pdf-test" style="width:100%;padding:12px;background:#fff;color:#059669;border:1.5px dashed #059669;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-flask"></i> Condividi come PDF (test)</button>`:''}
     ${!_devePassareDaCondivisione()?`<div style="font-size:12px;color:#888;margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa" (es. stampanti Bluetooth non standard)</div>`:''}
   </div>`;
   openModal('modal-etichetta');
@@ -4384,7 +4386,39 @@ function _mostraCanvasNelModal(canvas,oid,artId){
         closeModal('modal-etichetta');
       });
     }
+    // TEST: genera un PDF (invece di un'immagine PNG) con le stesse
+    // dimensioni esatte dell'etichetta, poi lo condivide - verifica se
+    // "Stampa" compare nel pannello di condivisione per un PDF generato
+    // da noi, dato che per un PDF aperto direttamente in Safari compare.
+    const btnPdfTest=document.getElementById('btn-stampa-pdf-test');
+    if(btnPdfTest){
+      btnPdfTest.addEventListener('click',function(){
+        _condividiComePdfTest(url,canvas.width,canvas.height);
+      });
+    }
   },100);
+}
+
+function _condividiComePdfTest(dataUrl,wPx,hPx){
+  try{
+    const MM_PER_PX=62/591;
+    const wMm=(wPx||591)*MM_PER_PX;
+    const hMm=(hPx||wPx||591)*MM_PER_PX;
+    const jsPDFCtor=window.jspdf&&window.jspdf.jsPDF;
+    if(!jsPDFCtor){toast('Libreria PDF non caricata','err');return;}
+    const pdf=new jsPDFCtor({unit:'mm',format:[wMm,hMm]});
+    pdf.addImage(dataUrl,'PNG',0,0,wMm,hMm);
+    const pdfBlob=pdf.output('blob');
+    const file=new File([pdfBlob],'etichetta.pdf',{type:'application/pdf'});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file]}).catch(function(e){console.warn('share pdf error',e);});
+    } else {
+      toast('Condivisione file non supportata su questo browser','err');
+    }
+  }catch(e){
+    console.warn('errore generazione pdf test',e);
+    toast('Errore nella generazione del PDF di test','err');
+  }
 }
 
 // Rileva se il dispositivo e' touch-primary (telefono/tablet) o punta con
