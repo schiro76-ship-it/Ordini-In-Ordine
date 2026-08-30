@@ -1479,7 +1479,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.23';
+const APP_VERSION='2.30.24';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4669,25 +4669,39 @@ function renderGruppoStampaModal(){
 async function stampaGruppo(){
   if(!_gruppoStampa.length)return;
   if(_devePassareDaCondivisione()){
-    // Solo iOS/iPadOS: tutte le etichette condivise insieme in un'unica
-    // chiamata, l'utente sceglie "Stampa" una volta sola.
-    const files=[];
-    let idx=0;
+    // Solo iOS/iPadOS: tutte le etichette in un unico PDF (una pagina per
+    // etichetta, ognuna con le sue dimensioni esatte), condiviso in
+    // un'unica chiamata. Stesso motivo del bottone "Stampa" singolo:
+    // "Stampa" non compare sempre nel pannello di condivisione per
+    // un'immagine, ma compare per un PDF (verificato su iPhone 8/iOS 16
+    // e iPhone 15/iOS 26).
+    const jsPDFCtor=window.jspdf&&window.jspdf.jsPDF;
+    if(!jsPDFCtor){toast('Libreria PDF non caricata','err');return;}
+    const MM_PER_PX=62/591;
+    let pdf=null;
+    let pagineAggiunte=0;
     for(const g of _gruppoStampa){
       const o=ords.find(x=>x.id===g.oid);
       if(!o)continue;
       const canvas=_disegnaEtichetta(o,g.artId);
       const url=canvas.toDataURL('image/png');
-      try{
-        const blob=await(await fetch(url)).blob();
-        files.push(new File([blob],'etichetta-'+(++idx)+'.png',{type:'image/png'}));
-      }catch(e){console.warn('errore preparazione etichetta gruppo',e);}
+      const wMm=canvas.width*MM_PER_PX;
+      const hMm=canvas.height*MM_PER_PX;
+      if(!pdf){
+        pdf=new jsPDFCtor({unit:'mm',format:[wMm,hMm]});
+      } else {
+        pdf.addPage([wMm,hMm]);
+      }
+      pdf.addImage(url,'PNG',0,0,wMm,hMm);
+      pagineAggiunte++;
     }
-    if(!files.length){toast('Nessuna etichetta valida da stampare','err');return;}
-    incrementaStampeCount(files.length);
+    if(!pagineAggiunte){toast('Nessuna etichetta valida da stampare','err');return;}
+    incrementaStampeCount(pagineAggiunte);
     try{
-      if(navigator.share&&navigator.canShare&&navigator.canShare({files:files})){
-        await navigator.share({files:files});
+      const pdfBlob=pdf.output('blob');
+      const file=new File([pdfBlob],'etichette.pdf',{type:'application/pdf'});
+      if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({files:[file]});
       }
     }catch(e){console.warn('share error (gruppo)',e);}
   } else {
