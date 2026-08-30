@@ -175,6 +175,9 @@ body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
 body.portrait-phone.vb-active .page-wrap{padding-top:0}
 body.portrait-phone .phdr h2{color:#fff}
 .phdr{position:sticky;top:0;z-index:55;background:var(--bg);padding-bottom:16px!important;-webkit-transform:translateZ(0);transform:translateZ(0)}
+.phdr h2{flex-shrink:0}
+.phdr>div{overflow-x:auto;overflow-y:visible;scrollbar-width:none}
+.phdr>div::-webkit-scrollbar{display:none}
 body.portrait-phone .phdr{background:#2C3E50}
 body:not(.portrait-phone) .phdr{background:#DDE0E8}
 .ordini-sticky .phdr,.list-sticky .phdr{position:static;top:auto;z-index:auto;background:transparent;padding:0 0 12px!important;margin:0}
@@ -1486,7 +1489,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.35';
+const APP_VERSION='2.30.36';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
