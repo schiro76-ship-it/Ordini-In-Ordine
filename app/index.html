@@ -1479,7 +1479,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.31';
+const APP_VERSION='2.30.32';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4681,17 +4681,18 @@ function renderGruppoStampaModal(){
 async function stampaGruppo(){
   if(!_gruppoStampa.length)return;
   if(_devePassareDaCondivisione()){
-    // Solo iOS/iPadOS: tutte le etichette in un unico PDF (una pagina per
-    // etichetta, ognuna con le sue dimensioni esatte), condiviso in
-    // un'unica chiamata. Stesso motivo del bottone "Stampa" singolo:
-    // "Stampa" non compare sempre nel pannello di condivisione per
-    // un'immagine, ma compare per un PDF (verificato su iPhone 8/iOS 16
-    // e iPhone 15/iOS 26).
+    // Solo iOS/iPadOS: un PDF separato per ogni etichetta (non un unico
+    // PDF multi-pagina), tutti condivisi insieme in un'unica chiamata.
+    // Un PDF multi-pagina viene trattato da AirPrint come un solo lavoro
+    // di stampa con un formato unico (quello della pagina piu' grande),
+    // ignorando le dimensioni dichiarate pagina per pagina - file
+    // separati dovrebbero restare indipendenti agli occhi del sistema.
     const jsPDFCtor=window.jspdf&&window.jspdf.jsPDF;
     if(!jsPDFCtor){toast('Libreria PDF non caricata','err');return;}
     const MM_PER_PX=62/591;
-    let pdf=null;
-    let pagineAggiunte=0;
+    const MARGINE_MM=0.5;
+    const files=[];
+    let idx=0;
     for(const g of _gruppoStampa){
       const o=ords.find(x=>x.id===g.oid);
       if(!o)continue;
@@ -4699,28 +4700,17 @@ async function stampaGruppo(){
       const url=canvas.toDataURL('image/png');
       const wMm=canvas.width*MM_PER_PX;
       const hMm=canvas.height*MM_PER_PX;
-      // Stesso motivo del bottone "Stampa" singolo: orientamento
-      // esplicito per pagina, altrimenti le etichette-articolo corte
-      // (larghezza > altezza) escono ruotate/tagliate.
       const orient=wMm>=hMm?'l':'p';
-      // Stesso margine di sicurezza del bottone singolo (vedi commento
-      // li'), applicato ad ogni pagina della coda.
-      const MARGINE_MM=0.5;
-      if(!pdf){
-        pdf=new jsPDFCtor({unit:'mm',format:[wMm+MARGINE_MM*2,hMm+MARGINE_MM*2],orientation:orient});
-      } else {
-        pdf.addPage([wMm+MARGINE_MM*2,hMm+MARGINE_MM*2],orient);
-      }
+      const pdf=new jsPDFCtor({unit:'mm',format:[wMm+MARGINE_MM*2,hMm+MARGINE_MM*2],orientation:orient});
       pdf.addImage(url,'PNG',MARGINE_MM,MARGINE_MM,wMm,hMm);
-      pagineAggiunte++;
-    }
-    if(!pagineAggiunte){toast('Nessuna etichetta valida da stampare','err');return;}
-    incrementaStampeCount(pagineAggiunte);
-    try{
       const pdfBlob=pdf.output('blob');
-      const file=new File([pdfBlob],'etichette.pdf',{type:'application/pdf'});
-      if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-        await navigator.share({files:[file]});
+      files.push(new File([pdfBlob],'etichetta-'+(++idx)+'.pdf',{type:'application/pdf'}));
+    }
+    if(!files.length){toast('Nessuna etichetta valida da stampare','err');return;}
+    incrementaStampeCount(files.length);
+    try{
+      if(navigator.share&&navigator.canShare&&navigator.canShare({files:files})){
+        await navigator.share({files:files});
       }
     }catch(e){console.warn('share error (gruppo)',e);}
   } else {
