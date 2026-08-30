@@ -1479,7 +1479,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.28';
+const APP_VERSION='2.30.29';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4351,7 +4351,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
             // volte scala leggermente il contenuto, perdendo i bordi -
             // un margine vuoto attorno assorbe questo effetto senza
             // toccare il contenuto dell'etichetta stesso.
-            const MARGINE_MM=0.1;
+            const MARGINE_MM=0.5;
             const pdf=new jsPDFCtor({unit:'mm',format:[wMm+MARGINE_MM*2,hMm+MARGINE_MM*2],orientation:orient});
             pdf.addImage(url,'PNG',MARGINE_MM,MARGINE_MM,wMm,hMm);
             const pdfBlob=pdf.output('blob');
@@ -4705,7 +4705,7 @@ async function stampaGruppo(){
       const orient=wMm>=hMm?'l':'p';
       // Stesso margine di sicurezza del bottone singolo (vedi commento
       // li'), applicato ad ogni pagina della coda.
-      const MARGINE_MM=0.1;
+      const MARGINE_MM=0.5;
       if(!pdf){
         pdf=new jsPDFCtor({unit:'mm',format:[wMm+MARGINE_MM*2,hMm+MARGINE_MM*2],orientation:orient});
       } else {
