@@ -1478,7 +1478,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.20';
+const APP_VERSION='2.30.21';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4335,7 +4335,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
             const blob=await(await fetch(url)).blob();
             const file=new File([blob],'etichetta.png',{type:'image/png'});
             if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-              await navigator.share({files:[file],title:'Etichetta ordine'});
+              await navigator.share({files:[file]});
               return;
             }
             // Condivisione non disponibile su questo browser: fallback download
@@ -4368,7 +4368,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
           const blob=await(await fetch(url)).blob();
           const file=new File([blob],'etichetta.png',{type:'image/png'});
           if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-            await navigator.share({files:[file],title:'Etichetta ordine'});
+            await navigator.share({files:[file]});
             return;
           }
           const a=document.createElement('a');a.href=url;a.download='etichetta.png';a.click();
@@ -4677,7 +4677,7 @@ async function stampaGruppo(){
     incrementaStampeCount(files.length);
     try{
       if(navigator.share&&navigator.canShare&&navigator.canShare({files:files})){
-        await navigator.share({files:files,title:'Etichette ordini'});
+        await navigator.share({files:files});
       }
     }catch(e){console.warn('share error (gruppo)',e);}
   } else {
