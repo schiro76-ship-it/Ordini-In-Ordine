@@ -781,7 +781,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div class="sec active" id="tab-ordini">
         <div class="pbody">
           <div class="ordini-sticky">
-            <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa visible" id="phdr-stampa-ordini"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label" class="phdr-label-full">Stampa tutti</span><span id="phdr-stampa-ordini-label-compact" class="phdr-label-compact">Tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> <span class="phdr-label-full">Sconto di 5 €</span><span class="phdr-label-compact">5 €</span></button></div></div>
+            <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa visible" id="phdr-stampa-ordini" onclick="aggiungiTuttiAlGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label" class="phdr-label-full">Stampa tutti</span><span id="phdr-stampa-ordini-label-compact" class="phdr-label-compact">Tutti</span></button><button class="phdr-stampa" id="phdr-coda-ordini" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-coda-ordini-label" class="phdr-label-full"></span><span id="phdr-coda-ordini-label-compact" class="phdr-label-compact"></span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> <span class="phdr-label-full">Sconto di 5 €</span><span class="phdr-label-compact">5 €</span></button></div></div>
             <div class="ordini-sticky-top">
               <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div class="ordini-filt-row">
@@ -1479,7 +1479,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.32';
+const APP_VERSION='2.30.33';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4512,18 +4512,18 @@ function _gruppoTrovaIndice(oid,artId){
 
 function _aggiornaBadgeGruppo(){
   const n=_gruppoStampa.length;
-  const bOrd=document.getElementById('phdr-stampa-ordini');
-  const lOrd=document.getElementById('phdr-stampa-ordini-label');
-  const lOrdC=document.getElementById('phdr-stampa-ordini-label-compact');
-  if(bOrd&&lOrd){
+  // Pill "Coda (N)" per Ordini - indipendente da "Stampa tutti" (che ora
+  // resta sempre con la stessa etichetta/azione, non cambia più stato)
+  const bCodaOrd=document.getElementById('phdr-coda-ordini');
+  const lCodaOrd=document.getElementById('phdr-coda-ordini-label');
+  const lCodaOrdC=document.getElementById('phdr-coda-ordini-label-compact');
+  if(bCodaOrd&&lCodaOrd){
     if(n>0){
-      lOrd.textContent='Coda ('+n+')';
-      if(lOrdC)lOrdC.textContent='('+n+')';
-      bOrd.onclick=apriModalGruppoStampa;
+      bCodaOrd.classList.add('visible');
+      lCodaOrd.textContent='Coda ('+n+')';
+      if(lCodaOrdC)lCodaOrdC.textContent='('+n+')';
     } else {
-      lOrd.textContent='Stampa tutti';
-      if(lOrdC)lOrdC.textContent='Tutti';
-      bOrd.onclick=aggiungiTuttiAlGruppoStampa;
+      bCodaOrd.classList.remove('visible');
     }
   }
   ['riepilogo','storico','impostazioni'].forEach(function(tab){
