@@ -194,6 +194,13 @@ body.portrait-phone .phdr-invita i{font-size:18px}
 .phdr-stampa{display:none;align-items:center;gap:6px;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;background:#EEF2FF;border:1.5px solid rgba(79,70,229,0.25);color:#4F46E5}
 .phdr-stampa.visible{display:flex}
 .phdr-stampa i{font-size:18px}
+/* Su schermi non-phone (Ordini): "Stampa tutti" resta fermo in posizione,
+   "Coda" compare alla sua sinistra invece che spingerlo - via ordine
+   flex esplicito, cosi' non serve toccare l'ordine nel markup. Su phone
+   resta l'ordine naturale (Stampa tutti, Coda, Invita), invariato. */
+body:not(.portrait-phone) #tab-ordini #phdr-coda-ordini{order:1}
+body:not(.portrait-phone) #tab-ordini #phdr-stampa-ordini{order:2}
+body:not(.portrait-phone) #tab-ordini .phdr-invita{order:3}
 body.portrait-phone .phdr-stampa{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff}
 body.portrait-phone .phdr input[type=number],body.portrait-phone .phdr span{color:#fff!important}
 body.portrait-phone #tab-ordini .empty .ei,body.portrait-phone #tab-riepilogo .empty .ei{color:rgba(255,255,255,0.6)}
@@ -1479,7 +1486,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.33';
+const APP_VERSION='2.30.34';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
