@@ -1486,7 +1486,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.34';
+const APP_VERSION='2.30.35';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2339,6 +2339,7 @@ function renderOrdini(animate){
   const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=fmtDataByFormat(d);return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;if(c)return ricercaIntelligente(c,nomeAttuale(o))||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});
   if(animate){flipRenderOrdini(l);}else{document.getElementById('ordini-list').innerHTML=buildOcHTML(l);}
   adjustActBtnFit();
+  if(typeof _aggiornaVisibilitaStampaTutti==='function')_aggiornaVisibilitaStampaTutti();
   stats();}
 
 let _flipLocked=false;
@@ -4546,6 +4547,7 @@ function _aggiornaBadgeGruppo(){
       b.classList.remove('visible');
     }
   });
+  _aggiornaVisibilitaStampaTutti();
   setTimeout(syncPhdrHeight,0);
   setTimeout(adjustPhdrFit,0);
 }
@@ -4562,15 +4564,34 @@ function aggiungiAlGruppoStampa(oid,artId){
 
 // Aggiunge al gruppo un'etichetta per ogni ordine attualmente filtrato/
 // visibile nella tab Ordini (stessi filtri di stato/giorno/ricerca).
-function aggiungiTuttiAlGruppoStampa(){
+// Lista ordini che "Stampa tutti" aggiungerebbe alla coda con i filtri
+// correnti (Ordini) - condivisa tra l'azione del bottone e il controllo
+// di visibilita' del pill stesso.
+function _listaOrdiniFiltratiPerCoda(){
   const c=(document.getElementById('co')&&document.getElementById('co').value||'').toLowerCase().trim();
-  const lista=ords.filter(function(o){
+  return ords.filter(function(o){
     if(isRitiratoVecchio(o))return false;
     if(ft!=='tutti'&&o.stato!==ft)return false;
     if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;
     if(c)return ricercaIntelligente(c,nomeAttuale(o))||String(o.num).includes(c)||(o.items||[]).some(function(it){const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome);});
     return true;
   });
+}
+
+// "Stampa tutti" resta nascosto se non c'e' nessun ordine (tra quelli che
+// rispettano i filtri correnti) ancora da aggiungere alla coda - un
+// bottone che non farebbe nulla non serve, specialmente su phone dove
+// lo spazio conta.
+function _aggiornaVisibilitaStampaTutti(){
+  const b=document.getElementById('phdr-stampa-ordini');
+  if(!b)return;
+  const lista=_listaOrdiniFiltratiPerCoda();
+  const restaDaAggiungere=lista.some(function(o){return _gruppoTrovaIndice(o.id,null)===-1;});
+  b.classList.toggle('visible',restaDaAggiungere);
+}
+
+function aggiungiTuttiAlGruppoStampa(){
+  const lista=_listaOrdiniFiltratiPerCoda();
   if(!lista.length){toast('Nessun ordine da aggiungere con questi filtri','err');return;}
   let aggiunte=0;
   lista.forEach(function(o){
