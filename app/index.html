@@ -1479,7 +1479,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.33';
+const APP_VERSION='2.30.32';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4319,7 +4319,6 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     <button id="btn-stampa-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
     ${!_devePassareDaCondivisione()?`<button id="btn-condividi-etichetta" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:1.5px solid var(--brd,#DDE0E8);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-share-2"></i> Condividi</button>`:''}
     <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px solid #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi alla coda</button>
-    ${_devePassareDaCondivisione()&&canvas.width>canvas.height?`<button id="btn-stampa-ruotata-test" style="width:100%;padding:12px;background:#fff;color:#059669;border:1.5px dashed #059669;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-flask"></i> Stampa ruotata (test)</button>`:''}
     ${!_devePassareDaCondivisione()?`<div style="font-size:12px;color:#888;margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa" (es. stampanti Bluetooth non standard)</div>`:''}
   </div>`;
   openModal('modal-etichetta');
@@ -4407,51 +4406,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
         closeModal('modal-etichetta');
       });
     }
-    const btnRuotataTest=document.getElementById('btn-stampa-ruotata-test');
-    if(btnRuotataTest){
-      btnRuotataTest.addEventListener('click',function(){
-        _stampaRuotataTest(canvas);
-      });
-    }
   },100);
-}
-
-// TEST: per le etichette piu' larghe che alte, ruota il contenuto di 90°
-// prima di incollarlo nel PDF (scambiando le dimensioni dichiarate: il
-// PDF dichiara "piu' alto che largo", il formato che finora e' sempre
-// uscito corretto da AirPrint) - verifica se questo risolve il margine
-// vuoto in eccesso visto sulle etichette-articolo corte e larghe.
-function _stampaRuotataTest(canvasOriginale){
-  try{
-    const wPx=canvasOriginale.width,hPx=canvasOriginale.height;
-    // Canvas ruotato: le dimensioni si scambiano (nuova larghezza=altezza
-    // originale, nuova altezza=larghezza originale)
-    const canvasRuotato=document.createElement('canvas');
-    canvasRuotato.width=hPx;canvasRuotato.height=wPx;
-    const ctxR=canvasRuotato.getContext('2d');
-    ctxR.translate(hPx,0);
-    ctxR.rotate(Math.PI/2);
-    ctxR.drawImage(canvasOriginale,0,0);
-    const urlRuotato=canvasRuotato.toDataURL('image/png');
-    const MM_PER_PX=62/591;
-    const wMm=canvasRuotato.width*MM_PER_PX;
-    const hMm=canvasRuotato.height*MM_PER_PX;
-    const MARGINE_MM=0.5;
-    const jsPDFCtor=window.jspdf&&window.jspdf.jsPDF;
-    if(!jsPDFCtor){toast('Libreria PDF non caricata','err');return;}
-    const pdf=new jsPDFCtor({unit:'mm',format:[wMm+MARGINE_MM*2,hMm+MARGINE_MM*2],orientation:'p'});
-    pdf.addImage(urlRuotato,'PNG',MARGINE_MM,MARGINE_MM,wMm,hMm);
-    const pdfBlob=pdf.output('blob');
-    const file=new File([pdfBlob],'etichetta-ruotata.pdf',{type:'application/pdf'});
-    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-      navigator.share({files:[file]}).catch(function(e){console.warn('share error (ruotata test)',e);});
-    } else {
-      toast('Condivisione file non supportata su questo browser','err');
-    }
-  }catch(e){
-    console.warn('errore generazione etichetta ruotata',e);
-    toast('Errore nel test di rotazione','err');
-  }
 }
 
 // Rileva se il dispositivo e' touch-primary (telefono/tablet) o punta con
