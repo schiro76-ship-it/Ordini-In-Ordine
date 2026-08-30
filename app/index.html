@@ -1479,7 +1479,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.24';
+const APP_VERSION='2.30.25';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4340,7 +4340,13 @@ function _mostraCanvasNelModal(canvas,oid,artId){
             const hMm=canvas.height*MM_PER_PX;
             const jsPDFCtor=window.jspdf&&window.jspdf.jsPDF;
             if(!jsPDFCtor)throw new Error('jsPDF non caricato');
-            const pdf=new jsPDFCtor({unit:'mm',format:[wMm,hMm]});
+            // Orientamento esplicito: senza specificarlo, jsPDF assume
+            // "verticale" per default e ruota/scambia le dimensioni se la
+            // larghezza supera l'altezza (succede con le etichette-
+            // articolo singolo, molto corte) - causa contenuto ruotato e
+            // bordi tagliati in stampa.
+            const orient=wMm>=hMm?'l':'p';
+            const pdf=new jsPDFCtor({unit:'mm',format:[wMm,hMm],orientation:orient});
             pdf.addImage(url,'PNG',0,0,wMm,hMm);
             const pdfBlob=pdf.output('blob');
             const file=new File([pdfBlob],'etichetta.pdf',{type:'application/pdf'});
@@ -4687,10 +4693,14 @@ async function stampaGruppo(){
       const url=canvas.toDataURL('image/png');
       const wMm=canvas.width*MM_PER_PX;
       const hMm=canvas.height*MM_PER_PX;
+      // Stesso motivo del bottone "Stampa" singolo: orientamento
+      // esplicito per pagina, altrimenti le etichette-articolo corte
+      // (larghezza > altezza) escono ruotate/tagliate.
+      const orient=wMm>=hMm?'l':'p';
       if(!pdf){
-        pdf=new jsPDFCtor({unit:'mm',format:[wMm,hMm]});
+        pdf=new jsPDFCtor({unit:'mm',format:[wMm,hMm],orientation:orient});
       } else {
-        pdf.addPage([wMm,hMm]);
+        pdf.addPage([wMm,hMm],orient);
       }
       pdf.addImage(url,'PNG',0,0,wMm,hMm);
       pagineAggiunte++;
