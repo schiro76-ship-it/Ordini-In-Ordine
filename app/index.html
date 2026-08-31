@@ -1489,7 +1489,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.36';
+const APP_VERSION='2.30.37';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2325,15 +2325,16 @@ function adjustPhdrFit(){
   document.querySelectorAll('.phdr').forEach(function(phdr){
     if(!phdr.offsetParent)return;// tab non visibile ora: non misurabile, si aggiorna quando torna attiva
     const h2=phdr.querySelector('h2');
-    if(!h2)return;
+    const wrap=phdr.querySelector('h2+div');// gruppo pulsanti, sempre subito dopo il titolo
+    if(!h2||!wrap)return;
     phdr.classList.remove('phdr-compact-invita','phdr-compact-stampa');// riparte da zero
-    const cs=getComputedStyle(h2);
-    let lineH=parseFloat(cs.lineHeight);
-    if(!lineH||isNaN(lineH))lineH=parseFloat(cs.fontSize)*1.2;
-    const vaACapo=()=>h2.scrollHeight>lineH*1.4;
-    if(!vaACapo())return;// entra tutto disteso, niente da ridurre
+    // Segnale diretto: il gruppo pulsanti trabocca la larghezza disponibile?
+    // (prima si guardava se il titolo andava a capo, ma il titolo ora e'
+    // protetto da restringimenti - quel segnale non scatterebbe piu' mai)
+    const trabocca=()=>wrap.scrollWidth>wrap.clientWidth+1;
+    if(!trabocca())return;// entra tutto disteso, niente da ridurre
     phdr.classList.add('phdr-compact-invita');// primo tentativo: solo "Sconto di 5€"
-    if(vaACapo())phdr.classList.add('phdr-compact-stampa');// non basta: riduci anche "Stampa"/"Coda"
+    if(trabocca())phdr.classList.add('phdr-compact-stampa');// non basta: riduci anche "Stampa"/"Coda"
   });
 }
 let _phdrFitResizeT=null;
