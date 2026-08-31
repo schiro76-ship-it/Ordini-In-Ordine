@@ -728,7 +728,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 <div id="device-limit-screen" style="display:none;position:fixed;inset:0;background:#F0F2F5;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
   <div style="font-size:48px;color:var(--r);margin-bottom:16px"><i class="ti ti-device-mobile-x"></i></div>
   <div style="font-family:'Nunito',sans-serif;font-size:19px;font-weight:900;color:#1A1A2E;max-width:380px;margin-bottom:10px">Hai raggiunto il numero massimo di 5 dispositivi collegati a questo account</div>
-  <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:#6B7280;max-width:380px;margin-bottom:24px">Per accedere da qui, rimuovi prima un altro dispositivo da uno di quelli già connessi: Impostazioni → Dispositivi collegati.</div>
+  <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:#6B7280;max-width:380px;margin-bottom:24px" id="device-limit-sub">Per accedere da qui, rimuovi prima un altro dispositivo da uno di quelli già connessi: Impostazioni → Dispositivi collegati.</div>
   <button class="btn bg2" onclick="doLogout()" style="max-width:260px"><i class="ti ti-logout"></i> Esci</button>
 </div>
 
@@ -1497,7 +1497,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.41';
+const APP_VERSION='2.30.42';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1514,6 +1514,20 @@ let _deviceId=(function(){
     return id;
   }catch(e){return 'dev-'+Date.now();}
 })();
+// Rileva Safari su iPhone/iPad NON installata sulla schermata Home (PWA a parte): su iOS, la
+// memoria locale (compreso l'ID dispositivo sopra) non è condivisa tra una scheda Safari normale e
+// la PWA installata, anche sullo stesso identico telefono — motivo per cui possono contare come due
+// dispositivi separati. Solo in questo contesto specifico si applica il meccanismo "slot libero
+// solo mentre la scheda è davvero in primo piano" più sotto — mai su Chrome (desktop o Android),
+// dove la memoria locale è già condivisa tra scheda e app installata, quindi il problema non esiste.
+const _isIOSSafariNonStandalone=(function(){
+  try{
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+    const isStandalone=window.navigator.standalone===true||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
+    return isIOS&&!isStandalone;
+  }catch(e){return false;}
+})();
+let _dispositivoInPausaVolontaria=false; // true mentre abbiamo tolto noi stessi lo slot (scheda in sottofondo): evita che il listener in tempo reale lo scambi per una rimozione da un altro dispositivo
 let _notifNuovoOrdine=true; // Preferenza notifica "nuovo ordine" DI QUESTO DISPOSITIVO — salvata in notifSettings[_deviceId] su Firestore, default ATTIVO
 let _notifOrdiniUrgenti=true; // Preferenza notifica "ordini urgenti" DI QUESTO DISPOSITIVO — salvata in notifSettings[_deviceId] su Firestore, default ATTIVO
 let _notifSettingsAll={}; // Cache della mappa completa {deviceId:{nuovoOrdine,ordiniUrgenti}} letta da Firestore — serve per calcolare i campi legacy account-wide (OR) usati dalle Cloud Functions
@@ -1963,6 +1977,72 @@ function iconePerTipoDispositivo(tipo){
 // questo dispositivo nella mappa. Ritorna true se il dispositivo va bloccato (limite raggiunto e dispositivo
 // non già noto), false se può proseguire normalmente. In caso di problemi di rete non blocca (fail-open),
 // per non lasciare fuori un utente legittimo per un problema di connessione.
+// Mostra il modal "limite dispositivi raggiunto", con un testo diverso su Safari iOS/iPadOS non
+// installata: chi arriva da lì potrebbe non sapere che la PWA (se già installata) conta come uno
+// dei 5 a sé — glielo ricordiamo, offrendo comunque la via d'uscita già esistente.
+function mostraLimiteDispositivi(){
+  const sub=document.getElementById('device-limit-sub');
+  if(sub){
+    sub.textContent=_isIOSSafariNonStandalone?'Se hai già installato l\'app sulla schermata Home di questo iPhone/iPad, aprila da lì invece che da Safari. Altrimenti, per accedere da qui, apri Impostazioni → Dispositivi collegati da un altro dispositivo già connesso e rimuovine uno.':'Per accedere da qui, rimuovi prima un altro dispositivo da uno di quelli già connessi: Impostazioni → Dispositivi collegati.';
+  }
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('device-limit-screen').style.display='flex';
+}
+// Solo su Safari iPhone/iPad NON installata (vedi _isIOSSafariNonStandalone sopra): lo slot di
+// questo dispositivo esiste su Firestore solo mentre la scheda è davvero in primo piano. Appena va
+// in sottofondo (cambio app, altra scheda, schermo spento) lo slot si libera da solo, in silenzio,
+// senza nessun avviso — così su iOS una scheda Safari dimenticata non consuma per sempre uno dei 5
+// posti. Quando la scheda torna in primo piano, riprova a registrarsi con lo stesso nome salvato in
+// locale, sempre senza chiedere nulla — a meno che nel frattempo un altro dispositivo abbia preso
+// l'ultimo posto libero: in quel caso (raro) si applica lo stesso limite di 5 come per chiunque
+// altro, mostrando il modal dedicato invece di forzare comunque il posto.
+async function _rilasciaSlotSafariInSottofondo(){
+  if(!currentUser)return;
+  _dispositivoInPausaVolontaria=true;
+  try{
+    await db.collection('dati').doc(currentUser.uid).update({['dispositivi.'+_deviceId]:firebase.firestore.FieldValue.delete()});
+  }catch(e){console.warn('Rilascio slot Safari in sottofondo non riuscito',e);}
+}
+async function _riattivaSlotSafariInPrimoPiano(){
+  if(!currentUser)return;
+  try{
+    const ref=db.collection('dati').doc(currentUser.uid);
+    const snap=await ref.get();
+    const d=snap.exists?snap.data():{};
+    const disp=(d.dispositivi&&typeof d.dispositivi==='object'&&!Array.isArray(d.dispositivi))?d.dispositivi:{};
+    if(disp[_deviceId]){
+      // Già presente (es. non era mai stato tolto per davvero): niente da fare
+      _dispositivoInPausaVolontaria=false;
+      _dispositivi=disp;
+      return;
+    }
+    if(Object.keys(disp).length>=LIMITE_DISPOSITIVI){
+      _dispositivoInPausaVolontaria=false;
+      mostraLimiteDispositivi();
+      return;
+    }
+    const now=new Date().toISOString();
+    let nome='',tipo='',primo=now;
+    try{nome=localStorage.getItem('device-nome')||'';tipo=localStorage.getItem('device-tipo')||'';primo=localStorage.getItem('device-primo')||now;}catch(e){}
+    if(!nome)nome=rilevaTipoDispositivoLabel();
+    if(!tipo)tipo=rilevaTipoDispositivoLabel();
+    await ref.set({dispositivi:{[_deviceId]:{primoAccesso:primo,ultimoAccesso:now,nome:nome,tipo:tipo}}},{merge:true});
+    _dispositivoInPausaVolontaria=false;
+  }catch(e){
+    console.warn('Riattivazione slot Safari in primo piano non riuscita',e);
+    _dispositivoInPausaVolontaria=false;
+  }
+}
+if(_isIOSSafariNonStandalone){
+  document.addEventListener('visibilitychange',function(){
+    if(!currentUser)return;
+    if(document.hidden){
+      _rilasciaSlotSafariInSottofondo();
+    } else {
+      _riattivaSlotSafariInPrimoPiano();
+    }
+  });
+}
 async function checkESaveDispositivo(){
   try{
     const uid=currentUser?currentUser.uid:DOC_ID;
@@ -1976,6 +2056,7 @@ async function checkESaveDispositivo(){
       const primo=esistente.primoAccesso||now;
       _dispositivi[_deviceId]=Object.assign({},esistente,{primoAccesso:primo,ultimoAccesso:now});
       await ref.set({dispositivi:{[_deviceId]:{primoAccesso:primo,ultimoAccesso:now}}},{merge:true});
+      try{localStorage.setItem('device-nome',esistente.nome||'');localStorage.setItem('device-tipo',esistente.tipo||'');localStorage.setItem('device-primo',primo);}catch(e){}
       return false;
     }
     if(Object.keys(_dispositivi).length>=LIMITE_DISPOSITIVI){
@@ -1991,6 +2072,7 @@ async function checkESaveDispositivo(){
     }
     _dispositivi[_deviceId]={primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo};
     await ref.set({dispositivi:{[_deviceId]:{primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo}}},{merge:true});
+    try{localStorage.setItem('device-nome',nome);localStorage.setItem('device-tipo',tipo);localStorage.setItem('device-primo',now);}catch(e){}
     return false;
   }catch(e){
     console.warn('Verifica limite dispositivi non riuscita, procedo comunque',e);
@@ -2007,7 +2089,7 @@ function mostraDispositivoRimosso(){
 let _unsubDatiListener=null;
 let _deviceVistoPresente=false;
 let _timerBloccoDispositivo=null;
-async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){document.getElementById('loading').classList.add('hidden');document.getElementById('device-limit-screen').style.display='flex';return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);setTimeout(adjustPhdrFit,0);checkIosInstallBanner();gestisciRitornoCheckout();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){mostraLimiteDispositivi();return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);setTimeout(adjustPhdrFit,0);checkIosInstallBanner();gestisciRitornoCheckout();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
   try{
     if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
@@ -2017,6 +2099,11 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
       applyRemoteSettings(d);
       _dispositivi=(d.dispositivi&&typeof d.dispositivi==='object'&&!Array.isArray(d.dispositivi))?d.dispositivi:{};
       if(!_dispositivi[_deviceId]){
+        if(_dispositivoInPausaVolontaria){
+          // Siamo noi stessi ad aver tolto lo slot (scheda Safari in sottofondo, vedi più sotto):
+          // non è una vera rimozione da un altro dispositivo, non mostrare nulla.
+          return;
+        }
         if(!_deviceVistoPresente){
           // Non ancora confermato in questa sessione: potrebbe essere un aggiornamento arrivato in ordine
           // sparso subito dopo la registrazione del dispositivo. Aspetto un istante e ricontrollo, invece
