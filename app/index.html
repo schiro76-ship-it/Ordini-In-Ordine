@@ -197,6 +197,10 @@ body.portrait-phone .phdr-invita i{font-size:18px}
 .phdr-stampa{display:none;align-items:center;gap:6px;border-radius:20px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;background:#EEF2FF;border:1.5px solid rgba(79,70,229,0.25);color:#4F46E5}
 .phdr-stampa.visible{display:flex}
 .phdr-stampa i{font-size:18px}
+/* Su iPad il bordo di focus del browser puo' restare visibile dopo il
+   tap invece di sparire subito come su iPhone - tolto qui, il feedback
+   visivo del tocco resta comunque dato dal cambio colore dello sfondo. */
+.phdr-stampa:focus,.phdr-invita:focus{outline:none}
 /* Su schermi non-phone (Ordini): "Stampa tutti" resta fermo in posizione,
    "Coda" compare alla sua sinistra invece che spingerlo - via ordine
    flex esplicito, cosi' non serve toccare l'ordine nel markup. Su phone
@@ -366,6 +370,10 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .itag-circle.done{border-color:var(--g);background:var(--g);color:#fff}
 .itag-circle.ritirato{border-color:var(--gr);background:var(--gr);color:#fff}
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
+/* La card "Cliente" in Nuovo Ordine deve lasciar uscire il menu a tendina
+   dei suggerimenti (altrimenti l'overflow:hidden della card lo taglia
+   via prima che il suo stesso scorrimento interno serva a qualcosa). */
+.card-cliente-nuovo{overflow:visible}
 .card-sticky-host{overflow:visible}
 .card-sticky-host .ch{position:relative;z-index:52;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
 .card-sticky-host.sticky-on .ch{position:sticky;top:var(--phdr-h,0px);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
@@ -900,7 +908,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               </div>
             </div>
           </div>
-          <div class="card" style="margin-bottom:14px">
+          <div class="card card-cliente-nuovo" style="margin-bottom:14px">
             <div class="ch"><div class="ct"><i class="ti ti-user"></i> Cliente</div></div>
             <div class="cb">
               <div class="fg fg-rel"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi" autocomplete="off" oninput="capWords(this);renderClienteSugg()" onblur="nascondiClienteSugg()" onfocus="renderClienteSugg()"><div class="cliente-sugg" id="nn-sugg"></div></div>
@@ -1489,7 +1497,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.38';
+const APP_VERSION='2.30.39';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
