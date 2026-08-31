@@ -1497,7 +1497,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.40';
+const APP_VERSION='2.30.41';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4796,7 +4796,23 @@ function stampaEtichetta(id){
 const auth=firebase.auth();
 auth.languageCode='it';
 let currentUser=null;
-auth.onAuthStateChanged(function(user){if(user){currentUser=user;document.getElementById('login-screen').style.display='none';boot();if(!user.emailVerified&&user.providerData&&user.providerData[0]&&user.providerData[0].providerId==='password'){setInterval(function(){if(!currentUser)return;currentUser.reload().then(function(){if(currentUser.emailVerified)refreshAll();});},20000);}}else{currentUser=null;document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}}});
+// Disconnessione improvvisa: a volte Firebase segnala "nessun utente" per un intoppo momentaneo
+// (es. rinnovo del token fallito, bug noto delle PWA su alcune versioni di iOS), pur restando le
+// credenziali salvate valide — visibile perché basta chiudere e riaprire l'app per tornare
+// collegati senza reinserire nulla. _wasLoggedIn ricorda se un attimo prima eravamo davvero
+// collegati; _logoutVolontario (impostata da doLogout) distingue questo caso da un vero logout
+// scelto dall'utente. Se la disconnessione non è voluta e non l'abbiamo già ritentato in questa
+// sessione (sessionStorage, sopravvive al ricaricamento stesso), si ricarica la pagina una sola
+// volta — lo stesso effetto di chiudere e riaprire l'app, ma automatico. Se il problema persiste
+// anche dopo, si passa comunque alla normale schermata di login, senza ripetere all'infinito.
+let _wasLoggedIn=false,_logoutVolontario=false;
+auth.onAuthStateChanged(function(user){if(user){_wasLoggedIn=true;_logoutVolontario=false;currentUser=user;document.getElementById('login-screen').style.display='none';boot();if(!user.emailVerified&&user.providerData&&user.providerData[0]&&user.providerData[0].providerId==='password'){setInterval(function(){if(!currentUser)return;currentUser.reload().then(function(){if(currentUser.emailVerified)refreshAll();});},20000);}}else{
+  if(_wasLoggedIn&&!_logoutVolontario&&!sessionStorage.getItem('_authReloadTentato')){
+    sessionStorage.setItem('_authReloadTentato','1');
+    location.reload();
+    return;
+  }
+  currentUser=null;document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}}});
 function salvaAttivita(){const nome=document.getElementById('input-attivita').value.trim();if(!nome){toast('Inserisci il nome attività!','err');return;}if(!currentUser){toast('Non sei loggato','err');return;}currentUser.updateProfile({displayName:nome}).then(function(){return db.collection('profili').doc(currentUser.uid).set({attivita:nome,email:currentUser.email,aggiornato:new Date().toISOString()},{merge:true});}).then(function(){const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita)sbAttivita.textContent=nome;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita)inputAttivita.value=nome;toast('Nome attività salvato','v');}).catch(function(e){toast('Errore: '+e.message,'err');});}
 function switchLoginTab(tab){document.getElementById('form-login').style.display=tab==='login'?'block':'none';document.getElementById('form-reg').style.display=tab==='registrati'?'block':'none';document.getElementById('tab-login-btn').classList.toggle('active',tab==='login');document.getElementById('tab-reg-btn').classList.toggle('active',tab==='registrati');document.getElementById('login-err').textContent='';const ls=document.getElementById('login-screen');if(ls)ls.scrollTop=0;}
 function loginErr(msg){document.getElementById('login-err').textContent=msg;}
@@ -4938,6 +4954,7 @@ async function eseguiRimozioneDispositivo(deviceId){
   }
 }
 async function doLogout(){
+  _logoutVolontario=true;// evita che il recupero automatico da disconnessione improvvisa scatti qui: questo logout è voluto
   // Libera subito lo slot dispositivo di questo dispositivo, cosicché il conteggio dei 5 dispositivi
   // simultanei si aggiorni immediatamente e non resti "fantasma" occupato dopo un logout volontario.
   try{
