@@ -1497,7 +1497,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.39';
+const APP_VERSION='2.30.40';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -3608,7 +3608,7 @@ function renderClienteSugg(){
   const inp=document.getElementById('nn');const wrap=document.getElementById('nn-sugg');if(!inp||!wrap)return;
   const q=inp.value.trim();
   if(!q||!clienti.length){wrap.style.display='none';wrap.innerHTML='';return;}
-  const l=clienti.filter(c=>ricercaIntelligente(q,c.nome)||(c.telefono&&c.telefono.includes(q))).slice(0,5);
+  const l=clienti.filter(c=>ricercaIntelligente(q,c.nome)||(c.telefono&&c.telefono.includes(q))).slice(0,30);
   if(!l.length){wrap.style.display='none';wrap.innerHTML='';return;}
   wrap.innerHTML=l.map(c=>`<div class="cliente-sugg-row" onmousedown="event.preventDefault()" onclick="selezionaCliente(${c.id})"><span style="font-weight:800">${c.nome}</span>${c.telefono?`<span style="color:var(--sub);font-weight:700;margin-left:8px">${c.telefono}</span>`:''}</div>`).join('');
   wrap.style.display='block';
@@ -3685,6 +3685,21 @@ async function salvaEditCliente(){
   renderOrdini();
   toast(idVal?'Cliente aggiornato':'Cliente aggiunto','v');
 }
+// Invio nella modale Nuovo/Modifica cliente: dal campo Nome passa al
+// campo Telefono, da Telefono salva - stesso principio già usato in
+// Nuovo Ordine, qui applicato ai due soli campi di questa modale.
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;
+  const t=e.target;
+  if(!t||!t.closest||!t.closest('#modal-edit-cliente'))return;
+  e.preventDefault();
+  if(t.id==='edit-cliente-nome'){
+    const tel=document.getElementById('edit-cliente-telefono');
+    if(tel)tel.focus();
+  } else if(t.id==='edit-cliente-telefono'){
+    salvaEditCliente();
+  }
+});
 function confermaEliminaCliente(id){
   const c=clienti.find(x=>x.id===id);if(!c)return;
   const n=ords.filter(o=>o.clienteId===id).length;
