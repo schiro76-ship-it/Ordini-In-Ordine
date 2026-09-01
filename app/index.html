@@ -1497,7 +1497,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.44';
+const APP_VERSION='2.30.45';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2078,13 +2078,22 @@ async function checkESaveDispositivo(){
     if(Object.keys(_dispositivi).length>=LIMITE_DISPOSITIVI){
       return true;
     }
-    const tipo=rilevaTipoDispositivoLabel();
-    let nome=tipo;
-    try{
-      const scelto=(prompt('Come vuoi chiamare questo dispositivo? Puoi personalizzarlo, ad es. "Telefono di Mario".',tipo)||'').trim();
-      if(scelto)nome=scelto;
-    }catch(e){
-      console.warn('Popup nome dispositivo non disponibile, uso il nome di default',e);
+    // Se questo dispositivo aveva già un nome salvato in locale da una registrazione precedente
+    // (es. su Safari iOS, dove lo slot può sparire e ricomparire per motivi indipendenti da una
+    // vera prima registrazione — anche un semplice ricaricamento della pagina, vedi il meccanismo
+    // più sotto), lo riusa in silenzio invece di chiedere di nuovo il nome ogni volta.
+    let nomeSalvato='',tipoSalvato='';
+    try{nomeSalvato=localStorage.getItem('device-nome')||'';tipoSalvato=localStorage.getItem('device-tipo')||'';}catch(e){}
+    const tipo=tipoSalvato||rilevaTipoDispositivoLabel();
+    let nome=nomeSalvato;
+    if(!nome){
+      nome=tipo;
+      try{
+        const scelto=(prompt('Come vuoi chiamare questo dispositivo? Puoi personalizzarlo, ad es. "Telefono di Mario".',tipo)||'').trim();
+        if(scelto)nome=scelto;
+      }catch(e){
+        console.warn('Popup nome dispositivo non disponibile, uso il nome di default',e);
+      }
     }
     _dispositivi[_deviceId]={primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo};
     await ref.set({dispositivi:{[_deviceId]:{primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo}}},{merge:true});
