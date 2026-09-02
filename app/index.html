@@ -1257,6 +1257,10 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div style="flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--azione);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">3</div>
         <div style="font-size:14px;font-weight:600;color:var(--txt);line-height:1.5">Conferma toccando <b>"Aggiungi"</b> — l'icona comparirà sulla schermata Home come un'app</div>
       </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--azione);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">4</div>
+        <div style="font-size:14px;font-weight:600;color:var(--txt);line-height:1.5">Chiudi questa scheda di Safari e apri l'app dalla nuova icona sulla Home: una scheda dimenticata aperta potrebbe occupare uno dei cinque punti di accesso disponibili</div>
+      </div>
     </div>
     <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-ios-install')">Ho capito</button></div>
   </div>
@@ -1497,7 +1501,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.45';
+const APP_VERSION='2.30.46';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
