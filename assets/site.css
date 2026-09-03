@@ -225,6 +225,7 @@ img{max-width:100%;display:block}
   background:#EEF4FC;border-left:4px solid var(--blue);border-radius:0 10px 10px 0;
   padding:16px 20px;margin:24px 0;font-size:15px;
 }
+.callout i{color:var(--blue);margin-right:6px}
 .step-num{
   display:inline-flex;align-items:center;justify-content:center;
   width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;
