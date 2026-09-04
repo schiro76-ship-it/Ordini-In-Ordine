@@ -1199,8 +1199,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div style="font-size:36px;margin-bottom:12px" id="modal-del-icon"><i class="ti ti-trash"></i></div>
     <div class="mta" id="modal-del-txt" style="font-size:18px"></div>
     <p style="color:var(--sub);font-size:15px;font-weight:600;margin-bottom:20px" id="modal-del-sub">Questa azione non può essere annullata.</p>
-    <div class="ma">
-      <button class="btn bg2" style="flex:1" onclick="closeModal('modal-del-conf')">Annulla</button>
+    <div class="ma" id="modal-del-ma">
+      <button class="btn bg2" id="modal-del-annulla" style="flex:1" onclick="closeModal('modal-del-conf')">Annulla</button>
       <button class="btn btn-danger" style="flex:1" id="modal-del-btn">Elimina</button>
     </div>
   </div>
@@ -1474,22 +1474,30 @@ function _modalDelResetDefault(){
   const icon=document.getElementById('modal-del-icon');
   const sub=document.getElementById('modal-del-sub');
   const btn=document.getElementById('modal-del-btn');
+  const ma=document.getElementById('modal-del-ma');
+  const annulla=document.getElementById('modal-del-annulla');
   if(icon)icon.innerHTML='<i class="ti ti-trash"></i>';
   if(sub){sub.textContent='Questa azione non può essere annullata.';sub.style.display='';}
-  if(btn){btn.textContent='Elimina';btn.className='btn btn-danger';btn.style.flex='1';}
+  if(btn){btn.textContent='Elimina';btn.className='btn btn-danger';btn.style.flex='1';btn.style.width='';}
+  if(ma){ma.style.flexDirection='row';ma.style.gap='8px'}
+  if(annulla){annulla.style.flex='1';annulla.style.width=''}
 }
 function resetOnboarding(){
   if(!currentUser)return;
   const icon=document.getElementById('modal-del-icon');
   const sub=document.getElementById('modal-del-sub');
   const btn=document.getElementById('modal-del-btn');
+  const ma=document.getElementById('modal-del-ma');
+  const annulla=document.getElementById('modal-del-annulla');
   if(icon)icon.innerHTML='<i class="ti ti-refresh" style="color:var(--azione)"></i>';
   // Il bottone che apre questo modal sparisce già al primo ordine o al primo articolo aggiunto a
   // mano (vedi refreshAll) — quando è ancora visibile, il catalogo è sempre e solo quello di
   // partenza, mai personalizzato: non c'è nulla di reale da perdere, quindi nessun sottotitolo di
   // avviso (sarebbe fuorviante, non descrive un rischio vero in questo stato).
   if(sub)sub.style.display='none';
-  if(btn){btn.textContent='Cambia';btn.className='btn btn-azione';btn.style.flex='1';}
+  if(btn){btn.textContent='Cambia';btn.className='btn btn-azione';btn.style.flex='1';btn.style.width='';}
+  if(ma){ma.style.flexDirection='row';ma.style.gap='8px'}
+  if(annulla){annulla.style.flex='1';annulla.style.width=''}
   document.getElementById('modal-del-txt').textContent='Cambiare tipo di attività?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');confermaResetOnboarding();};
   openModal('modal-del-conf');
@@ -1501,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.48';
+const APP_VERSION='2.30.49';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1840,9 +1848,18 @@ function mostraModalVerificaEmail(){
   const icon=document.getElementById('modal-del-icon');
   const sub=document.getElementById('modal-del-sub');
   const btn=document.getElementById('modal-del-btn');
+  const ma=document.getElementById('modal-del-ma');
+  const annulla=document.getElementById('modal-del-annulla');
   if(icon)icon.innerHTML='<i class="ti ti-mail" style="color:var(--azione)"></i>';
   if(sub)sub.style.display='none';
-  if(btn){btn.textContent='Reinvia email';btn.className='btn btn-azione';btn.style.flex='1';}
+  // Bottoni impilati in colonna (stesso pattern già usato in modal-img-menu/modal-tel-menu),
+  // invece che affiancati: "Reinvia email" non ci sta su una riga sola nel bottone stretto
+  // affiancato e andava a capo. column-reverse fa comparire modal-del-btn (ultimo nel markup)
+  // in alto come azione principale, e modal-del-annulla (primo nel markup) sotto per intero,
+  // senza dover invertire l'ordine degli elementi nell'HTML condiviso con le altre azioni.
+  if(ma){ma.style.flexDirection='column-reverse';ma.style.gap='10px'}
+  if(btn){btn.textContent='Reinvia email';btn.className='btn btn-azione';btn.style.flex='none';btn.style.width='100%';}
+  if(annulla){annulla.style.flex='none';annulla.style.width='100%'}
   document.getElementById('modal-del-txt').textContent='Verifica la tua email per continuare';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');reinviaVerificaEmail();};
   openModal('modal-del-conf');
