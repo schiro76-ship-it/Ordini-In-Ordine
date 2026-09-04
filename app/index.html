@@ -1501,7 +1501,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.47';
+const APP_VERSION='2.30.48';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1832,11 +1832,38 @@ async function apriGestioneAbbonamento(){
     if(btn)btn.disabled=false;
   }
 }
+// Mostra il modal "Verifica la tua email" prima di avviare un pagamento, riusando il modal
+// condiviso "modal-del-conf" (stesso pattern di resetOnboarding: icona/testo/bottone diversi,
+// nessun sottotitolo di avviso perché non è un'azione distruttiva). Il bottone reinvia
+// direttamente l'email di verifica tramite la funzione già esistente reinviaVerificaEmail().
+function mostraModalVerificaEmail(){
+  const icon=document.getElementById('modal-del-icon');
+  const sub=document.getElementById('modal-del-sub');
+  const btn=document.getElementById('modal-del-btn');
+  if(icon)icon.innerHTML='<i class="ti ti-mail" style="color:var(--azione)"></i>';
+  if(sub)sub.style.display='none';
+  if(btn){btn.textContent='Reinvia email';btn.className='btn btn-azione';btn.style.flex='1';}
+  document.getElementById('modal-del-txt').textContent='Verifica la tua email per continuare';
+  document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');reinviaVerificaEmail();};
+  openModal('modal-del-conf');
+}
 async function avviaCheckout(piano){
   const btn=document.getElementById('btn-abbonati-'+piano);
   if(btn)btn.disabled=true;
   try{
     if(!currentUser)throw new Error('Devi essere autenticato');
+    // Blocco lato client: solo per chi si è registrato con email/password (chi usa Google ha
+    // già l'email verificata da Google, nessun controllo necessario). reload() prima del
+    // controllo per evitare falsi blocchi se l'utente ha appena verificato da un altro
+    // dispositivo/scheda. Il controllo che conta davvero per la sicurezza è quello lato server,
+    // dentro creaSessioneCheckout: questo qui serve solo per una risposta immediata all'utente.
+    if(currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password'){
+      await currentUser.reload().catch(function(){});
+      if(!currentUser.emailVerified){
+        mostraModalVerificaEmail();
+        return;
+      }
+    }
     const idToken=await currentUser.getIdToken();
     const resp=await fetch('https://europe-west1-ordini-in-ordine-f4966.cloudfunctions.net/creaSessioneCheckout',{
       method:'POST',
