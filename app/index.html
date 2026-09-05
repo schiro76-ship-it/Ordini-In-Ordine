@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.49';
+const APP_VERSION='2.30.50';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2527,6 +2527,7 @@ function _willChangePosition(oid, newStato){
     if(isRitiratoVecchio(o))return false;
     if(ft!=='tutti'&&(o.id===oid?newStato:o.stato)!==ft)return false;
     if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;
+    if(c)return ricercaIntelligente(c,nomeAttuale(o))||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome)});
     return true;
   }).map(o=>({id:o.id,stato:o.id===oid?newStato:o.stato,score:priScore(o)}))
     .sort((a,b)=>s[a.stato]!==s[b.stato]?s[a.stato]-s[b.stato]:a.score-b.score);
