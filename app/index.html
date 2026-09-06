@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>OrdinInOrdine</title>
 <meta name="description" content="App per gestire gli ordini di macellerie, pescherie, panetterie, fioristi e altre attività commerciali e artigianali: il gestionale semplice e intelligente.">
 <meta property="og:type" content="website">
@@ -795,7 +795,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <button class="tb-menu" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
       <div class="tb-title" id="topbar-title" style="font-family:'Nunito',sans-serif;font-weight:900"><span style="color:#2C3E50">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#2C3E50">nOrdine</span></div>
     </div>
-    <div class="page-wrap">
+    <main class="page-wrap">
       <div class="sec active" id="tab-ordini">
         <div class="pbody">
           <div class="ordini-sticky">
@@ -882,7 +882,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
       </div>
       <div class="sec" id="tab-nuovo">
-        <div class="phdr"><h2>Nuovo Ordine <span id="nuovo-num-badge" style="font-size:13px;color:var(--urg)"></span></h2><div style="display:flex;align-items:center;gap:12px"><div style="display:flex;align-items:center;gap:4px"><span style="font-size:19px;font-weight:900;color:var(--txt)">#</span><input type="number" id="nuovo-num-top" min="1" style="width:64px;font-size:20px;font-weight:900;color:var(--txt);border:none;border-bottom:2px solid var(--azione);background:transparent;font-family:'Nunito',sans-serif;outline:none;text-align:center" oninput="sincNuovoNum(this.value)"></div><button onclick="goTab(_tabPrimaDiNuovo)" style="padding:8px 16px;background:#fff;color:var(--txt);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Annulla</button></div></div>
+        <div class="phdr"><h2>Nuovo Ordine <span id="nuovo-num-badge" style="font-size:13px;color:var(--urg)"></span></h2><div style="display:flex;align-items:center;gap:12px"><div style="display:flex;align-items:center;gap:4px"><span style="font-size:19px;font-weight:900;color:var(--txt)">#</span><input type="number" id="nuovo-num-top" min="1" aria-label="Numero ordine" style="width:64px;font-size:20px;font-weight:900;color:var(--txt);border:none;border-bottom:2px solid var(--azione);background:transparent;font-family:'Nunito',sans-serif;outline:none;text-align:center" oninput="sincNuovoNum(this.value)"></div><button onclick="goTab(_tabPrimaDiNuovo)" style="padding:8px 16px;background:#fff;color:var(--txt);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Annulla</button></div></div>
         <div class="pbody has-bottom-bar">
           <div class="card" style="margin-bottom:14px">
             <div class="ch"><div class="ct"><i class="ti ti-calendar"></i> Ritiro</div></div>
@@ -998,7 +998,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
                 <div><div style="font-size:16px;font-weight:700">Nuovo ordine</div><div style="font-size:13px;color:var(--sub);font-weight:600">Notifica quando arriva un ordine da un altro dispositivo</div></div>
                 <label style="position:relative;display:inline-block;width:48px;height:26px;flex-shrink:0">
-                  <input type="checkbox" id="notif-nuovo-ordine" onchange="toggleNotifNuovoOrdine()" style="opacity:0;width:0;height:0">
+                  <input type="checkbox" id="notif-nuovo-ordine" aria-label="Notifica nuovo ordine" onchange="toggleNotifNuovoOrdine()" style="opacity:0;width:0;height:0">
                   <span id="notif-nuovo-ordine-track" style="position:absolute;inset:0;background:#ccc;border-radius:13px;cursor:pointer;transition:0.3s"></span>
                   <span id="notif-nuovo-ordine-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
                 </label>
@@ -1006,7 +1006,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--brd)">
                 <div><div style="font-size:16px;font-weight:700">Ordini urgenti</div><div style="font-size:13px;color:var(--sub);font-weight:600">Notifica ogni mattina se ci sono ordini urgenti da evadere</div></div>
                 <label style="position:relative;display:inline-block;width:48px;height:26px;flex-shrink:0">
-                  <input type="checkbox" id="notif-ordini-urgenti" onchange="toggleNotifOrdiniUrgenti()" style="opacity:0;width:0;height:0">
+                  <input type="checkbox" id="notif-ordini-urgenti" aria-label="Notifica ordini urgenti" onchange="toggleNotifOrdiniUrgenti()" style="opacity:0;width:0;height:0">
                   <span id="notif-ordini-urgenti-track" style="position:absolute;inset:0;background:#ccc;border-radius:13px;cursor:pointer;transition:0.3s"></span>
                   <span id="notif-ordini-urgenti-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
                 </label>
@@ -1020,9 +1020,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0">
                 <div id="urg-giorni-lbl" style="font-size:15px;font-weight:700;color:var(--txt)">Solo il giorno del ritiro</div>
                 <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-                  <button class="btn br" style="width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%" onclick="changeUrgDays(-1)"><i class="ti ti-minus" style="font-size:16px"></i></button>
-                  <input id="urg-giorni-val" type="number" inputmode="numeric" min="0" max="30" value="0" style="font-size:18px;font-weight:900;width:46px;text-align:center;border:1.5px solid var(--brd);border-radius:8px;padding:6px 2px;color:var(--txt);font-family:'Nunito',sans-serif" onchange="setUrgDays(this.value)">
-                  <button class="btn br" style="width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%" onclick="changeUrgDays(1)"><i class="ti ti-plus" style="font-size:16px"></i></button>
+                  <button class="btn br" aria-label="Diminuisci giorni urgenza" style="width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%" onclick="changeUrgDays(-1)"><i class="ti ti-minus" style="font-size:16px"></i></button>
+                  <input id="urg-giorni-val" type="number" inputmode="numeric" min="0" max="30" value="0" aria-label="Giorni prima del ritiro per considerare l'ordine urgente" style="font-size:18px;font-weight:900;width:46px;text-align:center;border:1.5px solid var(--brd);border-radius:8px;padding:6px 2px;color:var(--txt);font-family:'Nunito',sans-serif" onchange="setUrgDays(this.value)">
+                  <button class="btn br" aria-label="Aumenta giorni urgenza" style="width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%" onclick="changeUrgDays(1)"><i class="ti ti-plus" style="font-size:16px"></i></button>
                 </div>
               </div>
             </div>
@@ -1103,7 +1103,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           </div>
         </div>
       </div>
-    </div>
+    </main>
   </div>
 </div>
 
@@ -1118,9 +1118,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <span id="art-nuovo-icon" class="art-nuovo-icon"><i class="ti ti-plus"></i></span>
       </div>
       <div id="art-nuovo-fields" style="display:none;background:var(--bg);border-radius:12px;padding:14px;margin-bottom:16px">
-        <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="an" placeholder="Es. Nome articolo"></div>
+        <div class="fg"><label class="fl" for="an">Nome *</label><input class="fi" type="text" id="an" placeholder="Es. Nome articolo"></div>
         <div class="fg">
-          <label class="fl">Categoria</label>
+          <label class="fl" for="ac2">Categoria</label>
           <select class="fi" id="ac2" onchange="onCatChange(this)"><option value="">— Nessuna —</option></select>
           <div id="nuova-cat-wrap" style="display:none;margin-top:8px"><input class="fi" type="text" id="nuova-cat-input" placeholder="Nome nuova categoria…"></div>
         </div>
@@ -1227,9 +1227,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 </div>
 <div class="ov" id="modal-img-view" style="align-items:center;justify-content:center;padding:20px;z-index:600;background:rgba(0,0,0,0.85)">
   <div style="position:relative;max-width:100%;max-height:100%;display:flex;align-items:center;justify-content:center">
-    <button onclick="closeModal('modal-img-view')" style="position:absolute;top:-44px;right:0;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;line-height:1;padding:6px"><i class="ti ti-x"></i></button>
+    <button onclick="closeModal('modal-img-view')" aria-label="Chiudi" style="position:absolute;top:-44px;right:0;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;line-height:1;padding:6px"><i class="ti ti-x"></i></button>
     <div id="img-view-loading" style="display:none;color:#fff;font-family:'Nunito',sans-serif;font-weight:700"><i class="ti ti-loader-2"></i> Caricamento…</div>
-    <img id="img-view-el" style="display:none;max-width:100%;max-height:80vh;border-radius:10px;object-fit:contain">
+    <img id="img-view-el" alt="Immagine articolo" style="display:none;max-width:100%;max-height:80vh;border-radius:10px;object-fit:contain">
   </div>
 </div>
 <div class="ov" id="modal-det"><div class="modal" id="modal-det-body"></div></div>
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.50';
+const APP_VERSION='2.30.51';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2343,7 +2343,7 @@ function buildOcHTML(lista){
       const qtyStyle=isRitirato?'color:var(--gr)':'';
       const circleContent=(isRitirato||it.done)?'<i class="ti ti-check"></i>':'';
       const circleStyle=isRitirato?'border-color:var(--gr);background:var(--gr);color:#fff;cursor:default':'';
-      const _fotoBtnO=it.itemId&&it.imgCaricata?`<button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:4px 8px;font-size:18px;display:inline-flex;align-items:center;cursor:pointer;margin-top:1px"><i class="ti ti-photo"></i></button>`:'';
+      const _fotoBtnO=it.itemId&&it.imgCaricata?`<button type="button" class="act-print-rp" aria-label="Visualizza immagine" onclick="event.stopPropagation();visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:4px 8px;font-size:18px;display:inline-flex;align-items:center;cursor:pointer;margin-top:1px"><i class="ti ti-photo"></i></button>`:'';
       const _qtySpanO=`<span class="qty" style="${qtyStyle}">${qtyStr}</span>`;
       const _qtyFotoO=_fotoBtnO?`<span style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px">${_fotoBtnO}${_qtySpanO}</span>`:`<span class="qty" style="${qtyStyle};flex-shrink:0">${qtyStr}</span>`;
       return`<div class="${tagClass}" style="${tagStyle}">
@@ -3074,8 +3074,8 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
       const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';
       const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});
       const _itFoto=x.ordine.items&&x.ordine.items[fidx];
-      const _fotoBtn=_itFoto&&_itFoto.itemId&&_itFoto.imgCaricata?`<button type="button" class="act-print-rp" onclick="event.stopPropagation();visualizzaImmagineItem('${x.ordine.id}',${fidx})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center"><i class="ti ti-photo"></i></button>`:'';
-      const _printBtnR=`<button class="act-print-rp" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center"><i class="ti ti-printer"></i></button>`;
+      const _fotoBtn=_itFoto&&_itFoto.itemId&&_itFoto.imgCaricata?`<button type="button" class="act-print-rp" aria-label="Visualizza immagine" onclick="event.stopPropagation();visualizzaImmagineItem('${x.ordine.id}',${fidx})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center"><i class="ti ti-photo"></i></button>`:'';
+      const _printBtnR=`<button class="act-print-rp" aria-label="Stampa etichetta" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center"><i class="ti ti-printer"></i></button>`;
       const _qtySpanR=`<span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}`;
       const _qtyFotoR=`<span style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px">${_fotoBtn}<span style="white-space:nowrap">${_qtySpanR}</span>${_printBtnR}</span>`;
       return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px"><div class="${circleClass}" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})" style="border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px"><span style="flex:1 1 0%;min-width:150px;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${nomeAttuale(x.ordine)}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?` <span style="color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}</span>${_qtyFotoR}</div></div></div>`;
@@ -3132,14 +3132,14 @@ function renderDetModal(o){
     if(!isRitirato)umPills+=`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVoloDet(${o.id},${idx})" onclick="addUMVoloDet(${o.id},${idx})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
     const imgRow=it.itemId&&it.imgCaricata
       ?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-          <button type="button" class="act-print-rp" onclick="visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:8px 10px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"><i class="ti ti-photo"></i></button>
+          <button type="button" class="act-print-rp" aria-label="Visualizza immagine" onclick="visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:8px 10px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"><i class="ti ti-photo"></i></button>
           ${!isRitirato?`<button type="button" onclick="rimuoviImmagineDet(${o.id},${idx})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi foto</button>`:''}
         </div>`
       :(!isRitirato?`<button type="button" onclick="apriImmaginePicker('det',${o.id},${idx})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`:'');
     return `<div class="sel-card" style="${cardStyle}">
       <div class="sel-card-top">
         <div class="sel-card-name">${nome}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div>
-        <button class="sel-rm" style="${isRitirato?'visibility:hidden':''}" onclick="confDelItem(${o.id},${idx})"><i class="ti ti-trash"></i></button>
+        <button class="sel-rm" aria-label="Rimuovi articolo" style="${isRitirato?'visibility:hidden':''}" onclick="confDelItem(${o.id},${idx})"><i class="ti ti-trash"></i></button>
       </div>
       <div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
         <button ${isRitirato?'disabled':''} class="qty-minus" onclick="detChQtyDirect(${o.id},${idx},-1)">−</button>
@@ -3149,7 +3149,7 @@ function renderDetModal(o){
       </div>
       <div style="display:flex;align-items:center;gap:6px">
         <input class="sel-input-nota" type="text" placeholder="Nota" value="${(it.nota||'').replace(/"/g,'&quot;')}" data-oid="${o.id}" ${isRitirato?'disabled':''} oninput="updItem(${o.id},${idx},'nota',this.value)" style="flex:1">
-        <button class="qty-search" onmousedown="event.preventDefault()" onclick="detFocusCerca(${o.id})" style="${isRitirato?'visibility:hidden':''}"><i class="ti ti-search"></i></button>
+        <button class="qty-search" aria-label="Cerca articolo" onmousedown="event.preventDefault()" onclick="detFocusCerca(${o.id})" style="${isRitirato?'visibility:hidden':''}"><i class="ti ti-search"></i></button>
       </div>
       ${imgRow}
     </div>`;
@@ -3158,9 +3158,9 @@ function renderDetModal(o){
     <div style="background:${hBg};color:#fff;padding:14px 16px;border-radius:12px;margin-bottom:14px">
       <div style="display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:end;margin-bottom:8px">
         <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">#Num</div>
-          <input type="text" inputmode="numeric" pattern="[0-9]*" id="det-num" value="${o.num}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;color:#fff;outline:none;caret-color:#fff" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="det-num" value="${o.num}" aria-label="Numero ordine" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;color:#fff;outline:none;caret-color:#fff" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
         <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Nome *</div>
-          <input id="det-nome" value="${nomeAttuale(o).replace(/"/g,'&quot;')}" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
+          <input id="det-nome" value="${nomeAttuale(o).replace(/"/g,'&quot;')}" aria-label="Nome cliente" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
         <div style="display:flex;flex-direction:column;flex-shrink:0"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Data</div>
           <button onclick="toggleDetCal(${o.id})" style="height:36px;box-sizing:border-box;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px">
             <i class="ti ti-calendar" style="font-size:16px"></i> <span id="det-data-lbl">${o.data?o.data:'—'}${o.ora?' <i class="ti ti-clock" style="font-size:16px"></i>'+o.ora:o.turno?' '+(o.turno==='mattina'?'<i class="ti ti-sun" style="font-size:16px"></i>':'<i class="ti ti-sunset-2" style="font-size:16px"></i>'):''}</span>
@@ -3620,7 +3620,7 @@ function rimuoviImgSel(id){
 function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent=lblArt(true,true)+' '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
   const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi foto</button></div>`:`<button type="button" onclick="apriImmaginePicker('sel',${s.id})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`;
-  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
+  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" aria-label="Rimuovi articolo" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" aria-label="Cerca articolo" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
 async function salvaOrdine(){if(_provaScaduta){toast('Il mese di prova è terminato: abbonati per creare nuovi ordini.','err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,telefono:telefono||'',clienteId:clienteId,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseQty(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
   // Caricamento foto in background: l'ordine è già salvato, l'utente non deve aspettare l'upload
   const _daCaricare=_selSnapshot.filter(s=>s.imgBlob);
@@ -3638,7 +3638,7 @@ async function salvaOrdine(){if(_provaScaduta){toast('Il mese di prova è termin
     renderOrdini();
   }
 }
-function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo '+lblArt(false)+' dal catalogo?'))delArt(${a.id})"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun '+lblArt(false)+'.</p></div>';}
+function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})" aria-label="Modifica ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo '+lblArt(false)+' dal catalogo?'))delArt(${a.id})" aria-label="Elimina ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun '+lblArt(false)+'.</p></div>';}
 function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';openModal('modal-edit-art');}
 async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato','v');}
 async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;const ni=document.getElementById('nuova-cat-input');if(s.value==='__nuova__'&&ni&&ni.value.trim())c=ni.value.trim();if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}if(LIMITE_ARTICOLI_ATTIVO&&articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' '+lblArt(true)+' del piano gratuito','err');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});articoliCreatiTotale++;
