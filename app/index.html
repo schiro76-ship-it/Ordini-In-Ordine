@@ -339,7 +339,7 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .act-btn-mini i{font-size:17px;vertical-align:0}
 .act-green{background:var(--gs);color:var(--g);transition:filter 0.15s}.act-green:hover{filter:brightness(0.92)}.act-green:active{filter:brightness(0.85)}
 .act-grey{background:var(--grs);color:var(--gr);transition:filter 0.15s}.act-grey:hover{filter:brightness(0.92)}.act-grey:active{filter:brightness(0.85)}
-.act-mod{background:var(--azione-s);color:var(--azione);transition:filter 0.15s}.act-mod:hover{filter:brightness(0.92)}.act-mod:active{filter:brightness(0.85)}
+.act-mod{background:var(--azione-s);color:var(--azione-d);transition:filter 0.15s}.act-mod:hover{filter:brightness(0.92)}.act-mod:active{filter:brightness(0.85)}
 .act-del{background:var(--rs);color:var(--r);transition:filter 0.15s}.act-del:hover{filter:brightness(0.92)}.act-del:active{filter:brightness(0.85)}
 .act-print{background:#EEF2FF;color:#4F46E5;transition:filter 0.15s}.act-print:hover{filter:brightness(0.92)}.act-print:active{filter:brightness(0.85)}
 .act-tel{background:#DCFCE7;color:#15803D;transition:filter 0.15s}.act-tel:hover{filter:brightness(0.95)}.act-tel:active{filter:brightness(0.88)}
@@ -400,7 +400,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:4px 4px 2px;gap:1px}
 .cal-dow{font-size:10px;font-weight:800;color:var(--sub);text-align:center;padding:2px 0;text-transform:uppercase}
 .cal-day{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;border-radius:50%;transition:all 0.12s;border:none;background:none;font-family:'Nunito',sans-serif;color:var(--txt);box-sizing:border-box}
-.cal-day:hover{background:var(--azione-s);color:var(--azione)}.cal-day.today{color:var(--azione);font-weight:900}
+.cal-day:hover{background:var(--azione-s);color:var(--azione-d)}.cal-day.today{color:var(--azione);font-weight:900}
 .cal-day.sel{background:var(--azione);color:#fff!important}.cal-day.other-month{color:var(--brd)}
 .cal-day.past{color:var(--brd);cursor:default}.cal-day.past:hover{background:none}
 .cal-row-mp{display:flex;align-items:center;border-top:1px solid var(--brd);height:36px}
@@ -444,7 +444,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .rp-item-row{border:1px solid rgba(0,0,0,0.08);margin-bottom:6px}
 .ac{padding:11px 20px 18px 10px;border-radius:11px;border:2px solid var(--brd);background:#fff;cursor:pointer;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--txt);text-align:left;position:relative}
 .ac .acat{display:block;font-size:12px;color:var(--sub);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
-.ac.sel{border-color:var(--azione);background:var(--azione-s);color:var(--azione)}
+.ac.sel{border-color:var(--azione);background:var(--azione-s);color:var(--azione-d)}
 
 .ar{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--brd)}.ar:last-child{border-bottom:none}
 .ar-name{flex:1;font-weight:700;font-size:16px}
@@ -772,12 +772,12 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <span><i class="ti ti-alert-triangle"></i> Verifica la tua email (controlla anche lo spam).</span>
       <button onclick="reinviaVerificaEmail()" style="background:none;border:none;padding:2px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#92400E;text-decoration:underline;cursor:pointer">Non hai ricevuto nulla? Reinvia l'email</button>
     </div>
-    <div id="ios-install-banner" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
+    <div id="ios-install-banner" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione-d);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
       <span><i class="ti ti-download"></i> Aggiungi OrdinInOrdine alla schermata Home per ricevere le notifiche</span>
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="showIosInstallInstructions()">Come si fa</button>
       <button onclick="dismissIosInstallBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
     </div>
-    <div id="android-install-banner" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
+    <div id="android-install-banner" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione-d);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
       <span><i class="ti ti-download"></i> Aggiungi OrdinInOrdine alla schermata Home</span>
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="promptAndroidInstall()">Installa</button>
       <button onclick="dismissAndroidInstallBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
@@ -786,7 +786,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <span><i class="ti ti-lock"></i> Il mese di prova è terminato: abbonati per creare nuovi ordini.</span>
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="vaiAdAbbonamento()">Abbonati</button>
     </div>
-    <div id="banner-prova-in-scadenza" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
+    <div id="banner-prova-in-scadenza" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione-d);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
       <span id="banner-prova-in-scadenza-testo"></span>
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="vaiAdAbbonamento()">Abbonati</button>
       <button onclick="dismissProvaInScadenzaBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
@@ -803,7 +803,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="ordini-sticky-top">
               <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div class="ordini-filt-row">
-                <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" onclick="setFT('tutti','sf-tutti')"><span class="sn" id="st-tot" style="color:var(--azione)">0</span><span class="sl" style="color:var(--azione)">Tutti</span></div>
+                <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" onclick="setFT('tutti','sf-tutti')"><span class="sn" id="st-tot" style="color:var(--azione-d)">0</span><span class="sl" style="color:var(--azione-d)">Tutti</span></div>
                 <div class="sc sc-filt sc-filt-ev" id="sf-evadere" onclick="setFT('evadere','sf-evadere')"><span class="sn" id="st-ev" style="color:var(--ev)">0</span><span class="sl" id="sl-ev" style="color:var(--ev)">Da evadere</span></div>
                 <div class="sc sc-filt sc-filt-g" id="sf-completato" onclick="setFT('completato','sf-completato')"><span class="sn" id="st-co" style="color:var(--g)">0</span><span class="sl" style="color:var(--g)">Completati</span></div>
                 <div class="sc sc-filt sc-filt-gr" id="sf-ritirato" onclick="setFT('ritirato','sf-ritirato')"><span class="sn" id="st-ri" style="color:var(--gr)">0</span><span class="sl" style="color:var(--gr)">Ritirati</span></div>
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.63';
+const APP_VERSION='2.30.64';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2860,7 +2860,7 @@ function renderStoricoRiepilogo(){
     htmlDet+=ordsFiltered.sort((a,b)=>new Date(a.data+'T00:00:00')-new Date(b.data+'T00:00:00')).map(o=>{
       const turnoLabel=o.ora?'<i class="ti ti-clock"></i> '+o.ora:o.turno==='mattina'?'<i class="ti ti-sun"></i> Mat.':o.turno==='pomeriggio'?'<i class="ti ti-sunset-2"></i> Pom.':'';
       const items=(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return'';const qty=(it.qty?(parseQty(it.qty)||''):'—')+(it.um?' '+it.um:'');return`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:14px"><span style="color:var(--txt);font-weight:600">${a.nome}</span><span style="font-weight:800;color:var(--sub)">${qty}</span></div>`;}).join('');
-      return`<div class="storico-ord-card" style="background:var(--azione-s);border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px;font-weight:900;color:var(--azione)">#${o.num}</span><span style="font-size:16px;font-weight:800;flex:1">${nomeAttuale(o)}</span></div><div style="font-size:13px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
+      return`<div class="storico-ord-card" style="background:var(--azione-s);border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px;font-weight:900;color:var(--azione-d)">#${o.num}</span><span style="font-size:16px;font-weight:800;flex:1">${nomeAttuale(o)}</span></div><div style="font-size:13px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
     }).join('');
     if(!ordsFiltered.length)htmlDet+='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun ordine trovato.</p>';
     elDet.innerHTML=htmlDet;
