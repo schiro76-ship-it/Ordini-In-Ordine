@@ -743,7 +743,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
   <div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sb-logo" style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.12)">
-      <div class="logo-box" style="background:#FFE033;border-radius:12px;padding:8px 10px;display:flex;align-items:center;gap:8px;overflow:hidden">
+      <div class="logo-box" style="background:#FFE033;border-radius:12px;padding:8px 10px;display:flex;align-items:center;gap:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.35)">
         <svg viewBox="0 0 180 180" width="36" height="36" style="flex-shrink:0"><rect width="180" height="180" rx="36" fill="#1A4F94"/><rect x="28" y="148" width="124" height="18" rx="6" fill="#FFE033"/><rect x="87" y="20" width="6" height="130" rx="3" fill="#FFE033"/><path d="M30,62 Q58,48 90,58 Q122,68 150,52 Q146,72 90,70 Q40,78 30,62 Z" fill="#FFE033"/><path d="M30,94 Q56,80 90,88 Q124,98 150,82 Q146,102 90,100 Q42,108 30,94 Z" fill="#FFE033"/><path d="M30,124 Q56,110 90,118 Q124,128 150,112 Q146,132 90,130 Q42,138 30,124 Z" fill="#FFE033"/></svg>
         <div style="min-width:0;overflow:hidden">
           <div class="logo-text" style="font-family:'Nunito',sans-serif;font-weight:900;line-height:1;white-space:nowrap;overflow:hidden">
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.72';
+const APP_VERSION='2.30.73';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2844,7 +2844,7 @@ function renderStoricoRiepilogo(){
       </div>
       <div style="position:relative;margin-bottom:8px">
         <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:17px"><i class="ti ti-search"></i></span>
-        <input type="text" id="st-det-cerca" value="${_stDetCerca}" placeholder="Cerca per nome, numero, ${lblArt(false)}…" oninput="_stDetCerca=this.value;renderStoricoRiepilogo()" style="width:100%;padding:10px 40px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none">
+        <input type="text" id="st-det-cerca" value="${_stDetCerca}" placeholder="Cerca per nome, numero, ${lblArt(false)}…" oninput="_stDetCerca=this.value;renderStoricoRiepilogo()" style="width:100%;padding:10px 40px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none">
         <button type="button" class="sbox-clear${_stDetCerca?' show':''}" onclick="clearSearchInput('st-det-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button>
       </div>
       <div class="cp">${stDetPills}</div>`;
@@ -3158,9 +3158,9 @@ function renderDetModal(o){
     <div style="background:${hBg};color:#fff;padding:14px 16px;border-radius:12px;margin-bottom:14px">
       <div style="display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:end;margin-bottom:8px">
         <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">#Num</div>
-          <input type="text" inputmode="numeric" pattern="[0-9]*" id="det-num" value="${o.num}" aria-label="Numero ordine" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;color:#fff;outline:none;caret-color:#fff" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="det-num" value="${o.num}" aria-label="Numero ordine" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;color:#fff;outline:none;caret-color:#fff" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
         <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Nome *</div>
-          <input id="det-nome" value="${nomeAttuale(o).replace(/"/g,'&quot;')}" aria-label="Nome cliente" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
+          <input id="det-nome" value="${nomeAttuale(o).replace(/"/g,'&quot;')}" aria-label="Nome cliente" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
         <div style="display:flex;flex-direction:column;flex-shrink:0"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Data</div>
           <button onclick="toggleDetCal(${o.id})" style="height:36px;box-sizing:border-box;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px">
             <i class="ti ti-calendar" style="font-size:16px"></i> <span id="det-data-lbl">${o.data?o.data:'—'}${o.ora?' <i class="ti ti-clock" style="font-size:16px"></i>'+o.ora:o.turno?' '+(o.turno==='mattina'?'<i class="ti ti-sun" style="font-size:16px"></i>':'<i class="ti ti-sunset-2" style="font-size:16px"></i>'):''}</span>
@@ -3168,9 +3168,9 @@ function renderDetModal(o){
         </div>
       </div>
       <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700"><i class="ti ti-phone"></i> Telefono</div>
-        <input class="det-note-input" id="det-telefono" type="tel" inputmode="tel" value="${telefonoAttuale(o).replace(/"/g,'&quot;')}" placeholder="Facoltativo" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'telefono',this.value)"></div>
+        <input class="det-note-input" id="det-telefono" type="tel" inputmode="tel" value="${telefonoAttuale(o).replace(/"/g,'&quot;')}" placeholder="Facoltativo" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'telefono',this.value)"></div>
       <div style="display:flex;flex-direction:column;margin-bottom:8px"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700"><i class="ti ti-notes"></i> Note</div>
-        <input class="det-note-input" id="det-note" value="${(o.note||'').replace(/"/g,'&quot;')}" placeholder="Es. Pagato, consegnare a domicilio…" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'note',this.value)"></div>
+        <input class="det-note-input" id="det-note" value="${(o.note||'').replace(/"/g,'&quot;')}" placeholder="Es. Pagato, consegnare a domicilio…" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'note',this.value)"></div>
       <div id="det-cal-wrap" style="display:none;margin-top:6px">
         <div class="cal-compact" id="det-cal-compact">
           <div class="cal-nav"><button onclick="detCalNav(${o.id},-1)">‹</button><span class="cn-lbl" id="det-cal-lbl"></span><button onclick="detCalNav(${o.id},+1)">›</button></div>
@@ -3199,7 +3199,7 @@ function renderDetModal(o){
         <button class="btn-outline-r" onclick="openDetQArt(${o.id})"><i class="ti ti-plus"></i> Nuovo</button>
       </div>
       <div class="cp" id="det-cat-pills" style="margin-bottom:8px"></div>
-      <div class="sbox" style="margin-bottom:8px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="det-search-art" placeholder="Cerca ${lblArt(false)}…" style="width:100%;padding:9px 36px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id});toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('det-search-art')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
+      <div class="sbox" style="margin-bottom:8px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="det-search-art" placeholder="Cerca ${lblArt(false)}…" style="width:100%;padding:9px 36px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id});toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('det-search-art')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
       <div id="det-art-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;max-height:180px;overflow-y:auto"></div>
     </div>
     <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:14px;margin-bottom:8px">Nessun '+lblArt(false)+'.</p>'}</div>
