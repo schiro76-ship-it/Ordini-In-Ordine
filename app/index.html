@@ -754,14 +754,14 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       </div>
     </div>
     <div class="sb-nuovo-wrap" style="padding:12px 10px 4px">
-      <div class="ni-nuovo-top" onclick="apriNuovoOrdine()"><span class="ic" style="font-size:20px;font-weight:900">+</span>Nuovo Ordine</div>
+      <div class="ni-nuovo-top" role="button" tabindex="0" onclick="apriNuovoOrdine()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();apriNuovoOrdine();}"><span class="ic" style="font-size:20px;font-weight:900">+</span>Nuovo Ordine</div>
     </div>
-    <nav class="sb-nav">
-      <div class="ni active" onclick="goTab('ordini')"><span class="ic"><i class="ti ti-clipboard-list"></i></span>Ordini</div>
-      <div class="ni" onclick="goTab('riepilogo')"><span class="ic"><i class="ti ti-chart-bar"></i></span>Riepilogo</div>
-      <div class="ni" onclick="goTab('storico')"><span class="ic"><i class="ti ti-calendar"></i></span>Storico</div>
-      <div class="ni" onclick="goTab('impostazioni')"><span class="ic"><i class="ti ti-settings"></i></span>Impostazioni</div>
-      <div class="ni" onclick="goTab('invita')"><span class="ic"><i class="ti ti-gift"></i></span>Sconto di 5 €</div>
+    <nav class="sb-nav" aria-label="Menu di navigazione">
+      <div class="ni active" role="button" tabindex="0" aria-current="page" onclick="goTab('ordini')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goTab('ordini');}"><span class="ic"><i class="ti ti-clipboard-list"></i></span>Ordini</div>
+      <div class="ni" role="button" tabindex="0" onclick="goTab('riepilogo')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goTab('riepilogo');}"><span class="ic"><i class="ti ti-chart-bar"></i></span>Riepilogo</div>
+      <div class="ni" role="button" tabindex="0" onclick="goTab('storico')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goTab('storico');}"><span class="ic"><i class="ti ti-calendar"></i></span>Storico</div>
+      <div class="ni" role="button" tabindex="0" onclick="goTab('impostazioni')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goTab('impostazioni');}"><span class="ic"><i class="ti ti-settings"></i></span>Impostazioni</div>
+      <div class="ni" role="button" tabindex="0" onclick="goTab('invita')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goTab('invita');}"><span class="ic"><i class="ti ti-gift"></i></span>Sconto di 5 €</div>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importaDati(this)">
       <input type="file" id="img-input-camera" accept="image/*" capture="environment" style="display:none" onchange="onImgPickerChange(this)">
       <input type="file" id="img-input-gallery" accept="image/*" style="display:none" onchange="onImgPickerChange(this)">
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.70';
+const APP_VERSION='2.30.71';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2237,10 +2237,10 @@ function goTab(name){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   const pw=document.querySelector('.page-wrap');
-  document.querySelectorAll('.sb-nav .ni').forEach((n,i)=>n.classList.toggle('active',i===tabIdx[name]));
-  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sb-nav .ni').forEach((n,i)=>{const isActive=i===tabIdx[name];n.classList.toggle('active',isActive);if(isActive)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');});
+  document.querySelectorAll('.bn-item').forEach(b=>{b.classList.remove('active');b.removeAttribute('aria-current');});
   const bnBtn=document.getElementById('bn-'+name);
-  if(bnBtn)bnBtn.classList.add('active');
+  if(bnBtn){bnBtn.classList.add('active');bnBtn.setAttribute('aria-current','page');}
   document.getElementById('topbar-title').textContent=tabTitles[name]||name;
   closeSidebar();
   if(name==='nuovo'){sel=[];tNuovo=null;initNuovo();setTimeout(initNuovo,100)}
@@ -5373,14 +5373,14 @@ if('serviceWorker' in navigator){
 }
 </script>
 
-<nav id="bottom-nav">
-  <button class="bn-item active" id="bn-ordini" onclick="goTab('ordini')">
+<nav id="bottom-nav" aria-label="Menu di navigazione">
+  <button class="bn-item active" id="bn-ordini" aria-current="page" onclick="goTab('ordini')">
     <span class="bn-ic"><i class="ti ti-clipboard-list"></i></span><span>Ordini</span>
   </button>
   <button class="bn-item" id="bn-riepilogo" onclick="goTab('riepilogo')">
     <span class="bn-ic"><i class="ti ti-chart-bar"></i></span><span>Riepilogo</span>
   </button>
-  <button class="bn-item bn-new" id="bn-nuovo" onclick="apriNuovoOrdine()">
+  <button class="bn-item bn-new" id="bn-nuovo" aria-label="Nuovo ordine" onclick="apriNuovoOrdine()">
     <span class="bn-ic-wrap">+</span>
   </button>
   <button class="bn-item" id="bn-storico" onclick="goTab('storico')">
