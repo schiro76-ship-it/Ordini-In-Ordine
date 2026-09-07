@@ -31,7 +31,7 @@
 :root{
   --r:#C0392B;--rs:#F9EDED;--rm:#E8C4C1;
   --azione:#256BC1;--azione-d:#1A4F94;--azione-s:#E8F0FB;
-  --g:#047857;--gs:#E3F3EE;
+  --g:#056D50;--gs:#E3F3EE;
   --gr:#4B5563;--grs:#F3F4F6;
   --mat:#E67E22;--mats:#FEF3E2;
   --urg:#C0392B;--urgs:#F9EDED;
@@ -57,7 +57,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .sb-nav .ni{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:10px;cursor:pointer;color:#fff;font-size:16px;font-weight:700;transition:all 0.15s;margin-bottom:3px;user-select:none}
 .sb-nav .ni .ic{font-size:20px;flex-shrink:0}
 .sb-nav .ni:hover{background:rgba(255,255,255,0.15)}
-.sb-nav .ni.active{background:#969FA8;border-radius:10px}
+.sb-nav .ni.active{background:var(--sub);border-radius:10px}
 .sb-nuovo-wrap{border-bottom:1px solid rgba(255,255,255,0.12)}
 .ni-nuovo-top{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 13px;border-radius:10px;cursor:pointer;color:#fff;font-size:16px;font-weight:800;border:none;background:var(--azione);transition:all 0.15s;user-select:none;margin-bottom:8px}
 .ni-nuovo-top:hover{filter:brightness(1.1)}
@@ -1164,8 +1164,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
   <div class="modal" style="max-width:440px">
     <div class="mta"><i class="ti ti-pencil"></i> <span id="modal-edit-cliente-titolo">Modifica cliente</span></div>
     <input type="hidden" id="edit-cliente-id">
-    <div class="fg"><label class="fl">Nome *</label><input class="fi" type="text" id="edit-cliente-nome" placeholder="Nome cliente"></div>
-    <div class="fg"><label class="fl">Telefono</label><input class="fi" type="tel" id="edit-cliente-telefono" placeholder="Facoltativo" inputmode="tel"></div>
+    <div class="fg"><label class="fl" for="edit-cliente-nome">Nome *</label><input class="fi" type="text" id="edit-cliente-nome" placeholder="Nome cliente"></div>
+    <div class="fg"><label class="fl" for="edit-cliente-telefono">Telefono</label><input class="fi" type="tel" id="edit-cliente-telefono" placeholder="Facoltativo" inputmode="tel"></div>
     <div class="ma">
       <button class="btn bg2" style="flex:1" onclick="closeModal('modal-edit-cliente')">Annulla</button>
       <button class="btn br" style="flex:1" onclick="salvaEditCliente()"><i class="ti ti-check"></i> Salva</button>
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.53';
+const APP_VERSION='2.30.55';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
