@@ -47,7 +47,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 #loading.hidden{display:none}
 .spinner{width:40px;height:40px;border:4px solid #F0F2F5;border-top-color:#256BC1;border-radius:50%;animation:spin 0.7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-#loading p{font-size:16px;font-weight:700;color:#6B7280}
+#loading p{font-size:16px;font-weight:700;color:var(--sub)}
 .shell{display:flex;height:100vh}
 .sidebar{width:var(--sbw);background:#2C3E50;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;z-index:60;transition:transform 0.25s ease;padding-top:env(safe-area-inset-top,0px)}
 .sb-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.12)}
@@ -523,7 +523,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 .pl-wrap{max-width:400px;margin:0 auto;padding:32px 28px;border:3px solid #1A1A2E;border-radius:16px;text-align:center}
 .pl-num{font-size:120px;font-weight:900;line-height:1;color:#C0392B;letter-spacing:-4px}
 .pl-nome{font-size:32px;font-weight:900;color:#1A1A2E;margin-top:8px;margin-bottom:12px}
-.pl-data{font-size:19px;font-weight:700;color:#6B7280;margin-bottom:20px;padding-bottom:16px;border-bottom:2px dashed #E5E7EB}
+.pl-data{font-size:19px;font-weight:700;color:var(--sub);margin-bottom:20px;padding-bottom:16px;border-bottom:2px dashed #E5E7EB}
 .pl-items{text-align:left;margin-top:12px}
 .pl-item{font-size:18px;font-weight:700;color:#1A1A2E;padding:6px 0;border-bottom:1px solid #F0F2F5;display:flex;justify-content:space-between;align-items:center}
 .pl-item-qty{font-weight:900;color:#E67E22;font-size:17px;white-space:nowrap;margin-left:12px}
@@ -537,12 +537,12 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 .login-box{background:#fff;border-radius:20px;padding:32px 24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
 .login-logo{text-align:center;margin-bottom:24px}
 .login-logo .app-name{font-size:24px;font-weight:900;color:#1A1A2E;margin-top:8px}
-.login-logo .app-sub{font-size:14px;color:#6B7280;font-weight:600;margin-top:2px}
+.login-logo .app-sub{font-size:14px;color:var(--sub);font-weight:600;margin-top:2px}
 .login-tab{display:flex;background:#E2E5EA;border-radius:12px;padding:4px;margin-bottom:24px}
-.login-tab button{flex:1;padding:10px;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.2s;background:transparent;color:#6B7280}
+.login-tab button{flex:1;padding:10px;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--sub)}
 .login-tab button.active{background:#fff;color:#1A1A2E;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
 .login-field{margin-bottom:14px}
-.login-field label{display:block;font-size:13px;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
+.login-field label{display:block;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
 .login-field input{width:100%;padding:12px 14px;border:1.5px solid #E5E7EB;border-radius:11px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:#1A1A2E;outline:none;transition:border-color 0.2s;box-sizing:border-box}
 .login-field input:focus{border-color:#256BC1}
 .login-btn{width:100%;padding:14px;background:#256BC1;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;cursor:pointer;margin-top:8px;transition:all 0.2s}
@@ -550,7 +550,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 .login-btn:active{filter:brightness(0.75)}
 .login-err{color:#C0392B;font-size:14px;font-weight:700;text-align:center;margin-top:10px;min-height:20px}
 .login-err:not(:empty){background:#FDECEA;border:1.5px solid #F5C2BE;border-radius:10px;padding:11px 14px}
-.login-forgot{text-align:center;margin-top:12px;font-size:14px;font-weight:700;color:#6B7280;cursor:pointer}
+.login-forgot{text-align:center;margin-top:12px;font-size:14px;font-weight:700;color:var(--sub);cursor:pointer}
 .login-forgot span{color:#FF6B35}
 .logo-text{font-size:18px}.logo-sub{font-size:10px}
 @media(min-width:640px) and (max-width:1023px){.logo-text{font-size:15px}.logo-sub{font-size:10px}}
@@ -567,7 +567,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 .ob-title{font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:rgba(255,255,255,0.7)}
 .ob-step{padding:24px 20px;flex:1;display:flex;flex-direction:column;justify-content:center}
 .ob-step h2{font-size:22px;font-weight:900;color:#1A1A2E;margin-bottom:16px}
-.ob-step p{font-size:15px;font-weight:600;color:#6B7280;margin-bottom:20px}
+.ob-step p{font-size:15px;font-weight:600;color:var(--sub);margin-bottom:20px}
 .ob-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}
 @media(min-width:480px){.ob-grid{grid-template-columns:repeat(3,1fr)}}
 .ob-card{border:2px solid #E5E7EB;border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fff}
@@ -587,7 +587,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div style="font-family:'Nunito',sans-serif;font-size:32px;font-weight:900;line-height:1;margin-top:12px">
         <span style="color:#2C3E50">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#2C3E50">nOrdine</span>
       </div>
-      <div style="font-size:14px;color:#6B7280;font-weight:600;margin-top:4px;text-align:center">Gestione ordini per la tua attività</div>
+      <div style="font-size:14px;color:var(--sub);font-weight:600;margin-top:4px;text-align:center">Gestione ordini per la tua attività</div>
       <div style="display:flex;flex-direction:column;gap:14px;margin-top:20px;width:100%;max-width:320px">
         <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:20px;padding:16px 18px;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
           <span style="font-size:22px;color:var(--azione);flex-shrink:0"><i class="ti ti-clipboard-list"></i></span>
@@ -611,7 +611,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div style="font-family:'Nunito',sans-serif;font-size:24px;font-weight:900;line-height:1;text-align:center">
         <span style="color:#2C3E50">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#2C3E50">nOrdine</span>
       </div>
-      <div class="app-sub" style="color:#6B7280">Gestione ordini per la tua attività</div>
+      <div class="app-sub" style="color:var(--sub)">Gestione ordini per la tua attività</div>
     </div>
     <div class="login-tab">
       <button class="active" id="tab-login-btn" onclick="switchLoginTab('login')">Accedi</button>
@@ -623,7 +623,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <button class="login-btn" onclick="doLogin()">Accedi</button>
       <div class="login-forgot" onclick="doResetPwd()">Password dimenticata? <span>Recupera</span></div>      <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
         <div style="flex:1;height:1px;background:#E5E7EB"></div>
-        <span style="font-size:13px;font-weight:700;color:#9CA3AF">oppure</span>
+        <span style="font-size:13px;font-weight:700;color:var(--sub)">oppure</span>
         <div style="flex:1;height:1px;background:#E5E7EB"></div>
       </div>
       <button onclick="doGoogleLogin()" style="width:100%;padding:12px;background:#fff;border:1.5px solid #E5E7EB;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:#1A1A2E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='#fff'">
@@ -634,7 +634,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div id="form-reg" style="display:none">
       <div style="text-align:center;margin-bottom:14px">
         <div style="font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;color:#FF6B35">Inizia gratis</div>
-        <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:#6B7280;margin-top:2px">Primo mese gratis, poi solo 9,99 € al mese. Più Ordine, meno tempo perso.</div>
+        <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:var(--sub);margin-top:2px">Primo mese gratis, poi solo 9,99 € al mese. Più Ordine, meno tempo perso.</div>
       </div>
       <div class="login-field"><label>Nome attività *</label><input type="text" id="reg-attivita" placeholder="Nome Attività" autocomplete="organization"></div>
       <div class="login-field"><label>Email</label><input type="email" id="reg-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
@@ -642,7 +642,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div class="login-field"><label>Conferma password</label><input type="password" id="reg-pwd2" placeholder="Ripeti la password" autocomplete="new-password"></div>
       <div id="billing-toggle" onclick="toggleBillingFields()" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:13px 14px;margin-bottom:14px;user-select:none;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:11px">
         <span id="billing-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
-        <span style="font-size:14px;font-weight:800;color:#6B7280">Aggiungi dati di fatturazione (opzionale)</span>
+        <span style="font-size:14px;font-weight:800;color:var(--sub)">Aggiungi dati di fatturazione (opzionale)</span>
       </div>
       <div id="billing-fields" style="display:none">
         <div class="login-field"><label>Nome / Ragione sociale</label><input type="text" id="reg-rag-sociale" placeholder="Es. Mario Rossi Srl" autocomplete="organization"></div>
@@ -654,7 +654,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div id="reg-privacy-wrap" style="padding:8px;margin:0 -8px 8px -8px;border:2px solid transparent;border-radius:8px;transition:border-color 0.2s ease">
         <div style="display:flex;align-items:flex-start;gap:8px">
           <input type="checkbox" id="reg-privacy-accept" style="margin-top:3px;width:16px;height:16px;flex-shrink:0;cursor:pointer">
-          <label for="reg-privacy-accept" style="font-size:13px;color:#6B7280;font-weight:600;cursor:pointer">Ho letto e accettato:</label>
+          <label for="reg-privacy-accept" style="font-size:13px;color:var(--sub);font-weight:600;cursor:pointer">Ho letto e accettato:</label>
         </div>
         <div style="display:flex;flex-direction:column;margin-top:4px;margin-left:24px">
           <a class="link-legale" href="termini.html" target="_blank" style="color:#FF6B35;font-weight:800;text-decoration:underline;font-size:13px;padding:6px 4px">Termini e Condizioni</a>
@@ -664,7 +664,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       </div>
       <button class="login-btn" onclick="doRegister()">Crea account</button>      <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
         <div style="flex:1;height:1px;background:#E5E7EB"></div>
-        <span style="font-size:13px;font-weight:700;color:#9CA3AF">oppure</span>
+        <span style="font-size:13px;font-weight:700;color:var(--sub)">oppure</span>
         <div style="flex:1;height:1px;background:#E5E7EB"></div>
       </div>
       <button onclick="doGoogleLogin()" style="width:100%;padding:12px;background:#fff;border:1.5px solid #E5E7EB;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:#1A1A2E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='#fff'">
@@ -674,8 +674,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
     <div class="login-err" id="login-err"></div>
   </div>
-  <div id="login-footer" style="position:fixed;left:0;right:0;bottom:0;text-align:center;padding:6px 12px calc(6px + env(safe-area-inset-bottom,0px));font-size:11px;line-height:1.5;color:#9CA3AF;font-weight:600;background:#F0F2F5">
-    OrdinInOrdine di Greco Rosanna — Via Antonio Maria Valsalva 32, 73039 Tricase (LE) — P.IVA 05485500754 — <a href="mailto:info@ordininordine.it" style="color:#9CA3AF">info@ordininordine.it</a> — <a href="privacy.html" target="_blank" style="color:#9CA3AF;text-decoration:underline">Privacy</a> · <a href="termini.html" target="_blank" style="color:#9CA3AF;text-decoration:underline">Termini</a>
+  <div id="login-footer" style="position:fixed;left:0;right:0;bottom:0;text-align:center;padding:6px 12px calc(6px + env(safe-area-inset-bottom,0px));font-size:11px;line-height:1.5;color:var(--sub);font-weight:600;background:#F0F2F5">
+    OrdinInOrdine di Greco Rosanna — Via Antonio Maria Valsalva 32, 73039 Tricase (LE) — P.IVA 05485500754 — <a href="mailto:info@ordininordine.it" style="color:var(--sub)">info@ordininordine.it</a> — <a href="privacy.html" target="_blank" style="color:var(--sub);text-decoration:underline">Privacy</a> · <a href="termini.html" target="_blank" style="color:var(--sub);text-decoration:underline">Termini</a>
   </div>
 </div>
 
@@ -699,20 +699,20 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div style="font-size:19px;font-weight:800;color:#1A1A2E">Ecco come funziona OrdinInOrdine</div>
     </div>
     <div id="ob-attivita-corrente" style="display:none;text-align:center;margin-top:-14px;margin-bottom:20px">
-      <span style="font-size:13px;font-weight:700;color:#6B7280">Attività: <b id="ob-attivita-corrente-nome" style="color:#1A1A2E"></b> · <span onclick="obTornaScelta()" style="color:var(--azione);font-weight:800;text-decoration:underline;cursor:pointer">cambia</span></span>
+      <span style="font-size:13px;font-weight:700;color:var(--sub)">Attività: <b id="ob-attivita-corrente-nome" style="color:#1A1A2E"></b> · <span onclick="obTornaScelta()" style="color:var(--azione);font-weight:800;text-decoration:underline;cursor:pointer">cambia</span></span>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:32px">
       <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <span style="font-size:22px;color:#6B7280;flex-shrink:0;margin-top:1px"><i class="ti ti-clipboard-list"></i></span>
-        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Ordini</div><div id="ob-info-ordini-desc" style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Registra gli ordini dei tuoi clienti con articoli, note e data di ritiro. Stampa le etichette e tieni tutto in ordine</div></div>
+        <span style="font-size:22px;color:var(--sub);flex-shrink:0;margin-top:1px"><i class="ti ti-clipboard-list"></i></span>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Ordini</div><div id="ob-info-ordini-desc" style="font-size:13px;color:var(--sub);font-weight:600;margin-top:2px">Registra gli ordini dei tuoi clienti con articoli, note e data di ritiro. Stampa le etichette e tieni tutto in ordine</div></div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <span style="font-size:22px;color:#6B7280;flex-shrink:0;margin-top:1px"><i class="ti ti-chart-bar"></i></span>
-        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Riepilogo</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Ottimizza le risorse della tua attività: sai sempre cosa preparare e quando</div></div>
+        <span style="font-size:22px;color:var(--sub);flex-shrink:0;margin-top:1px"><i class="ti ti-chart-bar"></i></span>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Riepilogo</div><div style="font-size:13px;color:var(--sub);font-weight:600;margin-top:2px">Ottimizza le risorse della tua attività: sai sempre cosa preparare e quando</div></div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <span style="font-size:22px;color:#6B7280;flex-shrink:0;margin-top:1px"><i class="ti ti-calendar"></i></span>
-        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Storico</div><div style="font-size:13px;color:#6B7280;font-weight:600;margin-top:2px">Consulta le statistiche per organizzare meglio il lavoro nei periodi più impegnativi</div></div>
+        <span style="font-size:22px;color:var(--sub);flex-shrink:0;margin-top:1px"><i class="ti ti-calendar"></i></span>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Storico</div><div style="font-size:13px;color:var(--sub);font-weight:600;margin-top:2px">Consulta le statistiche per organizzare meglio il lavoro nei periodi più impegnativi</div></div>
       </div>
     </div>
     <div id="ob-verify-email" style="display:none;border-top:1px solid #F0F0F0;padding-top:16px;margin-bottom:20px;align-items:center;gap:10px;justify-content:center">
@@ -728,14 +728,14 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 <div id="device-limit-screen" style="display:none;position:fixed;inset:0;background:#F0F2F5;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
   <div style="font-size:48px;color:var(--r);margin-bottom:16px"><i class="ti ti-device-mobile-x"></i></div>
   <div style="font-family:'Nunito',sans-serif;font-size:19px;font-weight:900;color:#1A1A2E;max-width:380px;margin-bottom:10px">Hai raggiunto il numero massimo di 5 dispositivi collegati a questo account</div>
-  <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:#6B7280;max-width:380px;margin-bottom:24px" id="device-limit-sub">Per accedere da qui, rimuovi prima un altro dispositivo da uno di quelli già connessi: Impostazioni → Dispositivi collegati.</div>
+  <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--sub);max-width:380px;margin-bottom:24px" id="device-limit-sub">Per accedere da qui, rimuovi prima un altro dispositivo da uno di quelli già connessi: Impostazioni → Dispositivi collegati.</div>
   <button class="btn bg2" onclick="doLogout()" style="max-width:260px"><i class="ti ti-logout"></i> Esci</button>
 </div>
 
 <div id="device-removed-screen" style="display:none;position:fixed;inset:0;background:#F0F2F5;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
   <div style="font-size:48px;color:var(--r);margin-bottom:16px"><i class="ti ti-device-mobile-x"></i></div>
   <div style="font-family:'Nunito',sans-serif;font-size:19px;font-weight:900;color:#1A1A2E;max-width:380px;margin-bottom:10px">Questo dispositivo è stato rimosso dall'account</div>
-  <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:#6B7280;max-width:380px;margin-bottom:24px">Un altro dispositivo collegato ha rimosso questo dalla lista "Dispositivi collegati". Per continuare a usare l'app da qui, effettua nuovamente l'accesso.</div>
+  <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--sub);max-width:380px;margin-bottom:24px">Un altro dispositivo collegato ha rimosso questo dalla lista "Dispositivi collegati". Per continuare a usare l'app da qui, effettua nuovamente l'accesso.</div>
   <button class="btn bg2" onclick="doLogout()" style="max-width:260px"><i class="ti ti-logout"></i> Esci</button>
 </div>
 
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.60';
+const APP_VERSION='2.30.61';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
