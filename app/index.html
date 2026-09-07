@@ -34,8 +34,8 @@
   --g:#056D50;--gs:#E3F3EE;
   --gr:#4B5563;--grs:#F3F4F6;
   --mat:#E67E22;--mats:#FEF3E2;
-  --urg:#C0392B;--urgs:#F9EDED;
-  --ev:#1A4F94;--evs:#E8F0FB;
+  --urg:#850900;--urgs:#F9EDED;
+  --ev:#D82518;--evs:#FEF6F6;
   --pom:#8E44AD;--poms:#F3EBF8;
   --bg:#F0F2F5;--txt:#1A1A2E;--sub:#4B5563;--brd:#E5E7EB;
   --sh:0 2px 10px rgba(0,0,0,0.07);--shl:0 8px 30px rgba(0,0,0,0.13);
@@ -275,7 +275,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .sc-filt{border:3px solid transparent;transition:border-color 0.15s,box-shadow 0.15s,filter 0.15s;cursor:pointer}
 .sc-filt:hover{filter:brightness(0.96)}
 .sc-filt:active{filter:brightness(0.92)}
-.sc-filt-r{background:var(--txt)}
+.sc-filt-r{background:var(--azione-s)}
 .sc-filt-ev{background:var(--evs)}
 .sc-filt-g{background:var(--gs)}
 .sc-filt-gr{background:var(--grs)}
@@ -803,7 +803,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="ordini-sticky-top">
               <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div class="ordini-filt-row">
-                <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" role="button" tabindex="0" onclick="setFT('tutti','sf-tutti')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('tutti','sf-tutti');}"><span class="sn" id="st-tot" style="color:#fff">0</span><span class="sl" style="color:#fff">Tutti</span></div>
+                <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" role="button" tabindex="0" onclick="setFT('tutti','sf-tutti')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('tutti','sf-tutti');}"><span class="sn" id="st-tot" style="color:var(--azione-d)">0</span><span class="sl" style="color:var(--azione-d)">Tutti</span></div>
                 <div class="sc sc-filt sc-filt-ev" id="sf-evadere" role="button" tabindex="0" onclick="setFT('evadere','sf-evadere')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('evadere','sf-evadere');}"><span class="sn" id="st-ev" style="color:var(--ev)">0</span><span class="sl" id="sl-ev" style="color:var(--ev)">Da evadere</span></div>
                 <div class="sc sc-filt sc-filt-g" id="sf-completato" role="button" tabindex="0" onclick="setFT('completato','sf-completato')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('completato','sf-completato');}"><span class="sn" id="st-co" style="color:var(--g)">0</span><span class="sl" style="color:var(--g)">Completati</span></div>
                 <div class="sc sc-filt sc-filt-gr" id="sf-ritirato" role="button" tabindex="0" onclick="setFT('ritirato','sf-ritirato')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('ritirato','sf-ritirato');}"><span class="sn" id="st-ri" style="color:var(--gr)">0</span><span class="sl" style="color:var(--gr)">Ritirati</span></div>
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.74';
+const APP_VERSION='2.30.75';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
