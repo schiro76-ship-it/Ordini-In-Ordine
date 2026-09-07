@@ -100,7 +100,7 @@ body.portrait-phone #bottom-nav{display:flex}
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:3px;cursor:pointer;padding:10px 4px 0;border:none;background:none;
   font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
-  color:rgba(255,255,255,0.5);transition:color 0.15s;-webkit-tap-highlight-color:transparent;
+  color:rgba(255,255,255,0.7);transition:color 0.15s;-webkit-tap-highlight-color:transparent;
 }
 .bn-item.active{color:#fff}
 .bn-item .bn-ic{font-size:22px;line-height:1}
@@ -150,7 +150,7 @@ body.portrait-phone .stats-row{grid-template-columns:repeat(4,1fr);gap:5px;margi
 body.portrait-phone .sc{padding:7px 4px;border-radius:10px}
 body.portrait-phone .sc .sn{font-size:19px}
 body.portrait-phone .sc .sl{font-size:clamp(8.5px,2.3vw,11px);margin-top:2px;white-space:nowrap}
-body.portrait-phone #ordini-date-pills .pill,body.portrait-phone #riepilogo-day-pills .pill,body.portrait-phone #riepilogo-cat-pills .pill{background:transparent;border-color:rgba(255,255,255,0.4);color:rgba(255,255,255,0.7)}
+body.portrait-phone #ordini-date-pills .pill,body.portrait-phone #riepilogo-day-pills .pill,body.portrait-phone #riepilogo-cat-pills .pill{background:transparent;border-color:rgba(255,255,255,0.4);color:#fff}
 body.portrait-phone #ordini-date-pills .pill.active,body.portrait-phone #riepilogo-day-pills .pill.active,body.portrait-phone #riepilogo-cat-pills .pill.active{background:#fff;border-color:#fff;color:#2C3E50}
 body.portrait-phone #sf-tutti.active-filt{background:var(--azione)!important;border-color:var(--azione)!important}
 body.portrait-phone #sf-evadere.active-filt{background:var(--ev)!important;border-color:var(--ev)!important}
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.67';
+const APP_VERSION='2.30.69';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
