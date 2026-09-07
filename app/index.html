@@ -59,7 +59,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .sb-nav .ni:hover{background:rgba(255,255,255,0.15)}
 .sb-nav .ni.active{background:var(--sub);border-radius:10px;border:1px solid rgba(255,255,255,0.35)}
 .sb-nuovo-wrap{border-bottom:1px solid rgba(255,255,255,0.12)}
-.ni-nuovo-top{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 13px;border-radius:10px;cursor:pointer;color:#fff;font-size:16px;font-weight:800;border:none;background:var(--azione);transition:all 0.15s;user-select:none;margin-bottom:8px}
+.ni-nuovo-top{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 13px;border-radius:10px;cursor:pointer;color:#fff;font-size:16px;font-weight:800;border:1px solid rgba(255,255,255,0.35);background:var(--azione);transition:all 0.15s;user-select:none;margin-bottom:8px}
 .ni-nuovo-top:hover{filter:brightness(1.1)}
 .ni-nuovo-top .ic{font-size:20px;flex-shrink:0}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:59}
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.59';
+const APP_VERSION='2.30.60';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1761,7 +1761,7 @@ function applyAbbonamentoUI(){
   const dataScad=a.scadenza?new Date(a.scadenza).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
   if(a.stato==='attivo'){
     stato.textContent='Abbonamento '+pianoLbl+' attivo'+(dataScad?' — rinnovo il '+dataScad:'');
-    stato.style.color='#1D8A4A';
+    stato.style.color='var(--g)';
     azioni.style.display='none';
     gestisci.style.display='block';
   }else if(a.stato==='cancellato'){
@@ -4516,7 +4516,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     <button id="btn-stampa-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
     ${!_devePassareDaCondivisione()?`<button id="btn-condividi-etichetta" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:1.5px solid var(--brd,#DDE0E8);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-share-2"></i> Condividi</button>`:''}
     <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px solid #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi alla coda</button>
-    ${!_devePassareDaCondivisione()?`<div style="font-size:12px;color:#888;margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa" (es. stampanti Bluetooth non standard)</div>`:''}
+    ${!_devePassareDaCondivisione()?`<div style="font-size:12px;color:var(--sub);margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa" (es. stampanti Bluetooth non standard)</div>`:''}
   </div>`;
   openModal('modal-etichetta');
   // Attach ai bottoni dopo render
@@ -4900,7 +4900,7 @@ function renderGruppoStampaModal(){
       +'<div style="font-size:15px;font-weight:700;color:var(--txt)">'+label+'</div>'
       +(sub?'<div style="font-size:13px;font-weight:700;color:#256BC1">'+sub+'</div>':'')
       +'</div>'
-      +'<button onclick="rimuoviDalGruppoStampa('+i+')" aria-label="Rimuovi dalla coda di stampa" style="background:#F5F6F8;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#888"><i class="ti ti-x" style="font-size:16px"></i></button>'
+      +'<button onclick="rimuoviDalGruppoStampa('+i+')" aria-label="Rimuovi dalla coda di stampa" style="background:#F5F6F8;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--sub)"><i class="ti ti-x" style="font-size:16px"></i></button>'
       +'</div>';
   }
   el.innerHTML=ordiniInteri.map(rigaHtml).join('')+separatore+articoli.map(rigaHtml).join('');
