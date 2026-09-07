@@ -803,10 +803,10 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="ordini-sticky-top">
               <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div class="ordini-filt-row">
-                <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" onclick="setFT('tutti','sf-tutti')"><span class="sn" id="st-tot" style="color:var(--azione-d)">0</span><span class="sl" style="color:var(--azione-d)">Tutti</span></div>
-                <div class="sc sc-filt sc-filt-ev" id="sf-evadere" onclick="setFT('evadere','sf-evadere')"><span class="sn" id="st-ev" style="color:var(--ev)">0</span><span class="sl" id="sl-ev" style="color:var(--ev)">Da evadere</span></div>
-                <div class="sc sc-filt sc-filt-g" id="sf-completato" onclick="setFT('completato','sf-completato')"><span class="sn" id="st-co" style="color:var(--g)">0</span><span class="sl" style="color:var(--g)">Completati</span></div>
-                <div class="sc sc-filt sc-filt-gr" id="sf-ritirato" onclick="setFT('ritirato','sf-ritirato')"><span class="sn" id="st-ri" style="color:var(--gr)">0</span><span class="sl" style="color:var(--gr)">Ritirati</span></div>
+                <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" role="button" tabindex="0" onclick="setFT('tutti','sf-tutti')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('tutti','sf-tutti');}"><span class="sn" id="st-tot" style="color:var(--azione-d)">0</span><span class="sl" style="color:var(--azione-d)">Tutti</span></div>
+                <div class="sc sc-filt sc-filt-ev" id="sf-evadere" role="button" tabindex="0" onclick="setFT('evadere','sf-evadere')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('evadere','sf-evadere');}"><span class="sn" id="st-ev" style="color:var(--ev)">0</span><span class="sl" id="sl-ev" style="color:var(--ev)">Da evadere</span></div>
+                <div class="sc sc-filt sc-filt-g" id="sf-completato" role="button" tabindex="0" onclick="setFT('completato','sf-completato')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('completato','sf-completato');}"><span class="sn" id="st-co" style="color:var(--g)">0</span><span class="sl" style="color:var(--g)">Completati</span></div>
+                <div class="sc sc-filt sc-filt-gr" id="sf-ritirato" role="button" tabindex="0" onclick="setFT('ritirato','sf-ritirato')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('ritirato','sf-ritirato');}"><span class="sn" id="st-ri" style="color:var(--gr)">0</span><span class="sl" style="color:var(--gr)">Ritirati</span></div>
               </div>
             </div>
             <div class="cp" id="ordini-date-pills"></div>
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.71';
+const APP_VERSION='2.30.72';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2508,7 +2508,7 @@ function adjustPhdrFit(){
 let _phdrFitResizeT=null;
 window.addEventListener('resize',()=>{clearTimeout(_phdrFitResizeT);_phdrFitResizeT=setTimeout(adjustPhdrFit,150);});
 function renderOrdini(animate){
-  const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" onclick="setFtData('tutti')">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=fmtDataByFormat(d);return`<span class="pill ${ftData===d?'active':''}" onclick="setFtData('${d}')">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;if(c)return ricercaIntelligente(c,nomeAttuale(o))||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});
+  const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" role="button" tabindex="0" onclick="setFtData('tutti')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFtData('tutti');}">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=fmtDataByFormat(d);return`<span class="pill ${ftData===d?'active':''}" role="button" tabindex="0" onclick="setFtData('${d}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFtData('${d}');}">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;if(c)return ricercaIntelligente(c,nomeAttuale(o))||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(c,a.nome)});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});
   if(animate){flipRenderOrdini(l);}else{document.getElementById('ordini-list').innerHTML=buildOcHTML(l);}
   adjustActBtnFit();
   if(typeof _aggiornaVisibilitaStampaTutti==='function')_aggiornaVisibilitaStampaTutti();
