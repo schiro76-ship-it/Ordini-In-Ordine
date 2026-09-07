@@ -1312,7 +1312,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
   <div class="modal">
     <div class="mta"><i class="ti ti-bug"></i> Segnala un problema</div>
     <div style="font-size:13px;color:var(--sub);font-weight:600;margin:-6px 0 12px">Descrivi cosa non ha funzionato: la segnalazione arriva a noi insieme a qualche informazione tecnica utile per capire il problema (versione app, dispositivo, account).</div>
-    <div class="fg"><textarea class="fi" id="segnala-testo" rows="5" placeholder="Es. quando premo Stampa in Riepilogo l'app si blocca…" style="resize:vertical;min-height:100px;font-family:'Nunito',sans-serif"></textarea></div>
+    <div class="fg"><textarea class="fi" id="segnala-testo" rows="5" aria-label="Descrizione del problema" placeholder="Es. quando premo Stampa in Riepilogo l'app si blocca…" style="resize:vertical;min-height:100px;font-family:'Nunito',sans-serif"></textarea></div>
     <div class="ma"><button class="btn bg2" style="flex:1" onclick="closeModal('modal-segnala')">Annulla</button><button class="btn br" style="flex:1" onclick="inviaSegnalazione()">Invia</button></div>
   </div>
 </div>
@@ -1413,7 +1413,7 @@ function getCodiceReferralFromURL(){
   }catch(e){}
   return null;
 }
-const DEFAULT_THEME={r:'#C0392B',rs:'#F9EDED',g:'#1E8A6E',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'};
+const DEFAULT_THEME={r:'#C0392B',rs:'#F9EDED',g:'#056D50',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'};
 let obSelectedAttivita=null;
 let _tipoAttivitaCorrente=null;
 function _isLavanderia(){return (_tipoAttivitaCorrente||obSelectedAttivita)==='lavanderia';}
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.57';
+const APP_VERSION='2.30.59';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -3651,11 +3651,11 @@ async function addArt(){const n=document.getElementById('an').value.trim();const
   toast('"'+n+'" aggiunto','v');
 }
 async function delArt(id){arts=arts.filter(x=>x.id!==id);await saveData();renderArtM();stats();toast('Eliminato','v')}
-function renderUMDisplay(){document.getElementById('um-display').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')" style="margin-left:4px;cursor:pointer;color:var(--r);font-size:13px"><i class="ti ti-x"></i></span></span>`).join('')}
-function renderUMModal(){document.getElementById('um-modal-list').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')"><i class="ti ti-x"></i></span></span>`).join('')}
+function renderUMDisplay(){document.getElementById('um-display').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" role="button" tabindex="0" aria-label="Rimuovi unità ${u.replace(/"/g,'&quot;')}" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}" style="margin-left:4px;cursor:pointer;color:var(--r);font-size:13px"><i class="ti ti-x"></i></span></span>`).join('')}
+function renderUMModal(){document.getElementById('um-modal-list').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" role="button" tabindex="0" aria-label="Rimuovi unità ${u.replace(/"/g,'&quot;')}" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><i class="ti ti-x"></i></span></span>`).join('')}
 async function addUM(){const v=document.getElementById('um-new').value.trim().toLowerCase();if(!v||unitaMisura.includes(v)){toast(v?'Già presente!':'Inserisci nome!','err');return}unitaMisura.push(v);document.getElementById('um-new').value='';await saveData();renderUMDisplay();renderUMModal();toast('"'+v+'" aggiunto','v');}
 async function delUM(u){if(unitaMisura.length<=1){toast('Almeno una unità di misura!','err');return}unitaMisura=unitaMisura.filter(x=>x!==u);await saveData();renderUMDisplay();renderUMModal();toast('Rimosso','v');}
-function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} ${lblArt(true)}</span><button class="ibtn" onclick="rinominaCat('${c}')"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questa categoria?'))delCat('${c}')"><i class="ti ti-trash"></i></button></div>`).join('');}
+function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} ${lblArt(true)}</span><button class="ibtn" onclick="rinominaCat('${c}')" aria-label="Rinomina ${c.replace(/"/g,'&quot;')}"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questa categoria?'))delCat('${c}')" aria-label="Elimina ${c.replace(/"/g,'&quot;')}"><i class="ti ti-trash"></i></button></div>`).join('');}
 async function delCat(nome){cats=cats.filter(x=>x!==nome);arts.forEach(function(a){if(a.cat===nome)a.cat=''});await saveData();refreshAll();renderCatList();toast('Categoria eliminata','v');}
 async function addCatVolo(){const v=document.getElementById('cat-new').value.trim();if(!v){toast('Inserisci nome!','err');return}if(cats.includes(v)){toast('Già presente!','err');return}cats.push(v);cats.sort();await saveData();document.getElementById('cat-new').value='';refreshAll();renderCatList();toast('"'+v+'" aggiunta','v');}
 async function rinominaCat(nome){const v=(prompt('Nuovo nome per la categoria:',nome)||'').trim();if(!v||v===nome)return;if(cats.includes(v)){toast('Già presente!','err');return}cats=cats.map(c=>c===nome?v:c);cats.sort();arts.forEach(function(a){if(a.cat===nome)a.cat=v});await saveData();refreshAll();renderCatList();toast('Categoria rinominata','v');}
@@ -4512,7 +4512,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
   const url=canvas.toDataURL('image/png');
   const el=document.getElementById('etichetta-content');if(!el)return;
   el.innerHTML=`<div style="text-align:center">
-    <img src="${url}" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
+    <img src="${url}" alt="Anteprima etichetta" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
     <button id="btn-stampa-etichetta" style="width:100%;padding:14px;background:#2C3E50;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer"><i class="ti ti-printer"></i> Stampa</button>
     ${!_devePassareDaCondivisione()?`<button id="btn-condividi-etichetta" style="width:100%;padding:12px;background:#fff;color:#2C3E50;border:1.5px solid var(--brd,#DDE0E8);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-share-2"></i> Condividi</button>`:''}
     <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px solid #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi alla coda</button>
@@ -4890,7 +4890,7 @@ function renderGruppoStampaModal(){
       const canvas=_disegnaEtichetta(o,g.artId);
       const url=canvas.toDataURL('image/png');
       _gruppoThumbUrls[i]=url;
-      thumb='<img src="'+url+'" onclick="visualizzaMiniaturaGruppo('+i+')" style="width:69px;height:69px;object-fit:cover;object-position:top;border:1.5px solid '+(a?'#256BC1':'#1A1A2E')+';border-radius:6px;flex-shrink:0;background:#fff;cursor:pointer">';
+      thumb='<img src="'+url+'" alt="Anteprima etichetta '+label.replace(/"/g,'&quot;')+'" role="button" tabindex="0" onclick="visualizzaMiniaturaGruppo('+i+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();this.click();}" style="width:69px;height:69px;object-fit:cover;object-position:top;border:1.5px solid '+(a?'#256BC1':'#1A1A2E')+';border-radius:6px;flex-shrink:0;background:#fff;cursor:pointer">';
     }catch(e){
       thumb='<div style="width:69px;height:69px;flex-shrink:0;border:1.5px solid #ddd;border-radius:6px"></div>';
     }
@@ -4900,7 +4900,7 @@ function renderGruppoStampaModal(){
       +'<div style="font-size:15px;font-weight:700;color:var(--txt)">'+label+'</div>'
       +(sub?'<div style="font-size:13px;font-weight:700;color:#256BC1">'+sub+'</div>':'')
       +'</div>'
-      +'<button onclick="rimuoviDalGruppoStampa('+i+')" style="background:#F5F6F8;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#888"><i class="ti ti-x" style="font-size:16px"></i></button>'
+      +'<button onclick="rimuoviDalGruppoStampa('+i+')" aria-label="Rimuovi dalla coda di stampa" style="background:#F5F6F8;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#888"><i class="ti ti-x" style="font-size:16px"></i></button>'
       +'</div>';
   }
   el.innerHTML=ordiniInteri.map(rigaHtml).join('')+separatore+articoli.map(rigaHtml).join('');
