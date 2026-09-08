@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.91';
+const APP_VERSION='2.30.92';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5296,6 +5296,18 @@ document.addEventListener('focusin',function(e){
     updateRing();
     rafId=requestAnimationFrame(loop);
   }
+  function coveredTopEdge(el,r){
+    const pts=[r.left+2,r.left+r.width/2,r.right-2];
+    let maxBottom=0;
+    for(const x of pts){
+      const hit=document.elementFromPoint(x,r.top+1);
+      if(hit&&!(hit===el||el.contains(hit)||hit.contains(el))){
+        const hr=hit.getBoundingClientRect();
+        if(hr.bottom>r.top&&hr.bottom<r.bottom)maxBottom=Math.max(maxBottom,hr.bottom);
+      }
+    }
+    return maxBottom;
+  }
   function updateRing(){
     const el=document.activeElement;
     if(!usingKeyboard||!el||!el.closest||!el.closest(RING_SEL)){ring.style.display='none';return;}
@@ -5319,6 +5331,13 @@ document.addEventListener('focusin',function(e){
     ring.style.left=(r.left-2)+'px';
     ring.style.width=(r.width+4)+'px';
     ring.style.height=(r.height+4)+'px';
+    const coverBottom=coveredTopEdge(el,r);
+    if(coverBottom>0){
+      const cut=Math.max(0,coverBottom-(r.top-2));
+      ring.style.clipPath='inset('+cut+'px 0 0 0)';
+    }else{
+      ring.style.clipPath='none';
+    }
     ring.style.display='block';
   }
   document.addEventListener('focusin',function(){
