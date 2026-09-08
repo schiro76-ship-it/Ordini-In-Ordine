@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.92';
+const APP_VERSION='2.30.93';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5280,13 +5280,11 @@ document.addEventListener('focusin',function(e){
 });
 (function(){
   const RING_SEL='.act-btn,.sc-filt,.pill,.phdr-stampa,.phdr-invita,.sb-nav .ni,.ni-nuovo-top';
-  const DARK_BG_SEL='.sb-nav .ni,.ni-nuovo-top';
-  const DARK_PILL_SEL='.pill.active';
-  const LIGHT_BLUE='#8FC1F5';
+  const RING_COLOR='#2C8AEC';
   const ring=document.createElement('div');
   ring.id='global-focus-ring';
   ring.setAttribute('aria-hidden','true');
-  ring.style.cssText='position:fixed;pointer-events:none;z-index:99999;display:none;box-sizing:border-box;transition:none';
+  ring.style.cssText='position:fixed;pointer-events:none;z-index:99999;display:none;box-sizing:border-box;border:2.5px solid '+RING_COLOR+';transition:none';
   document.body.appendChild(ring);
   let usingKeyboard=false;
   document.addEventListener('keydown',function(e){if(e.key==='Tab')usingKeyboard=true;});
@@ -5316,16 +5314,6 @@ document.addEventListener('focusin',function(e){
     const topEl=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
     if(!topEl||!(topEl===el||el.contains(topEl)||topEl.contains(el))){ring.style.display='none';return;}
     const cs=getComputedStyle(el);
-    if(el.closest(DARK_PILL_SEL)){
-      ring.style.border='2.5px solid var(--azione)';
-      ring.style.boxShadow='inset 0 0 0 2px '+LIGHT_BLUE;
-    }else if(el.closest(DARK_BG_SEL)){
-      ring.style.border='2.5px solid '+LIGHT_BLUE;
-      ring.style.boxShadow='none';
-    }else{
-      ring.style.border='2.5px solid var(--azione)';
-      ring.style.boxShadow='none';
-    }
     ring.style.borderRadius=cs.borderRadius;
     ring.style.top=(r.top-2)+'px';
     ring.style.left=(r.left-2)+'px';
