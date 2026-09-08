@@ -333,7 +333,7 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .oc-acts-mini{display:flex;gap:5px;flex:0 0 auto}
 .oc-acts-mini .act-btn-mini{flex:0 0 38px;width:38px}
 .act-btn{border:none;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:clamp(12px,3.4vw,14px);font-weight:800;padding:8px clamp(5px,1.8vw,13px);transition:background 0.15s,opacity 0.15s;white-space:nowrap}
-.act-btn:focus,.sc-filt:focus,.pill:focus,.phdr-stampa:focus,.phdr-invita:focus,.sb-nav .ni:focus,.ni-nuovo-top:focus{outline:none}
+button:focus,[role="button"]:focus{outline:none}
 .act-btn i{font-size:16px;vertical-align:-2px}
 .act-btn-mini{padding:0;min-height:38px}
 .act-btn-mini i{font-size:17px;vertical-align:0}
@@ -901,9 +901,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   </div>
                 </div>
                 <div id="cal-mode-switch" style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-                  <span class="pill" id="cal-pill-ora" onclick="saveCalMode('ora')">Orario</span>
-                  <span class="pill" id="cal-pill-mp" onclick="saveCalMode('mp')">Mattina/Pom.</span>
-                  <span class="pill" id="cal-pill-niente" onclick="saveCalMode('niente')">Solo giorno</span>
+                  <span class="pill" id="cal-pill-ora" role="button" tabindex="0" onclick="saveCalMode('ora')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveCalMode('ora');}">Orario</span>
+                  <span class="pill" id="cal-pill-mp" role="button" tabindex="0" onclick="saveCalMode('mp')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveCalMode('mp');}">Mattina/Pom.</span>
+                  <span class="pill" id="cal-pill-niente" role="button" tabindex="0" onclick="saveCalMode('niente')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveCalMode('niente');}">Solo giorno</span>
                 </div>
               </div>
             </div>
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.93';
+const APP_VERSION='2.30.94';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2790,7 +2790,7 @@ function toggleArtNuovo(){const f=document.getElementById('art-nuovo-fields');co
 function resetArtNuovo(){const f=document.getElementById('art-nuovo-fields');const icon=document.getElementById('art-nuovo-icon');if(f){f.style.display='none';f.style.maxHeight='';f.style.overflow='';f.style.transition='';}if(icon){icon.classList.remove('open');icon.innerHTML='<i class="ti ti-plus"></i>';}}
 function renderStoricoRiepilogo(){
   // --- Sezione 1: Storico articoli (riepilogo aggregato) ---
-  const dal=document.getElementById('st-dal')&&document.getElementById('st-dal').value||'';const al=document.getElementById('st-al')&&document.getElementById('st-al').value||'';const cerca=(document.getElementById('st-art-cerca')&&document.getElementById('st-art-cerca').value||'').toLowerCase().trim();const ordsF=ords.filter(o=>{if(o.stato!=='ritirato')return false;if(!o.data)return!dal&&!al;if(dal&&o.data<dal)return false;if(al&&o.data>al)return false;return true;});const map={};ordsF.forEach(o=>(o.items||[]).forEach(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return;const k=`${it.artId}`;if(!map[k])map[k]={artId:it.artId,nome:a.nome,cat:a.cat||'',ums:{},nOrdini:0};const um=it.um||'';map[k].ums[um]=(map[k].ums[um]||0)+(parseQty(it.qty)||1);map[k].nOrdini++;}));const voci=Object.values(map).sort((a,b)=>a.nome.localeCompare(b.nome));const catsP=['Tutte',...[...new Set(voci.map(v=>v.cat).filter(Boolean))].sort()];if(!catsP.includes(stCatFilter))stCatFilter='Tutte';const pillsEl=document.getElementById('st-cat-pills');if(pillsEl)pillsEl.innerHTML=catsP.map(c=>`<span class="pill ${c===stCatFilter?'active':''}" onclick="setStCat('${c}')">${c}</span>`).join('');const filtrate=voci.filter(v=>{if(stCatFilter!=='Tutte'&&v.cat!==stCatFilter)return false;if(cerca&&!ricercaIntelligente(cerca,v.nome))return false;return true;});
+  const dal=document.getElementById('st-dal')&&document.getElementById('st-dal').value||'';const al=document.getElementById('st-al')&&document.getElementById('st-al').value||'';const cerca=(document.getElementById('st-art-cerca')&&document.getElementById('st-art-cerca').value||'').toLowerCase().trim();const ordsF=ords.filter(o=>{if(o.stato!=='ritirato')return false;if(!o.data)return!dal&&!al;if(dal&&o.data<dal)return false;if(al&&o.data>al)return false;return true;});const map={};ordsF.forEach(o=>(o.items||[]).forEach(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return;const k=`${it.artId}`;if(!map[k])map[k]={artId:it.artId,nome:a.nome,cat:a.cat||'',ums:{},nOrdini:0};const um=it.um||'';map[k].ums[um]=(map[k].ums[um]||0)+(parseQty(it.qty)||1);map[k].nOrdini++;}));const voci=Object.values(map).sort((a,b)=>a.nome.localeCompare(b.nome));const catsP=['Tutte',...[...new Set(voci.map(v=>v.cat).filter(Boolean))].sort()];if(!catsP.includes(stCatFilter))stCatFilter='Tutte';const pillsEl=document.getElementById('st-cat-pills');if(pillsEl)pillsEl.innerHTML=catsP.map(c=>`<span class="pill ${c===stCatFilter?'active':''}" role="button" tabindex="0" onclick="setStCat('${c}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setStCat('${c}');}">${c}</span>`).join('');const filtrate=voci.filter(v=>{if(stCatFilter!=='Tutte'&&v.cat!==stCatFilter)return false;if(cerca&&!ricercaIntelligente(cerca,v.nome))return false;return true;});
   const el=document.getElementById('storico-riepilogo');
   if(el){
     if(!ordsF.length){el.innerHTML='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun ordine ritirato nel periodo selezionato.</p>';}
@@ -2816,7 +2816,7 @@ function renderStoricoRiepilogo(){
     return true;
   });
   const stDetCats=['Tutte',...[...new Set(ordsDetBase.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||'';}).filter(Boolean)))].sort()];
-  const stDetPills=stDetCats.map(c=>`<span class="pill ${c===stDetCat?'active':''}" onclick="_stDetCat='${c}';renderStoricoRiepilogo()">${c}</span>`).join('');
+  const stDetPills=stDetCats.map(c=>`<span class="pill ${c===stDetCat?'active':''}" role="button" tabindex="0" onclick="_stDetCat='${c}';renderStoricoRiepilogo()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();_stDetCat='${c}';renderStoricoRiepilogo();}">${c}</span>`).join('');
   const ordsFiltered=ordsDetBase.filter(o=>{
     if(stDetCerca&&!ricercaIntelligente(stDetCerca,nomeAttuale(o))&&!String(o.num).includes(stDetCerca)&&!(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&ricercaIntelligente(stDetCerca,a.nome);}))return false;
     if(stDetCat!=='Tutte'&&!(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat===stDetCat;}))return false;
@@ -2973,13 +2973,13 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
   if(dayPillsEl){
     const giorniConOrdini=[...new Set(ev.filter(o=>o.data).map(o=>o.data))].sort();
     if(giorniConOrdini.length>1){
-      dayPillsEl.innerHTML='<span class="pill'+(rpDayFilter===null?' active':'')+'" onclick="setRpDay(null)">Tutti i giorni</span>'+
-        giorniConOrdini.map(d=>`<span class="pill${rpDayFilter===d?' active':''}" onclick="setRpDay('${d}')">${fmtD(d)}</span>`).join('');
+      dayPillsEl.innerHTML='<span class="pill'+(rpDayFilter===null?' active':'')+'" role="button" tabindex="0" onclick="setRpDay(null)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();setRpDay(null);}">Tutti i giorni</span>'+
+        giorniConOrdini.map(d=>`<span class="pill${rpDayFilter===d?' active':''}" role="button" tabindex="0" onclick="setRpDay('${d}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setRpDay('${d}');}">${fmtD(d)}</span>`).join('');
       dayPillsEl.style.display='';
     } else { dayPillsEl.innerHTML=''; dayPillsEl.style.display='none'; }
   }
   const pillsEl=document.getElementById('riepilogo-cat-pills');
-  if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" onclick="setRpCat('${c}')">${c}</span>`).join('');
+  if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" role="button" tabindex="0" onclick="setRpCat('${c}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setRpCat('${c}');}">${c}</span>`).join('');
   }
   const map={};
   ev.forEach(o=>(o.items||[]).forEach(it=>{
@@ -3187,9 +3187,9 @@ function renderDetModal(o){
           </div>
         </div>
         <div id="det-cal-mode-switch" style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-          <span class="pill" id="det-cal-pill-ora" onclick="saveCalMode('ora')">Orario</span>
-          <span class="pill" id="det-cal-pill-mp" onclick="saveCalMode('mp')">Mattina/Pom.</span>
-          <span class="pill" id="det-cal-pill-niente" onclick="saveCalMode('niente')">Solo giorno</span>
+          <span class="pill" id="det-cal-pill-ora" role="button" tabindex="0" onclick="saveCalMode('ora')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveCalMode('ora');}">Orario</span>
+          <span class="pill" id="det-cal-pill-mp" role="button" tabindex="0" onclick="saveCalMode('mp')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveCalMode('mp');}">Mattina/Pom.</span>
+          <span class="pill" id="det-cal-pill-niente" role="button" tabindex="0" onclick="saveCalMode('niente')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveCalMode('niente');}">Solo giorno</span>
         </div>
       </div>
     </div>
@@ -3304,7 +3304,7 @@ function renderDetArtGrid(oid){
   const el=document.getElementById('det-art-grid');if(!el)return;
   const pillsEl=document.getElementById('det-cat-pills');
   const catsDisp=['Tutti',...cats.sort()];
-  if(pillsEl)pillsEl.innerHTML=catsDisp.map(c=>`<span class="pill ${c===detCatFilter?'active':''}" onclick="setDetCat('${c}',${oid})">${c}</span>`).join('');
+  if(pillsEl)pillsEl.innerHTML=catsDisp.map(c=>`<span class="pill ${c===detCatFilter?'active':''}" role="button" tabindex="0" onclick="setDetCat('${c}',${oid})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setDetCat('${c}',${oid});}">${c}</span>`).join('');
   const c=(document.getElementById('det-search-art')&&document.getElementById('det-search-art').value||'').toLowerCase().trim();
   if(!c){el.innerHTML='';return;}
   const p=new Set((o.items||[]).map(function(it){return it.artId}));
@@ -3530,7 +3530,7 @@ function applyNumResetFreqUI(){
 }
 function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getElementById('nuovo-num-top');if(elTop)elTop.value=numLibero;const badge=document.getElementById('nuovo-num-badge');if(badge)badge.textContent='';document.getElementById('nn').value='';const nnTelEl=document.getElementById('nn-tel');if(nnTelEl)nnTelEl.value='';nnClienteId=null;const nnSuggEl=document.getElementById('nn-sugg');if(nnSuggEl){nnSuggEl.style.display='none';nnSuggEl.innerHTML='';}const noteResetEl=document.getElementById('note-ordine');if(noteResetEl)noteResetEl.value='';tNuovo=null;calSelDate=null;calOra=null;const tr=document.getElementById('cal-trigger');if(tr){tr.classList.remove('has-val');document.getElementById('cal-trigger-txt').textContent='Scegli giorno e turno…'}const cw=document.getElementById('cal-wrap');if(cw)cw.style.display='none';calInit();catS='Tutti';renderPills();const canEl=document.getElementById('can');if(canEl)canEl.value='';renderArtS();sel=[];renderSP();}
 function getCats(){return['Tutti',...cats.sort()]}
-function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" onclick="setC('${c}')">${c}</span>`).join('')}
+function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" role="button" tabindex="0" onclick="setC('${c}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setC('${c}');}">${c}</span>`).join('')}
 function setC(c){catS=c;renderPills();renderArtS()}
 function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||''))).sort((a,b)=>a.nome.localeCompare(b.nome));agrid.innerHTML=l.length?l.map(a=>{const s=sel.find(x=>x.id===a.id);return`<button class="ac ${s?'sel':''}" onclick="togArt(${a.id})">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}${s?'<span style="position:absolute;bottom:5px;right:7px;font-size:13px;color:var(--azione);font-weight:900"><i class="ti ti-check"></i></span>':''}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun '+lblArt(false)+' trovato.</p>';}
 function tornaRicerca(){
@@ -3906,9 +3906,9 @@ function renderUnisciConferma(){
   if(!_unisciA||!_unisciB)return;
   const esc=v=>(v||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
   const nomeOpts=[_unisciA.nome,_unisciB.nome].filter((v,i,arr)=>arr.indexOf(v)===i);
-  document.getElementById('unisci-nome-pills').innerHTML=nomeOpts.map(v=>`<span class="pill ${v===_unisciNomeScelta?'active':''}" onclick="scegliUnisciCampo('nome','${esc(v)}')">${v}</span>`).join('');
+  document.getElementById('unisci-nome-pills').innerHTML=nomeOpts.map(v=>`<span class="pill ${v===_unisciNomeScelta?'active':''}" role="button" tabindex="0" onclick="scegliUnisciCampo('nome','${esc(v)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();scegliUnisciCampo('nome','${esc(v)}');}">${v}</span>`).join('');
   const telOpts=[_unisciA.telefono||'',_unisciB.telefono||''].filter((v,i,arr)=>arr.indexOf(v)===i);
-  document.getElementById('unisci-tel-pills').innerHTML=telOpts.map(v=>`<span class="pill ${v===_unisciTelScelta?'active':''}" onclick="scegliUnisciCampo('telefono','${esc(v)}')">${v||'Nessuno'}</span>`).join('');
+  document.getElementById('unisci-tel-pills').innerHTML=telOpts.map(v=>`<span class="pill ${v===_unisciTelScelta?'active':''}" role="button" tabindex="0" onclick="scegliUnisciCampo('telefono','${esc(v)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();scegliUnisciCampo('telefono','${esc(v)}');}">${v||'Nessuno'}</span>`).join('');
 }
 async function eseguiUnioneClienti(){
   if(!_unisciA||!_unisciB)return;
@@ -5279,7 +5279,7 @@ document.addEventListener('focusin',function(e){
   },300);
 });
 (function(){
-  const RING_SEL='.act-btn,.sc-filt,.pill,.phdr-stampa,.phdr-invita,.sb-nav .ni,.ni-nuovo-top';
+  const RING_SEL='button,[role="button"]';
   const RING_COLOR='#2C8AEC';
   const ring=document.createElement('div');
   ring.id='global-focus-ring';
