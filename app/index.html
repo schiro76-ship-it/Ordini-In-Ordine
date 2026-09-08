@@ -621,7 +621,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div class="login-field"><label>Email</label><input type="email" id="login-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
       <div class="login-field"><label>Password</label><input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="login-btn" onclick="doLogin()">Accedi</button>
-      <div class="login-forgot" onclick="doResetPwd()">Password dimenticata? <span>Recupera</span></div>      <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
+      <div class="login-forgot" role="button" tabindex="0" onclick="doResetPwd()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();doResetPwd();}">Password dimenticata? <span>Recupera</span></div>      <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
         <div style="flex:1;height:1px;background:#E5E7EB"></div>
         <span style="font-size:13px;font-weight:700;color:var(--sub)">oppure</span>
         <div style="flex:1;height:1px;background:#E5E7EB"></div>
@@ -640,7 +640,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div class="login-field"><label>Email</label><input type="email" id="reg-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
       <div class="login-field"><label>Password</label><input type="password" id="reg-pwd" placeholder="Minimo 6 caratteri" autocomplete="new-password"></div>
       <div class="login-field"><label>Conferma password</label><input type="password" id="reg-pwd2" placeholder="Ripeti la password" autocomplete="new-password"></div>
-      <div id="billing-toggle" onclick="toggleBillingFields()" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:13px 14px;margin-bottom:14px;user-select:none;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:11px">
+      <div id="billing-toggle" role="button" tabindex="0" onclick="toggleBillingFields()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBillingFields();}" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:13px 14px;margin-bottom:14px;user-select:none;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:11px">
         <span id="billing-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
         <span style="font-size:14px;font-weight:800;color:var(--sub)">Aggiungi dati di fatturazione (opzionale)</span>
       </div>
@@ -699,7 +699,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <div style="font-size:19px;font-weight:800;color:#1A1A2E">Ecco come funziona OrdinInOrdine</div>
     </div>
     <div id="ob-attivita-corrente" style="display:none;text-align:center;margin-top:-14px;margin-bottom:20px">
-      <span style="font-size:13px;font-weight:700;color:var(--sub)">Attività: <b id="ob-attivita-corrente-nome" style="color:#1A1A2E"></b> · <span onclick="obTornaScelta()" style="color:var(--azione);font-weight:800;text-decoration:underline;cursor:pointer">cambia</span></span>
+      <span style="font-size:13px;font-weight:700;color:var(--sub)">Attività: <b id="ob-attivita-corrente-nome" style="color:#1A1A2E"></b> · <span role="button" tabindex="0" onclick="obTornaScelta()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();obTornaScelta();}" style="color:var(--azione);font-weight:800;text-decoration:underline;cursor:pointer">cambia</span></span>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:32px">
       <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
@@ -829,7 +829,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="phdr"><h2>Storico</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-storico" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-storico-label" class="phdr-label-full">Stampa</span><span id="phdr-stampa-storico-label-compact" class="phdr-label-compact"></span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> <span class="phdr-label-full">Sconto di 5 €</span><span class="phdr-label-compact">5 €</span></button></div></div>
         <div class="pbody">
           <div class="card card-sticky-host" style="margin-bottom:20px">
-            <div class="ch" onclick="toggleStoricoArticoli()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
+            <div class="ch" role="button" tabindex="0" onclick="toggleStoricoArticoli()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleStoricoArticoli();}" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
               <div class="ct"><i class="ti ti-history"></i> <span id="lbl-storico-articoli">Storico articoli</span></div>
               <span id="storico-articoli-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
@@ -861,7 +861,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card card-sticky-host" style="margin-bottom:20px">
-            <div class="ch" onclick="toggleStoricoDettaglio()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
+            <div class="ch" role="button" tabindex="0" onclick="toggleStoricoDettaglio()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleStoricoDettaglio();}" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad)">
               <div class="ct"><i class="ti ti-list-details"></i> Dettaglio ordini</div>
               <span id="storico-dettaglio-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
@@ -871,7 +871,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card" style="margin-bottom:20px">
-            <div class="ch" onclick="toggleStoricoMensile()" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad);box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)">
+            <div class="ch" role="button" tabindex="0" onclick="toggleStoricoMensile()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleStoricoMensile();}" style="cursor:pointer;user-select:none;border-bottom:none;border-radius:var(--rad);box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)">
               <div class="ct"><i class="ti ti-chart-bar"></i> Ordini mensili</div>
               <span id="storico-mensile-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
             </div>
@@ -1086,7 +1086,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div style="display:flex;flex-direction:column;gap:10px">
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)"><span style="font-size:15px;font-weight:700;color:var(--sub)">App</span><span style="font-size:15px;font-weight:800">OrdinInOrdine</span></div>
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)"><span style="font-size:15px;font-weight:700;color:var(--sub)">Versione</span><span id="app-version-val" style="font-size:15px;font-weight:800"></span></div>
-                <div style="padding-top:10px;text-align:center"><span onclick="apriSegnalaProblema()" style="font-size:13px;font-weight:800;color:var(--azione);cursor:pointer;display:inline-flex;align-items:center;gap:6px"><i class="ti ti-bug" style="font-size:15px;text-decoration:none"></i><span style="text-decoration:underline">Segnala un problema</span></span></div>
+                <div style="padding-top:10px;text-align:center"><span role="button" tabindex="0" onclick="apriSegnalaProblema()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();apriSegnalaProblema();}" style="font-size:13px;font-weight:800;color:var(--azione);cursor:pointer;display:inline-flex;align-items:center;gap:6px"><i class="ti ti-bug" style="font-size:15px;text-decoration:none"></i><span style="text-decoration:underline">Segnala un problema</span></span></div>
               </div>
             </div>
           </div>
@@ -1113,7 +1113,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
   <div class="modal" style="display:flex;flex-direction:column;overflow-y:hidden">
     <div class="mta"><i class="ti ti-folder"></i> <span id="modal-articoli-titolo">Catalogo articoli</span></div>
     <div style="overflow-y:auto;flex:1;min-height:0">
-      <div onclick="toggleArtNuovo()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0 14px;user-select:none">
+      <div role="button" tabindex="0" onclick="toggleArtNuovo()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleArtNuovo();}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0 14px;user-select:none">
         <span style="font-size:16px;font-weight:900;color:var(--txt)">Nuovo</span>
         <span id="art-nuovo-icon" class="art-nuovo-icon"><i class="ti ti-plus"></i></span>
       </div>
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.94';
+const APP_VERSION='2.30.95';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -3080,7 +3080,7 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
       const _qtyFotoR=`<span style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px">${_fotoBtn}<span style="white-space:nowrap">${_qtySpanR}</span>${_printBtnR}</span>`;
       return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px"><div class="${circleClass}" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})" style="border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px"><span style="flex:1 1 0%;min-width:150px;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${nomeAttuale(x.ordine)}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?` <span style="color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}</span>${_qtyFotoR}</div></div></div>`;
     }).join('')+_rigaStampaTutte:'';
-    return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;gap:0"><div onclick="toggleRp(${v.artId})" style="display:flex;align-items:center;gap:8px;cursor:pointer"><div class="rp-pri" style="width:58px;min-width:58px;align-self:stretch;border-radius:11px;padding:5px 4px;font-size:13px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.25;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0;padding:12px 0"><div class="rp-art" style="padding:0;white-space:normal;flex:1 1 auto;min-width:0">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="flex-shrink:0;text-align:right;font-size:16px;font-weight:900;white-space:nowrap">${qStr}</div></div><span class="exp-arrow" style="flex-shrink:0">${exp?'<i class="ti ti-chevron-up"></i>':'<i class="ti ti-chevron-down"></i>'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden;padding-top:6px">${dettaglio}</div>`:''}</div>`;
+    return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;gap:0"><div role="button" tabindex="0" onclick="toggleRp(${v.artId})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleRp(${v.artId});}" style="display:flex;align-items:center;gap:8px;cursor:pointer"><div class="rp-pri" style="width:58px;min-width:58px;align-self:stretch;border-radius:11px;padding:5px 4px;font-size:13px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.25;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0;padding:12px 0"><div class="rp-art" style="padding:0;white-space:normal;flex:1 1 auto;min-width:0">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="flex-shrink:0;text-align:right;font-size:16px;font-weight:900;white-space:nowrap">${qStr}</div></div><span class="exp-arrow" style="flex-shrink:0">${exp?'<i class="ti ti-chevron-up"></i>':'<i class="ti ti-chevron-down"></i>'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden;padding-top:6px">${dettaglio}</div>`:''}</div>`;
   }).join('');
 }
 
@@ -3771,7 +3771,7 @@ function renderClienteSugg(){
   if(!q||!clienti.length){wrap.style.display='none';wrap.innerHTML='';return;}
   const l=clienti.filter(c=>ricercaIntelligente(q,c.nome)||(c.telefono&&c.telefono.includes(q))).slice(0,30);
   if(!l.length){wrap.style.display='none';wrap.innerHTML='';return;}
-  wrap.innerHTML=l.map(c=>`<div class="cliente-sugg-row" onmousedown="event.preventDefault()" onclick="selezionaCliente(${c.id})"><span style="font-weight:800">${c.nome}</span>${c.telefono?`<span style="color:var(--sub);font-weight:700;margin-left:8px">${c.telefono}</span>`:''}</div>`).join('');
+  wrap.innerHTML=l.map(c=>`<div class="cliente-sugg-row" role="button" tabindex="0" onmousedown="event.preventDefault()" onclick="selezionaCliente(${c.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selezionaCliente(${c.id});}"><span style="font-weight:800">${c.nome}</span>${c.telefono?`<span style="color:var(--sub);font-weight:700;margin-left:8px">${c.telefono}</span>`:''}</div>`).join('');
   wrap.style.display='block';
 }
 function selezionaCliente(id){
@@ -3886,7 +3886,7 @@ function apriUnisciCliente(id){
 function renderUnisciPick(){
   const c=(document.getElementById('ucm')&&document.getElementById('ucm').value||'').toLowerCase().trim();
   const l=clienti.filter(x=>x.id!==_unisciDaId&&(!c||ricercaIntelligente(c,x.nome)||(x.telefono&&x.telefono.includes(c)))).sort((a,b)=>a.nome.localeCompare(b.nome));
-  document.getElementById('ucml').innerHTML=l.length?l.map(cl=>`<div class="ar" style="cursor:pointer" onclick="apriConfermaUnione(${cl.id})"><div style="flex:1;min-width:0"><div class="ar-name">${cl.nome}</div>${cl.telefono?`<div style="font-size:13px;color:var(--sub);font-weight:700">${cl.telefono}</div>`:''}</div><i class="ti ti-chevron-right" style="color:var(--sub)"></i></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-users"></i></div><p>Nessun altro cliente trovato.</p></div>';
+  document.getElementById('ucml').innerHTML=l.length?l.map(cl=>`<div class="ar" role="button" tabindex="0" style="cursor:pointer" onclick="apriConfermaUnione(${cl.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();apriConfermaUnione(${cl.id});}"><div style="flex:1;min-width:0"><div class="ar-name">${cl.nome}</div>${cl.telefono?`<div style="font-size:13px;color:var(--sub);font-weight:700">${cl.telefono}</div>`:''}</div><i class="ti ti-chevron-right" style="color:var(--sub)"></i></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-users"></i></div><p>Nessun altro cliente trovato.</p></div>';
 }
 function apriConfermaUnione(idB){
   _unisciA=clienti.find(x=>x.id===_unisciDaId);
