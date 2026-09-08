@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.88';
+const APP_VERSION='2.30.89';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5283,7 +5283,7 @@ document.addEventListener('focusin',function(e){
   const ring=document.createElement('div');
   ring.id='global-focus-ring';
   ring.setAttribute('aria-hidden','true');
-  ring.style.cssText='position:fixed;pointer-events:none;z-index:99999;display:none;box-sizing:border-box;border:2.5px solid var(--azione);transition:none';
+  ring.style.cssText='position:fixed;pointer-events:none;z-index:99999;display:none;box-sizing:border-box;border:2.5px solid var(--azione);box-shadow:inset 0 0 0 2px #fff;transition:none';
   document.body.appendChild(ring);
   let usingKeyboard=false;
   document.addEventListener('keydown',function(e){if(e.key==='Tab')usingKeyboard=true;});
@@ -5294,7 +5294,6 @@ document.addEventListener('focusin',function(e){
     const r=el.getBoundingClientRect();
     if(r.width===0&&r.height===0){ring.style.display='none';return;}
     const cs=getComputedStyle(el);
-    ring.style.borderColor=el.closest('.pill.active,.sb-nav .ni,.ni-nuovo-top')?'#fff':'var(--azione)';
     ring.style.borderRadius=cs.borderRadius;
     ring.style.top=(r.top-2)+'px';
     ring.style.left=(r.left-2)+'px';
@@ -5306,6 +5305,8 @@ document.addEventListener('focusin',function(e){
   document.addEventListener('focusout',function(){setTimeout(updateRing,0);});
   window.addEventListener('scroll',updateRing,true);
   window.addEventListener('resize',updateRing);
+  const pw=document.querySelector('.page-wrap');
+  if(pw)pw.addEventListener('scroll',updateRing);
 })();
 document.addEventListener('focusin',function(e){
   const t=e.target;
