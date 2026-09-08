@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.89';
+const APP_VERSION='2.30.90';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5280,20 +5280,38 @@ document.addEventListener('focusin',function(e){
 });
 (function(){
   const RING_SEL='.act-btn,.sc-filt,.pill,.phdr-stampa,.phdr-invita,.sb-nav .ni,.ni-nuovo-top';
+  const DARK_BG_SEL='.sb-nav .ni,.ni-nuovo-top';
+  const DARK_PILL_SEL='.pill.active';
+  const LIGHT_BLUE='#8FC1F5';
   const ring=document.createElement('div');
   ring.id='global-focus-ring';
   ring.setAttribute('aria-hidden','true');
-  ring.style.cssText='position:fixed;pointer-events:none;z-index:99999;display:none;box-sizing:border-box;border:2.5px solid var(--azione);box-shadow:inset 0 0 0 2px #fff;transition:none';
+  ring.style.cssText='position:fixed;pointer-events:none;z-index:99999;display:none;box-sizing:border-box;transition:none';
   document.body.appendChild(ring);
   let usingKeyboard=false;
   document.addEventListener('keydown',function(e){if(e.key==='Tab')usingKeyboard=true;});
   document.addEventListener('mousedown',function(){usingKeyboard=false;});
+  let rafId=null;
+  function loop(){
+    updateRing();
+    rafId=requestAnimationFrame(loop);
+  }
   function updateRing(){
     const el=document.activeElement;
     if(!usingKeyboard||!el||!el.closest||!el.closest(RING_SEL)){ring.style.display='none';return;}
     const r=el.getBoundingClientRect();
     if(r.width===0&&r.height===0){ring.style.display='none';return;}
     const cs=getComputedStyle(el);
+    if(el.closest(DARK_PILL_SEL)){
+      ring.style.border='2.5px solid var(--azione)';
+      ring.style.boxShadow='inset 0 0 0 2px '+LIGHT_BLUE;
+    }else if(el.closest(DARK_BG_SEL)){
+      ring.style.border='2.5px solid '+LIGHT_BLUE;
+      ring.style.boxShadow='none';
+    }else{
+      ring.style.border='2.5px solid var(--azione)';
+      ring.style.boxShadow='inset 0 0 0 2px #fff';
+    }
     ring.style.borderRadius=cs.borderRadius;
     ring.style.top=(r.top-2)+'px';
     ring.style.left=(r.left-2)+'px';
@@ -5301,12 +5319,16 @@ document.addEventListener('focusin',function(e){
     ring.style.height=(r.height+4)+'px';
     ring.style.display='block';
   }
-  document.addEventListener('focusin',updateRing);
-  document.addEventListener('focusout',function(){setTimeout(updateRing,0);});
-  window.addEventListener('scroll',updateRing,true);
-  window.addEventListener('resize',updateRing);
-  const pw=document.querySelector('.page-wrap');
-  if(pw)pw.addEventListener('scroll',updateRing);
+  document.addEventListener('focusin',function(){
+    if(rafId===null)loop();
+  });
+  document.addEventListener('focusout',function(){
+    setTimeout(function(){
+      if(!document.activeElement||!document.activeElement.closest||!document.activeElement.closest(RING_SEL)){
+        cancelAnimationFrame(rafId);rafId=null;ring.style.display='none';
+      }
+    },0);
+  });
 })();
 document.addEventListener('focusin',function(e){
   const t=e.target;
