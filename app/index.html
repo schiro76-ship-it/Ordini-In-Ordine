@@ -200,7 +200,6 @@ body.portrait-phone .phdr-invita i{font-size:18px}
 /* Su iPad il bordo di focus del browser puo' restare visibile dopo il
    tap invece di sparire subito come su iPhone - tolto qui, il feedback
    visivo del tocco resta comunque dato dal cambio colore dello sfondo. */
-.phdr-stampa:focus-visible,.phdr-invita:focus-visible{outline:none;box-shadow:inset 0 0 0 2.5px var(--azione)}
 /* Su schermi non-phone (Ordini): "Stampa tutti" resta fermo in posizione,
    "Coda" compare alla sua sinistra invece che spingerlo - via ordine
    flex esplicito, cosi' non serve toccare l'ordine nel markup. Su phone
@@ -273,7 +272,6 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .sc .sn{font-size:26px;font-weight:900;line-height:1}
 .sc .sl{font-size:12px;color:var(--sub);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
 .sc-filt{border:3px solid transparent;transition:border-color 0.15s,box-shadow 0.15s,filter 0.15s;cursor:pointer}
-.sc-filt:focus{outline:none;box-shadow:inset 0 0 0 2.5px var(--azione)}
 .sc-filt:hover{filter:brightness(0.96)}
 .sc-filt:active{filter:brightness(0.92)}
 .sc-filt-r{background:var(--azione-s)}
@@ -315,7 +313,6 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease}
 .oc.evadere{border-left-color:var(--ev)}.oc.completato{border-left-color:var(--g)}.oc.ritirato{border-left-color:var(--gr);opacity:0.85}
 .oc.ritirato .tb,.oc.ritirato .act-btn,.oc.ritirato .stato-badge{filter:grayscale(1)}
-.oc.ritirato .act-btn:focus-visible{box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 4px #000}
 .oc.urgente{border-left-color:var(--urg)!important}
 .oc-num.ev{background:var(--ev)}.oc-num.co{background:var(--g)}.oc-num.ri{background:var(--gr)}.oc-num.urg{background:var(--urg)}
 .oc-num{transition:background 0.3s ease}
@@ -336,7 +333,7 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .oc-acts-mini{display:flex;gap:5px;flex:0 0 auto}
 .oc-acts-mini .act-btn-mini{flex:0 0 38px;width:38px}
 .act-btn{border:none;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:clamp(12px,3.4vw,14px);font-weight:800;padding:8px clamp(5px,1.8vw,13px);transition:background 0.15s,opacity 0.15s;white-space:nowrap}
-.act-btn:focus-visible{outline:none;box-shadow:inset 0 0 0 2.5px var(--azione)}
+.act-btn:focus,.sc-filt:focus,.pill:focus,.phdr-stampa:focus,.phdr-invita:focus,.sb-nav .ni:focus,.ni-nuovo-top:focus{outline:none}
 .act-btn i{font-size:16px;vertical-align:-2px}
 .act-btn-mini{padding:0;min-height:38px}
 .act-btn-mini i{font-size:17px;vertical-align:0}
@@ -440,11 +437,9 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .qty-search{width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:filter 0.15s,border-color 0.15s}.qty-search:hover{filter:brightness(0.96);border-color:var(--azione)}.qty-search:active{filter:brightness(0.9)}
 .cp{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;overflow-y:visible;scrollbar-width:none;padding-bottom:4px;position:relative;z-index:1;flex-wrap:nowrap}.cp::-webkit-scrollbar{display:none}
 .pill{flex-shrink:0;padding:6px 14px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;font-size:14px;font-weight:800;color:var(--sub);cursor:pointer;transition:filter 0.15s}
-.pill:focus-visible{outline:none;box-shadow:inset 0 0 0 2.5px var(--azione)}
 @media (hover:hover){.pill:hover{filter:brightness(0.92)}.pill.active:hover{filter:brightness(1.3)}}
 .pill:active{filter:brightness(0.85)}
 .pill.active{background:var(--txt);border-color:var(--txt);color:#fff}
-.pill.active:focus-visible{box-shadow:inset 0 0 0 2.5px #fff}
 .pill.active:active{filter:brightness(1.45)}
 .rp-item-row{border:1px solid rgba(0,0,0,0.08);margin-bottom:6px}
 .ac{padding:11px 20px 18px 10px;border-radius:11px;border:2px solid var(--brd);background:#fff;cursor:pointer;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--txt);text-align:left;position:relative}
@@ -1514,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.84';
+const APP_VERSION='2.30.88';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5283,6 +5278,35 @@ document.addEventListener('focusin',function(e){
     t.scrollIntoView({behavior:'smooth',block:'center'});
   },300);
 });
+(function(){
+  const RING_SEL='.act-btn,.sc-filt,.pill,.phdr-stampa,.phdr-invita,.sb-nav .ni,.ni-nuovo-top';
+  const ring=document.createElement('div');
+  ring.id='global-focus-ring';
+  ring.setAttribute('aria-hidden','true');
+  ring.style.cssText='position:fixed;pointer-events:none;z-index:99999;display:none;box-sizing:border-box;border:2.5px solid var(--azione);transition:none';
+  document.body.appendChild(ring);
+  let usingKeyboard=false;
+  document.addEventListener('keydown',function(e){if(e.key==='Tab')usingKeyboard=true;});
+  document.addEventListener('mousedown',function(){usingKeyboard=false;});
+  function updateRing(){
+    const el=document.activeElement;
+    if(!usingKeyboard||!el||!el.closest||!el.closest(RING_SEL)){ring.style.display='none';return;}
+    const r=el.getBoundingClientRect();
+    if(r.width===0&&r.height===0){ring.style.display='none';return;}
+    const cs=getComputedStyle(el);
+    ring.style.borderColor=el.closest('.pill.active,.sb-nav .ni,.ni-nuovo-top')?'#fff':'var(--azione)';
+    ring.style.borderRadius=cs.borderRadius;
+    ring.style.top=(r.top-2)+'px';
+    ring.style.left=(r.left-2)+'px';
+    ring.style.width=(r.width+4)+'px';
+    ring.style.height=(r.height+4)+'px';
+    ring.style.display='block';
+  }
+  document.addEventListener('focusin',updateRing);
+  document.addEventListener('focusout',function(){setTimeout(updateRing,0);});
+  window.addEventListener('scroll',updateRing,true);
+  window.addEventListener('resize',updateRing);
+})();
 document.addEventListener('focusin',function(e){
   const t=e.target;
   if(!t||!t.closest)return;
