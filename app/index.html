@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.90';
+const APP_VERSION='2.30.91';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5301,6 +5301,8 @@ document.addEventListener('focusin',function(e){
     if(!usingKeyboard||!el||!el.closest||!el.closest(RING_SEL)){ring.style.display='none';return;}
     const r=el.getBoundingClientRect();
     if(r.width===0&&r.height===0){ring.style.display='none';return;}
+    const topEl=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+    if(!topEl||!(topEl===el||el.contains(topEl)||topEl.contains(el))){ring.style.display='none';return;}
     const cs=getComputedStyle(el);
     if(el.closest(DARK_PILL_SEL)){
       ring.style.border='2.5px solid var(--azione)';
@@ -5310,7 +5312,7 @@ document.addEventListener('focusin',function(e){
       ring.style.boxShadow='none';
     }else{
       ring.style.border='2.5px solid var(--azione)';
-      ring.style.boxShadow='inset 0 0 0 2px #fff';
+      ring.style.boxShadow='none';
     }
     ring.style.borderRadius=cs.borderRadius;
     ring.style.top=(r.top-2)+'px';
