@@ -801,7 +801,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <div class="ordini-sticky">
             <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-coda-ordini" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-coda-ordini-label" class="phdr-label-full"></span><span id="phdr-coda-ordini-label-compact" class="phdr-label-compact"></span></button><button class="phdr-stampa visible" id="phdr-stampa-ordini" onclick="aggiungiTuttiAlGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label" class="phdr-label-full">Stampa tutti</span><span id="phdr-stampa-ordini-label-compact" class="phdr-label-compact">Tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> <span class="phdr-label-full">Sconto di 5 €</span><span class="phdr-label-compact">5 €</span></button></div></div>
             <div class="ordini-sticky-top">
-              <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
+              <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div class="ordini-filt-row">
                 <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" role="button" tabindex="0" onclick="setFT('tutti','sf-tutti')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('tutti','sf-tutti');}"><span class="sn" id="st-tot" style="color:var(--azione-d)">0</span><span class="sl" style="color:var(--azione-d)">Tutti</span></div>
                 <div class="sc sc-filt sc-filt-ev" id="sf-evadere" role="button" tabindex="0" onclick="setFT('evadere','sf-evadere')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('evadere','sf-evadere');}"><span class="sn" id="st-ev" style="color:var(--ev)">0</span><span class="sl" id="sl-ev" style="color:var(--ev)">Da evadere</span></div>
@@ -818,7 +818,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="pbody">
           <div class="list-sticky">
             <div class="phdr"><h2>Riepilogo</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-riepilogo" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-riepilogo-label" class="phdr-label-full">Stampa</span><span id="phdr-stampa-riepilogo-label-compact" class="phdr-label-compact"></span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> <span class="phdr-label-full">Sconto di 5 €</span><span class="phdr-label-compact">5 €</span></button></div></div>
-            <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('riepilogo-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
+            <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="riepilogo-cerca" placeholder="Cerca articolo…" oninput="renderRiepilogo();toggleClearBtn(this)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="sbox-clear" onclick="clearSearchInput('riepilogo-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
             <div class="cp" id="riepilogo-day-pills"></div>
             <div class="cp" id="riepilogo-cat-pills"></div>
           </div>
@@ -854,7 +854,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                     <div class="cal-grid" id="st-cal-grid"></div>
                   </div>
                 </div>
-                <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="st-art-cerca" placeholder="Cerca articolo…" oninput="renderStoricoRiepilogo();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('st-art-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
+                <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="st-art-cerca" placeholder="Cerca articolo…" oninput="renderStoricoRiepilogo();toggleClearBtn(this)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="sbox-clear" onclick="clearSearchInput('st-art-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
                 <div class="cp" id="st-cat-pills"></div>
               </div>
               <div id="storico-riepilogo" style="contain:layout style"></div>
@@ -1126,7 +1126,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         </div>
         <button class="btn br btn-full" onclick="addArt()"><span id="btn-addart-label">+ Aggiungi articolo</span></button>
       </div>
-      <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" aria-label="Cerca nel catalogo" placeholder="Cerca nel catalogo…" oninput="renderArtM();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('cam')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
+      <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="cam" aria-label="Cerca nel catalogo" placeholder="Cerca nel catalogo…" oninput="renderArtM();toggleClearBtn(this)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="sbox-clear" onclick="clearSearchInput('cam')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0;padding-bottom:6px;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)"><span id="acb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
       <div class="slist" id="aml"></div>
     </div>
@@ -1153,7 +1153,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
   <div class="modal" style="display:flex;flex-direction:column;overflow-y:hidden">
     <div class="mta" style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span><i class="ti ti-users"></i> Clienti</span><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="apriNuovoCliente()"><i class="ti ti-plus"></i> Nuovo</button></div>
     <div style="overflow-y:auto;flex:1;min-height:0">
-      <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="ccm" aria-label="Cerca cliente" placeholder="Cerca cliente…" oninput="renderClientiM();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('ccm')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
+      <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="ccm" aria-label="Cerca cliente" placeholder="Cerca cliente…" oninput="renderClientiM();toggleClearBtn(this)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="sbox-clear" onclick="clearSearchInput('ccm')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0;padding-bottom:6px;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)"><span id="ccb" style="background:var(--azione);color:#fff;font-size:12px;font-weight:900;padding:3px 10px;border-radius:18px"></span></div>
       <div class="slist" id="cml"></div>
     </div>
@@ -1176,7 +1176,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
   <div class="modal" style="display:flex;flex-direction:column;overflow-y:hidden;max-width:440px">
     <div class="mta"><i class="ti ti-git-merge"></i> Unisci con…</div>
     <div style="overflow-y:auto;flex:1;min-height:0">
-      <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="ucm" aria-label="Cerca il secondo cliente" placeholder="Cerca il secondo cliente…" oninput="renderUnisciPick();toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('ucm')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
+      <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="ucm" aria-label="Cerca il secondo cliente" placeholder="Cerca il secondo cliente…" oninput="renderUnisciPick();toggleClearBtn(this)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="sbox-clear" onclick="clearSearchInput('ucm')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
       <div class="slist" id="ucml"></div>
     </div>
     <div class="ma" style="flex-shrink:0"><button class="btn bg2 btn-full" onclick="closeModal('modal-unisci-pick')">Annulla</button></div>
@@ -1509,7 +1509,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.98';
+const APP_VERSION='2.30.99';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2844,7 +2844,7 @@ function renderStoricoRiepilogo(){
       </div>
       <div style="position:relative;margin-bottom:8px">
         <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:17px"><i class="ti ti-search"></i></span>
-        <input type="text" id="st-det-cerca" value="${_stDetCerca}" placeholder="Cerca per nome, numero, ${lblArt(false)}…" oninput="_stDetCerca=this.value;renderStoricoRiepilogo()" style="width:100%;padding:10px 40px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none">
+        <input type="text" id="st-det-cerca" value="${_stDetCerca}" placeholder="Cerca per nome, numero, ${lblArt(false)}…" oninput="_stDetCerca=this.value;renderStoricoRiepilogo()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:10px 40px 10px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none">
         <button type="button" class="sbox-clear${_stDetCerca?' show':''}" onclick="clearSearchInput('st-det-cerca')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button>
       </div>
       <div class="cp">${stDetPills}</div>`;
@@ -3199,7 +3199,7 @@ function renderDetModal(o){
         <button class="btn-outline-r" onclick="openDetQArt(${o.id})"><i class="ti ti-plus"></i> Nuovo</button>
       </div>
       <div class="cp" id="det-cat-pills" style="margin-bottom:8px"></div>
-      <div class="sbox" style="margin-bottom:8px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="det-search-art" placeholder="Cerca ${lblArt(false)}…" style="width:100%;padding:9px 36px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id});toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('det-search-art')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
+      <div class="sbox" style="margin-bottom:8px"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="det-search-art" placeholder="Cerca ${lblArt(false)}…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:9px 36px 9px 38px;background:var(--bg);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none" oninput="renderDetArtGrid(${o.id});toggleClearBtn(this)"><button type="button" class="sbox-clear" onclick="clearSearchInput('det-search-art')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
       <div id="det-art-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;max-height:180px;overflow-y:auto"></div>
     </div>
     <div id="det-items-list">${artRows||'<p style="color:var(--sub);font-size:14px;margin-bottom:8px">Nessun '+lblArt(false)+'.</p>'}</div>
