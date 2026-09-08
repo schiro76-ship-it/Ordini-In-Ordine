@@ -273,7 +273,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .sc .sn{font-size:26px;font-weight:900;line-height:1}
 .sc .sl{font-size:12px;color:var(--sub);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
 .sc-filt{border:3px solid transparent;transition:border-color 0.15s,box-shadow 0.15s,filter 0.15s;cursor:pointer}
-.sc-filt:focus-visible{outline:none;box-shadow:inset 0 0 0 2.5px var(--azione)}
+.sc-filt:focus{outline:none;box-shadow:inset 0 0 0 2.5px var(--azione)}
 .sc-filt:hover{filter:brightness(0.96)}
 .sc-filt:active{filter:brightness(0.92)}
 .sc-filt-r{background:var(--azione-s)}
@@ -315,7 +315,7 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .oc{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;border-left:4px solid var(--brd);transition:transform 0.35s ease,opacity 0.35s ease}
 .oc.evadere{border-left-color:var(--ev)}.oc.completato{border-left-color:var(--g)}.oc.ritirato{border-left-color:var(--gr);opacity:0.85}
 .oc.ritirato .tb,.oc.ritirato .act-btn,.oc.ritirato .stato-badge{filter:grayscale(1)}
-.oc.ritirato .act-btn:focus-visible{filter:none}
+.oc.ritirato .act-btn:focus-visible{box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 4px #000}
 .oc.urgente{border-left-color:var(--urg)!important}
 .oc-num.ev{background:var(--ev)}.oc-num.co{background:var(--g)}.oc-num.ri{background:var(--gr)}.oc-num.urg{background:var(--urg)}
 .oc-num{transition:background 0.3s ease}
@@ -444,6 +444,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 @media (hover:hover){.pill:hover{filter:brightness(0.92)}.pill.active:hover{filter:brightness(1.3)}}
 .pill:active{filter:brightness(0.85)}
 .pill.active{background:var(--txt);border-color:var(--txt);color:#fff}
+.pill.active:focus-visible{box-shadow:inset 0 0 0 2.5px #fff}
 .pill.active:active{filter:brightness(1.45)}
 .rp-item-row{border:1px solid rgba(0,0,0,0.08);margin-bottom:6px}
 .ac{padding:11px 20px 18px 10px;border-radius:11px;border:2px solid var(--brd);background:#fff;cursor:pointer;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--txt);text-align:left;position:relative}
@@ -1513,7 +1514,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.83';
+const APP_VERSION='2.30.84';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
