@@ -200,7 +200,7 @@ body.portrait-phone .phdr-invita i{font-size:18px}
 /* Su iPad il bordo di focus del browser puo' restare visibile dopo il
    tap invece di sparire subito come su iPhone - tolto qui, il feedback
    visivo del tocco resta comunque dato dal cambio colore dello sfondo. */
-.phdr-stampa:focus-visible,.phdr-invita:focus-visible{box-shadow:inset 0 0 0 2.5px var(--azione-d)}
+.phdr-stampa:focus-visible,.phdr-invita:focus-visible{outline:none;box-shadow:inset 0 0 0 2.5px var(--azione-d)}
 /* Su schermi non-phone (Ordini): "Stampa tutti" resta fermo in posizione,
    "Coda" compare alla sua sinistra invece che spingerlo - via ordine
    flex esplicito, cosi' non serve toccare l'ordine nel markup. Su phone
@@ -273,7 +273,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .sc .sn{font-size:26px;font-weight:900;line-height:1}
 .sc .sl{font-size:12px;color:var(--sub);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
 .sc-filt{border:3px solid transparent;transition:border-color 0.15s,box-shadow 0.15s,filter 0.15s;cursor:pointer}
-.sc-filt:focus-visible{box-shadow:inset 0 0 0 2.5px var(--azione-d)}
+.sc-filt:focus-visible{outline:none;box-shadow:inset 0 0 0 2.5px var(--azione-d)}
 .sc-filt:hover{filter:brightness(0.96)}
 .sc-filt:active{filter:brightness(0.92)}
 .sc-filt-r{background:var(--azione-s)}
@@ -335,7 +335,7 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 .oc-acts-mini{display:flex;gap:5px;flex:0 0 auto}
 .oc-acts-mini .act-btn-mini{flex:0 0 38px;width:38px}
 .act-btn{border:none;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:clamp(12px,3.4vw,14px);font-weight:800;padding:8px clamp(5px,1.8vw,13px);transition:background 0.15s,opacity 0.15s;white-space:nowrap}
-.act-btn:focus-visible{box-shadow:inset 0 0 0 2.5px var(--azione-d)}
+.act-btn:focus-visible{outline:none;box-shadow:inset 0 0 0 2.5px var(--azione-d)}
 .act-btn i{font-size:16px;vertical-align:-2px}
 .act-btn-mini{padding:0;min-height:38px}
 .act-btn-mini i{font-size:17px;vertical-align:0}
@@ -1511,7 +1511,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.30.79';
+const APP_VERSION='2.30.80';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
