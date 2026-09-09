@@ -152,7 +152,7 @@ body.portrait-phone .sc .sn{font-size:19px}
 body.portrait-phone .sc .sl{font-size:clamp(8.5px,2.3vw,11px);margin-top:2px;white-space:nowrap}
 body.portrait-phone #ordini-date-pills .pill,body.portrait-phone #riepilogo-day-pills .pill,body.portrait-phone #riepilogo-cat-pills .pill{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.4);color:#fff}
 body.portrait-phone #ordini-date-pills .pill.active,body.portrait-phone #riepilogo-day-pills .pill.active,body.portrait-phone #riepilogo-cat-pills .pill.active{background:#fff;border-color:#fff;color:#2C3E50}
-body.portrait-phone .sc-filt.active-filt{border:1.5px solid rgba(255,255,255,0.4)!important}
+body.portrait-phone .sc-filt{border:1.5px solid rgba(255,255,255,0.4)!important}
 body.portrait-phone #sf-tutti.active-filt{background:var(--azione)!important}
 body.portrait-phone #sf-evadere.active-filt{background:var(--ev)!important}
 body.portrait-phone #sf-evadere.active-filt[data-urgente="1"]{background:var(--urg)!important}
@@ -277,6 +277,9 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .sc-filt:active{filter:brightness(0.92)}
 .sc-filt-r{background:var(--azione-s)}
 .sc-filt-ev{background:var(--evs)}
+.sc-filt-ev .sn,.sc-filt-ev .sl{color:var(--ev)}
+.sc-filt-ev[data-urgente="1"]{background:var(--urgs)}
+.sc-filt-ev[data-urgente="1"] .sn,.sc-filt-ev[data-urgente="1"] .sl{color:var(--urg)}
 .sc-filt-g{background:var(--gs)}
 .sc-filt-gr{background:var(--grs)}
 #sf-tutti.active-filt{border-color:var(--azione)}
@@ -806,7 +809,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div class="ordini-filt-row">
                 <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" role="button" tabindex="0" onclick="setFT('tutti','sf-tutti')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('tutti','sf-tutti');}"><span class="sn" id="st-tot" style="color:var(--azione-d)">0</span><span class="sl" style="color:var(--azione-d)">Tutti</span></div>
-                <div class="sc sc-filt sc-filt-ev" id="sf-evadere" role="button" tabindex="0" onclick="setFT('evadere','sf-evadere')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('evadere','sf-evadere');}"><span class="sn" id="st-ev" style="color:var(--ev)">0</span><span class="sl" id="sl-ev" style="color:var(--ev)">Da evadere</span></div>
+                <div class="sc sc-filt sc-filt-ev" id="sf-evadere" role="button" tabindex="0" onclick="setFT('evadere','sf-evadere')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('evadere','sf-evadere');}"><span class="sn" id="st-ev">0</span><span class="sl" id="sl-ev">Da evadere</span></div>
                 <div class="sc sc-filt sc-filt-g" id="sf-completato" role="button" tabindex="0" onclick="setFT('completato','sf-completato')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('completato','sf-completato');}"><span class="sn" id="st-co" style="color:var(--g)">0</span><span class="sl" style="color:var(--g)">Completati</span></div>
                 <div class="sc sc-filt sc-filt-gr" id="sf-ritirato" role="button" tabindex="0" onclick="setFT('ritirato','sf-ritirato')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('ritirato','sf-ritirato');}"><span class="sn" id="st-ri" style="color:var(--gr)">0</span><span class="sl" style="color:var(--gr)">Ritirati</span></div>
               </div>
@@ -1511,7 +1514,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.10';
+const APP_VERSION='2.31.11';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2299,14 +2302,8 @@ function stats(){
   document.getElementById('st-co').textContent=co;
   document.getElementById('st-ri').textContent=ri;
   const evCard=document.getElementById('sf-evadere');
-  const evNum=document.getElementById('st-ev');
-  const evLbl=document.getElementById('sl-ev');
-  if(evCard&&evNum&&evLbl){
-    evCard.style.background=hasUrgente?'var(--urgs)':'var(--evs)';
-    evNum.style.color=hasUrgente?'var(--urg)':'var(--ev)';
-    evLbl.style.color=hasUrgente?'var(--urg)':'var(--ev)';
+  if(evCard){
     evCard.dataset.urgente=hasUrgente?'1':'0';
-    if(evCard.classList.contains('active-filt')){evCard.style.borderColor=hasUrgente?'var(--urg)':'var(--ev)';}
   }
 }
 let ft='tutti';
