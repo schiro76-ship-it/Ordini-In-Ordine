@@ -308,7 +308,7 @@ body.portrait-phone .ordini-sticky,body.portrait-phone .list-sticky{background:#
 #sf-tutti .sn,#sf-evadere .sn,#sf-completato .sn,#sf-ritirato .sn{font-size:13px;font-weight:900;line-height:1}
 #sf-tutti .sl,#sf-evadere .sl,#sf-completato .sl,#sf-ritirato .sl{font-size:13px;font-weight:800;text-transform:none;letter-spacing:normal;margin-top:0}
 .sbox{position:relative;margin-bottom:12px}
-.sbox input{width:100%;padding:12px 40px 12px 44px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none;transition:border-color 0.2s}
+.sbox input{width:100%;padding:12px 40px 12px 44px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none;transition:border-color 0.05s}
 .sbox input:focus{border-color:var(--azione)}
 .sbox .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:19px}
 .sbox-clear{display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:none;background:none;padding:0;margin:0;cursor:pointer;color:var(--sub);font-size:17px;align-items:center;justify-content:center;border-radius:50%}
@@ -806,7 +806,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <div class="ordini-sticky">
             <div class="phdr"><h2>Ordini</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-coda-ordini" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-coda-ordini-label" class="phdr-label-full"></span><span id="phdr-coda-ordini-label-compact" class="phdr-label-compact"></span></button><button class="phdr-stampa visible" id="phdr-stampa-ordini" onclick="aggiungiTuttiAlGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-ordini-label" class="phdr-label-full">Stampa tutti</span><span id="phdr-stampa-ordini-label-compact" class="phdr-label-compact">Tutti</span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> <span class="phdr-label-full">Sconto di 5 €</span><span class="phdr-label-compact">5 €</span></button></div></div>
             <div class="ordini-sticky-top">
-              <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="console.log('%c[DEBUG] focus su #co: '+performance.now().toFixed(1)+'ms','color:red;font-weight:bold')"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
+              <div class="sbox"><span class="si"><i class="ti ti-search"></i></span><input type="text" id="co" placeholder="Cerca per nome, numero, articolo…" oninput="renderOrdini();toggleClearBtn(this)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="sbox-clear" onclick="clearSearchInput('co')" aria-label="Cancella ricerca"><i class="ti ti-x"></i></button></div>
               <div class="ordini-filt-row">
                 <div class="sc sc-filt sc-filt-r active-filt" id="sf-tutti" role="button" tabindex="0" onclick="setFT('tutti','sf-tutti')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('tutti','sf-tutti');}"><span class="sn" id="st-tot" style="color:var(--azione-d)">0</span><span class="sl" style="color:var(--azione-d)">Tutti</span></div>
                 <div class="sc sc-filt sc-filt-ev" id="sf-evadere" role="button" tabindex="0" onclick="setFT('evadere','sf-evadere')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFT('evadere','sf-evadere');}"><span class="sn" id="st-ev">0</span><span class="sl" id="sl-ev">Da evadere</span></div>
@@ -1514,7 +1514,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.13-debug';
+const APP_VERSION='2.31.13';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5350,20 +5350,16 @@ document.addEventListener('focusin',function(e){
 })();
 document.addEventListener('focusin',function(e){
   const t=e.target;
-  console.log('%c[DEBUG] focusin ricevuto: '+performance.now().toFixed(1)+'ms su '+(t.id||t.tagName),'color:blue;font-weight:bold');
   if(!t||!t.closest)return;
   if(!t.closest('.page-wrap'))return;
   if(t.closest('.ov'))return;
   clearTimeout(t._safariScrollTimeout);
-  const _tStart=performance.now();
   t._safariScrollTimeout=setTimeout(function(){
     const r=t.getBoundingClientRect();
     const pw=t.closest('.page-wrap');
     const pr=pw?pw.getBoundingClientRect():{top:0,bottom:window.innerHeight};
     const fullyVisible=r.top>=pr.top&&r.bottom<=pr.bottom;
-    console.log('%c[DEBUG] controllo visibilità: '+performance.now().toFixed(1)+'ms (atteso '+(performance.now()-_tStart).toFixed(1)+'ms), fullyVisible='+fullyVisible,'color:green;font-weight:bold');
     if(!fullyVisible)t.scrollIntoView({block:'nearest'});
-    console.log('%c[DEBUG] fine scroll: '+performance.now().toFixed(1)+'ms','color:orange;font-weight:bold');
   },0);
 });
 window.addEventListener('resize',checkPortrait);
