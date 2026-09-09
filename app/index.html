@@ -281,6 +281,7 @@ button{transition:filter 0.15s}button:hover{filter:brightness(0.92)}button:activ
 .sc-filt-gr{background:var(--grs)}
 #sf-tutti.active-filt{border-color:var(--azione)}
 #sf-evadere.active-filt{border-color:var(--ev)}
+#sf-evadere.active-filt[data-urgente="1"]{border-color:var(--urg)}
 #sf-completato.active-filt{border-color:var(--g)}
 #sf-ritirato.active-filt{border-color:var(--gr)}
 /* Barra fissa Ordini: ricerca + pill stato + pill giorno, sempre visibili mentre le
@@ -1510,7 +1511,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.8';
+const APP_VERSION='2.31.9';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2309,7 +2310,7 @@ function stats(){
   }
 }
 let ft='tutti';
-function setFT(t,cid){ft=t;document.querySelectorAll('.sc-filt').forEach(c=>{c.classList.remove('active-filt');c.style.borderColor='';});const el=document.getElementById(cid);if(el){el.classList.add('active-filt');if(cid==='sf-evadere'){const urgente=el.dataset.urgente==='1';el.style.borderColor=urgente?'var(--urg)':'var(--ev)';}}renderOrdini();}
+function setFT(t,cid){ft=t;document.querySelectorAll('.sc-filt').forEach(c=>{c.classList.remove('active-filt');});const el=document.getElementById(cid);if(el){el.classList.add('active-filt');}renderOrdini();}
 const fmtD=d=>{if(!d)return'';return fmtDataByFormat(d);};
 const oggi=()=>new Date().toISOString().slice(0,10);
 const oggiPiu=(n)=>{const d=new Date();d.setDate(d.getDate()+(n||0));return d.toISOString().slice(0,10);};
