@@ -947,11 +947,11 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div class="phdr"><h2>Impostazioni</h2><div style="display:flex;align-items:center;gap:10px"><button class="phdr-stampa" id="phdr-stampa-impostazioni" onclick="apriModalGruppoStampa()"><i class="ti ti-printer"></i><span id="phdr-stampa-impostazioni-label" class="phdr-label-full">Stampa</span><span id="phdr-stampa-impostazioni-label-compact" class="phdr-label-compact"></span></button><button class="phdr-invita" onclick="goTab('invita')"><i class="ti ti-gift"></i> <span class="phdr-label-full">Sconto di 5 €</span><span class="phdr-label-compact">5 €</span></button></div></div>
         <div class="pbody">
           <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-tag"></i> Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderCatList();openModal('modal-cat')"><i class="ti ti-pencil"></i> Gestisci</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-tag"></i> Categorie</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-cat');renderCatList()"><i class="ti ti-pencil"></i> Gestisci</button></div>
             <div class="cb"><div class="um-list" id="cat-display"></div></div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> <span id="lbl-articoli-settings">Articoli</span></div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderArtM();resetArtNuovo();openModal('modal-articoli')"><i class="ti ti-pencil"></i> Gestisci</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-folder"></i> <span id="lbl-articoli-settings">Articoli</span></div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-articoli');renderArtM();resetArtNuovo()"><i class="ti ti-pencil"></i> Gestisci</button></div>
             <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Catalogo: <span id="acb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
           </div>
           <div class="card">
@@ -959,7 +959,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cb"><div class="um-list" id="um-display"></div></div>
           </div>
           <div class="card">
-            <div class="ch"><div class="ct"><i class="ti ti-users"></i> Clienti</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="renderClientiM();openModal('modal-clienti')"><i class="ti ti-pencil"></i> Gestisci</button></div>
+            <div class="ch"><div class="ct"><i class="ti ti-users"></i> Clienti</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-clienti');renderClientiM()"><i class="ti ti-pencil"></i> Gestisci</button></div>
             <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Anagrafica: <span id="clienti-cb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
           </div>
           <div class="card">
@@ -1491,6 +1491,7 @@ function _modalDelResetDefault(){
 }
 function resetOnboarding(){
   if(!currentUser)return;
+  openModal('modal-del-conf');
   const icon=document.getElementById('modal-del-icon');
   const sub=document.getElementById('modal-del-sub');
   const btn=document.getElementById('modal-del-btn');
@@ -1507,7 +1508,6 @@ function resetOnboarding(){
   if(annulla){annulla.style.flex='1';annulla.style.width=''}
   document.getElementById('modal-del-txt').textContent='Cambiare tipo di attività?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');confermaResetOnboarding();};
-  openModal('modal-del-conf');
 }
 async function confermaResetOnboarding(){if(!currentUser)return;await db.collection('profili').doc(currentUser.uid).set({onboardingCompleto:false},{merge:true});obSelectedAttivita=null;_tipoAttivitaCorrente=null;showOnboarding();toast('Scegli il tipo di attività','v');}
 
@@ -1516,7 +1516,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.18';
+const APP_VERSION='2.31.19';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1852,6 +1852,7 @@ async function apriGestioneAbbonamento(){
 // nessun sottotitolo di avviso perché non è un'azione distruttiva). Il bottone reinvia
 // direttamente l'email di verifica tramite la funzione già esistente reinviaVerificaEmail().
 function mostraModalVerificaEmail(){
+  openModal('modal-del-conf');
   const icon=document.getElementById('modal-del-icon');
   const sub=document.getElementById('modal-del-sub');
   const btn=document.getElementById('modal-del-btn');
@@ -1869,7 +1870,6 @@ function mostraModalVerificaEmail(){
   if(annulla){annulla.style.flex='none';annulla.style.width='100%'}
   document.getElementById('modal-del-txt').textContent='Verifica la tua email per continuare';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');reinviaVerificaEmail();};
-  openModal('modal-del-conf');
 }
 async function avviaCheckout(piano){
   const btn=document.getElementById('btn-abbonati-'+piano);
@@ -2240,7 +2240,7 @@ function goTab(name){
   if(pwPrev)_scrollPositions[_currentTab]=pwPrev.scrollTop;
   if(name==='nuovo'&&_currentTab!=='nuovo')_tabPrimaDiNuovo=_currentTab;
   _currentTab=name;
-  document.querySelectorAll('.ov.open').forEach(function(ov){ov.classList.remove('open');document.body.style.overflow='';});
+  document.querySelectorAll('.ov.open').forEach(function(ov){ov.classList.remove('open');document.body.style.overflow='';if(ov.isConnected)ov.remove();});
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   const pw=document.querySelector('.page-wrap');
@@ -3102,7 +3102,7 @@ async function setStato(id,stato,skipItemReset){
   const _moves=_willChangePosition(id,stato);
   _updateCardColor(id,stato);
   if(_moves)_snapAndAnimate(id);const o=ords.find(x=>x.id===id);if(!o)return;o.stato=stato;if(stato==='ritirato')o.ritirato_il=new Date().toISOString();if(stato==='completato'&&!skipItemReset)o.items.forEach(function(it){it.done=true});if(stato==='evadere'&&!skipItemReset)o.items.forEach(function(it){it.done=false});renderOrdini(_moves);toast(stato==='completato'?'Completato':stato==='ritirato'?'Ritirato':'Riaperto','v');saveData();}
-function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;_modalDelResetDefault();document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+nomeAttuale(o)+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};openModal('modal-del-conf');}
+function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;openModal('modal-del-conf');_modalDelResetDefault();document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+nomeAttuale(o)+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};}
 async function delOrd(id){
   const el=document.querySelector('#ordini-list [data-oid="'+id+'"]');
   const finish=async()=>{_deletedIds.add(id);ords=ords.filter(x=>x.id!==id);await saveData();_deletedIds.delete(id);renderOrdini();toast('Ordine eliminato','v');};
@@ -3113,7 +3113,7 @@ async function delOrd(id){
     setTimeout(finish,300);
   } else { finish(); }
 }
-function openDet(id){const o=ords.find(x=>x.id===id);if(!o)return;renderDetModal(o);openModal('modal-det')}
+function openDet(id){const o=ords.find(x=>x.id===id);if(!o)return;openModal('modal-det');renderDetModal(o)}
 let detCatFilter='Tutti';
 function setDetCat(c,oid){detCatFilter=c;renderDetArtGrid(oid);}
 function renderDetModal(o){
@@ -3294,10 +3294,10 @@ async function detCalAutoSalva(oid){
 let detQArtOid=null;
 function openDetQArt(oid){
   detQArtOid=oid;
+  openModal('modal-qart');
   document.getElementById('qan').value='';
   document.getElementById('qac').value='';
   document.getElementById('qnuova-cat-wrap').style.display='none';
-  openModal('modal-qart');
   setTimeout(function(){document.getElementById('qan').focus()},120);
 }
 function renderDetArtGrid(oid){
@@ -3452,10 +3452,10 @@ function detFocusCerca(oid){
 function confDelItem(oid,idx){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   const a=arts.find(x=>x.id===(o.items[idx]||{}).artId);
+  openModal('modal-del-conf');
   _modalDelResetDefault();
   document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:lblArt(false))+'" dall\'ordine?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delItemFromOrd(oid,idx);};
-  openModal('modal-del-conf');
 }
 async function delItemFromOrd(oid,idx){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;o.items.splice(idx,1);await saveData();renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso','v');}
 let sel=[],tNuovo=null,catS='Tutti';
@@ -3507,6 +3507,7 @@ function azzeraNumerazioneOra(){
   if(elTop)elTop.value=minNumeroLibero();
 }
 function confAzzeraNumerazione(){
+  openModal('modal-del-conf');
   const icon=document.getElementById('modal-del-icon');
   const sub=document.getElementById('modal-del-sub');
   const btn=document.getElementById('modal-del-btn');
@@ -3515,7 +3516,6 @@ function confAzzeraNumerazione(){
   if(btn){btn.textContent='Azzera';btn.className='btn btn-azione';btn.style.flex='1';}
   document.getElementById('modal-del-txt').textContent='Azzerare la numerazione degli ordini? Il prossimo ordine partirà da #1.';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');azzeraNumerazioneOra();};
-  openModal('modal-del-conf');
 }
 function saveNumResetFreq(freq){_numResetFreq=freq;applyNumResetFreqUI();saveData();}
 function applyNumResetFreqUI(){
@@ -3542,10 +3542,10 @@ function tornaRicerca(){
 }
 function confRimArt(id){
   const a=arts.find(x=>x.id===id);
+  openModal('modal-del-conf');
   _modalDelResetDefault();
   document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:lblArt(false))+'" dall\'ordine?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');togArt(id);};
-  openModal('modal-del-conf');
 }
 function togArt(id){
   const i=sel.findIndex(x=>x.id===id);
@@ -3640,7 +3640,7 @@ async function salvaOrdine(){if(_provaScaduta){toast('Il mese di prova è termin
   }
 }
 function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})" aria-label="Modifica ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo '+lblArt(false)+' dal catalogo?'))delArt(${a.id})" aria-label="Elimina ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun '+lblArt(false)+'.</p></div>';}
-function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';openModal('modal-edit-art');}
+function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;openModal('modal-edit-art');document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';}
 async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato','v');}
 async function addArt(){const n=document.getElementById('an').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;const ni=document.getElementById('nuova-cat-input');if(s.value==='__nuova__'&&ni&&ni.value.trim())c=ni.value.trim();if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}if(LIMITE_ARTICOLI_ATTIVO&&articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' '+lblArt(true)+' del piano gratuito','err');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c});articoliCreatiTotale++;
   if(c&&!cats.includes(c)){cats.push(c);cats.sort()}
@@ -3665,7 +3665,7 @@ function _rcs(id){const s=document.getElementById(id);if(!s)return;const cur=(s.
 function onCatChange(s){const w=document.getElementById('nuova-cat-wrap');if(s.value==='__nuova__'){w.style.display='block';setTimeout(function(){document.getElementById('nuova-cat-input').focus()},80)}else w.style.display='none'}
 function onQCatChange(s){const w=document.getElementById('qnuova-cat-wrap');if(s.value==='__qnuova__'){w.style.display='block';setTimeout(function(){document.getElementById('qnuova-cat-input').focus()},80)}else w.style.display='none'}
 var _qOid=null;
-function openQArt(){_qOid=null;document.getElementById('qan').value='';document.getElementById('qac').value='';document.getElementById('qnuova-cat-wrap').style.display='none';openModal('modal-qart');setTimeout(function(){document.getElementById('qan').focus()},120)}
+function openQArt(){_qOid=null;openModal('modal-qart');document.getElementById('qan').value='';document.getElementById('qac').value='';document.getElementById('qnuova-cat-wrap').style.display='none';setTimeout(function(){document.getElementById('qan').focus()},120)}
 async function addArtRapido(){
   const n=document.getElementById('qan').value.trim();
   const qs=document.getElementById('qac');let c=qs.value==='__qnuova__'?'':qs.value;
@@ -3815,19 +3815,19 @@ function renderClientiM(){
   }).join(''):'<div class="empty"><div class="ei"><i class="ti ti-users"></i></div><p>Nessun cliente.</p></div>';
 }
 function apriNuovoCliente(){
+  openModal('modal-edit-cliente');
   document.getElementById('modal-edit-cliente-titolo').textContent='Nuovo cliente';
   document.getElementById('edit-cliente-id').value='';
   document.getElementById('edit-cliente-nome').value='';
   document.getElementById('edit-cliente-telefono').value='';
-  openModal('modal-edit-cliente');
 }
 function editCliente(id){
   const c=clienti.find(x=>x.id===id);if(!c)return;
+  openModal('modal-edit-cliente');
   document.getElementById('modal-edit-cliente-titolo').textContent='Modifica cliente';
   document.getElementById('edit-cliente-id').value=id;
   document.getElementById('edit-cliente-nome').value=c.nome;
   document.getElementById('edit-cliente-telefono').value=c.telefono||'';
-  openModal('modal-edit-cliente');
 }
 async function salvaEditCliente(){
   const idVal=document.getElementById('edit-cliente-id').value;
@@ -3865,6 +3865,7 @@ document.addEventListener('keydown',function(e){
 function confermaEliminaCliente(id){
   const c=clienti.find(x=>x.id===id);if(!c)return;
   const n=ords.filter(o=>o.clienteId===id).length;
+  openModal('modal-del-conf');
   _modalDelResetDefault();
   document.getElementById('modal-del-txt').textContent='Eliminare '+c.nome+'?'+(n?' Ha '+n+' ordin'+(n===1?'e':'i')+' collegat'+(n===1?'o':'i')+': restano invariati ma perdono il collegamento.':'');
   document.getElementById('modal-del-btn').onclick=async function(){
@@ -3875,14 +3876,13 @@ function confermaEliminaCliente(id){
     renderOrdini();
     toast('Cliente eliminato','v');
   };
-  openModal('modal-del-conf');
 }
 let _unisciDaId=null,_unisciA=null,_unisciB=null,_unisciNomeScelta='',_unisciTelScelta='';
 function apriUnisciCliente(id){
   _unisciDaId=id;
+  openModal('modal-unisci-pick');
   const ucmEl=document.getElementById('ucm');if(ucmEl)ucmEl.value='';
   renderUnisciPick();
-  openModal('modal-unisci-pick');
 }
 function renderUnisciPick(){
   const c=(document.getElementById('ucm')&&document.getElementById('ucm').value||'').toLowerCase().trim();
@@ -3894,10 +3894,10 @@ function apriConfermaUnione(idB){
   _unisciB=clienti.find(x=>x.id===idB);
   if(!_unisciA||!_unisciB)return;
   closeModal('modal-unisci-pick');
+  openModal('modal-unisci-conferma');
   _unisciNomeScelta=_unisciA.nome;
   _unisciTelScelta=_unisciA.telefono||_unisciB.telefono||'';
   renderUnisciConferma();
-  openModal('modal-unisci-conferma');
 }
 function scegliUnisciCampo(campo,valore){
   if(campo==='nome')_unisciNomeScelta=valore;else _unisciTelScelta=valore;
@@ -3930,10 +3930,10 @@ async function eseguiUnioneClienti(){
 }
 function apriSceltaContatto(oid){
   const o=ords.find(x=>x.id===oid);const tel=telefonoAttuale(o);if(!o||!tel)return;
+  openModal('modal-tel-menu');
   document.getElementById('modal-tel-txt').textContent='Contatta '+nomeAttuale(o);
   document.getElementById('modal-tel-chiama').href=telHrefTel(tel);
   document.getElementById('modal-tel-wa').href=telHrefWa(tel);
-  openModal('modal-tel-menu');
 }
 function capWords(el){
   const pos=el.selectionStart;
@@ -4174,11 +4174,11 @@ async function visualizzaImmagineItem(oidRaw,idx){
   const oid=typeof oidRaw==='string'?parseInt(oidRaw):oidRaw;
   const o=ords.find(x=>x.id===oid);
   if(!o||!o.items[idx]||!o.items[idx].itemId)return;
+  openModal('modal-img-view');
   const imgEl=document.getElementById('img-view-el');
   const loadEl=document.getElementById('img-view-loading');
   if(imgEl)imgEl.style.display='none';
   if(loadEl)loadEl.style.display='flex';
-  openModal('modal-img-view');
   try{
     const url=await storage.ref(pathImmagineItem(o.items[idx].itemId)).getDownloadURL();
     if(imgEl){imgEl.src=url;imgEl.style.display='block';}
@@ -4283,7 +4283,19 @@ function _aggiornaTriggerLabel(){
 // toggleCal legacy — non più usato ma mantenuto per compatibilità
 function toggleCal(){renderCal();}
 
-function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+// Registro dei modal: tenuti staccati dal DOM quando chiusi (invece di solo display:none) per
+// ridurre il numero di elementi che Safari desktop scansiona ad ogni focus di un campo di testo
+// (euristica nativa di riconoscimento moduli/AutoFill, non disattivabile dall'utente). Il
+// riferimento va salvato qui perché document.getElementById non trova un elemento staccato.
+var _modalRefs={};
+document.querySelectorAll('.ov').forEach(function(el){_modalRefs[el.id]=el;});
+function openModal(id){
+  const el=_modalRefs[id]||document.getElementById(id);
+  if(!el)return;
+  if(!el.isConnected)document.body.appendChild(el);
+  el.classList.add('open');
+  document.body.style.overflow='hidden';
+}
 function closeModal(id){
   if(id==='modal-det'){
     _flushDetCalToast();
@@ -4291,12 +4303,14 @@ function closeModal(id){
     ords.forEach(o=>{if(!o.items||!o.items.length)return;const tuttiDone=o.items.every(it=>it.done);if(tuttiDone&&o.stato==='evadere')o.stato='completato';if(!tuttiDone&&o.stato==='completato')o.stato='evadere';});
     saveData();
   }
-  document.getElementById(id).classList.remove('open');
+  const el=_modalRefs[id]||document.getElementById(id);
+  if(el)el.classList.remove('open');
   if(!document.querySelector('.ov.open'))document.body.style.overflow='';
   if(id==='modal-det')renderOrdini();
+  if(el&&el.isConnected)el.remove();
 }
 document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo','modal-backup','modal-backup-conf','modal-clienti','modal-edit-cliente','modal-unisci-pick','modal-unisci-conferma','modal-tel-menu','modal-img-menu'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
-function apriSegnalaProblema(){document.getElementById('segnala-testo').value='';openModal('modal-segnala');}
+function apriSegnalaProblema(){openModal('modal-segnala');document.getElementById('segnala-testo').value='';}
 async function inviaSegnalazione(){
   const testo=document.getElementById('segnala-testo').value.trim();
   if(!testo){toast('Descrivi il problema prima di inviare','err');return;}
@@ -4511,6 +4525,7 @@ function _disegnaEtichetta(o,artIdEvidenziato){
 }
 function _mostraCanvasNelModal(canvas,oid,artId){
   const url=canvas.toDataURL('image/png');
+  openModal('modal-etichetta');
   const el=document.getElementById('etichetta-content');if(!el)return;
   el.innerHTML=`<div style="text-align:center">
     <img src="${url}" alt="Anteprima etichetta" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin-bottom:14px">
@@ -4519,7 +4534,6 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     <button id="btn-aggiungi-gruppo-etichetta" style="width:100%;padding:12px;background:#fff;color:#256BC1;border:1.5px solid #256BC1;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px"><i class="ti ti-plus"></i> Aggiungi alla coda</button>
     ${!_devePassareDaCondivisione()?`<div style="font-size:12px;color:var(--sub);margin-top:6px">Usa "Condividi" se la tua stampante non compare nell'elenco di "Stampa" (es. stampanti Bluetooth non standard)</div>`:''}
   </div>`;
-  openModal('modal-etichetta');
   // Attach ai bottoni dopo render
   setTimeout(function(){
     const btnStampa=document.getElementById('btn-stampa-etichetta');
@@ -4851,24 +4865,24 @@ function rimuoviDalGruppoStampa(idx){
 }
 
 function formattaDataBackup(iso){const d=new Date(iso+'T00:00:00');const oggi=new Date();oggi.setHours(0,0,0,0);const diffGiorni=Math.round((oggi-d)/86400000);if(diffGiorni===0)return 'Oggi';if(diffGiorni===1)return 'Ieri';return d.toLocaleDateString('it-IT',{day:'numeric',month:'long'})+' · '+diffGiorni+' giorni fa';}
-async function apriModalBackup(){const wrap=document.getElementById('backup-list');wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub);font-size:13px">Caricamento…</div>';openModal('modal-backup');try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).collection('backups').get();if(snap.empty){wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub);font-size:13px">Nessun backup disponibile ancora. Il primo verrà creato entro le prossime 24 ore.</div>';return;}const docs=snap.docs.slice().sort(function(a,b){return a.id<b.id?1:-1;}).slice(0,14);wrap.innerHTML='';docs.forEach(function(doc,i){const dataId=doc.id;const isFirst=i===0;const btn=document.createElement('button');btn.className='btn '+(isFirst?'br':'bg2')+' btn-full';btn.style.cssText='justify-content:flex-start;gap:12px;text-align:left';btn.innerHTML='<span style="font-size:18px"><i class="ti ti-'+(isFirst?'star':'calendar-event')+'"></i></span><div><div style="font-size:14px;font-weight:900">'+formattaDataBackup(dataId)+'</div>'+(isFirst?'<div style="font-size:11px;font-weight:700;opacity:.85">Più recente disponibile</div>':'')+'</div>';btn.onclick=function(){apriConfermaRipristinoBackup(dataId);};wrap.appendChild(btn);});}catch(e){console.warn('Errore caricamento backup',e);wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub);font-size:13px">Errore nel caricamento dei backup.</div>';}}
-function apriConfermaRipristinoBackup(dataId){closeModal('modal-backup');document.getElementById('modal-backup-conf-txt').textContent='Ripristinare i dati a '+formattaDataBackup(dataId).toLowerCase()+'?';document.getElementById('modal-backup-conf-btn').onclick=function(){closeModal('modal-backup-conf');eseguiRipristinoBackup(dataId);};openModal('modal-backup-conf');}
+async function apriModalBackup(){openModal('modal-backup');const wrap=document.getElementById('backup-list');wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub);font-size:13px">Caricamento…</div>';try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).collection('backups').get();if(snap.empty){wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub);font-size:13px">Nessun backup disponibile ancora. Il primo verrà creato entro le prossime 24 ore.</div>';return;}const docs=snap.docs.slice().sort(function(a,b){return a.id<b.id?1:-1;}).slice(0,14);wrap.innerHTML='';docs.forEach(function(doc,i){const dataId=doc.id;const isFirst=i===0;const btn=document.createElement('button');btn.className='btn '+(isFirst?'br':'bg2')+' btn-full';btn.style.cssText='justify-content:flex-start;gap:12px;text-align:left';btn.innerHTML='<span style="font-size:18px"><i class="ti ti-'+(isFirst?'star':'calendar-event')+'"></i></span><div><div style="font-size:14px;font-weight:900">'+formattaDataBackup(dataId)+'</div>'+(isFirst?'<div style="font-size:11px;font-weight:700;opacity:.85">Più recente disponibile</div>':'')+'</div>';btn.onclick=function(){apriConfermaRipristinoBackup(dataId);};wrap.appendChild(btn);});}catch(e){console.warn('Errore caricamento backup',e);wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub);font-size:13px">Errore nel caricamento dei backup.</div>';}}
+function apriConfermaRipristinoBackup(dataId){closeModal('modal-backup');openModal('modal-backup-conf');document.getElementById('modal-backup-conf-txt').textContent='Ripristinare i dati a '+formattaDataBackup(dataId).toLowerCase()+'?';document.getElementById('modal-backup-conf-btn').onclick=function(){closeModal('modal-backup-conf');eseguiRipristinoBackup(dataId);};}
 async function eseguiRipristinoBackup(dataId){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).collection('backups').doc(dataId).get();if(!snap.exists){toast('Backup non trovato','err');return;}const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};await saveData();refreshAll();toast('Dati ripristinati','v');}catch(e){console.warn('Errore ripristino backup',e);toast('Errore nel ripristino','err');}}
 function apriModalGruppoStampa(){
   if(!_gruppoStampa.length){toast('Nessuna etichetta in coda','err');return;}
-  renderGruppoStampaModal();
   openModal('modal-gruppo-stampa');
+  renderGruppoStampaModal();
 }
 
 let _gruppoThumbUrls={};
 function visualizzaMiniaturaGruppo(i){
   const url=_gruppoThumbUrls[i];
   if(!url)return;
+  openModal('modal-img-view');
   const imgEl=document.getElementById('img-view-el');
   const loadEl=document.getElementById('img-view-loading');
   if(loadEl)loadEl.style.display='none';
   if(imgEl){imgEl.src=url;imgEl.style.display='block';}
-  openModal('modal-img-view');
 }
 
 function renderGruppoStampaModal(){
@@ -5084,12 +5098,12 @@ async function rinominaDispositivo(deviceId){
 let _dispositivoDaRimuovere=null;
 function confRimuoviDispositivo(deviceId){
   _dispositivoDaRimuovere=deviceId;
+  openModal('modal-rimuovi-dispositivo');
   const isGoogle=currentUser&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='google.com';
   document.getElementById('rimdisp-pwd-wrap').style.display=isGoogle?'none':'block';
   document.getElementById('rimdisp-google-wrap').style.display=isGoogle?'block':'none';
   document.getElementById('rimdisp-pwd').value='';
   document.getElementById('rimdisp-err').textContent='';
-  openModal('modal-rimuovi-dispositivo');
 }
 async function confermaRimuoviDispositivoPwd(){
   const pwd=document.getElementById('rimdisp-pwd').value;
