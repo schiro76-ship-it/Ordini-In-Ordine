@@ -379,6 +379,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
    dei suggerimenti (altrimenti l'overflow:hidden della card lo taglia
    via prima che il suo stesso scorrimento interno serva a qualcosa). */
 .card-cliente-nuovo{overflow:visible}
+.card-cliente-nuovo .ch{border-radius:var(--rad) var(--rad) 0 0}
 .card-sticky-host{overflow:visible}
 .card-sticky-host .ch{position:relative;z-index:52;border-radius:var(--rad) var(--rad) 0 0;box-shadow:0 6px 8px -6px rgba(0,0,0,0.18)}
 .card-sticky-host.sticky-on .ch{position:sticky;top:var(--phdr-h,0px);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
@@ -434,6 +435,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
    dove ci si trova durante la navigazione con le frecce tra quantità e pillole UM. */
 .um-pill:focus,.um-nuova-btn:focus{outline:2px solid var(--azione);outline-offset:1px}
 .sel-input-nota{width:100%;padding:9px 11px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:var(--txt);outline:none;background:#fff}
+.sel-input-nota:focus{border-color:var(--azione)}
 .sel-input-nota::placeholder{color:var(--sub);font-weight:500}
 .det-note-input::placeholder{color:rgba(255,255,255,0.75);font-weight:600}
 .sel-rm{background:var(--rs);border:none;color:var(--r);cursor:pointer;font-size:17px;font-weight:800;border-radius:9px;width:38px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:filter 0.15s}.sel-rm i{font-size:18px}.sel-rm:hover{filter:brightness(0.92)}.sel-rm:active{filter:brightness(0.85)}
@@ -916,7 +918,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <div class="card card-cliente-nuovo" style="margin-bottom:14px">
             <div class="ch"><div class="ct"><i class="ti ti-user"></i> Cliente</div></div>
             <div class="cb">
-              <div class="fg fg-rel"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi" autocomplete="off" oninput="capWords(this);renderClienteSugg()" onblur="nascondiClienteSugg()" onfocus="renderClienteSugg()"><div class="cliente-sugg" id="nn-sugg"></div></div><div class="cliente-sugg" id="nn-sugg"></div></div>
+              <div class="fg fg-rel"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi" autocomplete="off" oninput="capWords(this);renderClienteSugg()" onblur="nascondiClienteSugg()" onfocus="renderClienteSugg()"><div class="cliente-sugg" id="nn-sugg"></div></div>
               <div class="fg"><label class="fl">Telefono</label><input class="fi" type="tel" id="nn-tel" placeholder="Facoltativo" inputmode="tel"></div>
             </div>
           </div>
@@ -1514,7 +1516,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.16';
+const APP_VERSION='2.31.18';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
