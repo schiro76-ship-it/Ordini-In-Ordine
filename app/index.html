@@ -456,7 +456,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .ar{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--brd)}.ar:last-child{border-bottom:none}
 .ar-name{flex:1;font-weight:700;font-size:16px}
 .ar-cat{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;background:var(--bg);padding:3px 9px;border-radius:6px;color:var(--sub)}
-.ar-cod{font-size:13px;font-weight:800;background:var(--azione-s);padding:3px 9px;border-radius:6px;color:var(--azione)}
+.ar-cod{font-size:13px;font-weight:800;background:var(--azione-s);padding:3px 9px;border-radius:6px;color:#174A82}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 20px;border-radius:12px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;transition:filter 0.15s}.btn:hover{filter:brightness(0.92)}.btn:active{filter:brightness(0.85)}
 .btn-full{width:100%}
 .br{background:var(--azione);color:#fff}.bg2{background:var(--bg);color:var(--txt)}.bgg{background:var(--g);color:#fff}
@@ -1519,7 +1519,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.20';
+const APP_VERSION='2.31.21';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
