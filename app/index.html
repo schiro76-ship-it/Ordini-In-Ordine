@@ -1040,19 +1040,19 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cb">
               <div style="padding:6px 0 4px;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px">Azzeramento automatico</div>
               <div style="display:flex;flex-direction:column;gap:2px" id="num-reset-options">
-                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveNumResetFreq('settimana')">
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" role="button" tabindex="0" onclick="saveNumResetFreq('settimana')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveNumResetFreq('settimana');}">
                   <span id="nrf-settimana" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
                   <div style="font-size:16px;font-weight:700">Ogni settimana</div>
                 </label>
-                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveNumResetFreq('mese')">
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" role="button" tabindex="0" onclick="saveNumResetFreq('mese')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveNumResetFreq('mese');}">
                   <span id="nrf-mese" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
                   <div style="font-size:16px;font-weight:700">Ogni mese</div>
                 </label>
-                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveNumResetFreq('anno')">
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" role="button" tabindex="0" onclick="saveNumResetFreq('anno')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveNumResetFreq('anno');}">
                   <span id="nrf-anno" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
                   <div style="font-size:16px;font-weight:700">Ogni anno</div>
                 </label>
-                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveNumResetFreq('mai')">
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" role="button" tabindex="0" onclick="saveNumResetFreq('mai')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveNumResetFreq('mai');}">
                   <span id="nrf-mai" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
                   <div style="font-size:16px;font-weight:700">Mai in automatico</div>
                 </label>
@@ -1065,23 +1065,23 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             <div class="cb">
               <div style="padding:6px 0 4px;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px">Formato data</div>
                 <div style="display:flex;flex-direction:column;gap:2px" id="date-format-options">
-                  <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveDateFormat('dd/mm')">
+                  <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" role="button" tabindex="0" onclick="saveDateFormat('dd/mm')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveDateFormat('dd/mm');}">
                     <span id="dfr-ddmm" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
                     <div><div style="font-size:16px;font-weight:700">24/04</div><div style="font-size:13px;color:var(--sub);font-weight:600">Giorno e mese</div></div>
                   </label>
-                  <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveDateFormat('gg dd/mm')">
+                  <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" role="button" tabindex="0" onclick="saveDateFormat('gg dd/mm')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveDateFormat('gg dd/mm');}">
                     <span id="dfr-ggddmm" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
                     <div><div style="font-size:16px;font-weight:700">ven 24/04</div><div style="font-size:13px;color:var(--sub);font-weight:600">Giorno settimana + data</div></div>
                   </label>
-                  <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveDateFormat('dd/mm/yy')">
+                  <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" role="button" tabindex="0" onclick="saveDateFormat('dd/mm/yy')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveDateFormat('dd/mm/yy');}">
                     <span id="dfr-ddmmyy" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
                     <div><div style="font-size:16px;font-weight:700">24/04/26</div><div style="font-size:13px;color:var(--sub);font-weight:600">Data breve con anno</div></div>
                   </label>
-                  <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveDateFormat('dd/mm/yyyy')">
+                  <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" role="button" tabindex="0" onclick="saveDateFormat('dd/mm/yyyy')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveDateFormat('dd/mm/yyyy');}">
                     <span id="dfr-ddmmyyyy" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
                     <div><div style="font-size:16px;font-weight:700">24/04/2026</div><div style="font-size:13px;color:var(--sub);font-weight:600">Data completa</div></div>
                   </label>
-                  <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" onclick="saveDateFormat('gg dd mmm')">
+                  <label style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer" role="button" tabindex="0" onclick="saveDateFormat('gg dd mmm')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saveDateFormat('gg dd mmm');}">
                     <span id="dfr-ggddmmm" style="width:20px;height:20px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff"></span>
                     <div><div style="font-size:16px;font-weight:700">ven 24 apr</div><div style="font-size:13px;color:var(--sub);font-weight:600">Stile pill / etichetta</div></div>
                   </label>
@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.34';
+const APP_VERSION='2.31.35';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
