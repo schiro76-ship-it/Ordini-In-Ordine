@@ -518,8 +518,6 @@ body:not(.portrait-phone) #storico-dettaglio-list .storico-ord-card{margin-botto
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.v{background:var(--g)}#toast.err{background:var(--r)}
 .um-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
-.art-nuovo-icon{width:32px;height:32px;border-radius:8px;background:var(--azione);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:all 0.15s}
-.art-nuovo-icon.open{background:none;color:var(--sub);font-size:20px}
 .um-chip{padding:7px 15px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px}
 .um-chip .del-um{font-size:14px;color:var(--sub);cursor:pointer}
 .slist{max-height:320px;overflow-y:auto}
@@ -1123,10 +1121,10 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
   <div class="modal" style="display:flex;flex-direction:column;overflow-y:hidden">
     <div class="mta"><i class="ti ti-folder"></i> <span id="modal-articoli-titolo">Catalogo articoli</span></div>
     <div style="overflow-y:auto;flex:1;min-height:0">
-      <div role="button" tabindex="0" onclick="toggleArtNuovo()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleArtNuovo();}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0 14px;user-select:none">
-        <span style="font-size:16px;font-weight:900;color:var(--txt)">Nuovo</span>
-        <span id="art-nuovo-icon" class="art-nuovo-icon"><i class="ti ti-plus"></i></span>
-      </div>
+      <button type="button" class="btn br btn-full" onclick="toggleArtNuovo()" style="justify-content:space-between;margin-bottom:14px">
+        <span>Nuovo</span>
+        <span id="art-nuovo-icon"><i class="ti ti-plus"></i></span>
+      </button>
       <div id="art-nuovo-fields" style="display:none;background:var(--bg);border-radius:12px;padding:14px;margin-bottom:16px">
         <div class="fg"><label class="fl" for="an">Nome *</label><input class="fi" type="text" id="an" placeholder="Es. Nome articolo"></div>
         <div class="fg"><label class="fl" for="an-cod">Codice</label><input class="fi" type="text" id="an-cod" placeholder="Es. 26 (facoltativo, per la ricerca veloce)"></div>
@@ -1572,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.26';
+const APP_VERSION='2.31.27';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2294,6 +2292,9 @@ let _scrollPositions={};
 function goTab(name){
   const pwPrev=document.querySelector('.page-wrap');
   if(pwPrev)_scrollPositions[_currentTab]=pwPrev.scrollTop;
+  const _tabPrecedente=_currentTab;
+  const _focusPrima=document.activeElement;
+  const _spostaFocusNelContenuto=_usingKeyboard&&_focusPrima&&_focusPrima.closest&&(_focusPrima.closest('.sb-nav')||_focusPrima.closest('#bottom-nav')||_focusPrima.closest('#tab-'+_tabPrecedente));
   if(name==='nuovo'&&_currentTab!=='nuovo')_tabPrimaDiNuovo=_currentTab;
   _currentTab=name;
   document.querySelectorAll('.ov.open').forEach(function(ov){ov.classList.remove('open');document.body.style.overflow='';if(ov.isConnected)ov.remove();});
@@ -2345,6 +2346,11 @@ function goTab(name){
       pw.scrollTop=target;
       setTimeout(function(){pw.scrollTop=target;},0);
     }
+  }
+  if(_spostaFocusNelContenuto){
+    const sec=document.getElementById('tab-'+name);
+    const first=sec&&sec.querySelector(_focusableSel);
+    if(first)first.focus();
   }
 }
 function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open')}
@@ -2850,8 +2856,8 @@ function smoothToggle(bodyEl,arrowEl,headerEl){
 function toggleStoricoArticoli(){const f=document.getElementById('storico-articoli-fields');const a=document.getElementById('storico-articoli-arrow');const h=f.previousElementSibling;smoothToggle(f,a,h);}
 function toggleStoricoDettaglio(){const f=document.getElementById('storico-dettaglio-fields');const a=document.getElementById('storico-dettaglio-arrow');const h=f.previousElementSibling;smoothToggle(f,a,h);}
 function toggleStoricoMensile(){const f=document.getElementById('storico-mensile-fields');const a=document.getElementById('storico-mensile-arrow');const h=f.previousElementSibling;smoothToggle(f,a,h);}
-function toggleArtNuovo(){const f=document.getElementById('art-nuovo-fields');const icon=document.getElementById('art-nuovo-icon');const wasOpen=f.style.display!=='none'&&getComputedStyle(f).display!=='none';smoothToggle(f,null,null);if(icon){icon.classList.toggle('open',!wasOpen);icon.innerHTML=wasOpen?'<i class="ti ti-plus"></i>':'<i class="ti ti-x"></i>';}}
-function resetArtNuovo(){const f=document.getElementById('art-nuovo-fields');const icon=document.getElementById('art-nuovo-icon');if(f){f.style.display='none';f.style.maxHeight='';f.style.overflow='';f.style.transition='';}if(icon){icon.classList.remove('open');icon.innerHTML='<i class="ti ti-plus"></i>';}}
+function toggleArtNuovo(){const f=document.getElementById('art-nuovo-fields');const icon=document.getElementById('art-nuovo-icon');const wasOpen=f.style.display!=='none'&&getComputedStyle(f).display!=='none';smoothToggle(f,null,null);if(icon)icon.innerHTML=wasOpen?'<i class="ti ti-plus"></i>':'<i class="ti ti-x"></i>';}
+function resetArtNuovo(){const f=document.getElementById('art-nuovo-fields');const icon=document.getElementById('art-nuovo-icon');if(f){f.style.display='none';f.style.maxHeight='';f.style.overflow='';f.style.transition='';}if(icon)icon.innerHTML='<i class="ti ti-plus"></i>';}
 function renderStoricoRiepilogo(){
   // --- Sezione 1: Storico articoli (riepilogo aggregato) ---
   const dal=document.getElementById('st-dal')&&document.getElementById('st-dal').value||'';const al=document.getElementById('st-al')&&document.getElementById('st-al').value||'';const cerca=(document.getElementById('st-art-cerca')&&document.getElementById('st-art-cerca').value||'').toLowerCase().trim();const ordsF=ords.filter(o=>{if(o.stato!=='ritirato')return false;if(!o.data)return!dal&&!al;if(dal&&o.data<dal)return false;if(al&&o.data>al)return false;return true;});const map={};ordsF.forEach(o=>(o.items||[]).forEach(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return;const k=`${it.artId}`;if(!map[k])map[k]={artId:it.artId,nome:a.nome,cat:a.cat||'',codice:a.codice||'',ums:{},nOrdini:0};const um=it.um||'';map[k].ums[um]=(map[k].ums[um]||0)+(parseQty(it.qty)||1);map[k].nOrdini++;}));const voci=Object.values(map).sort((a,b)=>a.nome.localeCompare(b.nome));const catsP=['Tutte',...[...new Set(voci.map(v=>v.cat).filter(Boolean))].sort()];if(!catsP.includes(stCatFilter))stCatFilter='Tutte';const pillsEl=document.getElementById('st-cat-pills');if(pillsEl)pillsEl.innerHTML=catsP.map(c=>`<span class="pill ${c===stCatFilter?'active':''}" role="button" tabindex="0" onclick="setStCat('${c}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setStCat('${c}');}">${c}</span>`).join('');const filtrate=voci.filter(v=>{if(stCatFilter!=='Tutte'&&v.cat!==stCatFilter)return false;if(cerca&&!ricercaIntelligente(cerca,v.nome)&&!codMatch(cerca,v))return false;return true;});
@@ -3342,7 +3348,7 @@ function detCalSelGiorno(iso){
   if(detCalOid)detCalAutoSalva(detCalOid);
   if(!giaSelezionato&&detCalSelDate){
     const extra=document.getElementById('det-cal-row-extra');
-    const next=extra&&extra.querySelector('button:not([disabled]),input:not([disabled])');
+    const next=extra&&[...extra.querySelectorAll('button:not([disabled]),input:not([disabled])')].find(el=>el.offsetParent!==null);
     if(next)next.focus();
   }
 }
@@ -3382,7 +3388,11 @@ function openDetQArt(oid){
   document.getElementById('qan').value='';
   document.getElementById('qac').value='';
   document.getElementById('qnuova-cat-wrap').style.display='none';
-  setTimeout(function(){document.getElementById('qan').focus()},120);
+  setTimeout(function(){
+    const modal=document.getElementById('modal-qart');
+    if(modal&&modal.contains(document.activeElement))return;
+    const qan=document.getElementById('qan');if(qan)qan.focus();
+  },120);
 }
 function renderDetArtGrid(oid){
   const o=ords.find(x=>x.id===oid);if(!o)return;
@@ -3750,7 +3760,7 @@ function _rcs(id){const s=document.getElementById(id);if(!s)return;const cur=(s.
 function onCatChange(s){const w=document.getElementById('nuova-cat-wrap');if(s.value==='__nuova__'){w.style.display='block';setTimeout(function(){document.getElementById('nuova-cat-input').focus()},80)}else w.style.display='none'}
 function onQCatChange(s){const w=document.getElementById('qnuova-cat-wrap');if(s.value==='__qnuova__'){w.style.display='block';setTimeout(function(){document.getElementById('qnuova-cat-input').focus()},80)}else w.style.display='none'}
 var _qOid=null;
-function openQArt(){_qOid=null;openModal('modal-qart');document.getElementById('qan').value='';document.getElementById('qac').value='';document.getElementById('qnuova-cat-wrap').style.display='none';setTimeout(function(){document.getElementById('qan').focus()},120)}
+function openQArt(){_qOid=null;openModal('modal-qart');document.getElementById('qan').value='';document.getElementById('qac').value='';document.getElementById('qnuova-cat-wrap').style.display='none';setTimeout(function(){const modal=document.getElementById('modal-qart');if(modal&&modal.contains(document.activeElement))return;const qan=document.getElementById('qan');if(qan)qan.focus();},120)}
 async function addArtRapido(){
   const n=document.getElementById('qan').value.trim();
   const qs=document.getElementById('qac');let c=qs.value==='__qnuova__'?'':qs.value;
@@ -4345,7 +4355,7 @@ function calSelGiorno(iso){
     const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
   } else if(!giaSelezionato&&calSelDate){
     const extra=document.getElementById('cal-row-extra');
-    const next=extra&&extra.querySelector('button:not([disabled]),input:not([disabled])');
+    const next=extra&&[...extra.querySelectorAll('button:not([disabled]),input:not([disabled])')].find(el=>el.offsetParent!==null);
     if(next)next.focus();
   }
 }
@@ -4366,6 +4376,9 @@ function calSceglOra(v){
   renderCal();
   _aggiornaTriggerLabel();
   if(calOra&&!calSelDate){toast('Ricordati di scegliere anche il giorno di ritiro!','err');}
+  else if(calOra&&calSelDate){
+    const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
+  }
 }
 function _aggiornaTriggerLabel(){
   // Aggiorna la label del trigger (legacy per compatibilità)
@@ -5420,6 +5433,10 @@ document.addEventListener('focusin',function(e){
     t.scrollIntoView({behavior:'smooth',block:'center'});
   },300);
 });
+// Tiene traccia se l'utente sta navigando da tastiera (Tab) piuttosto che con mouse/touch — usata sia
+// dall'anello di focus globale sotto, sia da goTab() per decidere se spostare il focus nel contenuto
+// della nuova tab (utile per chi usa Tab, superfluo/indesiderato — es. tastiera virtuale — per chi tocca).
+var _usingKeyboard=false;
 (function(){
   const RING_SEL='button,[role="button"],[role="checkbox"]';
   const RING_COLOR='#2C8AEC';
@@ -5431,9 +5448,8 @@ document.addEventListener('focusin',function(e){
   // allo sfondo risulterebbe poco o per niente visibile.
   ring.style.cssText='position:fixed;pointer-events:none;z-index:99999;display:none;box-sizing:border-box;border:2px solid #fff;box-shadow:0 0 0 2px '+RING_COLOR+';transition:none';
   document.body.appendChild(ring);
-  let usingKeyboard=false;
-  document.addEventListener('keydown',function(e){if(e.key==='Tab')usingKeyboard=true;});
-  document.addEventListener('mousedown',function(){usingKeyboard=false;});
+  document.addEventListener('keydown',function(e){if(e.key==='Tab')_usingKeyboard=true;});
+  document.addEventListener('mousedown',function(){_usingKeyboard=false;});
   let rafId=null;
   let lastRect=null;
   function rectsEqual(a,b){
@@ -5441,7 +5457,7 @@ document.addEventListener('focusin',function(e){
   }
   function loop(){
     const el=document.activeElement;
-    if(!usingKeyboard||!el||!el.closest||!el.closest(RING_SEL)){
+    if(!_usingKeyboard||!el||!el.closest||!el.closest(RING_SEL)){
       ring.style.display='none';
       rafId=null;
       lastRect=null;
