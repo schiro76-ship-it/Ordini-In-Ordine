@@ -402,7 +402,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .cal-compact.has-val{border-color:var(--azione)}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--azione)}
 .cal-nav .cn-lbl{font-size:14px;font-weight:900;color:#fff;text-align:center;flex:1}
-.cal-nav button{background:rgba(255,255,255,0.2);border:none;color:#fff;width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cal-nav button{background:rgba(255,255,255,0.2);border:none;color:#fff;width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:manipulation}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:4px 4px 2px;gap:1px}
 .cal-dow{font-size:10px;font-weight:800;color:var(--sub);text-align:center;padding:2px 0;text-transform:uppercase}
 .cal-day{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;border-radius:50%;transition:all 0.12s;border:none;background:none;font-family:'Nunito',sans-serif;color:var(--txt);box-sizing:border-box}
@@ -453,8 +453,8 @@ body.portrait-phone .itag-circle i{font-size:16px}
    focus va reso visibile sulla levetta disegnata (lo <span> subito dopo nel markup). */
 #notif-nuovo-ordine:focus+span,#notif-ordini-urgenti:focus+span{outline:2px solid var(--azione);outline-offset:2px}
 .sel-rm{background:var(--rs);border:none;color:var(--r);cursor:pointer;font-size:17px;font-weight:800;border-radius:9px;width:38px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:filter 0.15s}.sel-rm i{font-size:18px}.sel-rm:hover{filter:brightness(0.92)}.sel-rm:active{filter:brightness(0.85)}
-.qty-minus{background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0;transition:filter 0.15s}.qty-minus:hover{filter:brightness(0.92)}.qty-minus:active{filter:brightness(0.85)}.qty-minus:disabled{cursor:default}.qty-minus:disabled:hover{filter:none}
-.qty-plus{background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0;transition:filter 0.15s}.qty-plus:hover{filter:brightness(0.92)}.qty-plus:active{filter:brightness(0.85)}.qty-plus:disabled{cursor:default}.qty-plus:disabled:hover{filter:none}
+.qty-minus{background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0;transition:filter 0.15s;touch-action:manipulation}.qty-minus:hover{filter:brightness(0.92)}.qty-minus:active{filter:brightness(0.85)}.qty-minus:disabled{cursor:default}.qty-minus:disabled:hover{filter:none}
+.qty-plus{background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0;transition:filter 0.15s;touch-action:manipulation}.qty-plus:hover{filter:brightness(0.92)}.qty-plus:active{filter:brightness(0.85)}.qty-plus:disabled{cursor:default}.qty-plus:disabled:hover{filter:none}
 .qty-search{width:38px;height:38px;border-radius:8px;border:1.5px solid var(--brd);background:#fff;color:var(--txt);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:filter 0.15s,border-color 0.15s}.qty-search:hover{filter:brightness(0.96);border-color:var(--azione)}.qty-search:active{filter:brightness(0.9)}
 .cp{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;overflow-y:visible;scrollbar-width:none;padding-bottom:4px;position:relative;z-index:1;flex-wrap:nowrap}.cp::-webkit-scrollbar{display:none}
 .pill{flex-shrink:0;padding:6px 14px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;font-size:14px;font-weight:800;color:var(--sub);cursor:pointer;transition:filter 0.15s}
@@ -1028,9 +1028,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
               <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0">
                 <div id="urg-giorni-lbl" style="font-size:15px;font-weight:700;color:var(--txt)">Solo il giorno del ritiro</div>
                 <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-                  <button class="btn br" aria-label="Diminuisci giorni urgenza" style="width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%" onclick="changeUrgDays(-1)"><i class="ti ti-minus" style="font-size:16px"></i></button>
+                  <button class="btn br" aria-label="Diminuisci giorni urgenza" style="width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;touch-action:manipulation" onclick="changeUrgDays(-1)"><i class="ti ti-minus" style="font-size:16px"></i></button>
                   <input id="urg-giorni-val" type="number" inputmode="numeric" min="0" max="30" value="0" aria-label="Giorni prima del ritiro per considerare l'ordine urgente" style="font-size:18px;font-weight:900;width:46px;text-align:center;border:1.5px solid var(--brd);border-radius:8px;padding:6px 2px;color:var(--txt);font-family:'Nunito',sans-serif" onchange="setUrgDays(this.value)">
-                  <button class="btn br" aria-label="Aumenta giorni urgenza" style="width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%" onclick="changeUrgDays(1)"><i class="ti ti-plus" style="font-size:16px"></i></button>
+                  <button class="btn br" aria-label="Aumenta giorni urgenza" style="width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;touch-action:manipulation" onclick="changeUrgDays(1)"><i class="ti ti-plus" style="font-size:16px"></i></button>
                 </div>
               </div>
             </div>
@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.35';
+const APP_VERSION='2.31.36';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
