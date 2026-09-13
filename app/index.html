@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.38';
+const APP_VERSION='2.31.39';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -3974,13 +3974,16 @@ document.addEventListener('keydown',function(e){
   if(e.key!=='Enter')return;
   const t=e.target;
   if(!t||!t.closest||!t.closest('#modal-edit-cliente'))return;
-  e.preventDefault();
   if(t.id==='edit-cliente-nome'){
+    e.preventDefault();
     const tel=document.getElementById('edit-cliente-telefono');
     if(tel)tel.focus();
   } else if(t.id==='edit-cliente-telefono'){
+    e.preventDefault();
     salvaEditCliente();
   }
+  // Per qualsiasi altro elemento (es. il bottone Salva stesso) non si fa nulla qui: si lascia che il
+  // comportamento nativo del browser (Invio attiva il bottone che ha il focus) segua il suo corso.
 });
 function confermaEliminaCliente(id){
   const c=clienti.find(x=>x.id===id);if(!c)return;
@@ -5429,7 +5432,6 @@ const _enterSubmitMap={
   'reg-rag-sociale':doRegister,'reg-piva':doRegister,'reg-cf':doRegister,'reg-indirizzo':doRegister,'reg-sdi':doRegister,
   'rimdisp-pwd':confermaRimuoviDispositivoPwd,
   'edit-art-nome':salvaEditArt,'edit-art-nuova-input':salvaEditArt,
-  'edit-cliente-nome':salvaEditCliente,'edit-cliente-telefono':salvaEditCliente,
   'qan':addArtRapido,'qnuova-cat-input':addArtRapido,
   'an':addArt,'nuova-cat-input':addArt,
   'cat-new':addCatVolo,
