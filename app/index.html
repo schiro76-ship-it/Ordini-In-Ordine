@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.30';
+const APP_VERSION='2.31.31';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2292,9 +2292,12 @@ let _scrollPositions={};
 function goTab(name){
   const pwPrev=document.querySelector('.page-wrap');
   if(pwPrev)_scrollPositions[_currentTab]=pwPrev.scrollTop;
-  const _tabPrecedente=_currentTab;
-  const _focusPrima=document.activeElement;
-  const _spostaFocusNelContenuto=!_lastInputTouch&&_focusPrima&&_focusPrima.closest&&(_focusPrima.closest('.sb-nav')||_focusPrima.closest('#bottom-nav')||_focusPrima.closest('#tab-'+_tabPrecedente));
+  // Nota: non ci si basa su "dov'era il focus prima" per decidere se spostarlo — in Safari un click con
+  // il mouse su un elemento non di testo (bottoni, div con role=button, i link della sidebar compresi)
+  // NON gli dà mai il focus, quindi quel controllo risultava sempre falso proprio nel caso più comune.
+  // L'unico segnale che serve davvero è "l'ultima interazione è stata un tocco?", per evitare di far
+  // comparire la tastiera virtuale su tablet/telefono quando si tocca la sidebar.
+  const _spostaFocusNelContenuto=!_lastInputTouch;
   if(name==='nuovo'&&_currentTab!=='nuovo')_tabPrimaDiNuovo=_currentTab;
   _currentTab=name;
   document.querySelectorAll('.ov.open').forEach(function(ov){ov.classList.remove('open');document.body.style.overflow='';if(ov.isConnected)ov.remove();});
