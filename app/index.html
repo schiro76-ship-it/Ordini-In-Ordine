@@ -438,10 +438,15 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .sel-input-nota:focus{border-color:var(--azione)}
 .sel-input-nota::placeholder{color:var(--sub);font-weight:500}
 .det-note-input::placeholder{color:rgba(255,255,255,0.75);font-weight:600}
-/* Campi con outline:none impostato inline (niente stile :focus in dotazione prima d'ora):
+/* Campi con outline:none/border impostato inline (niente stile :focus in dotazione prima d'ora):
    serve !important perché uno stile inline ha sempre priorità su qualsiasi regola esterna. */
 #st-det-cerca:focus{border-color:var(--azione)!important}
-#det-num:focus,#det-nome:focus,#det-telefono:focus,#det-note:focus{border-color:rgba(255,255,255,0.85)!important;background:rgba(255,255,255,0.25)!important}
+#det-search-art:focus{border-color:var(--azione)!important}
+/* Stesso doppio anello (bianco + colore d'accento) del resto dell'app, applicato qui via CSS anziché
+   dal focus ring globale (che segue solo button/[role=button]/[role=checkbox], non i campi di testo) —
+   così anche sullo sfondo blu dell'intestazione "Modifica ordine" il focus resta ben visibile e coerente
+   con il bottone "Data" accanto, che essendo un <button> riceve già l'anello globale. */
+#det-num:focus,#det-nome:focus,#det-telefono:focus,#det-note:focus{outline:2px solid #fff!important;outline-offset:1px;box-shadow:0 0 0 4px #2C8AEC!important;border-radius:7px}
 #nuovo-num-top:focus{outline:2px solid var(--azione)!important;outline-offset:2px;border-radius:4px}
 .cal-time-inp:focus{outline:2px solid var(--azione);outline-offset:1px;border-radius:4px}
 /* Interruttori "a levetta": la casella reale è invisibile (opacity:0;width:0;height:0), quindi il
@@ -487,18 +492,6 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .modal-qart-inner{background:#fff;border-radius:20px 20px 0 0;padding:22px 18px 30px;width:100%;max-width:440px;box-shadow:var(--shl);animation:su 0.18s ease;max-height:85vh;overflow-y:auto}
 @media(min-width:640px){.modal-qart-inner{border-radius:18px;max-height:88vh}}
 @supports(padding-bottom:env(safe-area-inset-bottom)){.modal-qart-inner{padding-bottom:max(30px,env(safe-area-inset-bottom))}}
-.art-det-row{border:2px solid var(--brd);border-radius:10px;padding:12px 14px;margin-bottom:10px;transition:border-color 0.2s}
-.art-det-row.done{background:var(--gs);border-color:var(--g)}
-.art-det-row:not(.done){border-color:#C0392B;border-width:1.5px}
-.art-det-row.done .art-det-name{text-decoration:line-through;color:var(--sub)}
-.art-det-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.art-det-check{width:26px;height:26px;border-radius:7px;border:2px solid var(--brd);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;font-size:16px}
-.art-det-check.checked{background:var(--g);border-color:var(--g);color:#fff}
-.art-det-name{flex:1;font-size:16px;font-weight:800}
-.art-det-inputs{display:grid;grid-template-columns:1fr 1fr 2fr;gap:7px}
-@media(max-width:400px){.art-det-inputs{grid-template-columns:1fr 1fr}}
-.art-det-inputs input,.art-det-inputs select{padding:9px 10px;border:1.5px solid var(--brd);border-radius:8px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;color:var(--txt);outline:none;width:100%}
-.art-det-inputs label{font-size:12px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:3px}
 .rp-row{display:flex;align-items:center;gap:12px;padding:0;overflow:hidden;background:#fff;border-radius:11px;margin-bottom:8px;box-shadow:var(--sh);transition:background 0.2s ease}
 .rp-row-detail{padding:0 14px 10px;background:#fff;border-radius:0 0 11px 11px;margin-top:0;margin-bottom:8px;box-shadow:var(--sh)}
 .rp-pri{background:var(--ev);color:#fff;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
@@ -1224,6 +1217,16 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
   </div>
 </div>
+<div class="ov" id="modal-prompt" style="align-items:center;padding:20px;z-index:200">
+  <div class="modal" style="max-width:340px;border-radius:18px">
+    <div class="mta" id="modal-prompt-title" style="font-size:18px;margin-bottom:14px"></div>
+    <input type="text" id="modal-prompt-input" class="fi" style="margin-bottom:18px" onkeydown="if(event.key==='Enter'){event.preventDefault();confermaModalPrompt();}">
+    <div class="ma">
+      <button class="btn bg2" style="flex:1" onclick="closeModal('modal-prompt')">Annulla</button>
+      <button class="btn btn-azione" style="flex:1" onclick="confermaModalPrompt()">Conferma</button>
+    </div>
+  </div>
+</div>
 <div class="ov" id="modal-img-menu" style="align-items:center;padding:20px;z-index:200">
   <div class="modal" style="max-width:320px;text-align:center;border-radius:18px">
     <div class="mta" style="font-size:18px;margin-bottom:16px">Aggiungi immagine</div>
@@ -1501,6 +1504,47 @@ function _modalDelResetDefault(){
   if(ma){ma.style.flexDirection='row';ma.style.gap='8px'}
   if(annulla){annulla.style.flex='1';annulla.style.width=''}
 }
+// Sostituisce prompt() nativo (inaffidabile su iOS PWA, come già emerso per confirm()): un unico
+// modal riutilizzabile con callback, usato ovunque serva chiedere un singolo testo all'utente.
+let _modalPromptCallback=null;
+function apriModalPrompt(titolo,valoreIniziale,callback){
+  openModal('modal-prompt');
+  document.getElementById('modal-prompt-title').textContent=titolo;
+  const inp=document.getElementById('modal-prompt-input');
+  if(inp)inp.value=valoreIniziale||'';
+  _modalPromptCallback=callback;
+}
+function confermaModalPrompt(){
+  const inp=document.getElementById('modal-prompt-input');
+  const v=(inp&&inp.value||'').trim();
+  const cb=_modalPromptCallback;
+  _modalPromptCallback=null;
+  closeModal('modal-prompt');
+  if(cb)cb(v);
+}
+// Versione a Promise, per i punti del codice già scritti in stile "const v=await ...".
+function modalPromptAsync(titolo,valoreIniziale){
+  return new Promise(function(resolve){apriModalPrompt(titolo,valoreIniziale,resolve);});
+}
+function confDelArt(id){
+  const a=arts.find(x=>x.id===id);
+  openModal('modal-del-conf');
+  _modalDelResetDefault();
+  document.getElementById('modal-del-txt').textContent='Eliminare questo '+lblArt(false)+' dal catalogo?';
+  document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delArt(id);};
+}
+function confDelUM(u){
+  openModal('modal-del-conf');
+  _modalDelResetDefault();
+  document.getElementById('modal-del-txt').textContent='Eliminare l\'unità di misura "'+u+'"?';
+  document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delUM(u);};
+}
+function confDelCat(c){
+  openModal('modal-del-conf');
+  _modalDelResetDefault();
+  document.getElementById('modal-del-txt').textContent='Eliminare la categoria "'+c+'"?';
+  document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delCat(c);};
+}
 function resetOnboarding(){
   if(!currentUser)return;
   openModal('modal-del-conf');
@@ -1528,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.24';
+const APP_VERSION='2.31.25';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2920,6 +2964,7 @@ function coloreRpData(o){
 async function toggleRp(key){
   const staEspandendo=!rpExpanded[key];
   rpExpanded[key]=staEspandendo;
+  const _erafocusata=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('[data-artid="'+key+'"]');
 
   if(!staEspandendo){
     const container=document.getElementById('riepilogo-list');
@@ -2957,6 +3002,7 @@ async function toggleRp(key){
         el.addEventListener('transitionend',()=>{el.style.transition='';},{once:true});
       });});
     });
+    if(_erafocusata){const t=container.querySelector('[data-artid="'+key+'"] [role="button"]');if(t)t.focus();}
   } else {
     renderRiepilogo();
     const container=document.getElementById('riepilogo-list');
@@ -2977,6 +3023,7 @@ async function toggleRp(key){
         });});
       }
     }
+    if(_erafocusata){const t=container.querySelector('[data-artid="'+key+'"] [role="button"]');if(t)t.focus();}
   }
 }
 
@@ -3239,7 +3286,13 @@ let _detCalToastPending=false;
 // così più modifiche consecutive a giorno/modalità/orario producono un solo toast, non uno per click.
 function _flushDetCalToast(){if(_detCalToastPending){_detCalToastPending=false;toast('Data aggiornata','v');}}
 function initDetCal(o){detCalOid=o.id;_detCalToastPending=false;const n=new Date();detCalYear=n.getFullYear();detCalMonth=n.getMonth();detCalSelDate=o.data||null;detCalTurno=o.turno||null;detCalOra=o.ora||null;renderDetCalGrid();}
-function toggleDetCal(oid){const w=document.getElementById('det-cal-wrap');if(w)w.style.display=w.style.display==='none'?'block':'none';}
+function toggleDetCal(oid){
+  const w=document.getElementById('det-cal-wrap');
+  if(!w)return;
+  const apre=w.style.display==='none';
+  w.style.display=apre?'block':'none';
+  if(apre){const f=w.querySelector('button:not([disabled])');if(f)f.focus();}
+}
 function detCalNav(oid,d){detCalMonth+=d;if(detCalMonth<0){detCalMonth=11;detCalYear--}if(detCalMonth>11){detCalMonth=0;detCalYear++}renderDetCalGrid();}
 var detCalOra=null,detCalTurno=null;
 function renderDetCalGrid(){
@@ -3280,7 +3333,17 @@ function renderDetCalGrid(){
     if(btnPom)btnPom.className='cal-btn-mp'+(detCalTurno==='pomeriggio'&&!detCalOra?' sel-pom':'');
   }
 }
-function detCalSelGiorno(iso){detCalSelDate=(detCalSelDate===iso)?null:iso;renderDetCalGrid();if(detCalOid)detCalAutoSalva(detCalOid);}
+function detCalSelGiorno(iso){
+  const giaSelezionato=detCalSelDate===iso;
+  detCalSelDate=giaSelezionato?null:iso;
+  renderDetCalGrid();
+  if(detCalOid)detCalAutoSalva(detCalOid);
+  if(!giaSelezionato&&detCalSelDate){
+    const extra=document.getElementById('det-cal-row-extra');
+    const next=extra&&extra.querySelector('button:not([disabled]),input:not([disabled])');
+    if(next)next.focus();
+  }
+}
 function detCalSceglTurno(oid,turno){
   const o=ords.find(x=>x.id===oid);if(!o)return;
   if(detCalTurno===turno){detCalTurno=null;}
@@ -3444,7 +3507,7 @@ function detUpdUM(oid,idx,um){
 }
 async function addUMVoloDet(oid,idx){
   _flushDetCalToast();
-  const v=(prompt('Nome della nuova unità di misura:')||'').trim().toLowerCase();
+  const v=(await modalPromptAsync('Nome della nuova unità di misura:','')||'').trim().toLowerCase();
   if(!v)return;
   if(unitaMisura.includes(v)){toast('Già presente!','err');detUpdUM(oid,idx,v);return;}
   unitaMisura.push(v);
@@ -3603,7 +3666,7 @@ function selUMpill(id,v){
   },30);
 }
 async function addUMVolo(id){
-  const v=(prompt('Nome della nuova unità di misura:')||'').trim().toLowerCase();
+  const v=(await modalPromptAsync('Nome della nuova unità di misura:','')||'').trim().toLowerCase();
   if(!v)return;
   if(unitaMisura.includes(v)){toast('Già presente!','err');selUMpill(id,v);return;}
   unitaMisura.push(v);
@@ -3658,7 +3721,7 @@ async function salvaOrdine(){if(_provaScaduta){toast('Il mese di prova è termin
     renderOrdini();
   }
 }
-function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')||codMatch(c,a)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.codice?`<span class="ar-cod">${a.codice}</span>`:''}${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})" aria-label="Modifica ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questo '+lblArt(false)+' dal catalogo?'))delArt(${a.id})" aria-label="Elimina ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun '+lblArt(false)+'.</p></div>';}
+function renderArtM(){const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')||codMatch(c,a)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' totali';document.getElementById('aml').innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.codice?`<span class="ar-cod">${a.codice}</span>`:''}${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})" aria-label="Modifica ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="confDelArt(${a.id})" aria-label="Elimina ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun '+lblArt(false)+'.</p></div>';}
 function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;openModal('modal-edit-art');document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;document.getElementById('edit-art-cod').value=a.codice||'';const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';}
 async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const cod=document.getElementById('edit-art-cod').value.trim();if(cod&&arts.find(x=>x.id!==id&&x.codice&&x.codice.toLowerCase()===cod.toLowerCase())){toast('Codice già in uso da un altro '+lblArt(false),'err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;a.codice=cod;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato','v');}
 async function addArt(){const n=document.getElementById('an').value.trim();const cod=document.getElementById('an-cod').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;const ni=document.getElementById('nuova-cat-input');if(s.value==='__nuova__'&&ni&&ni.value.trim())c=ni.value.trim();if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}if(cod&&arts.find(a=>a.codice&&a.codice.toLowerCase()===cod.toLowerCase())){toast('Codice già in uso da un altro '+lblArt(false),'err');return}if(LIMITE_ARTICOLI_ATTIVO&&articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' '+lblArt(true)+' del piano gratuito','err');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c,codice:cod});articoliCreatiTotale++;
@@ -3672,14 +3735,14 @@ async function addArt(){const n=document.getElementById('an').value.trim();const
   toast('"'+n+'" aggiunto','v');
 }
 async function delArt(id){arts=arts.filter(x=>x.id!==id);await saveData();renderArtM();stats();toast('Eliminato','v')}
-function renderUMDisplay(){document.getElementById('um-display').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" role="button" tabindex="0" aria-label="Rimuovi unità ${u.replace(/"/g,'&quot;')}" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}" style="margin-left:4px;cursor:pointer;color:var(--r);font-size:13px"><i class="ti ti-x"></i></span></span>`).join('')}
-function renderUMModal(){document.getElementById('um-modal-list').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" role="button" tabindex="0" aria-label="Rimuovi unità ${u.replace(/"/g,'&quot;')}" onclick="if(confirm('Eliminare questa unità di misura?'))delUM('${u}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><i class="ti ti-x"></i></span></span>`).join('')}
+function renderUMDisplay(){document.getElementById('um-display').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" role="button" tabindex="0" aria-label="Rimuovi unità ${u.replace(/"/g,'&quot;')}" onclick="confDelUM('${u}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}" style="margin-left:4px;cursor:pointer;color:var(--r);font-size:13px"><i class="ti ti-x"></i></span></span>`).join('')}
+function renderUMModal(){document.getElementById('um-modal-list').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" role="button" tabindex="0" aria-label="Rimuovi unità ${u.replace(/"/g,'&quot;')}" onclick="confDelUM('${u}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><i class="ti ti-x"></i></span></span>`).join('')}
 async function addUM(){const v=document.getElementById('um-new').value.trim().toLowerCase();if(!v||unitaMisura.includes(v)){toast(v?'Già presente!':'Inserisci nome!','err');return}unitaMisura.push(v);document.getElementById('um-new').value='';await saveData();renderUMDisplay();renderUMModal();toast('"'+v+'" aggiunto','v');}
 async function delUM(u){if(unitaMisura.length<=1){toast('Almeno una unità di misura!','err');return}unitaMisura=unitaMisura.filter(x=>x!==u);await saveData();renderUMDisplay();renderUMModal();toast('Rimosso','v');}
-function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} ${lblArt(true)}</span><button class="ibtn" onclick="rinominaCat('${c}')" aria-label="Rinomina ${c.replace(/"/g,'&quot;')}"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="if(confirm('Eliminare questa categoria?'))delCat('${c}')" aria-label="Elimina ${c.replace(/"/g,'&quot;')}"><i class="ti ti-trash"></i></button></div>`).join('');}
+function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} ${lblArt(true)}</span><button class="ibtn" onclick="rinominaCat('${c}')" aria-label="Rinomina ${c.replace(/"/g,'&quot;')}"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="confDelCat('${c}')" aria-label="Elimina ${c.replace(/"/g,'&quot;')}"><i class="ti ti-trash"></i></button></div>`).join('');}
 async function delCat(nome){cats=cats.filter(x=>x!==nome);arts.forEach(function(a){if(a.cat===nome)a.cat=''});await saveData();refreshAll();renderCatList();toast('Categoria eliminata','v');}
 async function addCatVolo(){const v=document.getElementById('cat-new').value.trim();if(!v){toast('Inserisci nome!','err');return}if(cats.includes(v)){toast('Già presente!','err');return}cats.push(v);cats.sort();await saveData();document.getElementById('cat-new').value='';refreshAll();renderCatList();toast('"'+v+'" aggiunta','v');}
-async function rinominaCat(nome){const v=(prompt('Nuovo nome per la categoria:',nome)||'').trim();if(!v||v===nome)return;if(cats.includes(v)){toast('Già presente!','err');return}cats=cats.map(c=>c===nome?v:c);cats.sort();arts.forEach(function(a){if(a.cat===nome)a.cat=v});await saveData();refreshAll();renderCatList();toast('Categoria rinominata','v');}
+async function rinominaCat(nome){const v=(await modalPromptAsync('Nuovo nome per la categoria:',nome)||'').trim();if(!v||v===nome)return;if(cats.includes(v)){toast('Già presente!','err');return}cats=cats.map(c=>c===nome?v:c);cats.sort();arts.forEach(function(a){if(a.cat===nome)a.cat=v});await saveData();refreshAll();renderCatList();toast('Categoria rinominata','v');}
 function refreshCatSelects(){_rcs('ac2');_rcs('qac')}
 function _rcs(id){const s=document.getElementById(id);if(!s)return;const cur=(s.value==='__nuova__'||s.value==='__qnuova__')?'':s.value;const sent=id==='qac'?'__qnuova__':'__nuova__';s.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('')+`<option value="${sent}">＋ Nuova categoria…</option>`;}
 function onCatChange(s){const w=document.getElementById('nuova-cat-wrap');if(s.value==='__nuova__'){w.style.display='block';setTimeout(function(){document.getElementById('nuova-cat-input').focus()},80)}else w.style.display='none'}
@@ -3972,6 +4035,7 @@ function toggleStDetCal(field){
   if(!w)return;
   if(_stDetCalField===field&&w.style.display!=='none'){w.style.display='none';_stDetCalField=null;return;}
   _stDetCalField=field;w.style.display='block';renderStDetCal();
+  const f=w.querySelector('button:not([disabled])');if(f)f.focus();
 }
 function stDetCalNav(d){_stDetCalMonth+=d;if(_stDetCalMonth<0){_stDetCalMonth=11;_stDetCalYear--}if(_stDetCalMonth>11){_stDetCalMonth=0;_stDetCalYear++}renderStDetCal();}
 function renderStDetCal(){
@@ -4269,12 +4333,17 @@ function renderCal(){
   if(calComp)calComp.classList.toggle('has-val',!!calSelDate);
 }
 function calSelGiorno(iso){
-  calSelDate=(calSelDate===iso)?null:iso;
+  const giaSelezionato=calSelDate===iso;
+  calSelDate=giaSelezionato?null:iso;
   renderCal();
   _aggiornaTriggerLabel();
   // Se modalità niente → focus su nome subito (sincrono per iOS), solo se il giorno è stato selezionato (non deselezionato)
   if(_calMode==='niente'&&calSelDate){
     const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
+  } else if(!giaSelezionato&&calSelDate){
+    const extra=document.getElementById('cal-row-extra');
+    const next=extra&&extra.querySelector('button:not([disabled]),input:not([disabled])');
+    if(next)next.focus();
   }
 }
 function calSceglTurno(t){
@@ -4348,7 +4417,6 @@ function openModal(id){
 function closeModal(id){
   if(id==='modal-det'){
     _flushDetCalToast();
-    document.querySelectorAll('#modal-det-body .art-det-inputs input[type="number"]').forEach(inp=>{inp.dispatchEvent(new Event('change'));});
     ords.forEach(o=>{if(!o.items||!o.items.length)return;const tuttiDone=o.items.every(it=>it.done);if(tuttiDone&&o.stato==='evadere')o.stato='completato';if(!tuttiDone&&o.stato==='completato')o.stato='evadere';});
     saveData();
   }
@@ -4360,7 +4428,7 @@ function closeModal(id){
   if(el&&el.isConnected)el.remove();
   if(returnFocus&&document.body.contains(returnFocus)&&typeof returnFocus.focus==='function')returnFocus.focus();
 }
-document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo','modal-backup','modal-backup-conf','modal-clienti','modal-edit-cliente','modal-unisci-pick','modal-unisci-conferma','modal-tel-menu','modal-img-menu'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
+document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-prompt','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo','modal-backup','modal-backup-conf','modal-clienti','modal-edit-cliente','modal-unisci-pick','modal-unisci-conferma','modal-tel-menu','modal-img-menu'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
 function apriSegnalaProblema(){openModal('modal-segnala');document.getElementById('segnala-testo').value='';}
 async function inviaSegnalazione(){
   const testo=document.getElementById('segnala-testo').value.trim();
@@ -5135,7 +5203,7 @@ async function rinominaDispositivo(deviceId){
   if(deviceId!==_deviceId)return; // si può rinominare solo il proprio dispositivo, per evitare scherzi/casino tra colleghi
   if(!currentUser||!_dispositivi[deviceId])return;
   const attuale=_dispositivi[deviceId].nome||_dispositivi[deviceId].tipo||'';
-  const nuovo=(prompt('Nome di questo dispositivo:',attuale)||'').trim();
+  const nuovo=(await modalPromptAsync('Nome di questo dispositivo:',attuale)||'').trim();
   if(!nuovo||nuovo===attuale)return;
   try{
     await db.collection('dati').doc(currentUser.uid).set({dispositivi:{[deviceId]:{nome:nuovo}}},{merge:true});
@@ -5350,12 +5418,15 @@ document.addEventListener('focusin',function(e){
   },300);
 });
 (function(){
-  const RING_SEL='button,[role="button"]';
+  const RING_SEL='button,[role="button"],[role="checkbox"]';
   const RING_COLOR='#2C8AEC';
   const ring=document.createElement('div');
   ring.id='global-focus-ring';
   ring.setAttribute('aria-hidden','true');
-  ring.style.cssText='position:fixed;pointer-events:none;z-index:99999;display:none;box-sizing:border-box;border:2.5px solid '+RING_COLOR+';transition:none';
+  // Doppio anello (bianco a contatto + colore d'accento subito fuori): resta visibile sia su sfondi
+  // chiari sia su sfondi scuri/colorati (es. i bottoni blu), dove un anello di un solo colore simile
+  // allo sfondo risulterebbe poco o per niente visibile.
+  ring.style.cssText='position:fixed;pointer-events:none;z-index:99999;display:none;box-sizing:border-box;border:2px solid #fff;box-shadow:0 0 0 2px '+RING_COLOR+';transition:none';
   document.body.appendChild(ring);
   let usingKeyboard=false;
   document.addEventListener('keydown',function(e){if(e.key==='Tab')usingKeyboard=true;});
