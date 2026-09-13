@@ -438,6 +438,15 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .sel-input-nota:focus{border-color:var(--azione)}
 .sel-input-nota::placeholder{color:var(--sub);font-weight:500}
 .det-note-input::placeholder{color:rgba(255,255,255,0.75);font-weight:600}
+/* Campi con outline:none impostato inline (niente stile :focus in dotazione prima d'ora):
+   serve !important perché uno stile inline ha sempre priorità su qualsiasi regola esterna. */
+#st-det-cerca:focus{border-color:var(--azione)!important}
+#det-num:focus,#det-nome:focus,#det-telefono:focus,#det-note:focus{border-color:rgba(255,255,255,0.85)!important;background:rgba(255,255,255,0.25)!important}
+#nuovo-num-top:focus{outline:2px solid var(--azione)!important;outline-offset:2px;border-radius:4px}
+.cal-time-inp:focus{outline:2px solid var(--azione);outline-offset:1px;border-radius:4px}
+/* Interruttori "a levetta": la casella reale è invisibile (opacity:0;width:0;height:0), quindi il
+   focus va reso visibile sulla levetta disegnata (lo <span> subito dopo nel markup). */
+#notif-nuovo-ordine:focus+span,#notif-ordini-urgenti:focus+span{outline:2px solid var(--azione);outline-offset:2px}
 .sel-rm{background:var(--rs);border:none;color:var(--r);cursor:pointer;font-size:17px;font-weight:800;border-radius:9px;width:38px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:filter 0.15s}.sel-rm i{font-size:18px}.sel-rm:hover{filter:brightness(0.92)}.sel-rm:active{filter:brightness(0.85)}
 .qty-minus{background:var(--rs);color:var(--r);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0;transition:filter 0.15s}.qty-minus:hover{filter:brightness(0.92)}.qty-minus:active{filter:brightness(0.85)}.qty-minus:disabled{cursor:default}.qty-minus:disabled:hover{filter:none}
 .qty-plus{background:var(--gs);color:var(--g);width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0;transition:filter 0.15s}.qty-plus:hover{filter:brightness(0.92)}.qty-plus:active{filter:brightness(0.85)}.qty-plus:disabled{cursor:default}.qty-plus:disabled:hover{filter:none}
@@ -1519,7 +1528,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.22';
+const APP_VERSION='2.31.24';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2342,7 +2351,7 @@ function buildOcHTML(lista){
       const isItemUrg=urg&&!it.done;
       const circleClass=isRitirato?'done':it.done?'done':isItemUrg?'urg':'';
       const tagClass=`itag${isRitirato?' done':it.done?' done':''}${isItemUrg?' urg':''}`;
-      const circleClickHandler=isRitirato?'':'onclick="event.stopPropagation();togItemOrdini('+o.id+','+idx+',this.closest(\'.itag\'))"';
+      const circleAttrs=isRitirato?'':`role="checkbox" tabindex="0" aria-checked="${it.done?'true':'false'}" aria-label="${(a.nome||'').replace(/"/g,'&quot;')} - segna come pronto" onclick="event.stopPropagation();togItemOrdini(${o.id},${idx},this.closest('.itag'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();togItemOrdini(${o.id},${idx},this.closest('.itag'));}"`;
       const tagStyle=isRitirato?'background:var(--grs);color:var(--gr)':'';
       const qtyStyle=isRitirato?'color:var(--gr)':'';
       const circleContent=(isRitirato||it.done)?'<i class="ti ti-check"></i>':'';
@@ -2351,7 +2360,7 @@ function buildOcHTML(lista){
       const _qtySpanO=`<span class="qty" style="${qtyStyle}">${qtyStr}</span>`;
       const _qtyFotoO=_fotoBtnO?`<span style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px">${_fotoBtnO}${_qtySpanO}</span>`:`<span class="qty" style="${qtyStyle};flex-shrink:0">${qtyStr}</span>`;
       return`<div class="${tagClass}" style="${tagStyle}">
-        <div class="itag-circle ${circleClass}" ${circleClickHandler} style="${circleStyle}">${circleContent}</div>
+        <div class="itag-circle ${circleClass}" ${circleAttrs} style="${circleStyle}">${circleContent}</div>
         <div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px">
           <span style="flex:1 1 0%;min-width:120px">${a.nome}${a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}${it.nota?` <span class="nt">"${it.nota}"</span>`:''}</span>${_qtyFotoO}
         </div>
@@ -3076,7 +3085,7 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     const _fmtA=fmtRpData(_oA);
     const _dataLabel=_fmtA.r2?'<span>'+_fmtA.r1+'</span><span>'+_fmtA.r2+'</span>':'<span>'+_fmtA.r1+'</span>';
     const _ordFiltrati=v.ordini.slice().filter(x=>rpDayFilter===null||!x.ordine.data||x.ordine.data<=rpDayFilter).sort((a,b)=>priScore(a.ordine)-priScore(b.ordine));
-    const _rigaStampaTutte=_ordFiltrati.length>=2?`<div onclick="event.stopPropagation();aggiungiArticoloAlGruppoStampa(${v.artId},[${_ordFiltrati.map(x=>x.ordine.id).join(',')}])" style="padding:0 10px 6px;font-size:13px;font-weight:800;color:#256BC1;cursor:pointer;text-align:right;text-decoration:underline;text-underline-offset:2px">Aggiungi tutte alla coda di stampa (${_ordFiltrati.length})</div>`:'';
+    const _rigaStampaTutte=_ordFiltrati.length>=2?`<div role="button" tabindex="0" onclick="event.stopPropagation();aggiungiArticoloAlGruppoStampa(${v.artId},[${_ordFiltrati.map(x=>x.ordine.id).join(',')}])" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();aggiungiArticoloAlGruppoStampa(${v.artId},[${_ordFiltrati.map(x=>x.ordine.id).join(',')}]);}" style="padding:0 10px 6px;font-size:13px;font-weight:800;color:#256BC1;cursor:pointer;text-align:right;text-decoration:underline;text-underline-offset:2px">Aggiungi tutte alla coda di stampa (${_ordFiltrati.length})</div>`:'';
     const dettaglio=exp?_ordFiltrati.map(x=>{
       const q=parseQty(x.qty)||1;const qs=q%1===0?q:q.toFixed(2).replace(/\.?0+$/,'');
       const isUrg=isUrgente(x.ordine);
@@ -3089,7 +3098,7 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
       const _printBtnR=`<button class="act-print-rp" aria-label="Stampa etichetta" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center"><i class="ti ti-printer"></i></button>`;
       const _qtySpanR=`<span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}`;
       const _qtyFotoR=`<span style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px">${_fotoBtn}<span style="white-space:nowrap">${_qtySpanR}</span>${_printBtnR}</span>`;
-      return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px"><div class="${circleClass}" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})" style="border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px"><span style="flex:1 1 0%;min-width:150px;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${nomeAttuale(x.ordine)}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?` <span style="color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}</span>${_qtyFotoR}</div></div></div>`;
+      return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px"><div class="${circleClass}" role="checkbox" tabindex="0" aria-checked="${x.done?'true':'false'}" aria-label="${(nome||'').replace(/"/g,'&quot;')} - segna come pronto" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();togRpItem('${x.ordine.id}',${fidx});}" style="border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px"><span style="flex:1 1 0%;min-width:150px;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${nomeAttuale(x.ordine)}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?` <span style="color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}</span>${_qtyFotoR}</div></div></div>`;
     }).join('')+_rigaStampaTutte:'';
     return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;gap:0"><div role="button" tabindex="0" onclick="toggleRp(${v.artId})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleRp(${v.artId});}" style="display:flex;align-items:center;gap:8px;cursor:pointer"><div class="rp-pri" style="width:58px;min-width:58px;align-self:stretch;border-radius:11px;padding:5px 4px;font-size:13px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.25;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0;padding:12px 0"><div class="rp-art" style="padding:0;white-space:normal;flex:1 1 auto;min-width:0">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="flex-shrink:0;text-align:right;font-size:16px;font-weight:900;white-space:nowrap">${qStr}</div></div><span class="exp-arrow" style="flex-shrink:0">${exp?'<i class="ti ti-chevron-up"></i>':'<i class="ti ti-chevron-down"></i>'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden;padding-top:6px">${dettaglio}</div>`:''}</div>`;
   }).join('');
@@ -3336,7 +3345,7 @@ async function togItemOrdini(oid,idx,rowEl){
   rowEl.classList.toggle('done',done);
   rowEl.classList.toggle('urg',!done&&urg);
   const circle=rowEl.querySelector('.itag-circle');
-  if(circle){circle.className='itag-circle'+(done?' done':urg?' urg':'');circle.innerHTML=done?'<i class="ti ti-check"></i>':'';}
+  if(circle){circle.className='itag-circle'+(done?' done':urg?' urg':'');circle.innerHTML=done?'<i class="ti ti-check"></i>':'';circle.setAttribute('aria-checked',done?'true':'false');}
   const tuttiFatti=o.items.every(function(it){return it.done});
   const statoPrec=o.stato;
   const nuovoStato=tuttiFatti&&statoPrec==='evadere'?'completato':!done&&statoPrec==='completato'?'evadere':statoPrec;
@@ -4302,12 +4311,39 @@ function toggleCal(){renderCal();}
 // riferimento va salvato qui perché document.getElementById non trova un elemento staccato.
 var _modalRefs={};
 document.querySelectorAll('.ov').forEach(function(el){_modalRefs[el.id]=el;if(el.isConnected)el.remove();});
+// Focus trap per i modal (.ov): all'apertura il focus entra nel modal e Tab/Shift+Tab restano
+// confinati dentro; alla chiusura il focus torna sull'elemento che aveva aperto il modal.
+var _focusableSel='a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+function _getFocusable(el){
+  return[...el.querySelectorAll(_focusableSel)].filter(function(f){return f.offsetParent!==null||f===document.activeElement;});
+}
+function _modalTrapHandler(e){
+  if(e.key!=='Tab')return;
+  const el=e.currentTarget;
+  const items=_getFocusable(el);
+  if(!items.length){e.preventDefault();return;}
+  const first=items[0],last=items[items.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+}
 function openModal(id){
   const el=_modalRefs[id]||document.getElementById(id);
   if(!el)return;
   if(!el.isConnected)document.body.appendChild(el);
   el.classList.add('open');
   document.body.style.overflow='hidden';
+  el._returnFocus=document.activeElement;
+  el.addEventListener('keydown',_modalTrapHandler);
+  // Il contenuto di alcuni modal (es. modal-det) viene popolato da una funzione di render chiamata
+  // subito DOPO openModal() nello stesso punto di chiamata — si rimanda quindi lo spostamento del
+  // focus al termine dello stack di chiamate corrente, così da agganciarsi al contenuto già renderizzato
+  // e non a markup vuoto o residuo della apertura precedente.
+  setTimeout(function(){
+    if(!el.classList.contains('open'))return;
+    const items=_getFocusable(el);
+    if(items.length){items[0].focus();}
+    else{el.setAttribute('tabindex','-1');el.focus();}
+  },0);
 }
 function closeModal(id){
   if(id==='modal-det'){
@@ -4317,10 +4353,12 @@ function closeModal(id){
     saveData();
   }
   const el=_modalRefs[id]||document.getElementById(id);
-  if(el)el.classList.remove('open');
+  const returnFocus=el&&el._returnFocus;
+  if(el){el.removeEventListener('keydown',_modalTrapHandler);el.classList.remove('open');}
   if(!document.querySelector('.ov.open'))document.body.style.overflow='';
   if(id==='modal-det')renderOrdini();
   if(el&&el.isConnected)el.remove();
+  if(returnFocus&&document.body.contains(returnFocus)&&typeof returnFocus.focus==='function')returnFocus.focus();
 }
 document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo','modal-backup','modal-backup-conf','modal-clienti','modal-edit-cliente','modal-unisci-pick','modal-unisci-conferma','modal-tel-menu','modal-img-menu'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
 function apriSegnalaProblema(){openModal('modal-segnala');document.getElementById('segnala-testo').value='';}
