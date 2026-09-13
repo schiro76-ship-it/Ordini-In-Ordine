@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.27';
+const APP_VERSION='2.31.28';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2294,7 +2294,7 @@ function goTab(name){
   if(pwPrev)_scrollPositions[_currentTab]=pwPrev.scrollTop;
   const _tabPrecedente=_currentTab;
   const _focusPrima=document.activeElement;
-  const _spostaFocusNelContenuto=_usingKeyboard&&_focusPrima&&_focusPrima.closest&&(_focusPrima.closest('.sb-nav')||_focusPrima.closest('#bottom-nav')||_focusPrima.closest('#tab-'+_tabPrecedente));
+  const _spostaFocusNelContenuto=!_lastInputTouch&&_focusPrima&&_focusPrima.closest&&(_focusPrima.closest('.sb-nav')||_focusPrima.closest('#bottom-nav')||_focusPrima.closest('#tab-'+_tabPrecedente));
   if(name==='nuovo'&&_currentTab!=='nuovo')_tabPrimaDiNuovo=_currentTab;
   _currentTab=name;
   document.querySelectorAll('.ov.open').forEach(function(ov){ov.classList.remove('open');document.body.style.overflow='';if(ov.isConnected)ov.remove();});
@@ -2401,7 +2401,7 @@ function buildOcHTML(lista){
       const isItemUrg=urg&&!it.done;
       const circleClass=isRitirato?'done':it.done?'done':isItemUrg?'urg':'';
       const tagClass=`itag${isRitirato?' done':it.done?' done':''}${isItemUrg?' urg':''}`;
-      const circleAttrs=isRitirato?'':`role="checkbox" tabindex="0" aria-checked="${it.done?'true':'false'}" aria-label="${(a.nome||'').replace(/"/g,'&quot;')} - segna come pronto" onclick="event.stopPropagation();togItemOrdini(${o.id},${idx},this.closest('.itag'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();togItemOrdini(${o.id},${idx},this.closest('.itag'));}"`;
+      const circleAttrs=isRitirato?'':`role="checkbox" tabindex="0" data-itemcircle="${o.id}-${idx}" aria-checked="${it.done?'true':'false'}" aria-label="${(a.nome||'').replace(/"/g,'&quot;')} - segna come pronto" onclick="event.stopPropagation();togItemOrdini(${o.id},${idx},this.closest('.itag'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();togItemOrdini(${o.id},${idx},this.closest('.itag'));}"`;
       const tagStyle=isRitirato?'background:var(--grs);color:var(--gr)':'';
       const qtyStyle=isRitirato?'color:var(--gr)':'';
       const circleContent=(isRitirato||it.done)?'<i class="ti ti-check"></i>':'';
@@ -3413,6 +3413,7 @@ function renderDetArtGrid(oid){
 }
 async function togItemOrdini(oid,idx,rowEl){
   const o=ords.find(x=>x.id===oid);if(!o||!o.items[idx])return;
+  const _erafocusato=document.activeElement===rowEl.querySelector('.itag-circle');
   o.items[idx].done=!o.items[idx].done;
   const done=o.items[idx].done;
   const urg=isUrgente(o);
@@ -3425,8 +3426,14 @@ async function togItemOrdini(oid,idx,rowEl){
   const statoPrec=o.stato;
   const nuovoStato=tuttiFatti&&statoPrec==='evadere'?'completato':!done&&statoPrec==='completato'?'evadere':statoPrec;
   if(nuovoStato!==statoPrec){
-    // Delega tutto a setStato — stesso flusso dei bottoni
+    // Delega tutto a setStato — stesso flusso dei bottoni. setStato reindirizza l'intera lista
+    // (renderOrdini), distruggendo il cerchio appena aggiornato: se aveva il focus, lo si ripristina
+    // sul suo equivalente ricreato, altrimenti Tab ripartirebbe dalla prima card in alto.
     setStato(oid,nuovoStato,true);
+    if(_erafocusato){
+      const t=document.querySelector('[data-itemcircle="'+oid+'-'+idx+'"]');
+      if(t)t.focus();
+    }
   } else {
     saveData();
   }
@@ -5433,10 +5440,15 @@ document.addEventListener('focusin',function(e){
     t.scrollIntoView({behavior:'smooth',block:'center'});
   },300);
 });
-// Tiene traccia se l'utente sta navigando da tastiera (Tab) piuttosto che con mouse/touch — usata sia
-// dall'anello di focus globale sotto, sia da goTab() per decidere se spostare il focus nel contenuto
-// della nuova tab (utile per chi usa Tab, superfluo/indesiderato — es. tastiera virtuale — per chi tocca).
+// Tiene traccia se l'utente sta navigando da tastiera (Tab) piuttosto che con mouse/touch — usata
+// dall'anello di focus globale sotto per decidere quando mostrarlo.
 var _usingKeyboard=false;
+// Tiene traccia se l'ULTIMA interazione è stata un tocco (vs mouse/tastiera) — usata da goTab() per
+// decidere se spostare il focus nel contenuto della nuova tab: farlo dopo un click con il mouse o
+// un'attivazione da tastiera va bene, ma farlo dopo un tocco su tablet/telefono rischierebbe di far
+// comparire la tastiera virtuale in modo indesiderato se il primo elemento è un campo di testo.
+var _lastInputTouch=false;
+document.addEventListener('pointerdown',function(e){_lastInputTouch=(e.pointerType==='touch');},true);
 (function(){
   const RING_SEL='button,[role="button"],[role="checkbox"]';
   const RING_COLOR='#2C8AEC';
@@ -5448,7 +5460,7 @@ var _usingKeyboard=false;
   // allo sfondo risulterebbe poco o per niente visibile.
   ring.style.cssText='position:fixed;pointer-events:none;z-index:99999;display:none;box-sizing:border-box;border:2px solid #fff;box-shadow:0 0 0 2px '+RING_COLOR+';transition:none';
   document.body.appendChild(ring);
-  document.addEventListener('keydown',function(e){if(e.key==='Tab')_usingKeyboard=true;});
+  document.addEventListener('keydown',function(e){if(e.key==='Tab'){_usingKeyboard=true;_lastInputTouch=false;}});
   document.addEventListener('mousedown',function(){_usingKeyboard=false;});
   let rafId=null;
   let lastRect=null;
