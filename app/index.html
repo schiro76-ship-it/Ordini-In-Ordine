@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.31';
+const APP_VERSION='2.31.32';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2351,9 +2351,12 @@ function goTab(name){
     }
   }
   if(_spostaFocusNelContenuto){
-    const sec=document.getElementById('tab-'+name);
-    const first=sec&&sec.querySelector(_focusableSel);
-    if(first)first.focus();
+    setTimeout(function(){
+      if(_currentTab!==name)return;
+      const sec=document.getElementById('tab-'+name);
+      const first=sec&&sec.querySelector(_focusableSel);
+      if(first)first.focus();
+    },0);
   }
 }
 function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open')}
