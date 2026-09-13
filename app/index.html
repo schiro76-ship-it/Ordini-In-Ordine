@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.41';
+const APP_VERSION='2.31.42';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5544,9 +5544,14 @@ document.addEventListener('pointerdown',function(e){_lastInputTouch=(e.pointerTy
     const scrollAnc=_findScrollAncestor(el);
     if(scrollAnc){
       const sr=scrollAnc.getBoundingClientRect();
-      if(r.bottom<=sr.top||r.top>=sr.bottom){ring.style.display='none';return;}
-      if(sr.top>ringTop)cutTop=Math.max(cutTop,sr.top-ringTop);
-      if(sr.bottom<ringTop+ringH)cutBottom=Math.max(cutBottom,(ringTop+ringH)-sr.bottom);
+      // Margine di tolleranza: una card proprio al bordo della lista (la prima o l'ultima, il caso più
+      // comune) non deve avere l'anello tagliato per una sovrapposizione minima — solo chi è davvero
+      // scorso oltre il bordo viene tagliato/nascosto.
+      const margine=4;
+      const limiteAlto=sr.top-margine,limiteBasso=sr.bottom+margine;
+      if(r.bottom<=limiteAlto||r.top>=limiteBasso){ring.style.display='none';return;}
+      if(limiteAlto>ringTop)cutTop=Math.max(cutTop,limiteAlto-ringTop);
+      if(limiteBasso<ringTop+ringH)cutBottom=Math.max(cutBottom,(ringTop+ringH)-limiteBasso);
     }
     ring.style.clipPath=(cutTop>0||cutBottom>0)?('inset('+cutTop+'px 0 '+cutBottom+'px 0)'):'none';
     ring.style.display='block';
