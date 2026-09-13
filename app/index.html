@@ -1544,7 +1544,7 @@ let _deviceId=(function(){
 // dove la memoria locale è già condivisa tra scheda e app installata, quindi il problema non esiste.
 const _isIOSSafariNonStandalone=(function(){
   try{
-    const isIOS=(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))&&!window.MSStream;
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
     const isStandalone=window.navigator.standalone===true||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
     return isIOS&&!isStandalone;
   }catch(e){return false;}
@@ -4301,7 +4301,7 @@ function toggleCal(){renderCal();}
 // (euristica nativa di riconoscimento moduli/AutoFill, non disattivabile dall'utente). Il
 // riferimento va salvato qui perché document.getElementById non trova un elemento staccato.
 var _modalRefs={};
-document.querySelectorAll('.ov').forEach(function(el){_modalRefs[el.id]=el;});
+document.querySelectorAll('.ov').forEach(function(el){_modalRefs[el.id]=el;if(el.isConnected)el.remove();});
 function openModal(id){
   const el=_modalRefs[id]||document.getElementById(id);
   if(!el)return;
