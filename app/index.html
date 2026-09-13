@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.36';
+const APP_VERSION='2.31.37';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2770,10 +2770,10 @@ function flipRenderOrdini(lista){
 }
 let stCalState={year:new Date().getFullYear(),month:new Date().getMonth(),field:null};
 function fmtBtnDate(iso){if(!iso)return'<i class="ti ti-calendar" style="font-size:19px;vertical-align:-3px"></i> —';return'<i class="ti ti-calendar" style="font-size:19px;vertical-align:-3px"></i> '+fmtDataByFormat(iso);}
-function toggleStCal(field){const w=document.getElementById('st-cal-wrap');if(stCalState.field===field&&w.style.display!=='none'){w.style.display='none';stCalState.field=null;return;}stCalState.field=field;w.style.display='block';renderStCal();}
+function toggleStCal(field){const w=document.getElementById('st-cal-wrap');if(stCalState.field===field&&w.style.display!=='none'){w.style.display='none';stCalState.field=null;return;}stCalState.field=field;w.style.display='block';renderStCal();const f=w.querySelector('button:not([disabled])');if(f)f.focus();}
 function stCalNav(d){stCalState.month+=d;if(stCalState.month<0){stCalState.month=11;stCalState.year--}if(stCalState.month>11){stCalState.month=0;stCalState.year++}renderStCal();}
 function renderStCal(){const s=stCalState;const mesi=['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];document.getElementById('st-cal-lbl').textContent=mesi[s.month]+' '+s.year;const primo=new Date(s.year,s.month,1),sd=(primo.getDay()+6)%7;const gm=new Date(s.year,s.month+1,0).getDate(),gmp=new Date(s.year,s.month,0).getDate();const dow=['Lu','Ma','Me','Gi','Ve','Sa','Do'];const dal=document.getElementById('st-dal').value,al=document.getElementById('st-al').value;let h=dow.map(d=>`<div class="cal-dow">${d}</div>`).join('');for(let i=sd-1;i>=0;i--)h+=`<button class="cal-day other-month" disabled>${gmp-i}</button>`;for(let g=1;g<=gm;g++){const iso=`${s.year}-${String(s.month+1).padStart(2,'0')}-${String(g).padStart(2,'0')}`;const isSel=(s.field==='dal'&&iso===dal)||(s.field==='al'&&iso===al);const inRange=dal&&al&&iso>=dal&&iso<=al;h+=`<button class="cal-day${isSel?' sel':''}${inRange&&!isSel?' today':''}" onclick="selStCalDay('${iso}')">${g}</button>`;}const rest=(7-(sd+gm)%7)%7;for(let i=1;i<=rest;i++)h+=`<button class="cal-day other-month" disabled>${i}</button>`;document.getElementById('st-cal-grid').innerHTML=h;}
-function selStCalDay(iso){document.getElementById('st-'+stCalState.field).value=iso;document.getElementById('st-'+stCalState.field+'-btn').innerHTML=fmtBtnDate(iso);document.getElementById('st-cal-wrap').style.display='none';stCalState.field=null;renderStoricoRiepilogo();}
+function selStCalDay(iso){const campo=stCalState.field;document.getElementById('st-'+campo).value=iso;document.getElementById('st-'+campo+'-btn').innerHTML=fmtBtnDate(iso);document.getElementById('st-cal-wrap').style.display='none';stCalState.field=null;renderStoricoRiepilogo();setTimeout(function(){const next=document.getElementById(campo==='dal'?'st-al-btn':'st-art-cerca');if(next)next.focus();},50);}
 function clearStDates(){['st-dal','st-al'].forEach(id=>{document.getElementById(id).value='';});document.getElementById('st-dal-btn').innerHTML='<i class="ti ti-calendar" style="font-size:19px;vertical-align:-3px"></i> —';document.getElementById('st-al-btn').innerHTML='<i class="ti ti-calendar" style="font-size:19px;vertical-align:-3px"></i> —';document.getElementById('st-cal-wrap').style.display='none';stCalState.field=null;renderStoricoRiepilogo();}
 let stCatFilter='Tutte';
 function setStCat(c){stCatFilter=c;renderStoricoRiepilogo()}
@@ -2914,11 +2914,11 @@ function renderStoricoRiepilogo(){
     let htmlStickyDet=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
         <div style="display:flex;align-items:center;gap:5px">
           <label style="font-size:13px;font-weight:800;color:var(--sub)">Dal</label>
-          <button onclick="toggleStDetCal('dal')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetDal?'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> '+fmtD(stDetDal):'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> —'}</button>
+          <button id="st-det-dal-btn" onclick="toggleStDetCal('dal')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetDal?'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> '+fmtD(stDetDal):'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> —'}</button>
         </div>
         <div style="display:flex;align-items:center;gap:5px">
           <label style="font-size:13px;font-weight:800;color:var(--sub)">Al</label>
-          <button onclick="toggleStDetCal('al')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetAl?'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> '+fmtD(stDetAl):'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> —'}</button>
+          <button id="st-det-al-btn" onclick="toggleStDetCal('al')" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--txt);background:#fff;cursor:pointer">${stDetAl?'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> '+fmtD(stDetAl):'<i class="ti ti-calendar" style="font-size:18px;vertical-align:-3px"></i> —'}</button>
         </div>
         <button onclick="_stDetDal='';_stDetAl='';renderStoricoRiepilogo()" style="padding:6px 12px;border:1.5px solid var(--brd);border-radius:9px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;background:var(--bg);color:var(--txt);cursor:pointer">Tutto</button>
       </div>
@@ -4093,13 +4093,14 @@ function renderStDetCal(){
   const grid=document.getElementById('st-det-cal-grid');if(grid)grid.innerHTML=h;
 }
 function selStDetCalDay(iso){
-  if(_stDetCalField==='dal')_stDetDal=iso;
+  const campo=_stDetCalField;
+  if(campo==='dal')_stDetDal=iso;
   else _stDetAl=iso;
   const w=document.getElementById('st-det-cal-wrap');if(w)w.style.display='none';
   _stDetCalField=null;
   renderStoricoRiepilogo();
-  // Ripristina focus sulla ricerca
-  setTimeout(function(){const el=document.getElementById('st-det-cerca');if(el)el.focus();},50);
+  // Dopo "Dal" si passa al bottone "Al" (pronto per riaprire il calendario); solo dopo "Al" si passa alla ricerca.
+  setTimeout(function(){const next=document.getElementById(campo==='dal'?'st-det-al-btn':'st-det-cerca');if(next)next.focus();},50);
 }
 
 // Notifiche push — interruttori "nuovo ordine" e "ordini urgenti", sincronizzati su Firestore
