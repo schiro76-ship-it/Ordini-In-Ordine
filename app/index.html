@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.28';
+const APP_VERSION='2.31.29';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2578,12 +2578,22 @@ function adjustPhdrFit(){
 let _phdrFitResizeT=null;
 window.addEventListener('resize',()=>{clearTimeout(_phdrFitResizeT);_phdrFitResizeT=setTimeout(adjustPhdrFit,150);});
 function renderOrdini(animate){
+  // Se un pallino di spunta ha il focus, lo si ritrova per riassegnare il focus dopo il render:
+  // renderOrdini() può scattare anche in modo asincrono e indipendente dal click che l'ha originato
+  // (es. l'eco in tempo reale di Firestore dopo un saveData(), anche per un semplice tocco che non
+  // cambia lo stato dell'ordine) — senza questo, il focus andrebbe perso e Tab ripartirebbe dall'inizio.
+  const _focCircle=document.activeElement&&document.activeElement.matches&&document.activeElement.matches('[data-itemcircle]')?document.activeElement.dataset.itemcircle:null;
   const dateDisp=[...new Set(ords.filter(o=>!isRitiratoVecchio(o)&&o.data&&(ft==='tutti'||o.stato===ft)).map(o=>o.data))].sort();const pillsEl=document.getElementById('ordini-date-pills');if(pillsEl){if(!dateDisp.includes(ftData))ftData='tutti';pillsEl.innerHTML=`<span class="pill ${ftData==='tutti'?'active':''}" role="button" tabindex="0" onclick="setFtData('tutti')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFtData('tutti');}">Tutti i giorni</span>`+dateDisp.map(d=>{const dt=new Date(d+'T00:00:00');const label=fmtDataByFormat(d);return`<span class="pill ${ftData===d?'active':''}" role="button" tabindex="0" onclick="setFtData('${d}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFtData('${d}');}">${label}</span>`;}).join('');}const c=(document.getElementById('co').value||'').toLowerCase().trim();let l=ords.filter(o=>{if(isRitiratoVecchio(o))return false;if(ft!=='tutti'&&o.stato!==ft)return false;if(ftData!=='tutti'&&o.data&&o.data>ftData)return false;if(c)return ricercaIntelligente(c,nomeAttuale(o))||String(o.num).includes(c)||(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&(ricercaIntelligente(c,a.nome)||codMatch(c,a))});return true;}).sort((a,b)=>{const s={evadere:0,completato:1,ritirato:2};if(s[a.stato]!==s[b.stato])return s[a.stato]-s[b.stato];return priScore(a)-priScore(b)});
   if(animate){flipRenderOrdini(l);}else{document.getElementById('ordini-list').innerHTML=buildOcHTML(l);}
   adjustActBtnFit();
   if(typeof _aggiornaVisibilitaStampaTutti==='function')_aggiornaVisibilitaStampaTutti();
   setTimeout(adjustPhdrFit,0);// ricalcola anche quando la lista si aggiorna senza cambio scheda (es. sincronizzazione da un altro dispositivo)
-  stats();}
+  stats();
+  if(_focCircle){
+    const t=document.querySelector('[data-itemcircle="'+_focCircle+'"]');
+    if(t)t.focus();
+  }
+}
 
 let _flipLocked=false;
 let _rpLocked=false;
@@ -2856,7 +2866,7 @@ function smoothToggle(bodyEl,arrowEl,headerEl){
 function toggleStoricoArticoli(){const f=document.getElementById('storico-articoli-fields');const a=document.getElementById('storico-articoli-arrow');const h=f.previousElementSibling;smoothToggle(f,a,h);}
 function toggleStoricoDettaglio(){const f=document.getElementById('storico-dettaglio-fields');const a=document.getElementById('storico-dettaglio-arrow');const h=f.previousElementSibling;smoothToggle(f,a,h);}
 function toggleStoricoMensile(){const f=document.getElementById('storico-mensile-fields');const a=document.getElementById('storico-mensile-arrow');const h=f.previousElementSibling;smoothToggle(f,a,h);}
-function toggleArtNuovo(){const f=document.getElementById('art-nuovo-fields');const icon=document.getElementById('art-nuovo-icon');const wasOpen=f.style.display!=='none'&&getComputedStyle(f).display!=='none';smoothToggle(f,null,null);if(icon)icon.innerHTML=wasOpen?'<i class="ti ti-plus"></i>':'<i class="ti ti-x"></i>';}
+function toggleArtNuovo(){const f=document.getElementById('art-nuovo-fields');const icon=document.getElementById('art-nuovo-icon');const wasOpen=f.style.display!=='none'&&getComputedStyle(f).display!=='none';smoothToggle(f,null,null);if(icon)icon.innerHTML=wasOpen?'<i class="ti ti-plus"></i>':'<i class="ti ti-x"></i>';if(!wasOpen)_rcs('ac2');}
 function resetArtNuovo(){const f=document.getElementById('art-nuovo-fields');const icon=document.getElementById('art-nuovo-icon');if(f){f.style.display='none';f.style.maxHeight='';f.style.overflow='';f.style.transition='';}if(icon)icon.innerHTML='<i class="ti ti-plus"></i>';}
 function renderStoricoRiepilogo(){
   // --- Sezione 1: Storico articoli (riepilogo aggregato) ---
@@ -3388,6 +3398,7 @@ function openDetQArt(oid){
   document.getElementById('qan').value='';
   document.getElementById('qac').value='';
   document.getElementById('qnuova-cat-wrap').style.display='none';
+  _rcs('qac');
   setTimeout(function(){
     const modal=document.getElementById('modal-qart');
     if(modal&&modal.contains(document.activeElement))return;
@@ -3413,7 +3424,6 @@ function renderDetArtGrid(oid){
 }
 async function togItemOrdini(oid,idx,rowEl){
   const o=ords.find(x=>x.id===oid);if(!o||!o.items[idx])return;
-  const _erafocusato=document.activeElement===rowEl.querySelector('.itag-circle');
   o.items[idx].done=!o.items[idx].done;
   const done=o.items[idx].done;
   const urg=isUrgente(o);
@@ -3427,13 +3437,8 @@ async function togItemOrdini(oid,idx,rowEl){
   const nuovoStato=tuttiFatti&&statoPrec==='evadere'?'completato':!done&&statoPrec==='completato'?'evadere':statoPrec;
   if(nuovoStato!==statoPrec){
     // Delega tutto a setStato — stesso flusso dei bottoni. setStato reindirizza l'intera lista
-    // (renderOrdini), distruggendo il cerchio appena aggiornato: se aveva il focus, lo si ripristina
-    // sul suo equivalente ricreato, altrimenti Tab ripartirebbe dalla prima card in alto.
+    // (renderOrdini), che ora si occupa da sola di ripristinare il focus sul pallino.
     setStato(oid,nuovoStato,true);
-    if(_erafocusato){
-      const t=document.querySelector('[data-itemcircle="'+oid+'-'+idx+'"]');
-      if(t)t.focus();
-    }
   } else {
     saveData();
   }
@@ -3767,7 +3772,7 @@ function _rcs(id){const s=document.getElementById(id);if(!s)return;const cur=(s.
 function onCatChange(s){const w=document.getElementById('nuova-cat-wrap');if(s.value==='__nuova__'){w.style.display='block';setTimeout(function(){document.getElementById('nuova-cat-input').focus()},80)}else w.style.display='none'}
 function onQCatChange(s){const w=document.getElementById('qnuova-cat-wrap');if(s.value==='__qnuova__'){w.style.display='block';setTimeout(function(){document.getElementById('qnuova-cat-input').focus()},80)}else w.style.display='none'}
 var _qOid=null;
-function openQArt(){_qOid=null;openModal('modal-qart');document.getElementById('qan').value='';document.getElementById('qac').value='';document.getElementById('qnuova-cat-wrap').style.display='none';setTimeout(function(){const modal=document.getElementById('modal-qart');if(modal&&modal.contains(document.activeElement))return;const qan=document.getElementById('qan');if(qan)qan.focus();},120)}
+function openQArt(){_qOid=null;openModal('modal-qart');document.getElementById('qan').value='';document.getElementById('qac').value='';document.getElementById('qnuova-cat-wrap').style.display='none';_rcs('qac');setTimeout(function(){const modal=document.getElementById('modal-qart');if(modal&&modal.contains(document.activeElement))return;const qan=document.getElementById('qan');if(qan)qan.focus();},120)}
 async function addArtRapido(){
   const n=document.getElementById('qan').value.trim();
   const qs=document.getElementById('qac');let c=qs.value==='__qnuova__'?'':qs.value;
