@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.29';
+const APP_VERSION='2.31.30';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -3047,6 +3047,10 @@ function setRpDay(d){rpDayFilter=d;_rpOrdineCongelato=null;renderRiepilogo()}
 function setRpCat(c){rpCatFilter=c;if(!Object.values(rpExpanded).some(Boolean))_rpOrdineCongelato=null;renderRiepilogo()}
 
 function renderRiepilogo(skipPills){if(_rpLocked)return;
+  // Come per renderOrdini(): un pallino di spunta può perdere il focus non solo per il click che lo ha
+  // originato, ma anche per un re-render scattato in modo indipendente (es. l'eco di Firestore dopo
+  // saveData()) — si ritrova qui per riassegnarlo dopo la ricostruzione della lista.
+  const _focRpItem=document.activeElement&&document.activeElement.matches&&document.activeElement.matches('[data-rpitem]')?document.activeElement.dataset.rpitem:null;
   const ev=ords.filter(o=>o.stato==='evadere'||o.stato==='completato');
   if(!ev.length){document.getElementById('riepilogo-list').innerHTML='<div class="empty"><p>Nessun ordine da evadere!</p></div>';return}
   const catsInRep=[...new Set(ev.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||''}).filter(Boolean)))].sort();
@@ -3165,12 +3169,15 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     }).join('')+_rigaStampaTutte:'';
     return`<div class="${rowClass}" data-artid="${v.artId}" style="flex-direction:column;align-items:stretch;gap:0"><div role="button" tabindex="0" onclick="toggleRp(${v.artId})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleRp(${v.artId});}" style="display:flex;align-items:center;gap:8px;cursor:pointer"><div class="rp-pri" style="width:58px;min-width:58px;align-self:stretch;border-radius:11px;padding:5px 4px;font-size:13px;font-weight:900;background:${_bgA};color:#fff;text-align:center;line-height:1.25;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${_dataLabel}</div><div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0;padding:12px 0"><div class="rp-art" style="padding:0;white-space:normal;flex:1 1 auto;min-width:0">${nome}${a&&a.cat?`<span style="font-size:11px;color:var(--sub);font-weight:700;margin-left:4px">${a.cat}</span>`:''}</div><div style="flex-shrink:0;text-align:right;font-size:16px;font-weight:900;white-space:nowrap">${qStr}</div></div><span class="exp-arrow" style="flex-shrink:0">${exp?'<i class="ti ti-chevron-up"></i>':'<i class="ti ti-chevron-down"></i>'}</span></div>${exp?`<div class="rp-detail" style="overflow:hidden;padding-top:6px">${dettaglio}</div>`:''}</div>`;
   }).join('');
+  if(_focRpItem){
+    const t=document.querySelector('[data-rpitem="'+_focRpItem+'"]');
+    if(t)t.focus();
+  }
 }
 
 async function togRpItem(oidStr,idx){
   const oid=parseInt(oidStr);const o=ords.find(x=>x.id===oid);
   if(!o||idx<0||!o.items[idx])return;
-  const _erafocusato=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.rpitem===(oidStr+'-'+idx);
   o.items[idx].done=!o.items[idx].done;
   const tuttiDone=o.items.every(function(it){return it.done});
   if(tuttiDone&&o.stato==='evadere')o.stato='completato';
@@ -3178,7 +3185,6 @@ async function togRpItem(oidStr,idx){
   saveData();
   renderOrdini();
   renderRiepilogo(true);
-  if(_erafocusato){const t=document.querySelector('[data-rpitem="'+oidStr+'-'+idx+'"]');if(t)t.focus();}
 }
 
 
