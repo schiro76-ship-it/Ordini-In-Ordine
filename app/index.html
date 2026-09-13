@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.33';
+const APP_VERSION='2.31.34';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5511,23 +5511,40 @@ document.addEventListener('pointerdown',function(e){_lastInputTouch=(e.pointerTy
     }
     return maxBottom;
   }
+  // Il più vicino antenato con scroll proprio (es. l'area interna di un modal): serve per capire se
+  // l'elemento a fuoco è scorso oltre il bordo del SUO contenitore, dato che l'anello è un elemento
+  // fisso indipendente e altrimenti continuerebbe a disegnarsi anche fuori da quel contenitore.
+  function _findScrollAncestor(el){
+    let p=el.parentElement;
+    while(p&&p!==document.body){
+      const cs=getComputedStyle(p);
+      if(/(auto|scroll)/.test(cs.overflowY)&&p.scrollHeight>p.clientHeight+1)return p;
+      p=p.parentElement;
+    }
+    return null;
+  }
   function updateRing(el,r){
     if(r.width===0&&r.height===0){ring.style.display='none';return;}
     const topEl=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
     if(!topEl||!(topEl===el||el.contains(topEl)||topEl.contains(el))){ring.style.display='none';return;}
     const cs=getComputedStyle(el);
     ring.style.borderRadius=cs.borderRadius;
-    ring.style.top=(r.top-2)+'px';
-    ring.style.left=(r.left-2)+'px';
-    ring.style.width=(r.width+4)+'px';
-    ring.style.height=(r.height+4)+'px';
+    const ringTop=r.top-2,ringLeft=r.left-2,ringW=r.width+4,ringH=r.height+4;
+    ring.style.top=ringTop+'px';
+    ring.style.left=ringLeft+'px';
+    ring.style.width=ringW+'px';
+    ring.style.height=ringH+'px';
+    let cutTop=0,cutBottom=0;
     const coverBottom=coveredTopEdge(el,r);
-    if(coverBottom>0){
-      const cut=Math.max(0,coverBottom-(r.top-2));
-      ring.style.clipPath='inset('+cut+'px 0 0 0)';
-    }else{
-      ring.style.clipPath='none';
+    if(coverBottom>0)cutTop=Math.max(cutTop,coverBottom-ringTop);
+    const scrollAnc=_findScrollAncestor(el);
+    if(scrollAnc){
+      const sr=scrollAnc.getBoundingClientRect();
+      if(r.bottom<=sr.top||r.top>=sr.bottom){ring.style.display='none';return;}
+      if(sr.top>ringTop)cutTop=Math.max(cutTop,sr.top-ringTop);
+      if(sr.bottom<ringTop+ringH)cutBottom=Math.max(cutBottom,(ringTop+ringH)-sr.bottom);
     }
+    ring.style.clipPath=(cutTop>0||cutBottom>0)?('inset('+cutTop+'px 0 '+cutBottom+'px 0)'):'none';
     ring.style.display='block';
   }
   document.addEventListener('focusin',function(){
