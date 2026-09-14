@@ -1215,7 +1215,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
   </div>
 </div>
-<div class="ov" id="modal-prompt" style="align-items:center;padding:20px;z-index:200">
+<div class="ov" id="modal-prompt" style="align-items:center;padding:20px;z-index:9999">
   <div class="modal" style="max-width:340px;border-radius:18px">
     <div class="mta" id="modal-prompt-title" style="font-size:18px;margin-bottom:14px"></div>
     <input type="text" id="modal-prompt-input" class="fi" style="margin-bottom:18px" onkeydown="if(event.key==='Enter'){event.preventDefault();confermaModalPrompt();}">
@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.45';
+const APP_VERSION='2.31.46';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2198,10 +2198,10 @@ async function checkESaveDispositivo(){
     if(!nome){
       nome=tipo;
       try{
-        const scelto=(prompt('Come vuoi chiamare questo dispositivo? Puoi personalizzarlo, ad es. "Telefono di Mario".',tipo)||'').trim();
+        const scelto=(await modalPromptAsync('Come vuoi chiamare questo dispositivo? Puoi personalizzarlo, ad es. "Telefono di Mario".',tipo)||'').trim();
         if(scelto)nome=scelto;
       }catch(e){
-        console.warn('Popup nome dispositivo non disponibile, uso il nome di default',e);
+        console.warn('Richiesta nome dispositivo non riuscita, uso il nome di default',e);
       }
     }
     _dispositivi[_deviceId]={primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo};
