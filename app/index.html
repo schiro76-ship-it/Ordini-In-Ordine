@@ -26,8 +26,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
 <link rel="icon" type="image/png" sizes="1024x1024" href="icon.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.35.0/tabler-icons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 :root{
   --r:#C0392B;--rs:#F9EDED;--rm:#E8C4C1;
   --azione:#256BC1;--azione-d:#1A4F94;--azione-s:#E8F0FB;
@@ -1383,7 +1383,6 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 let isNewUser=false;
@@ -1573,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.50';
+const APP_VERSION='2.31.51';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4702,6 +4701,24 @@ function _disegnaEtichetta(o,artIdEvidenziato){
 
   return canvas;
 }
+// Caricamento pigro di jsPDF: usata SOLO per la stampa etichette su iOS/iPadOS
+// (il ramo Android/desktop usa window.print() e non ne ha bisogno). Prima veniva
+// scaricata sempre, per tutti, ad ogni apertura dell'app (93 KiB, ~77 KiB inutilizzati
+// per la maggior parte delle sessioni secondo l'analisi Lighthouse del 14/09/2026) —
+// ora si scarica solo la prima volta che serve davvero una stampa su iOS/iPadOS.
+let _jsPdfLoadPromise=null;
+function caricaJsPDF(){
+  if(window.jspdf&&window.jspdf.jsPDF)return Promise.resolve();
+  if(_jsPdfLoadPromise)return _jsPdfLoadPromise;
+  _jsPdfLoadPromise=new Promise(function(resolve,reject){
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload=function(){resolve();};
+    s.onerror=function(){_jsPdfLoadPromise=null;reject(new Error('Impossibile caricare la libreria PDF'));};
+    document.head.appendChild(s);
+  });
+  return _jsPdfLoadPromise;
+}
 function _mostraCanvasNelModal(canvas,oid,artId){
   const url=canvas.toDataURL('image/png');
   openModal('modal-etichetta');
@@ -4726,6 +4743,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
           // un'immagine condivisa da una web app, mentre per un PDF si'
           // (verificato su iPhone 8/iOS 16 e iPhone 15/iOS 26).
           try{
+            await caricaJsPDF().catch(function(e){console.warn('Caricamento jsPDF fallito',e);});
             const MM_PER_PX=62/591;
             const wMm=canvas.width*MM_PER_PX;
             const hMm=canvas.height*MM_PER_PX;
@@ -5111,6 +5129,7 @@ async function stampaGruppo(){
     // di stampa con un formato unico (quello della pagina piu' grande),
     // ignorando le dimensioni dichiarate pagina per pagina - file
     // separati dovrebbero restare indipendenti agli occhi del sistema.
+    await caricaJsPDF().catch(function(e){console.warn('Caricamento jsPDF fallito',e);});
     const jsPDFCtor=window.jspdf&&window.jspdf.jsPDF;
     if(!jsPDFCtor){toast('Libreria PDF non caricata','err');return;}
     const MM_PER_PX=62/591;
