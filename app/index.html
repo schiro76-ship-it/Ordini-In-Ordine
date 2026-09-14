@@ -201,13 +201,11 @@ body.portrait-phone .phdr-invita i{font-size:18px}
 /* Su iPad il bordo di focus del browser puo' restare visibile dopo il
    tap invece di sparire subito come su iPhone - tolto qui, il feedback
    visivo del tocco resta comunque dato dal cambio colore dello sfondo. */
-/* Su schermi non-phone (Ordini): "Stampa tutti" resta fermo in posizione,
-   "Coda" compare alla sua sinistra invece che spingerlo - via ordine
-   flex esplicito, cosi' non serve toccare l'ordine nel markup. Su phone
-   resta l'ordine naturale (Stampa tutti, Coda, Invita), invariato. */
-body.portrait-phone #tab-ordini #phdr-stampa-ordini{order:1}
-body.portrait-phone #tab-ordini #phdr-coda-ordini{order:2}
-body.portrait-phone #tab-ordini .phdr-invita{order:3}
+/* L'ordine visivo di "Stampa tutti"/"Coda" (invertito tra smartphone verticale e
+   tablet/desktop) è gestito spostando fisicamente i due bottoni nel DOM in
+   _sincronizzaOrdinePhdrOrdini() (chiamata da checkPortrait()), non con la proprietà CSS
+   "order": così l'ordine letto da tastiera/screen reader corrisponde sempre a quello visto,
+   su qualunque schermo - vedi commento nella funzione per i dettagli. */
 body.portrait-phone .phdr-stampa{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.4);color:#fff}
 body.portrait-phone .phdr input[type=number],body.portrait-phone .phdr span{color:#fff!important}
 body.portrait-phone #tab-ordini .empty .ei,body.portrait-phone #tab-riepilogo .empty .ei{color:rgba(255,255,255,0.6)}
@@ -1501,6 +1499,11 @@ function _modalDelResetDefault(){
   if(btn){btn.textContent='Elimina';btn.className='btn btn-danger';btn.style.flex='1';btn.style.width='';}
   if(ma){ma.style.flexDirection='row';ma.style.gap='8px'}
   if(annulla){annulla.style.flex='1';annulla.style.width=''}
+  // Riporta l'ordine nel markup ad Annulla-poi-Azione (ordine di default, letto anche da
+  // tastiera/screen reader) - necessario perché mostraModalVerificaEmail() lo inverte
+  // fisicamente nel DOM per mostrare l'azione principale in alto, invece di usare
+  // column-reverse (che avrebbe lasciato l'ordine letto diverso da quello visto).
+  if(ma&&btn&&annulla&&ma.firstElementChild===btn){ma.insertBefore(annulla,btn);}
 }
 // Sostituisce prompt() nativo (inaffidabile su iOS PWA, come già emerso per confirm()): un unico
 // modal riutilizzabile con callback, usato ovunque serva chiedere un singolo testo all'utente.
@@ -1558,7 +1561,7 @@ function resetOnboarding(){
   // avviso (sarebbe fuorviante, non descrive un rischio vero in questo stato).
   if(sub)sub.style.display='none';
   if(btn){btn.textContent='Cambia';btn.className='btn btn-azione';btn.style.flex='1';btn.style.width='';}
-  if(ma){ma.style.flexDirection='row';ma.style.gap='8px'}
+  if(ma){ma.style.flexDirection='row';ma.style.gap='8px';if(btn&&annulla&&ma.firstElementChild===btn)ma.insertBefore(annulla,btn);}
   if(annulla){annulla.style.flex='1';annulla.style.width=''}
   document.getElementById('modal-del-txt').textContent='Cambiare tipo di attività?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');confermaResetOnboarding();};
@@ -1570,7 +1573,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.47';
+const APP_VERSION='2.31.48';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1916,10 +1919,14 @@ function mostraModalVerificaEmail(){
   if(sub)sub.style.display='none';
   // Bottoni impilati in colonna (stesso pattern già usato in modal-img-menu/modal-tel-menu),
   // invece che affiancati: "Reinvia email" non ci sta su una riga sola nel bottone stretto
-  // affiancato e andava a capo. column-reverse fa comparire modal-del-btn (ultimo nel markup)
-  // in alto come azione principale, e modal-del-annulla (primo nel markup) sotto per intero,
-  // senza dover invertire l'ordine degli elementi nell'HTML condiviso con le altre azioni.
-  if(ma){ma.style.flexDirection='column-reverse';ma.style.gap='10px'}
+  // affiancato e andava a capo. "Reinvia email" (modal-del-btn) va sopra come azione
+  // principale: invece di column-reverse (che lo mostra per primo mantenendolo però secondo
+  // nel markup, disallineando l'ordine letto da tastiera/screen reader da quello visto),
+  // lo spostiamo davvero per primo nel DOM e usiamo una colonna normale - così chi naviga a
+  // tastiera o con uno screen reader incontra i bottoni nello stesso ordine in cui li vede.
+  // _modalDelResetDefault() riporta l'ordine ad Annulla-poi-Azione per gli altri usi del modal.
+  if(ma&&btn&&annulla&&ma.firstElementChild===annulla){ma.insertBefore(btn,annulla);}
+  if(ma){ma.style.flexDirection='column';ma.style.gap='10px'}
   if(btn){btn.textContent='Reinvia email';btn.className='btn btn-azione';btn.style.flex='none';btn.style.width='100%';}
   if(annulla){annulla.style.flex='none';annulla.style.width='100%'}
   document.getElementById('modal-del-txt').textContent='Verifica la tua email per continuare';
@@ -5353,12 +5360,28 @@ function checkPortrait(){
   const isLandscapePhone=isPhone&&!isPortrait;
   document.body.classList.toggle('portrait-phone',isPhone&&isPortrait);
   document.body.classList.toggle('landscape-phone',isLandscapePhone);
+  _sincronizzaOrdinePhdrOrdini(isPhone&&isPortrait);
   const nav=document.getElementById('bottom-nav');
   if(nav){
     if(isLandscapePhone)nav.style.display='none';
     else if(isPhone&&isPortrait)nav.style.display='flex';
     else nav.style.display='';
   }
+}
+// Nell'header della tab Ordini, "Stampa tutti" e "Coda" vanno mostrati in ordine invertito tra
+// smartphone verticale (Stampa tutti prima) e tablet/desktop (Coda prima, ordine naturale del
+// markup). Prima veniva fatto con la proprietà CSS "order" solo su smartphone: cambiava
+// l'ordine visivo ma non quello nel DOM, quindi chi naviga a tastiera o con uno screen reader
+// incontrava i due bottoni in un ordine diverso da quello visto sullo schermo. Spostando
+// davvero i nodi nel DOM (invece di usare "order"), l'ordine letto corrisponde sempre a quello
+// visto, su qualunque schermo.
+function _sincronizzaOrdinePhdrOrdini(vogliamoStampaPrima){
+  const stampa=document.getElementById('phdr-stampa-ordini');
+  const coda=document.getElementById('phdr-coda-ordini');
+  if(!stampa||!coda||stampa.parentNode!==coda.parentNode)return;
+  const stampaEPrima=!!(stampa.compareDocumentPosition(coda)&Node.DOCUMENT_POSITION_FOLLOWING);
+  if(vogliamoStampaPrima&&!stampaEPrima){stampa.parentNode.insertBefore(stampa,coda);}
+  else if(!vogliamoStampaPrima&&stampaEPrima){coda.parentNode.insertBefore(coda,stampa);}
 }
 const _nuovoFieldOrder=['cal-time-inp','nn','nn-tel','note-ordine','can'];
 document.addEventListener('keydown',function(e){
