@@ -1573,7 +1573,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.49';
+const APP_VERSION='2.31.50';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -1970,7 +1970,7 @@ async function avviaCheckout(piano){
     if(btn)btn.disabled=false;
   }
 }
-async function loadData(){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=await db.collection('dati').doc(uid).get();if(snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;clienti=[];stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
+async function loadData(snapCondiviso){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=snapCondiviso!==undefined?snapCondiviso:await db.collection('dati').doc(uid).get();if(snap&&snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;clienti=[];stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
 // Banner "Aggiungi a Home" per iOS — Safari, Chrome, Firefox, Edge su iOS usano tutti il motore WebKit,
 // quindi stesso comportamento su qualsiasi browser: nessun banner automatico di installazione come su Android,
 // va costruito manualmente. Non richiede alcuna infrastruttura Firebase, puro client-side.
@@ -2175,12 +2175,12 @@ if(_isIOSSafariNonStandalone){
     _riattivaSlotSafariInPrimoPiano();
   });
 }
-async function checkESaveDispositivo(){
+async function checkESaveDispositivo(snapCondiviso){
   try{
     const uid=currentUser?currentUser.uid:DOC_ID;
     const ref=db.collection('dati').doc(uid);
-    const snap=await ref.get();
-    const d=snap.exists?snap.data():{};
+    const snap=snapCondiviso!==undefined?snapCondiviso:await ref.get();
+    const d=snap&&snap.exists?snap.data():{};
     _dispositivi=(d.dispositivi&&typeof d.dispositivi==='object'&&!Array.isArray(d.dispositivi))?d.dispositivi:{};
     const now=new Date().toISOString();
     if(_dispositivi[_deviceId]){
@@ -2230,7 +2230,15 @@ function mostraDispositivoRimosso(){
 let _unsubDatiListener=null;
 let _deviceVistoPresente=false;
 let _timerBloccoDispositivo=null;
-async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}const _bloccato=await checkESaveDispositivo();if(_bloccato){mostraLimiteDispositivi();return;}try{await loadData();}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_ripristinaGruppoStampaLocale();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);setTimeout(adjustPhdrFit,0);checkIosInstallBanner();gestisciRitornoCheckout();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
+async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';_deviceVistoPresente=false;if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}
+  // Lettura unica e condivisa del documento dati/{uid}: prima veniva letto due volte
+  // in sequenza (una da checkESaveDispositivo, una da loadData) per lo stesso identico
+  // documento — due round-trip di rete evitabili. Ora si legge una sola volta qui e si
+  // passa lo stesso snapshot a entrambe le funzioni.
+  const _uidBoot=currentUser?currentUser.uid:DOC_ID;
+  let _snapDatiIniziale=null;
+  try{_snapDatiIniziale=await db.collection('dati').doc(_uidBoot).get();}catch(e){console.warn('Lettura iniziale dati non riuscita, si procede con i fallback locali',e);}
+  const _bloccato=await checkESaveDispositivo(_snapDatiIniziale);if(_bloccato){mostraLimiteDispositivi();return;}try{await loadData(_snapDatiIniziale);}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_ripristinaGruppoStampaLocale();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);setTimeout(adjustPhdrFit,0);checkIosInstallBanner();gestisciRitornoCheckout();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
   try{
     if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
