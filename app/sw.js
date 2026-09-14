@@ -1,9 +1,18 @@
 /**
  * sw.js — Service Worker di OrdinInOrdine
  * ---------------------------------------------------------
- * Strategia deliberatamente conservativa (network-first):
- * - Prova SEMPRE a scaricare la versione più recente dalla rete
- * - Usa la cache SOLO come riserva se manca la connessione
+ * Strategia cache-first con aggiornamento in sottofondo
+ * (stale-while-revalidate), cambiata dalla precedente
+ * network-first il 14 settembre 2026 per velocizzare
+ * l'apertura dell'app, specialmente su rete mobile lenta:
+ * - Se esiste una copia in cache, risponde SUBITO con quella
+ *   (nessuna attesa di rete per aprire l'app)
+ * - In parallelo, scarica comunque la versione dalla rete e
+ *   aggiorna la cache, così la PROSSIMA apertura avrà già
+ *   l'ultima versione — l'aggiornamento arriva sempre entro
+ *   un'apertura di ritardo, mai perso
+ * - Se non c'è ancora nessuna copia in cache (primissima
+ *   visita), aspetta la rete come prima
  * - Interviene SOLO sulle richieste GET dello stesso dominio
  *   (il file HTML dell'app) — ogni altra richiesta (Firebase,
  *   Firestore, CDN esterni come Tabler Icons o Google Fonts)
@@ -27,7 +36,7 @@
  * ---------------------------------------------------------
  */
 
-const CACHE_NAME = 'ordininordine-cache-v3';
+const CACHE_NAME = 'ordininordine-cache-v4';
 
 self.addEventListener('install', function(event) {
   // Attiva subito la nuova versione, senza attendere la chiusura di tutte le schede aperte
@@ -66,18 +75,26 @@ self.addEventListener('fetch', function(event) {
   }
 
   event.respondWith(
-    fetch(richiesta)
-      .then(function(risposta) {
-        const copia = risposta.clone();
-        caches.open(CACHE_NAME).then(function(cache) {
-          cache.put(richiesta, copia);
-        });
-        return risposta;
-      })
-      .catch(function() {
-        // Nessuna connessione: prova a rispondere con l'ultima versione salvata in cache
-        return caches.match(richiesta);
-      })
+    caches.open(CACHE_NAME).then(function(cache) {
+      return cache.match(richiesta).then(function(rispostaCache) {
+        // Scarica sempre anche dalla rete, per aggiornare la cache in vista
+        // della prossima apertura (succede in sottofondo, non blocca nulla)
+        const richiestaRete = fetch(richiesta)
+          .then(function(rispostaRete) {
+            cache.put(richiesta, rispostaRete.clone());
+            return rispostaRete;
+          })
+          .catch(function() {
+            // Rete assente: se non avevamo già una risposta dalla cache,
+            // non c'è alternativa possibile
+            return rispostaCache;
+          });
+
+        // Cache-first: se abbiamo già una copia salvata, rispondi subito con
+        // quella (apertura istantanea); altrimenti aspetta la rete come prima
+        return rispostaCache || richiestaRete;
+      });
+    })
   );
 });
 
