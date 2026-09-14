@@ -1570,7 +1570,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.44';
+const APP_VERSION='2.31.45';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2410,6 +2410,7 @@ function buildOcHTML(lista){
       const circleAttrs=isRitirato?'':`role="checkbox" tabindex="0" data-itemcircle="${o.id}-${idx}" aria-checked="${it.done?'true':'false'}" aria-label="${(a.nome||'').replace(/"/g,'&quot;')} - segna come pronto" onclick="event.stopPropagation();togItemOrdini(${o.id},${idx},this.closest('.itag'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();togItemOrdini(${o.id},${idx},this.closest('.itag'));}"`;
       const tagStyle=isRitirato?'background:var(--grs);color:var(--gr)':'';
       const qtyStyle=isRitirato?'color:var(--gr)':'';
+      const catColor=isRitirato?'var(--gr)':'var(--sub)';
       const circleContent=(isRitirato||it.done)?'<i class="ti ti-check"></i>':'';
       const circleStyle=isRitirato?'border-color:var(--gr);background:var(--gr);color:#fff;cursor:default':'';
       const _fotoBtnO=it.itemId&&it.imgCaricata?`<button type="button" class="act-print-rp" aria-label="Visualizza immagine" onclick="event.stopPropagation();visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:4px 8px;font-size:18px;display:inline-flex;align-items:center;cursor:pointer;margin-top:1px"><i class="ti ti-photo"></i></button>`:'';
@@ -2418,7 +2419,7 @@ function buildOcHTML(lista){
       return`<div class="${tagClass}" style="${tagStyle}">
         <div class="itag-circle ${circleClass}" ${circleAttrs} style="${circleStyle}">${circleContent}</div>
         <div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px">
-          <span style="flex:1 1 0%;min-width:120px">${a.nome}${a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}${it.nota?` <span class="nt">"${it.nota}"</span>`:''}</span>${_qtyFotoO}
+          <span style="flex:1 1 0%;min-width:120px">${a.nome}${a.cat?`<span style="font-size:12px;color:${catColor};font-weight:700;margin-left:6px">${a.cat}</span>`:''}${it.nota?` <span class="nt">"${it.nota}"</span>`:''}</span>${_qtyFotoO}
         </div>
       </div>`;
     }).join('');
