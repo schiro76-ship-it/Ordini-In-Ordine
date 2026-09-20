@@ -167,8 +167,8 @@ body.portrait-phone.vb-active #ios-install-banner{padding-top:9px!important}
 body.portrait-phone{background:#2C3E50}
 html{background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
-#status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
-#tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39}
+#status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999;transition:top 0.18s ease,height 0.18s ease,transform 0.18s ease}
+#tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39;transition:top 0.18s ease,height 0.18s ease,transform 0.18s ease}
 #sidebar-extender{display:none;position:fixed;bottom:-500px;left:0;width:var(--sbw);height:500px;background:#2C3E50;z-index:39}
 body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.67';
+const APP_VERSION='2.31.68';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5721,27 +5721,38 @@ document.addEventListener('focusout',function(e){
 // di "visualViewport.offsetTop" pixel, scoprendo il notch/status bar reale sotto di loro.
 // Si compensa spostandoli in basso della stessa quantità, cosi' restano sempre visivamente
 // incollati in cima allo schermo vero, qualunque sia lo scroll che la tastiera provoca.
-function _sincronizzaCoverFissa(){
-  var vv=window.visualViewport;
-  var offset=vv?vv.offsetTop:0;
-  var val=offset?('translateY('+offset+'px)'):'';
-  // Durante l'animazione della tastiera la correzione insegue il movimento con un piccolo
-  // ritardo: in quei fotogrammi si intravede uno spiraglio di contenuto tra il bordo
-  // SUPERIORE della barra e il bordo fisico dello schermo. Si estende la barra verso l'alto
-  // (top negativo), aumentando l'altezza della stessa quantità cosi' il bordo inferiore resta
-  // esattamente dov'era: nessuna porzione di schermo in più coperta, solo il margine sopra.
+let _coverClearT=null;
+function _applicaCorrCover(attiva){
   var buf=960;
   var cover=document.getElementById('status-bar-cover');
   if(cover){
-    cover.style.transform=val;
-    cover.style.top=offset?('-'+buf+'px'):'';
-    cover.style.height=offset?('calc(env(safe-area-inset-top,44px) + '+buf+'px)'):'';
+    cover.style.top=attiva?('-'+buf+'px'):'';
+    cover.style.height=attiva?('calc(env(safe-area-inset-top,44px) + '+buf+'px)'):'';
+    if(!attiva)cover.style.transform='';
   }
   var tablet=document.getElementById('tablet-top-bar');
   if(tablet){
-    tablet.style.transform=val;
-    tablet.style.top=offset?('-'+buf+'px'):'';
-    tablet.style.height=offset?('calc(env(safe-area-inset-top,20px) + '+buf+'px)'):'';
+    tablet.style.top=attiva?('-'+buf+'px'):'';
+    tablet.style.height=attiva?('calc(env(safe-area-inset-top,20px) + '+buf+'px)'):'';
+    if(!attiva)tablet.style.transform='';
+  }
+}
+function _sincronizzaCoverFissa(){
+  var vv=window.visualViewport;
+  var offset=vv?vv.offsetTop:0;
+  if(offset){
+    // Attiva subito la correzione (margine esteso verso l'alto, vedi sopra) e annulla
+    // l'eventuale rimozione già programmata: se il valore oscilla vicino allo zero proprio
+    // mentre la tastiera si assesta, non deve accendersi/spegnersi di scatto (tremolio).
+    if(_coverClearT){clearTimeout(_coverClearT);_coverClearT=null;}
+    _applicaCorrCover(true);
+    var val='translateY('+offset+'px)';
+    var cover=document.getElementById('status-bar-cover');if(cover)cover.style.transform=val;
+    var tablet=document.getElementById('tablet-top-bar');if(tablet)tablet.style.transform=val;
+  } else if(!_coverClearT){
+    // Aspetta che il valore resti a zero per un attimo prima di rimuovere la correzione:
+    // evita di "spegnerla e riaccenderla" ad ogni micro-oscillazione dell'ultimo tratto.
+    _coverClearT=setTimeout(function(){_coverClearT=null;_applicaCorrCover(false);},160);
   }
 }
 if(window.visualViewport){
