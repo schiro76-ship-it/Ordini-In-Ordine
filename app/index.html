@@ -167,8 +167,10 @@ body.portrait-phone.vb-active #ios-install-banner{padding-top:9px!important}
 body.portrait-phone{background:#2C3E50}
 html{background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
-#status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999;transition:top 0.18s ease,height 0.18s ease,transform 0.18s ease}
-#tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39;transition:top 0.18s ease,height 0.18s ease,transform 0.18s ease}
+/* transform NON è animato: deve inseguire istantaneamente il vero spostamento della tastiera,
+   altrimenti il ritardo dell'animazione diventa esso stesso un movimento visibile della barra. */
+#status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999;transition:top 0.18s ease,height 0.18s ease}
+#tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39;transition:top 0.18s ease,height 0.18s ease}
 #sidebar-extender{display:none;position:fixed;bottom:-500px;left:0;width:var(--sbw);height:500px;background:#2C3E50;z-index:39}
 body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
@@ -1572,7 +1574,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.68';
+const APP_VERSION='2.31.69';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
