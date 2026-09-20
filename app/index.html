@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.55';
+const APP_VERSION='2.31.56';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5719,14 +5719,12 @@ document.addEventListener('focusout',function(e){
 // ignorando lo spazio riservato al notch/orologio (la nostra "safe area" è solo CSS, iOS non ne
 // tiene conto in questo suo scroll automatico). In questa app lo scroll della finestra/documento
 // non serve mai: tutto lo scroll vero avviene dentro contenitori interni (.page-wrap, .modal,
-// .sidebar) che hanno il proprio overflow indipendente. Quindi, un attimo dopo che iOS ha fatto
-// questo scroll indesiderato, lo riportiamo a zero, senza toccare lo scroll dei contenitori interni.
-document.addEventListener('focusin',function(e){
-  if(e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA')return;
-  setTimeout(function(){
-    if(window.scrollX||window.scrollY)window.scrollTo(0,0);
-  },350);
-});
+// .sidebar) che hanno il proprio overflow indipendente. Invece di aspettare un tempo fisso dopo
+// il focus (percepibile), si intercetta l'evento "scroll" della finestra stessa e si corregge
+// nello stesso istante in cui iOS prova a spostarla, senza attesa artificiale.
+window.addEventListener('scroll',function(){
+  if(window.scrollX||window.scrollY)window.scrollTo(0,0);
+},{passive:true});
 
 // Registrazione Service Worker (installazione standalone su Android/Chrome)
 if('serviceWorker' in navigator){
