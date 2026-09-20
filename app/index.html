@@ -174,12 +174,6 @@ body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
 body.portrait-phone.vb-active .page-wrap{padding-top:0}
-/* Fix tastiera PWA iOS: a tastiera aperta, iOS altera temporaneamente env(safe-area-inset-top),
-   scoprendo la vera status bar sopra ai contenuti. Si usa invece il valore "congelato" in
-   --sat-frozen (misurato via JS a tastiera chiusa), identico su telefono e tablet. */
-body.keyboard-open #status-bar-cover{height:var(--sat-frozen,env(safe-area-inset-top,44px))!important}
-body.keyboard-open #tablet-top-bar{height:var(--sat-frozen,env(safe-area-inset-top,20px))!important}
-body.keyboard-open.portrait-phone .page-wrap{padding-top:var(--sat-frozen,env(safe-area-inset-top,44px))!important}
 body.portrait-phone .phdr h2{color:#fff}
 .phdr{position:sticky;top:0;z-index:55;background:var(--bg);padding-bottom:16px!important;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .phdr h2{flex-shrink:0}
@@ -239,7 +233,6 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   .sidebar{position:fixed;top:0;bottom:0;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,34px);z-index:100}
   #sidebar-extender{display:block;z-index:100}
   .page-wrap{margin-left:var(--sbw);padding-top:env(safe-area-inset-top,20px)}
-  body.keyboard-open .page-wrap{padding-top:var(--sat-frozen,env(safe-area-inset-top,20px))!important}
   #tablet-top-bar{display:block}
   #verify-banner{margin-top:env(safe-area-inset-top,0px);margin-left:var(--sbw)}
   #ios-install-banner{margin-top:env(safe-area-inset-top,0px);margin-left:var(--sbw)}
@@ -259,7 +252,6 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   .sidebar{position:fixed;top:0;bottom:0;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,34px);z-index:100}
   #sidebar-extender{display:block;z-index:100}
   .page-wrap{margin-left:var(--sbw);padding-top:env(safe-area-inset-top,20px)}
-  body.keyboard-open .page-wrap{padding-top:var(--sat-frozen,env(safe-area-inset-top,20px))!important}
   #tablet-top-bar{display:block}
   #verify-banner{margin-top:env(safe-area-inset-top,0px);margin-left:var(--sbw)}
   #ios-install-banner{margin-top:env(safe-area-inset-top,0px);margin-left:var(--sbw)}
@@ -1580,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.54';
+const APP_VERSION='2.31.55';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5373,21 +5365,6 @@ function reinviaVerificaEmail(){if(!currentUser){return;}currentUser.sendEmailVe
 
 var _deviceType=null; // 'phone' | 'tablet' | null
 
-let _satFrozen=null;
-function _misuraSafeAreaTop(){
-  // Misura il valore reale di env(safe-area-inset-top) e lo salva in --sat-frozen: a tastiera
-  // aperta nella PWA iOS standalone, iOS altera temporaneamente questo valore (vedi le regole
-  // "body.keyboard-open" più sopra), scoprendo la vera status bar. Usando l'ultimo valore
-  // misurato a tastiera chiusa invece di quello "live", l'area resta della dimensione corretta.
-  // Non va richiamata a tastiera aperta, altrimenti si congelerebbe il valore già alterato.
-  if(document.body.classList.contains('keyboard-open'))return;
-  const probe=document.createElement('div');
-  probe.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;padding-top:env(safe-area-inset-top,0px);opacity:0;pointer-events:none;visibility:hidden;';
-  document.body.appendChild(probe);
-  const val=getComputedStyle(probe).paddingTop;
-  document.body.removeChild(probe);
-  if(val){_satFrozen=val;document.documentElement.style.setProperty('--sat-frozen',val);}
-}
 function checkPortrait(){
   const w=window.innerWidth;
   const h=window.innerHeight;
@@ -5422,7 +5399,6 @@ function checkPortrait(){
     else if(isPhone&&isPortrait)nav.style.display='flex';
     else nav.style.display='';
   }
-  _misuraSafeAreaTop();
 }
 // Nell'header della tab Ordini, "Stampa tutti" e "Coda" vanno mostrati in ordine invertito tra
 // smartphone verticale (Stampa tutti prima) e tablet/desktop (Coda prima, ordine naturale del
@@ -5736,24 +5712,20 @@ document.addEventListener('focusout',function(e){
     if(bar&&bar.classList.contains('visible')&&!document.body.classList.contains('portrait-phone'))bar.style.display='';
     if(nav)nav.style.display='flex';
     document.body.classList.remove('keyboard-open');
-    _misuraSafeAreaTop();
   },300);
 });
-// Stesso fix, versione tablet/desktop: niente bottom-nav da nascondere (c'è la sidebar), serve
-// solo la classe keyboard-open per il fix della safe-area (vedi regole CSS "body.keyboard-open").
-// Non limitato a iOS: dove il valore non cambia (Android, desktop) il fix è semplicemente innocuo.
+// Fix tastiera PWA iOS standalone (Nuovo ordine e Modal): quando un campo riceve il focus, iOS
+// sposta l'intera pagina fino in cima allo schermo fisico per portare il campo sopra la tastiera,
+// ignorando lo spazio riservato al notch/orologio (la nostra "safe area" è solo CSS, iOS non ne
+// tiene conto in questo suo scroll automatico). In questa app lo scroll della finestra/documento
+// non serve mai: tutto lo scroll vero avviene dentro contenitori interni (.page-wrap, .modal,
+// .sidebar) che hanno il proprio overflow indipendente. Quindi, un attimo dopo che iOS ha fatto
+// questo scroll indesiderato, lo riportiamo a zero, senza toccare lo scroll dei contenitori interni.
 document.addEventListener('focusin',function(e){
-  if(document.body.classList.contains('portrait-phone'))return; // già gestito sopra
-  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')document.body.classList.add('keyboard-open');
-});
-document.addEventListener('focusout',function(e){
-  if(document.body.classList.contains('portrait-phone'))return;
+  if(e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA')return;
   setTimeout(function(){
-    var a=document.activeElement;
-    if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;
-    document.body.classList.remove('keyboard-open');
-    _misuraSafeAreaTop();
-  },300);
+    if(window.scrollX||window.scrollY)window.scrollTo(0,0);
+  },350);
 });
 
 // Registrazione Service Worker (installazione standalone su Android/Chrome)
