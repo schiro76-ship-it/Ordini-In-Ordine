@@ -167,8 +167,11 @@ body.portrait-phone.vb-active #ios-install-banner{padding-top:9px!important}
 body.portrait-phone{background:#2C3E50}
 html{background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
-#status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
-#tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39}
+/* transform:translateZ(0) forza questi elementi fissi su un livello grafico separato: senza,
+   in PWA iOS standalone possono "sfasarsi" per un istante durante lo scroll che la tastiera
+   provoca per portare un campo sopra di sé, lasciando scoperto il notch/status bar reale. */
+#status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform}
+#tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform}
 #sidebar-extender{display:none;position:fixed;bottom:-500px;left:0;width:var(--sbw);height:500px;background:#2C3E50;z-index:39}
 body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
@@ -1572,7 +1575,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.56';
+const APP_VERSION='2.31.57';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5714,18 +5717,6 @@ document.addEventListener('focusout',function(e){
     document.body.classList.remove('keyboard-open');
   },300);
 });
-// Fix tastiera PWA iOS standalone (Nuovo ordine e Modal): quando un campo riceve il focus, iOS
-// sposta l'intera pagina fino in cima allo schermo fisico per portare il campo sopra la tastiera,
-// ignorando lo spazio riservato al notch/orologio (la nostra "safe area" è solo CSS, iOS non ne
-// tiene conto in questo suo scroll automatico). In questa app lo scroll della finestra/documento
-// non serve mai: tutto lo scroll vero avviene dentro contenitori interni (.page-wrap, .modal,
-// .sidebar) che hanno il proprio overflow indipendente. Invece di aspettare un tempo fisso dopo
-// il focus (percepibile), si intercetta l'evento "scroll" della finestra stessa e si corregge
-// nello stesso istante in cui iOS prova a spostarla, senza attesa artificiale.
-window.addEventListener('scroll',function(){
-  if(window.scrollX||window.scrollY)window.scrollTo(0,0);
-},{passive:true});
-
 // Registrazione Service Worker (installazione standalone su Android/Chrome)
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
