@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.74';
+const APP_VERSION='2.31.76';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4391,11 +4391,19 @@ function renderCal(){
 function calSelGiorno(iso){
   const giaSelezionato=calSelDate===iso;
   calSelDate=giaSelezionato?null:iso;
+  // Se modalità niente → focus su nome subito, PRIMA di ricostruire la griglia del calendario:
+  // il pulsante del giorno appena toccato viene distrutto e ricreato da renderCal() (innerHTML),
+  // e su iOS se l'elemento che ha ricevuto il tocco viene rimosso prima della focus() sul campo
+  // successivo, la tastiera non si apre con il cursore pronto (serve invece che il focus avvenga
+  // come primissimo passo sincrono della gesture).
+  if(_calMode==='niente'&&calSelDate){
+    const nn=document.getElementById('nn');if(nn)nn.focus();
+  }
   renderCal();
   _aggiornaTriggerLabel();
   // Se modalità niente → focus su nome subito (sincrono per iOS), solo se il giorno è stato selezionato (non deselezionato)
   if(_calMode==='niente'&&calSelDate){
-    const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
+    const nn=document.getElementById('nn');if(nn)setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);
   } else if(!giaSelezionato&&calSelDate){
     const extra=document.getElementById('cal-row-extra');
     const next=extra&&[...extra.querySelectorAll('button:not([disabled]),input:not([disabled])')].find(el=>el.offsetParent!==null);
@@ -4428,6 +4436,18 @@ function calTimeInpBlur(){
     const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
   }
 }
+// iOS non considera il 'blur' del time-picker nativo come interazione diretta dell'utente,
+// anche quando è causato da un tocco reale: focus() chiamato da 'blur' sposta il focus (si vede
+// l'anello) ma non apre la tastiera. Si intercetta quindi lo stesso tocco che chiude il
+// time-picker con 'touchend'/'mousedown' — eventi che iOS riconosce come gesture valida — e si
+// richiama da lì la stessa funzione; il 'blur' resta comunque attivo come rete di sicurezza
+// per gli ambienti dove questo aggiramento non serve (Android, desktop).
+function _provaSaltoOraNome(e){
+  var ti=document.getElementById('cal-time-inp');
+  if(ti&&document.activeElement===ti&&e.target!==ti)calTimeInpBlur();
+}
+document.addEventListener('touchend',_provaSaltoOraNome,true);
+document.addEventListener('mousedown',_provaSaltoOraNome,true);
 function _aggiornaTriggerLabel(){
   // Aggiorna la label del trigger (legacy per compatibilità)
   const tr=document.getElementById('cal-trigger');
