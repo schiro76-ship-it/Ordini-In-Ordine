@@ -169,19 +169,8 @@ html{background:#2C3E50}
 /* Barra fissa che copre la status bar con il colore corretto */
 #status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
 #tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39}
-/* Fascia di sfumatura subito sotto la cover: in PWA iOS standalone, quando la tastiera sposta
-   la pagina per portare un campo sopra di sé, per un istante il contenuto può sbirciare oltre
-   il bordo della cover fissa. Questa fascia attenua gradualmente quel contenuto invece di
-   lasciarlo scoperto di netto, mascherando l'eventuale sfasamento invece di inseguirlo. */
-#status-bar-shadow{display:none;position:fixed;top:env(safe-area-inset-top,44px);left:0;right:0;height:36px;background:linear-gradient(to bottom,#2C3E50,rgba(44,62,80,0));z-index:9998;pointer-events:none}
-#tablet-top-bar-shadow{display:none;position:fixed;top:env(safe-area-inset-top,20px);left:var(--sbw);right:0;height:24px;background:linear-gradient(to bottom,#DDE0E8,rgba(221,224,232,0));z-index:38;pointer-events:none}
 #sidebar-extender{display:none;position:fixed;bottom:-500px;left:0;width:var(--sbw);height:500px;background:#2C3E50;z-index:39}
 body.portrait-phone #status-bar-cover{display:block}
-/* La sfumatura compare solo quando la finestra risulta davvero scrollata (window.scrollX/Y
-   diverso da zero, impostato via JS): è esattamente la condizione osservata quando la cover
-   fissa si sfasa. Non basta "tastiera aperta", perché in molte tab il campo attivo non causa
-   mai questo scroll e la sfumatura non dovrebbe comparire. */
-body.portrait-phone.win-scrolled #status-bar-shadow{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
 body.portrait-phone .page-wrap{padding-top:env(safe-area-inset-top,44px)}
 body.portrait-phone.vb-active .page-wrap{padding-top:0}
@@ -245,7 +234,6 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   #sidebar-extender{display:block;z-index:100}
   .page-wrap{margin-left:var(--sbw);padding-top:env(safe-area-inset-top,20px)}
   #tablet-top-bar{display:block}
-  body.win-scrolled #tablet-top-bar-shadow{display:block}
   #verify-banner{margin-top:env(safe-area-inset-top,0px);margin-left:var(--sbw)}
   #ios-install-banner{margin-top:env(safe-area-inset-top,0px);margin-left:var(--sbw)}
   #tab-ordini .stats-row{grid-template-columns:repeat(5,1fr)}
@@ -265,7 +253,6 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   #sidebar-extender{display:block;z-index:100}
   .page-wrap{margin-left:var(--sbw);padding-top:env(safe-area-inset-top,20px)}
   #tablet-top-bar{display:block}
-  body.win-scrolled #tablet-top-bar-shadow{display:block}
   #verify-banner{margin-top:env(safe-area-inset-top,0px);margin-left:var(--sbw)}
   #ios-install-banner{margin-top:env(safe-area-inset-top,0px);margin-left:var(--sbw)}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
@@ -599,7 +586,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 </style>
 </head>
 <body>
-<div id="status-bar-cover"></div><div id="status-bar-shadow"></div><div id="tablet-top-bar"></div><div id="tablet-top-bar-shadow"></div><div id="sidebar-extender"></div>
+<div id="status-bar-cover"></div><div id="tablet-top-bar"></div><div id="sidebar-extender"></div>
 <div id="login-screen" role="main" style="display:none">
     <div id="login-brand">
       <svg width="96" height="96" viewBox="0 0 180 180"><rect width="180" height="180" rx="36" fill="#1A4F94"/><rect x="28" y="148" width="124" height="18" rx="6" fill="#FFE033"/><rect x="87" y="20" width="6" height="130" rx="3" fill="#FFE033"/><path d="M30,62 Q58,48 90,58 Q122,68 150,52 Q146,72 90,70 Q40,78 30,62 Z" fill="#FFE033"/><path d="M30,94 Q56,80 90,88 Q124,98 150,82 Q146,102 90,100 Q42,108 30,94 Z" fill="#FFE033"/><path d="M30,124 Q56,110 90,118 Q124,128 150,112 Q146,132 90,130 Q42,138 30,124 Z" fill="#FFE033"/></svg>
@@ -1492,7 +1479,7 @@ function obTornaScelta(){
 
 
 async function obConfirm(){if(!obSelectedAttivita)return;const attivita=getAttivitaById(obSelectedAttivita);const defaultTheme=getAttivitaById('macelleria');cats=[...attivita.cats];arts=attivita.arts.map((a,i)=>({id:i+1,...a}));unitaMisura=[...(attivita.um||DEFAULT_UM)];ords=[];await saveData();if(currentUser){await db.collection('profili').doc(currentUser.uid).set({attivita:currentUser.displayName||'',email:currentUser.email,tipoAttivita:obSelectedAttivita,tema:'macelleria',onboardingCompleto:true,creato:new Date().toISOString()},{merge:true});}_tipoAttivitaCorrente=obSelectedAttivita;applicaLabelArticoli();applyTheme(DEFAULT_THEME);document.getElementById('onboarding-screen').style.display='none';refreshAll();toast('Benvenuto!','v');}
-function applyTheme(theme){const root=document.documentElement;root.style.setProperty('--r',theme.r);root.style.setProperty('--rs',theme.rs);root.style.setProperty('--g',theme.g);root.style.setProperty('--gs',theme.gs);root.style.setProperty('--bg',theme.bg);const sb=document.querySelector('.sidebar');if(sb)sb.style.background=theme.sb;const ext=document.getElementById('sidebar-extender');if(ext)ext.style.background=theme.sb;const cover=document.getElementById('status-bar-cover');if(cover)cover.style.background=theme.sb;const shadow=document.getElementById('status-bar-shadow');if(shadow)shadow.style.background='linear-gradient(to bottom,'+theme.sb+',transparent)';}
+function applyTheme(theme){const root=document.documentElement;root.style.setProperty('--r',theme.r);root.style.setProperty('--rs',theme.rs);root.style.setProperty('--g',theme.g);root.style.setProperty('--gs',theme.gs);root.style.setProperty('--bg',theme.bg);const sb=document.querySelector('.sidebar');if(sb)sb.style.background=theme.sb;const ext=document.getElementById('sidebar-extender');if(ext)ext.style.background=theme.sb;const cover=document.getElementById('status-bar-cover');if(cover)cover.style.background=theme.sb;}
 
 async function checkOnboarding(){if(!currentUser)return;try{const snap=await db.collection('profili').doc(currentUser.uid).get();if(snap.exists&&snap.data().onboardingCompleto){_tipoAttivitaCorrente=snap.data().tipoAttivita||null;applicaLabelArticoli();applyTheme(DEFAULT_THEME);refreshAll();}else{showOnboarding();}}catch(e){console.warn('checkOnboarding: verifica non riuscita (probabile problema di rete), onboarding NON mostrato per sicurezza',e);}}
 // Il modal di conferma "modal-del-conf" è condiviso da più azioni: eliminazioni vere (ordine,
@@ -1585,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.60';
+const APP_VERSION='2.31.61';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5727,14 +5714,24 @@ document.addEventListener('focusout',function(e){
     document.body.classList.remove('keyboard-open');
   },300);
 });
-// La fascia di sfumatura (vedi regole CSS "win-scrolled" più sopra) deve comparire solo quando
-// si verifica davvero la condizione del bug: la finestra/documento risulta scrollata. In questa
-// app questo non dovrebbe mai succedere normalmente (tutto lo scroll vero avviene dentro
-// contenitori interni come .page-wrap/.modal/.sidebar), quindi la sola presenza di uno scroll
-// a livello di finestra è già il segnale giusto, senza bisogno di sapere se la tastiera è aperta.
-window.addEventListener('scroll',function(){
-  document.body.classList.toggle('win-scrolled',window.scrollX!==0||window.scrollY!==0);
-},{passive:true});
+// Fix tastiera PWA iOS standalone (misurato con l'Ispettore Web collegato al dispositivo):
+// quando la tastiera compare, iOS scrolla il documento per portare il campo attivo sopra di
+// sé, ma gli elementi "position:fixed" (come #status-bar-cover e #tablet-top-bar) restano
+// ancorati al vecchio sistema di coordinate e scivolano via dallo schermo visibile esattamente
+// di "visualViewport.offsetTop" pixel, scoprendo il notch/status bar reale sotto di loro.
+// Si compensa spostandoli in basso della stessa quantità, cosi' restano sempre visivamente
+// incollati in cima allo schermo vero, qualunque sia lo scroll che la tastiera provoca.
+function _sincronizzaCoverFissa(){
+  var vv=window.visualViewport;
+  var offset=vv?vv.offsetTop:0;
+  var val=offset?('translateY('+offset+'px)'):'';
+  var cover=document.getElementById('status-bar-cover');if(cover)cover.style.transform=val;
+  var tablet=document.getElementById('tablet-top-bar');if(tablet)tablet.style.transform=val;
+}
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',_sincronizzaCoverFissa);
+  window.visualViewport.addEventListener('scroll',_sincronizzaCoverFissa);
+}
 // Registrazione Service Worker (installazione standalone su Android/Chrome)
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
