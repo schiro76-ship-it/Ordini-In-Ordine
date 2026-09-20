@@ -1580,7 +1580,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.53';
+const APP_VERSION='2.31.54';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5739,16 +5739,15 @@ document.addEventListener('focusout',function(e){
     _misuraSafeAreaTop();
   },300);
 });
-// Stesso fix, versione tablet: niente bottom-nav da nascondere (c'è la sidebar), serve solo
-// la classe keyboard-open per il fix della safe-area (vedi regole CSS "body.keyboard-open").
+// Stesso fix, versione tablet/desktop: niente bottom-nav da nascondere (c'è la sidebar), serve
+// solo la classe keyboard-open per il fix della safe-area (vedi regole CSS "body.keyboard-open").
+// Non limitato a iOS: dove il valore non cambia (Android, desktop) il fix è semplicemente innocuo.
 document.addEventListener('focusin',function(e){
   if(document.body.classList.contains('portrait-phone'))return; // già gestito sopra
-  if(!(_isIOS()&&_isTouchDevice()))return;
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')document.body.classList.add('keyboard-open');
 });
 document.addEventListener('focusout',function(e){
   if(document.body.classList.contains('portrait-phone'))return;
-  if(!(_isIOS()&&_isTouchDevice()))return;
   setTimeout(function(){
     var a=document.activeElement;
     if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;
