@@ -902,7 +902,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                     <button id="cal-btn-pom" class="cal-btn-mp" onclick="calSceglTurno('pomeriggio')"><i class="ti ti-sunset-2"></i> Pom.</button>
                     <div id="cal-time-wrap" class="cal-time-wrap" style="display:none">
                       <span style="font-size:13px;color:var(--sub)"><i class="ti ti-clock"></i></span>
-                      <input type="time" id="cal-time-inp" class="cal-time-inp" onchange="calSceglOra(this.value)">
+                      <input type="time" id="cal-time-inp" class="cal-time-inp" onchange="calSceglOra(this.value)" onblur="calTimeInpBlur()">
                     </div>
                   </div>
                 </div>
@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.51';
+const APP_VERSION='2.31.52';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -4419,7 +4419,12 @@ function calSceglOra(v){
   renderCal();
   _aggiornaTriggerLabel();
   if(calOra&&!calSelDate){toast('Ricordati di scegliere anche il giorno di ritiro!','err');}
-  else if(calOra&&calSelDate){
+}
+function calTimeInpBlur(){
+  // Il salto al campo successivo avviene solo quando l'utente ha finito di interagire con l'orologio
+  // (blur), non ad ogni singola regolazione di ore/minuti (change), altrimenti su alcuni dispositivi
+  // il focus scapperebbe già dopo aver impostato solo le ore o solo i minuti.
+  if(calOra&&calSelDate){
     const nn=document.getElementById('nn');if(nn){nn.focus();setTimeout(function(){nn.scrollIntoView({behavior:'smooth',block:'center'});},80);}
   }
 }
