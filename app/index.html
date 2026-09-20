@@ -42,13 +42,13 @@
   --rad:14px;--sbw:240px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;overflow-wrap:anywhere}.ov button:active{transform:none}.bn-item:active{opacity:0.6;transition:opacity 0.08s}.tb-menu:active{opacity:0.5}.no-fade:active{opacity:1!important}
-body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
 #loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:16px}
 #loading.hidden{display:none}
 .spinner{width:40px;height:40px;border:4px solid #F0F2F5;border-top-color:#256BC1;border-radius:50%;animation:spin 0.7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #loading p{font-size:16px;font-weight:700;color:var(--sub)}
-.shell{display:flex;height:100%}
+.shell{display:flex;height:100vh}
 .sidebar{width:var(--sbw);background:#2C3E50;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;z-index:60;transition:transform 0.25s ease;padding-top:env(safe-area-inset-top,0px)}
 .sb-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.12)}
 .sb-logo .title{font-size:18px;font-weight:900;color:#fff}
@@ -165,10 +165,14 @@ body.portrait-phone #verify-banner{padding-top:calc(9px + env(safe-area-inset-to
 body.portrait-phone #ios-install-banner{padding-top:calc(9px + env(safe-area-inset-top,44px))!important}
 body.portrait-phone.vb-active #ios-install-banner{padding-top:9px!important}
 body.portrait-phone{background:#2C3E50}
-html{background:#2C3E50;position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
-/* Barra fissa che copre la status bar con il colore corretto */
-#status-bar-cover{display:none;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,44px);background:#2C3E50;z-index:9999}
-#tablet-top-bar{display:none;position:fixed;top:0;left:var(--sbw);right:0;height:env(safe-area-inset-top,20px);background:#DDE0E8;z-index:39}
+html{background:#2C3E50}
+/* Barra fissa che copre la status bar con il colore corretto.
+   top/height sono già "maggiorati" di un margine (buf) sempre presente, non attivato/disattivato
+   via JS: il bordo inferiore resta lo stesso (top+height = altezza originale), quindi a riposo
+   è visivamente identica a prima. Così l'unica cosa che si muove per compensare la tastiera è
+   il transform (vedi JS), senza nessun cambio di layout che possa causare tremolii. */
+#status-bar-cover{display:none;position:fixed;top:-960px;left:0;right:0;height:calc(env(safe-area-inset-top,44px) + 960px);background:#2C3E50;z-index:9999}
+#tablet-top-bar{display:none;position:fixed;top:-960px;left:var(--sbw);right:0;height:calc(env(safe-area-inset-top,20px) + 960px);background:#DDE0E8;z-index:39}
 #sidebar-extender{display:none;position:fixed;bottom:-500px;left:0;width:var(--sbw);height:500px;background:#2C3E50;z-index:39}
 body.portrait-phone #status-bar-cover{display:block}
 /* Il page-wrap parte sotto la cover, così lo scroll non va sotto */
@@ -224,7 +228,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   body:not(.portrait-phone) .ordini-sticky,body:not(.portrait-phone) .list-sticky{background:#DDE0E8}
   body{background:#DDE0E8}
   :root{--sbw:200px}
-  .shell{height:100%}
+  .shell{height:100dvh}
   .sidebar{min-height:100dvh;padding-bottom:env(safe-area-inset-bottom,34px)}
   .phdr{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .phdr h2{font-size:23px;font-weight:900}
@@ -244,7 +248,7 @@ body.portrait-phone.keyboard-open #tab-nuovo .pbody{padding-bottom:320px!importa
   html{background:#DDE0E8}
   body:not(.portrait-phone) .ordini-sticky,body:not(.portrait-phone) .list-sticky{background:#DDE0E8}
   body{background:#DDE0E8}
-  .shell{height:100%}
+  .shell{height:100dvh}
   .sidebar{min-height:100dvh;padding-bottom:env(safe-area-inset-bottom,34px)}
   .phdr{padding:28px 32px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .phdr h2{font-size:26px;font-weight:900}
@@ -1572,7 +1576,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.71';
+const APP_VERSION='2.31.73';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5714,10 +5718,35 @@ document.addEventListener('focusout',function(e){
     document.body.classList.remove('keyboard-open');
   },300);
 });
-// Fix tastiera PWA iOS standalone: il documento (html/body) è bloccato e non può più
-// scorrere (vedi CSS), quindi iOS non ha nulla da spostare a livello di pagina e gli
-// elementi "position:fixed" (#status-bar-cover, #tablet-top-bar) restano ancorati allo
-// schermo reale senza bisogno di alcuna compensazione via JavaScript.
+// Fix tastiera PWA iOS standalone (misurato con l'Ispettore Web collegato al dispositivo):
+// quando la tastiera compare, gli elementi "position:fixed" (#status-bar-cover, #tablet-top-bar)
+// si disallineano dallo schermo visibile esattamente di "visualViewport.offsetTop" pixel. Si
+// compensa inseguendo quel valore con un transform: la barra ha già un margine maggiorato
+// permanente nel CSS (non attivato via JS), quindi qui l'unica cosa che cambia è il transform,
+// nessun cambio di layout che possa causare tremolii nel passaggio tra stati.
+// Il valore grezzo di visualViewport.offsetTop oscilla durante l'animazione nativa della
+// tastiera (misurato: non cresce/scende in modo lineare, "rimbalza"). Inseguirlo di scatto
+// crea tremolio; si usa quindi uno smorzamento continuo fotogramma per fotogramma, che si
+// avvicina rapidamente al valore vero senza inseguirne ogni singola oscillazione di scatto.
+let _coverCur=0,_coverTarget=0,_coverRaf=null;
+function _coverTick(){
+  var diff=_coverTarget-_coverCur;
+  _coverCur=Math.abs(diff)<0.5?_coverTarget:_coverCur+diff*0.5;
+  var val=_coverCur?('translateY('+_coverCur+'px)'):'';
+  var cover=document.getElementById('status-bar-cover');if(cover)cover.style.transform=val;
+  var tablet=document.getElementById('tablet-top-bar');if(tablet)tablet.style.transform=val;
+  if(_coverCur!==_coverTarget)_coverRaf=requestAnimationFrame(_coverTick);
+  else _coverRaf=null;
+}
+function _sincronizzaCoverFissa(){
+  var vv=window.visualViewport;
+  _coverTarget=vv?vv.offsetTop:0;
+  if(!_coverRaf)_coverRaf=requestAnimationFrame(_coverTick);
+}
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',_sincronizzaCoverFissa);
+  window.visualViewport.addEventListener('scroll',_sincronizzaCoverFissa);
+}
 // Registrazione Service Worker (installazione standalone su Android/Chrome)
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
