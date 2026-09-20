@@ -1574,7 +1574,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.69';
+const APP_VERSION='2.31.70';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -5739,23 +5739,35 @@ function _applicaCorrCover(attiva){
     if(!attiva)tablet.style.transform='';
   }
 }
+// Il valore grezzo di visualViewport.offsetTop oscilla durante l'animazione nativa della
+// tastiera (misurato: non cresce/scende in modo lineare, "rimbalza"). Inseguirlo di scatto
+// crea tremolio; inseguirlo con un'animazione a tempo fisso crea ritardo (la barra "scende
+// troppo" perché arriva in ritardo rispetto al vero valore). Si usa invece uno smorzamento
+// continuo fotogramma per fotogramma: si avvicina rapidamente al valore vero senza inseguirne
+// ogni singola oscillazione di scatto.
+let _coverCur=0,_coverTarget=0,_coverRaf=null;
+function _coverTick(){
+  var diff=_coverTarget-_coverCur;
+  _coverCur=Math.abs(diff)<0.5?_coverTarget:_coverCur+diff*0.5;
+  var val=_coverCur?('translateY('+_coverCur+'px)'):'';
+  var cover=document.getElementById('status-bar-cover');if(cover)cover.style.transform=val;
+  var tablet=document.getElementById('tablet-top-bar');if(tablet)tablet.style.transform=val;
+  if(_coverCur!==_coverTarget)_coverRaf=requestAnimationFrame(_coverTick);
+  else _coverRaf=null;
+}
 function _sincronizzaCoverFissa(){
   var vv=window.visualViewport;
   var offset=vv?vv.offsetTop:0;
+  _coverTarget=offset;
   if(offset){
-    // Attiva subito la correzione (margine esteso verso l'alto, vedi sopra) e annulla
-    // l'eventuale rimozione già programmata: se il valore oscilla vicino allo zero proprio
-    // mentre la tastiera si assesta, non deve accendersi/spegnersi di scatto (tremolio).
     if(_coverClearT){clearTimeout(_coverClearT);_coverClearT=null;}
     _applicaCorrCover(true);
-    var val='translateY('+offset+'px)';
-    var cover=document.getElementById('status-bar-cover');if(cover)cover.style.transform=val;
-    var tablet=document.getElementById('tablet-top-bar');if(tablet)tablet.style.transform=val;
   } else if(!_coverClearT){
-    // Aspetta che il valore resti a zero per un attimo prima di rimuovere la correzione:
-    // evita di "spegnerla e riaccenderla" ad ogni micro-oscillazione dell'ultimo tratto.
+    // Aspetta che il valore resti a zero per un attimo prima di rimuovere il margine esteso:
+    // evita di "spegnerlo e riaccenderlo" ad ogni micro-oscillazione dell'ultimo tratto.
     _coverClearT=setTimeout(function(){_coverClearT=null;_applicaCorrCover(false);},160);
   }
+  if(!_coverRaf)_coverRaf=requestAnimationFrame(_coverTick);
 }
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize',_sincronizzaCoverFissa);
