@@ -81,7 +81,7 @@
       '<div class="cookie-banner-inner">' +
         '<div class="cookie-banner-text">' +
           '<strong>Cookie e statistiche</strong>' +
-          '<span>Usiamo Google Analytics in forma anonima per capire da dove arrivano i visitatori e migliorare le nostre campagne. Nessuna pubblicità personalizzata. ' +
+          '<span>Statistiche anonime sui visitatori, niente pubblicità personalizzata. ' +
             '<a href="' + PRIVACY_URL + '">Maggiori informazioni</a>' +
           '</span>' +
         '</div>' +
