@@ -215,6 +215,42 @@ img{max-width:100%;display:block}
 .site-footer a{color:var(--muted);text-decoration:underline}
 .footer-links{margin-top:8px}
 .footer-links a{margin-right:14px}
+.footer-links button{
+  margin-right:14px;background:none;border:none;padding:0;
+  font:inherit;color:var(--muted);text-decoration:underline;cursor:pointer;
+}
+.footer-links button:hover{color:var(--ink)}
+
+/* Cookie banner */
+.cookie-banner{
+  position:fixed;left:0;right:0;bottom:0;z-index:9999;
+  background:var(--navy);color:#fff;
+  padding:18px 24px;
+  box-shadow:0 -4px 20px rgba(0,0,0,.18);
+}
+.cookie-banner-inner{
+  max-width:1080px;margin:0 auto;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;
+}
+.cookie-banner-text{display:flex;flex-direction:column;gap:4px;max-width:640px;font-size:14px;line-height:1.5}
+.cookie-banner-text strong{font-size:15px;font-weight:700}
+.cookie-banner-text a{color:#fff;text-decoration:underline}
+.cookie-banner-actions{display:flex;gap:12px;flex-shrink:0}
+.cookie-btn{
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;
+  padding:11px 22px;border-radius:999px;cursor:pointer;
+  border:2px solid transparent;transition:background .15s ease,border-color .15s ease;
+}
+.cookie-btn-accept{background:var(--blue);color:#fff}
+.cookie-btn-accept:hover{background:var(--blue-dark)}
+.cookie-btn-reject{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
+.cookie-btn-reject:hover{border-color:#fff}
+.cookie-btn:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+@media (max-width:560px){
+  .cookie-banner-inner{flex-direction:column;align-items:stretch}
+  .cookie-banner-actions{justify-content:stretch}
+  .cookie-btn{flex:1}
+}
 
 /* Guida / articolo */
 .article h2{font-size:24px;color:var(--navy);margin-top:2em}
