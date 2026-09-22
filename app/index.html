@@ -512,7 +512,7 @@ body:not(.portrait-phone) #storico-dettaglio-list .storico-ord-card{margin-botto
    base al contenuto ("shrink-to-fit") — calcolo che su elementi posizionati così (position:fixed,
    centrati con left:50%+transform) a volte produce una larghezza più stretta del necessario,
    causando più righe di quante servano davvero per testi di media lunghezza. */
-#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--txt);color:#fff;padding:12px 22px;border-radius:28px;font-size:16px;font-weight:800;box-shadow:var(--shl);opacity:0;transition:all 0.25s ease;z-index:400;width:max-content;max-width:min(480px,calc(100vw - 32px));box-sizing:border-box;text-align:center}
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--txt);color:#fff;padding:12px 22px;border-radius:28px;font-size:16px;font-weight:800;box-shadow:var(--shl);opacity:0;transition:all 0.25s ease;z-index:10000;width:max-content;max-width:min(480px,calc(100vw - 32px));box-sizing:border-box;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.v{background:var(--g)}#toast.err{background:var(--r)}
 .um-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
@@ -1455,7 +1455,7 @@ function applicaLabelArticoli(){
 }
 function showOnboarding(){obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.display='flex';el.style.zIndex='99999';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}
 function renderObAttivita(){const grid=document.getElementById('ob-attivita-grid');if(!grid||!ATTIVITA_TYPES)return;grid.innerHTML='';ATTIVITA_TYPES.forEach(function(a){const sel=(obSelectedAttivita&&obSelectedAttivita===a.id)?' selected':'';const div=document.createElement('div');div.className='ob-card'+sel;div.innerHTML='<div class="ob-emoji">'+a.emoji+'</div><div class="ob-label">'+a.label+'</div>';div.onclick=function(){selectAttivita(a.id);};grid.appendChild(div);});}
-function selectAttivita(id){obSelectedAttivita=id;renderObAttivita();const btn=document.getElementById('ob-btn1');if(btn){btn.disabled=false;btn.style.opacity='1';}}
+function selectAttivita(id){obSelectedAttivita=id;renderObAttivita();const btn=document.getElementById('ob-btn1');if(btn){btn.disabled=false;btn.style.opacity='1';btn.scrollIntoView({behavior:'smooth',block:'nearest'});}}
 function obNext(){
   if(!obSelectedAttivita)return;
   document.getElementById('ob-step1').style.display='none';
@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.77';
+const APP_VERSION='2.31.79';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2204,6 +2204,7 @@ async function checkESaveDispositivo(snapCondiviso){
     if(!nome){
       nome=tipo;
       try{
+        await attendiToastLibero();
         const scelto=(await modalPromptAsync('Come vuoi chiamare questo dispositivo? Puoi personalizzarlo, ad es. "Telefono di Mario".',tipo)||'').trim();
         if(scelto)nome=scelto;
       }catch(e){
@@ -4555,7 +4556,17 @@ function importaDati(input){const file=input.files[0];if(!file)return;const read
   if(typeof d.articoliCreatiTotale==='number')articoliCreatiTotale=d.articoliCreatiTotale;
   if(d.ordiniPerMese&&typeof d.ordiniPerMese==='object')ordiniPerMese=d.ordiniPerMese;
   await saveData();refreshAll();toast('Importati '+ords.length+' ordini e '+arts.length+' '+lblArt(true),'v');}catch(err){toast('Errore nel file!','err')}};reader.readAsText(file);input.value='';}
-function toast(m,t){var e=document.getElementById('toast');var icona=t==='v'?'<i class="ti ti-circle-check" style="margin-right:6px;vertical-align:-2px"></i>':t==='err'?'<i class="ti ti-alert-triangle" style="margin-right:6px;vertical-align:-2px"></i>':'';e.innerHTML=icona+m;e.className='show'+(t?' '+t:'');clearTimeout(e._t);e._t=setTimeout(function(){e.className=''},2700)}
+let _toastVisibileFino=0;
+function toast(m,t){var e=document.getElementById('toast');var icona=t==='v'?'<i class="ti ti-circle-check" style="margin-right:6px;vertical-align:-2px"></i>':t==='err'?'<i class="ti ti-alert-triangle" style="margin-right:6px;vertical-align:-2px"></i>':'';e.innerHTML=icona+m;e.className='show'+(t?' '+t:'');clearTimeout(e._t);_toastVisibileFino=Date.now()+2700;e._t=setTimeout(function(){e.className='';_toastVisibileFino=0;},2700)}
+// Evita che un modal si apra sopra un toast ancora a schermo (es. email di verifica + richiesta
+// nome dispositivo, che possono scattare quasi in contemporanea dopo la registrazione): aspetta
+// che il toast corrente sia finito, incluso il tempo della sua animazione di uscita, prima di
+// procedere. Se nessun toast è visibile, si risolve subito senza ritardo.
+function attendiToastLibero(){
+  const restante=_toastVisibileFino-Date.now();
+  if(restante<=0)return Promise.resolve();
+  return new Promise(function(resolve){setTimeout(resolve,restante+300);});
+}
 
 function _disegnaEtichetta(o,artIdEvidenziato){
   const W=591,pad=28;
