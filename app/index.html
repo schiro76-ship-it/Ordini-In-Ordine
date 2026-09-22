@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.79';
+const APP_VERSION='2.31.80';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2204,6 +2204,7 @@ async function checkESaveDispositivo(snapCondiviso){
     if(!nome){
       nome=tipo;
       try{
+        if(_registrazioneInCorso)await _registrazioneInCorso;
         await attendiToastLibero();
         const scelto=(await modalPromptAsync('Come vuoi chiamare questo dispositivo? Puoi personalizzarlo, ad es. "Telefono di Mario".',tipo)||'').trim();
         if(scelto)nome=scelto;
@@ -4567,6 +4568,22 @@ function attendiToastLibero(){
   if(restante<=0)return Promise.resolve();
   return new Promise(function(resolve){setTimeout(resolve,restante+300);});
 }
+// Alla registrazione, il controllo "dispositivo nuovo" (che apre il modal per il nome) può partire
+// quasi subito dopo la creazione dell'account, mentre il toast dell'email di verifica arriva dopo
+// altri passaggi (salvataggio profilo, invio email) — quindi di norma il modal sarebbe pronto ad
+// aprirsi PRIMA che il toast sia mai comparso, e attendiToastLibero() da solo non basta (non c'è
+// ancora nulla da aspettare). _registrazioneInCorso fa da "semaforo": impostato subito all'inizio
+// di doRegister(), viene liberato solo quando il tentativo di invio email (successo o errore) ha
+// già mostrato il suo toast — a quel punto attendiToastLibero() può fare il resto. Il timeout di
+// sicurezza evita che un errore imprevisto lasci il semaforo bloccato per sempre.
+let _registrazioneInCorso=null,_risolviRegistrazione=null;
+function _avviaSegnaleRegistrazione(){
+  _registrazioneInCorso=new Promise(function(res){_risolviRegistrazione=res;});
+  setTimeout(function(){if(_risolviRegistrazione){_risolviRegistrazione();_risolviRegistrazione=null;}},8000);
+}
+function _liberaSegnaleRegistrazione(){
+  if(_risolviRegistrazione){_risolviRegistrazione();_risolviRegistrazione=null;}
+}
 
 function _disegnaEtichetta(o,artIdEvidenziato){
   const W=591,pad=28;
@@ -5265,7 +5282,7 @@ function evidenziaCampo(id){
 }
 function doLogin(){const email=document.getElementById('login-email').value.trim();const pwd=document.getElementById('login-pwd').value;if(!email||!pwd){loginErr('Inserisci email e password');evidenziaCampo(!email?'login-email':'login-pwd');return;}auth.signInWithEmailAndPassword(email,pwd).catch(function(e){if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')loginErr('Email o password errati');else loginErr('Errore: '+e.message);});}
 function toggleBillingFields(){const f=document.getElementById('billing-fields');const a=document.getElementById('billing-arrow');const t=document.getElementById('billing-toggle');const open=f.style.display!=='none';f.style.display=open?'none':'block';a.style.transform=open?'rotate(0deg)':'rotate(90deg)';if(t)t.setAttribute('aria-expanded',open?'false':'true');}
-function doRegister(){isNewUser=true;const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString()}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');},function(e){toast('Errore invio verifica: '+e.code,'err');});});}).catch(function(e){if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
+function doRegister(){isNewUser=true;const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};_avviaSegnaleRegistrazione();auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString()}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');_liberaSegnaleRegistrazione();},function(e){toast('Errore invio verifica: '+e.code,'err');_liberaSegnaleRegistrazione();});});}).catch(function(e){_liberaSegnaleRegistrazione();if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
 function doResetPwd(){const email=document.getElementById('login-email').value.trim();if(!email){loginErr('Inserisci prima la tua email');return;}auth.sendPasswordResetEmail(email).then(function(){loginErr('Email di recupero inviata! Controlla la posta.');}).catch(function(e){loginErr('Email non trovata');});}
 function doGoogleLogin(){
   const formReg=document.getElementById('form-reg');
