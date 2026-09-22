@@ -141,6 +141,18 @@ img{max-width:100%;display:block}
   .hero-shot-stack{max-width:420px;width:100%;margin-bottom:36px;gap:14px}
 }
 
+/* Hero pagine attività — stesso schema della home (domanda, etichetta, titolo,
+   foto, descrizione), poi screenshot affiancati a tutta larghezza e "Come funziona" */
+.hero.hero-activity{grid-template-areas:"question photo" "eyebrow photo" "title photo" "text photo" "shots shots" "cta cta"}
+.hero-activity .hero-shot{grid-area:shots}
+.hero-shot-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;margin-top:36px}
+.hero-activity .hero-cta{grid-area:cta;margin-top:0}
+.hero-activity .hero-cta .hero-link{margin-top:8px}
+@media (max-width:800px){
+  .hero.hero-activity{grid-template-areas:"question" "eyebrow" "title" "photo" "text" "shots" "cta"}
+  .hero-shot-row{grid-template-columns:1fr;max-width:420px;width:100%;margin:12px auto 0;gap:14px}
+}
+
 /* Lightbox screenshot (click su shot-desktop, vedi site.js) */
 .lightbox-overlay{
   position:fixed;inset:0;background:rgba(22,35,61,.92);
