@@ -43,7 +43,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;overflow-wrap:anywhere}.ov button:active{transform:none}.bn-item:active{opacity:0.6;transition:opacity 0.08s}.tb-menu:active{opacity:0.5}.no-fade:active{opacity:1!important}
 body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
-#loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:16px}
+#loading{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:16px}
 #loading.hidden{display:none}
 .spinner{width:40px;height:40px;border:4px solid #F0F2F5;border-top-color:#256BC1;border-radius:50%;animation:spin 0.7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -62,7 +62,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .ni-nuovo-top{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 13px;border-radius:10px;cursor:pointer;color:#fff;font-size:16px;font-weight:800;border:1px solid rgba(255,255,255,0.35);background:var(--azione);transition:all 0.15s;user-select:none;margin-bottom:8px}
 .ni-nuovo-top:hover{filter:brightness(1.1)}
 .ni-nuovo-top .ic{font-size:20px;flex-shrink:0}
-.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:59}
+.sb-overlay{display:none;position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(0,0,0,0.5);z-index:59}
 .sb-overlay.open{display:block}
 .pcontent{flex:1;min-width:0;display:flex;flex-direction:column;overflow-x:hidden}
 .topbar{display:none;background:#fff;border-bottom:1px solid var(--brd);padding:0 16px;height:54px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;box-shadow:0 1px 8px rgba(0,0,0,0.06);flex-shrink:0}
@@ -533,7 +533,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 .pl-items{text-align:left;margin-top:12px}
 .pl-item{font-size:18px;font-weight:700;color:#1A1A2E;padding:6px 0;border-bottom:1px solid #F0F2F5;display:flex;justify-content:space-between;align-items:center}
 .pl-item-qty{font-weight:900;color:#E67E22;font-size:17px;white-space:nowrap;margin-left:12px}
-#login-screen{position:fixed;inset:0;background:#F0F2F5;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px;overflow-y:auto}
+#login-screen{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:#F0F2F5;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px;overflow-y:auto}
 @media(min-width:700px){#login-screen{flex-direction:row;gap:48px;align-items:flex-start;justify-content:center;padding:8vh 40px 40px}
 #login-brand{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:320px;flex-shrink:0}
 #login-brand .brand-tagline{font-size:15px;font-weight:600;color:#2C3E50;margin-top:16px;line-height:1.6;max-width:280px}#login-brand .brand-tagline li{color:#2C3E50!important}}
@@ -562,7 +562,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 @media(min-width:640px) and (max-width:1023px){.logo-text{font-size:15px}.logo-sub{font-size:10px}}
 @media(min-width:1024px){.logo-text{font-size:18px}.logo-sub{font-size:11px}}
 @media(max-width:639px){.logo-text{font-size:17px}.logo-sub{font-size:10px}}
-#onboarding-screen{position:fixed;inset:0;background:#fff;z-index:9998;display:none;flex-direction:column;overflow-y:auto}
+#onboarding-screen{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:#fff;z-index:9998;display:none;flex-direction:column;overflow-y:auto}
 #onboarding-screen.visible{display:flex}
 .ob-header{background:#2C3E50;padding:32px 20px 24px;text-align:center;color:rgba(255,255,255,0.92);margin:-24px -20px 0}
 @media(max-width:639px){.ob-logo{background:#FFE033;display:inline-flex;border-radius:14px;padding:10px 18px}.ob-logo div span{color:#1A4F94!important}.ob-logo div span[style*="FF6B35"]{color:#FF6B35!important}}
@@ -731,14 +731,14 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 
 <div id="loading"><div class="spinner"></div><p>Caricamento…</p></div>
 
-<div id="device-limit-screen" style="display:none;position:fixed;inset:0;background:#F0F2F5;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
+<div id="device-limit-screen" style="display:none;position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:#F0F2F5;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
   <div style="font-size:48px;color:var(--r);margin-bottom:16px"><i class="ti ti-device-mobile-x"></i></div>
   <div style="font-family:'Nunito',sans-serif;font-size:19px;font-weight:900;color:#1A1A2E;max-width:380px;margin-bottom:10px">Hai raggiunto il numero massimo di 5 dispositivi collegati a questo account</div>
   <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--sub);max-width:380px;margin-bottom:24px" id="device-limit-sub">Per accedere da qui, rimuovi prima un altro dispositivo da uno di quelli già connessi: Impostazioni → Dispositivi collegati.</div>
   <button class="btn bg2" onclick="doLogout()" style="max-width:260px"><i class="ti ti-logout"></i> Esci</button>
 </div>
 
-<div id="device-removed-screen" style="display:none;position:fixed;inset:0;background:#F0F2F5;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
+<div id="device-removed-screen" style="display:none;position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:#F0F2F5;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
   <div style="font-size:48px;color:var(--r);margin-bottom:16px"><i class="ti ti-device-mobile-x"></i></div>
   <div style="font-family:'Nunito',sans-serif;font-size:19px;font-weight:900;color:#1A1A2E;max-width:380px;margin-bottom:10px">Questo dispositivo è stato rimosso dall'account</div>
   <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--sub);max-width:380px;margin-bottom:24px">Un altro dispositivo collegato ha rimosso questo dalla lista "Dispositivi collegati". Per continuare a usare l'app da qui, effettua nuovamente l'accesso.</div>
@@ -1005,7 +1005,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                 <div><div style="font-size:16px;font-weight:700">Nuovo ordine</div><div style="font-size:13px;color:var(--sub);font-weight:600">Notifica quando arriva un ordine da un altro dispositivo</div></div>
                 <label style="position:relative;display:inline-block;width:48px;height:26px;flex-shrink:0">
                   <input type="checkbox" id="notif-nuovo-ordine" aria-label="Notifica nuovo ordine" onchange="toggleNotifNuovoOrdine()" style="opacity:0;width:0;height:0">
-                  <span id="notif-nuovo-ordine-track" style="position:absolute;inset:0;background:#ccc;border-radius:13px;cursor:pointer;transition:0.3s"></span>
+                  <span id="notif-nuovo-ordine-track" style="position:absolute;top:0;right:0;bottom:0;left:0;inset:0;background:#ccc;border-radius:13px;cursor:pointer;transition:0.3s"></span>
                   <span id="notif-nuovo-ordine-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
                 </label>
               </div>
@@ -1013,7 +1013,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                 <div><div style="font-size:16px;font-weight:700">Ordini urgenti</div><div style="font-size:13px;color:var(--sub);font-weight:600">Notifica ogni mattina se ci sono ordini urgenti da evadere</div></div>
                 <label style="position:relative;display:inline-block;width:48px;height:26px;flex-shrink:0">
                   <input type="checkbox" id="notif-ordini-urgenti" aria-label="Notifica ordini urgenti" onchange="toggleNotifOrdiniUrgenti()" style="opacity:0;width:0;height:0">
-                  <span id="notif-ordini-urgenti-track" style="position:absolute;inset:0;background:#ccc;border-radius:13px;cursor:pointer;transition:0.3s"></span>
+                  <span id="notif-ordini-urgenti-track" style="position:absolute;top:0;right:0;bottom:0;left:0;inset:0;background:#ccc;border-radius:13px;cursor:pointer;transition:0.3s"></span>
                   <span id="notif-ordini-urgenti-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></span>
                 </label>
               </div>
@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.82';
+const APP_VERSION='2.31.83';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
@@ -2239,7 +2239,7 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
   const _uidBoot=currentUser?currentUser.uid:DOC_ID;
   let _snapDatiIniziale=null;
   try{_snapDatiIniziale=await db.collection('dati').doc(_uidBoot).get();}catch(e){console.warn('Lettura iniziale dati non riuscita, si procede con i fallback locali',e);}
-  const _bloccato=await checkESaveDispositivo(_snapDatiIniziale);if(_bloccato){mostraLimiteDispositivi();return;}try{await loadData(_snapDatiIniziale);}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_ripristinaGruppoStampaLocale();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);setTimeout(adjustPhdrFit,0);checkIosInstallBanner();gestisciRitornoCheckout();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
+  const _bloccato=await checkESaveDispositivo(_snapDatiIniziale);if(_bloccato){mostraLimiteDispositivi();return;}try{await loadData(_snapDatiIniziale);}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_ripristinaGruppoStampaLocale();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);setTimeout(adjustPhdrFit,0);checkIosInstallBanner();gestisciRitornoCheckout();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
   try{
     if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
