@@ -478,7 +478,7 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .br:hover{filter:brightness(0.85)}.br:active{filter:brightness(0.75)}
 .bgg:hover{filter:brightness(0.85)}.bgg:active{filter:brightness(0.75)}
 .btn-outline-r{background:#fff;border:2px solid var(--azione);color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background 0.15s}.btn-outline-r i{font-size:15px}.btn-outline-r:hover{background:var(--azione-s)}.btn-outline-r:active{filter:brightness(0.92)}
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;align-items:flex-end;justify-content:center;padding:0}
+.ov{display:none;position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(0,0,0,0.45);z-index:100;align-items:flex-end;justify-content:center;padding:0}
 .ov.open{display:flex}
 @media(min-width:640px){.ov{align-items:center;padding:20px}}
 .modal{background:#fff;border-radius:20px 20px 16px 16px;padding:22px 18px 30px;width:100%;max-width:540px;box-shadow:var(--shl);animation:su 0.2s ease;max-height:90vh;overflow-y:auto;will-change:transform;touch-action:pan-y}
@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.80';
+const APP_VERSION='2.31.81';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
