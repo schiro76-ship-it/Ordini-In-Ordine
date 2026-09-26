@@ -143,8 +143,8 @@ body.portrait-phone #bottom-nav{display:flex}
    .pcontent NON aggiunge padding extra (lo spazio è già dato dal body) */
 body.portrait-phone .page-wrap{padding-bottom:calc(74px + env(safe-area-inset-bottom,16px))}
 body.portrait-phone .modal{padding-bottom:calc(110px + env(safe-area-inset-bottom,28px))}
-body.portrait-phone #modal-del-conf .modal,body.portrait-phone #modal-tel-menu .modal,body.portrait-phone #modal-img-menu .modal,body.portrait-phone #modal-backup .modal,body.portrait-phone #modal-backup-conf .modal,body.portrait-phone #modal-unisci-conferma .modal{padding-bottom:max(30px, env(safe-area-inset-bottom,20px))}
-body.portrait-phone .modal-qart-inner{padding-bottom:calc(110px + env(safe-area-inset-bottom,28px))}
+body.portrait-phone #modal-del-conf .modal,body.portrait-phone #modal-tel-menu .modal,body.portrait-phone #modal-img-menu .modal,body.portrait-phone #modal-backup .modal,body.portrait-phone #modal-backup-conf .modal,body.portrait-phone #modal-unisci-conferma .modal,body.portrait-phone #modal-prompt .modal,body.portrait-phone #modal-rimuovi-dispositivo .modal,body.portrait-phone #modal-edit-art .modal,body.portrait-phone #modal-edit-cliente .modal,body.portrait-phone #modal-segnala .modal{padding-bottom:max(30px, env(safe-area-inset-bottom,20px))}
+body.portrait-phone .modal-qart-inner{padding-bottom:max(30px, env(safe-area-inset-bottom,20px))}
 #btn-nuovo-ordini{display:none}
 body.portrait-phone .stats-row{grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px}
 body.portrait-phone .sc{padding:7px 4px;border-radius:10px}
@@ -1140,8 +1140,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div class="ma" style="flex-shrink:0"><button class="btn bg2 btn-full" onclick="closeModal('modal-articoli')">Chiudi</button></div>
   </div>
 </div>
-<div class="ov" id="modal-edit-art">
-  <div class="modal" style="max-width:440px">
+<div class="ov" id="modal-edit-art" style="align-items:center;padding:20px">
+  <div class="modal" style="max-width:440px;border-radius:18px">
     <div class="mta"><i class="ti ti-pencil"></i> <span id="modal-edit-art-titolo">Modifica articolo</span></div>
     <input type="hidden" id="edit-art-id">
     <div class="fg"><label class="fl" for="edit-art-nome">Nome *</label><input class="fi" type="text" id="edit-art-nome" placeholder="Nome articolo"></div>
@@ -1168,8 +1168,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div class="ma" style="flex-shrink:0"><button class="btn bg2 btn-full" onclick="closeModal('modal-clienti')">Chiudi</button></div>
   </div>
 </div>
-<div class="ov" id="modal-edit-cliente">
-  <div class="modal" style="max-width:440px">
+<div class="ov" id="modal-edit-cliente" style="align-items:center;padding:20px">
+  <div class="modal" style="max-width:440px;border-radius:18px">
     <div class="mta"><i class="ti ti-pencil"></i> <span id="modal-edit-cliente-titolo">Modifica cliente</span></div>
     <input type="hidden" id="edit-cliente-id">
     <div class="fg"><label class="fl" for="edit-cliente-nome">Nome *</label><input class="fi" type="text" id="edit-cliente-nome" placeholder="Nome cliente"></div>
@@ -1311,8 +1311,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-um')">Chiudi</button></div>
   </div>
 </div>
-<div class="ov" id="modal-qart">
-  <div class="modal-qart-inner">
+<div class="ov" id="modal-qart" style="align-items:center;padding:20px">
+  <div class="modal-qart-inner" style="border-radius:18px">
     <div class="mta"><i class="ti ti-plus"></i> <span id="modal-qart-titolo">Nuovo articolo</span></div>
     <div class="fg"><label class="fl" for="qan">Nome *</label><input class="fi" type="text" id="qan" placeholder="Es. Nome articolo"></div>
     <div class="fg">
@@ -1326,16 +1326,16 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
   </div>
 </div>
-<div class="ov" id="modal-segnala">
-  <div class="modal">
+<div class="ov" id="modal-segnala" style="align-items:center;padding:20px">
+  <div class="modal" style="border-radius:18px">
     <div class="mta"><i class="ti ti-bug"></i> Segnala un problema</div>
     <div style="font-size:13px;color:var(--sub);font-weight:600;margin:-6px 0 12px">Descrivi cosa non ha funzionato: la segnalazione arriva a noi insieme a qualche informazione tecnica utile per capire il problema (versione app, dispositivo, account).</div>
     <div class="fg"><textarea class="fi" id="segnala-testo" rows="5" aria-label="Descrizione del problema" placeholder="Es. quando premo Stampa in Riepilogo l'app si blocca…" style="resize:vertical;min-height:100px;font-family:'Nunito',sans-serif"></textarea></div>
     <div class="ma"><button class="btn bg2" style="flex:1" onclick="closeModal('modal-segnala')">Annulla</button><button class="btn br" style="flex:1" onclick="inviaSegnalazione()">Invia</button></div>
   </div>
 </div>
-<div class="ov" id="modal-rimuovi-dispositivo">
-  <div class="modal" style="max-width:360px">
+<div class="ov" id="modal-rimuovi-dispositivo" style="align-items:center;padding:20px">
+  <div class="modal" style="max-width:360px;border-radius:18px">
     <div class="mta"><i class="ti ti-trash"></i> Rimuovi dispositivo</div>
     <div id="rimdisp-pwd-wrap">
       <div class="fg"><label class="fl" for="rimdisp-pwd">Password</label><input class="fi" type="password" id="rimdisp-pwd" placeholder="La tua password" autocomplete="current-password"></div>
@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.83';
+const APP_VERSION='2.31.85';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 let clienti=[]; // Anagrafica clienti (nome/telefono), popolata in automatico da Nuovo Ordine — vedi salvaOrdine()
