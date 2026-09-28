@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.88';
+const APP_VERSION='2.31.90';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -1635,8 +1635,48 @@ const LIMITE_DISPOSITIVI=5;
 let _dispositivi={};
 const DEFAULT_UM=['kg','g','fette','pezzi','vaschette','bustine'];
 const DEFAULT_ARTS=getAttivitaById('macelleria').arts.map((a,i)=>({id:i+1,...a}));
-async function incrementaStampeCount(n){stampeCount=(stampeCount||0)+n;try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).update({stampeCount:firebase.firestore.FieldValue.increment(n)});}catch(e){console.warn('Incremento stampeCount fallito',e);}}
-async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return;}if(ords.length===0&&nextNum>1&&!(ordiniArchiviati>0)){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return;}
+// --- Unione dei dati in caso di conflitto tra dispositivi ---
+// _base è la copia di come erano i dati sul server l'ultima volta che questo dispositivo li ha visti
+// (caricamento iniziale, aggiornamento in tempo reale, o proprio salvataggio riuscito). Al momento di
+// salvare si confrontano tre versioni: _base, i dati in memoria (con la modifica appena fatta) e i dati
+// attuali sul server. Tutto ciò che è cambiato qui rispetto a _base vince; tutto ciò che è cambiato
+// solo sul server (ordini aggiunti, modificati o eliminati da un altro dispositivo, ordini spostati
+// in archivio) viene tenuto. Così nessuna delle due modifiche va persa.
+let _base=null;
+function _registraBase(){
+  try{_base=JSON.parse(JSON.stringify({arts,ords,clienti,cats,unitaMisura,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese}));}catch(e){_base=null;}
+}
+function _chiaveStabile(v){
+  return JSON.stringify(v,function(k,val){
+    if(val&&typeof val==='object'&&!Array.isArray(val)){return Object.keys(val).sort().reduce(function(o,kk){o[kk]=val[kk];return o;},{});}
+    return val;
+  });
+}
+// Unione a tre vie di una lista di oggetti con id (ordini, articoli, clienti).
+function _unisciLista(base,loc,rem){
+  base=Array.isArray(base)?base:[];loc=Array.isArray(loc)?loc:[];rem=Array.isArray(rem)?rem:[];
+  const mB=new Map(base.map(x=>[x.id,x])),mL=new Map(loc.map(x=>[x.id,x])),mR=new Map(rem.map(x=>[x.id,x]));
+  const ids=[...mL.keys(),...[...mR.keys()].filter(k=>!mL.has(k)),...[...mB.keys()].filter(k=>!mL.has(k)&&!mR.has(k))];
+  const lista=[],rimossiDalServer=[];
+  for(const id of ids){
+    const b=mB.get(id),l=mL.get(id),r=mR.get(id);
+    const modificatoQui=(b===undefined)!==(l===undefined)||(b!==undefined&&_chiaveStabile(b)!==_chiaveStabile(l));
+    let res;
+    if(modificatoQui)res=l;
+    else{res=r;if(r===undefined&&l!==undefined)rimossiDalServer.push(l);}
+    if(res!==undefined)lista.push(res);
+  }
+  return{lista,rimossiDalServer};
+}
+function _unisciContatore(b,l,r){b=Number(b)||0;l=Number(l)||0;r=Number(r)||0;return r+Math.max(0,l-b);}
+async function incrementaStampeCount(n){stampeCount=(stampeCount||0)+n;if(_base)_base.stampeCount=(Number(_base.stampeCount)||0)+n; // l'incremento va anche sul server qui sotto: non va ricontato come modifica locale
+try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).update({stampeCount:firebase.firestore.FieldValue.increment(n)});}catch(e){console.warn('Incremento stampeCount fallito',e);}}
+// Esito restituito (usato da salvaOrdine, ignorato dalle altre chiamate): 'ok' salvato; 'unito'
+// salvato dopo aver unito modifiche arrivate sul server da un altro dispositivo; 'conflitto' dati
+// ricaricati dal server senza scrivere; 'bloccato' fermato da una protezione; 'errore' scrittura
+// non riuscita.
+async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return'bloccato';}if(ords.length===0&&nextNum>1&&!(ordiniArchiviati>0)){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return'bloccato';}
+let _datiUniti=false;
 // --- Controllo conflitti (agosto 2026, dopo l'incidente di perdita dati): prima di scrivere,
 // verifica che nessun ordine presente su Firestore sia assente dalla memoria locale. Un ordine
 // remoto sconosciuto qui significa che un altro dispositivo lo ha aggiunto nel frattempo (es.
@@ -1669,19 +1709,59 @@ try{
         }
       }catch(e){console.warn('Controllo archivio in saveData non riuscito, procedo comunque',e);}
     }
-    if(nuoviAltrove.length>0){
+    const rd=remoteSnap.data();
+    if(_base){
+      // Unione a tre vie (vedi _registraBase): si tengono sia le modifiche fatte qui sia quelle
+      // arrivate sul server da altri dispositivi o dalle Cloud Functions.
+      const uO=_unisciLista(_base.ords,ords,rd.ords||[]);
+      const uA=_unisciLista(_base.arts,arts,rd.arts||[]);
+      const uC=_unisciLista(_base.clienti,clienti,rd.clienti||[]);
+      // Protezione: se sul server mancano di colpo molti ordini (che non siano vecchi ritirati spostati
+      // in archivio), articoli o clienti che qui non sono stati toccati, qualcosa non va: non si scrive,
+      // si ricaricano i dati e si avvisa, come faceva prima questo controllo.
+      const rimossiSospetti=uO.rimossiDalServer.filter(o=>!_eForseArchiviato(o)).length+uA.rimossiDalServer.length+uC.rimossiDalServer.length;
+      if(rimossiSospetti>5){
+        console.warn('saveData bloccato: '+rimossiSospetti+' elementi spariti dal server senza essere stati modificati qui');
+        await loadData();
+        refreshAll();
+        toast('Dati aggiornati da un altro dispositivo: ricontrolla prima di salvare di nuovo','err');
+        return'conflitto';
+      }
+      const unito={
+        ords:uO.lista,arts:uA.lista,clienti:uC.lista,
+        cats:_chiaveStabile(cats)!==_chiaveStabile(_base.cats)?cats:(rd.cats||[]),
+        unitaMisura:_chiaveStabile(unitaMisura)!==_chiaveStabile(_base.unitaMisura)?unitaMisura:(rd.unitaMisura||unitaMisura),
+        nextNum:Math.max(Number(nextNum)||1,Number(rd.nextNum)||1),
+        stampeCount:_unisciContatore(_base.stampeCount,stampeCount,rd.stampeCount),
+        ordiniCreatiTotale:_unisciContatore(_base.ordiniCreatiTotale,ordiniCreatiTotale,rd.ordiniCreatiTotale),
+        articoliCreatiTotale:_unisciContatore(_base.articoliCreatiTotale,articoliCreatiTotale,rd.articoliCreatiTotale),
+        ordiniPerMese:{}
+      };
+      const rOPM=rd.ordiniPerMese||{},bOPM=_base.ordiniPerMese||{},lOPM=ordiniPerMese||{};
+      new Set([...Object.keys(rOPM),...Object.keys(lOPM)]).forEach(k=>{unito.ordiniPerMese[k]=_unisciContatore(bOPM[k],lOPM[k],rOPM[k]);});
+      const prima=_chiaveStabile({ords,arts,clienti,cats,unitaMisura,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese});
+      if(_chiaveStabile(unito)!==prima){
+        ords=unito.ords;arts=unito.arts;clienti=unito.clienti;cats=unito.cats;unitaMisura=unito.unitaMisura;nextNum=unito.nextNum;
+        stampeCount=unito.stampeCount;ordiniCreatiTotale=unito.ordiniCreatiTotale;articoliCreatiTotale=unito.articoliCreatiTotale;ordiniPerMese=unito.ordiniPerMese;
+        if(rd.clientiAssorbiti&&typeof rd.clientiAssorbiti==='object')clientiAssorbiti=Object.assign({},rd.clientiAssorbiti,clientiAssorbiti);
+        _datiUniti=true;
+        console.warn('saveData: dati del server uniti a quelli di questo dispositivo prima di salvare');
+      }
+    }else if(nuoviAltrove.length>0){
+      // Nessuna copia di riferimento (dati caricati dalla memoria locale del browser): comportamento
+      // prudente di prima, si ricarica e non si scrive.
       console.warn('saveData bloccato: '+nuoviAltrove.length+' ordine/i su Firestore assente/i in memoria locale (probabile scrittura da un altro dispositivo)');
       await loadData();
       refreshAll();
       toast('Dati aggiornati da un altro dispositivo: ricontrolla prima di salvare di nuovo','err');
-      return;
+      return'conflitto';
     }
   }
 }catch(e){console.warn('Controllo conflitti saveData fallito, procedo comunque',e);}
 _notifSettingsAll[_deviceId]={nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti};
 const _orNuovo=Object.values(_notifSettingsAll).some(v=>v&&v.nuovoOrdine!==false);
 const _orUrg=Object.values(_notifSettingsAll).some(v=>v&&v.ordiniUrgenti!==false);
-const payload={arts,ords,unitaMisura,cats,nextNum,clienti,clientiAssorbiti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});}catch(e){console.warn('Firebase save error',e);}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}}
+const payload={arts,ords,unitaMisura,cats,nextNum,clienti,clientiAssorbiti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};let _esitoSalvataggio='ok';try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});_registraBase();}catch(e){console.warn('Firebase save error',e);_esitoSalvataggio='errore';}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}if(_esitoSalvataggio==='ok'&&_datiUniti){refreshAll();return'unito';}return _esitoSalvataggio;}
 let _abbonamento=null; // {stato,piano,scadenza,stripeCustomerId,stripeSubscriptionId} — scritto solo dal webhook Stripe, mai dal client
 let _referral=null; // {codice,invitatoDa,creditoErogato} — codice generato dal client, invitatoDa/creditoErogato letti/scritti anche dal webhook
 let _datiCreato=null; // data di creazione account, per calcolare la scadenza del mese di prova
@@ -1998,7 +2078,7 @@ async function avviaCheckout(piano){
     if(btn)btn.disabled=false;
   }
 }
-async function loadData(snapCondiviso){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=snapCondiviso!==undefined?snapCondiviso:await db.collection('dati').doc(uid).get();if(snap&&snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;clienti=[];stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
+async function loadData(snapCondiviso){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=snapCondiviso!==undefined?snapCondiviso:await db.collection('dati').doc(uid).get();if(snap&&snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;_registraBase();try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;clienti=[];stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
 // Banner "Aggiungi a Home" per iOS — Safari, Chrome, Firefox, Edge su iOS usano tutti il motore WebKit,
 // quindi stesso comportamento su qualsiasi browser: nessun banner automatico di installazione come su Android,
 // va costruito manualmente. Non richiede alcuna infrastruttura Firebase, puro client-side.
@@ -2276,6 +2356,7 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
       const d=snap.data();
       arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};
       applyRemoteSettings(d);
+      _registraBase();
       _dispositivi=(d.dispositivi&&typeof d.dispositivi==='object'&&!Array.isArray(d.dispositivi))?d.dispositivi:{};
       if(!_dispositivi[_deviceId]){
         if(_dispositivoInPausaVolontaria){
@@ -3877,7 +3958,44 @@ function renderSP(){const card=document.getElementById('card-sel'),el=document.g
   const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi immagine</button></div>`:`<button type="button" onclick="apriImmaginePicker('sel',${s.id})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" aria-label="Rimuovi articolo" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" aria-label="Cerca articolo" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
-async function salvaOrdine(){if(_provaScaduta){toast('Il mese di prova è terminato: abbonati per creare nuovi ordini.','err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();ords.push({id:id,num:numInput,nome:nome,telefono:telefono||'',clienteId:clienteId,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseQty(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()});ordiniCreatiTotale++;const _meseKey=new Date().toISOString().slice(0,7);ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;await saveData();toast('Ordine #'+numInput+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
+async function salvaOrdine(){if(_provaScaduta){toast('Il mese di prova è terminato: abbonati per creare nuovi ordini.','err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();// Se al momento del salvataggio un altro dispositivo aveva appena aggiunto ordini, saveData unisce
+// i dati (esito 'unito') oppure, nei casi sospetti, li ricarica senza scrivere (esito 'conflitto'):
+// prima l'ordine appena scritto andava perso, pur comparendo "Ordine aggiunto!". Ora in caso di
+// 'conflitto' lo si rimette sopra ai dati aggiornati e si riprova (fino a 3 volte). Se il numero
+// scelto nel frattempo è stato usato dall'altro dispositivo, si passa al primo numero libero e lo
+// si dice chiaramente.
+const nuovoOrdine={id:id,num:numInput,nome:nome,telefono:telefono||'',clienteId:clienteId,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseQty(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()};
+const _meseKey=new Date().toISOString().slice(0,7);
+let numFinale=numInput,esito='';
+for(let tentativo=0;tentativo<3;tentativo++){
+  if(!ords.find(o=>o.id===id)){
+    if(tentativo>0&&ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numFinale)){numFinale=minNumeroLibero();nuovoOrdine.num=numFinale;}
+    if(numFinale>=nextNum)nextNum=numFinale+1;
+    ords.push(nuovoOrdine);ordiniCreatiTotale++;ordiniPerMese[_meseKey]=(ordiniPerMese[_meseKey]||0)+1;
+  }
+  esito=await saveData();
+  if(esito==='unito'){
+    // Uniti ordini arrivati da un altro dispositivo: se uno di questi ha lo stesso numero, il nostro
+    // passa al primo numero libero e si salva di nuovo.
+    const mio=ords.find(o=>o.id===id);
+    if(mio&&ords.some(o=>o.id!==id&&!isRitiratoVecchio(o)&&o.num===mio.num)){
+      numFinale=minNumeroLibero();mio.num=numFinale;if(numFinale>=nextNum)nextNum=numFinale+1;
+      esito=await saveData();
+    }
+    if(esito==='unito')esito='ok';
+  }
+  if(esito!=='conflitto')break;
+}
+if(esito!=='ok'){
+  // Non salvato: l'ordine si toglie dalla lista locale (altrimenti verrebbe scritto più tardi insieme
+  // ad altro, o doppio al nuovo tentativo) e si resta su Nuovo ordine con tutti i dati compilati.
+  if(ords.find(o=>o.id===id)){ords=ords.filter(o=>o.id!==id);ordiniCreatiTotale=Math.max(0,ordiniCreatiTotale-1);if(ordiniPerMese[_meseKey])ordiniPerMese[_meseKey]--;}
+  renderOrdini();
+  toast('Ordine NON salvato: controlla la connessione e premi di nuovo "Aggiungi ordine"','err');
+  return;
+}
+if(numFinale!==numInput)toast('Il #'+numInput+' era appena stato usato da un altro dispositivo: ordine salvato come #'+numFinale,'v');
+else toast('Ordine #'+numFinale+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
   // Caricamento foto in background: l'ordine è già salvato, l'utente non deve aspettare l'upload
   const _daCaricare=_selSnapshot.filter(s=>s.imgBlob);
   if(_daCaricare.length){
