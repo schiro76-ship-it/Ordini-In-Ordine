@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.90';
+const APP_VERSION='2.31.91';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -3158,7 +3158,10 @@ function renderStoricoRiepilogo(){
     const _restanti=Math.max(0,_ordsDetOrdinati.length-_stDetLimite);
     htmlDet+=_ordsDetOrdinati.slice(0,_stDetLimite).map(o=>{
       const turnoLabel=o.ora?'<i class="ti ti-clock"></i> '+o.ora:o.turno==='mattina'?'<i class="ti ti-sun"></i> Mat.':o.turno==='pomeriggio'?'<i class="ti ti-sunset-2"></i> Pom.':'';
-      const items=(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);if(!a)return'';const qty=(it.qty?(parseQty(it.qty)||''):'—')+(it.um?' '+it.um:'');return`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:14px"><span style="color:var(--txt);font-weight:600">${a.nome}</span><span style="font-weight:800;color:var(--sub)">${qty}</span></div>`;}).join('');
+      const items=(o.items||[]).map((it,idx)=>{const a=arts.find(x=>x.id===it.artId);if(!a)return'';const qty=(it.qty?(parseQty(it.qty)||''):'—')+(it.um?' '+it.um:'');
+        // Foto della riga d'ordine: visibile nello Storico per tutto il tempo in cui l'ordine è consultabile
+        const foto=it.itemId&&it.imgCaricata?`<button type="button" class="act-print-rp" aria-label="Visualizza immagine di ${String(a.nome).replace(/"/g,'&quot;')}" onclick="visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:2px 7px;font-size:17px;display:inline-flex;align-items:center;cursor:pointer;margin-left:8px"><i class="ti ti-photo"></i></button>`:'';
+        return`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--brd);font-size:14px"><span style="color:var(--txt);font-weight:600">${a.nome}</span><span style="display:inline-flex;align-items:center"><span style="font-weight:800;color:var(--sub)">${qty}</span>${foto}</span></div>`;}).join('');
       return`<div class="storico-ord-card" style="background:var(--azione-s);border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px;font-weight:900;color:var(--azione-d)">#${o.num}</span><span style="font-size:16px;font-weight:800;flex:1">${nomeAttuale(o)}</span></div><div style="font-size:13px;color:var(--sub);margin-bottom:6px">${fmtD(o.data)}${turnoLabel?' · '+turnoLabel:''}</div>${items}</div>`;
     }).join('');
     if(_restanti>0){
@@ -3419,7 +3422,7 @@ async function setStato(id,stato,skipItemReset){
 function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;openModal('modal-del-conf');_modalDelResetDefault();document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+nomeAttuale(o)+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};}
 async function delOrd(id){
   const el=document.querySelector('#ordini-list [data-oid="'+id+'"]');
-  const finish=async()=>{_deletedIds.add(id);ords=ords.filter(x=>x.id!==id);await saveData();_deletedIds.delete(id);renderOrdini();toast('Ordine eliminato','v');};
+  const finish=async()=>{const _ordEliminato=ords.find(x=>x.id===id);_deletedIds.add(id);ords=ords.filter(x=>x.id!==id);const _esito=await saveData();_deletedIds.delete(id);if((_esito==='ok'||_esito==='unito')&&_ordEliminato)eliminaFotoRighe(_ordEliminato.items);renderOrdini();toast('Ordine eliminato','v');};
   if(el){
     el.style.transition='transform 0.3s ease, opacity 0.3s ease';
     el.style.transform='translateX(60px)';
@@ -3793,7 +3796,7 @@ function confDelItem(oid,idx){
   document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:lblArt(false))+'" dall\'ordine?';
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delItemFromOrd(oid,idx);};
 }
-async function delItemFromOrd(oid,idx){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;o.items.splice(idx,1);await saveData();renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso','v');}
+async function delItemFromOrd(oid,idx){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;const _rigaTolta=o.items.splice(idx,1);const _esito=await saveData();if(_esito==='ok'||_esito==='unito')eliminaFotoRighe(_rigaTolta);renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso','v');}
 let sel=[],tNuovo=null,catS='Tutti';
 function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.innerHTML=usati.has(v)?'<i class="ti ti-alert-triangle"></i> già usato':'';}
 // Calcola l'identificativo del periodo corrente in base alla frequenza di azzeramento scelta
@@ -4562,12 +4565,24 @@ async function rimuoviImmagineItem(item){
   delete item.imgCaricata;
 }
 
+// Elimina da Storage le foto di righe d'ordine che non esistono più (ordine eliminato o riga tolta).
+// Va chiamata solo DOPO che il salvataggio su Firestore è riuscito: se il salvataggio fallisce,
+// l'ordine o la riga esistono ancora e la foto deve restare. Un file già assente non è un errore.
+async function eliminaFotoRighe(items){
+  for(const it of (items||[])){
+    if(!it||!it.itemId)continue;
+    try{await storage.ref(pathImmagineItem(it.itemId)).delete();}
+    catch(e){console.warn('Foto non eliminata (forse già assente)',it.itemId,e&&e.code);}
+  }
+}
+
 // Apre il visualizzatore a schermo intero per la foto di una riga d'ordine specifica,
 // identificata da ordine+indice riga. Usata sia dal dettaglio ordine (Modifica) sia
 // dalle icone compatte in Ordini e Riepilogo.
 async function visualizzaImmagineItem(oidRaw,idx){
   const oid=typeof oidRaw==='string'?parseInt(oidRaw):oidRaw;
-  const o=ords.find(x=>x.id===oid);
+  // Anche per gli ordini già spostati in archivio (aperti dallo Storico)
+  const o=ords.find(x=>x.id===oid)||_archivioOrds.find(x=>x&&x.id===oid);
   if(!o||!o.items[idx]||!o.items[idx].itemId)return;
   openModal('modal-img-view');
   const imgEl=document.getElementById('img-view-el');
