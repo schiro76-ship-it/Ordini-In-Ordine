@@ -789,7 +789,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <button onclick="dismissAndroidInstallBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
     </div>
     <div id="banner-prova-scaduta" style="display:none;background:#FEF3E2;border-bottom:1px solid #F59E0B;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#92400E;flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
-      <span><i class="ti ti-lock"></i> Il mese di prova è terminato: abbonati per creare nuovi ordini.</span>
+      <span><i class="ti ti-lock"></i> <span id="banner-prova-scaduta-testo">Il mese di prova è terminato: abbonati per creare nuovi ordini.</span></span>
       <button class="btn br" style="padding:6px 16px;font-size:12px" onclick="vaiAdAbbonamento()">Abbonati</button>
     </div>
     <div id="banner-prova-in-scadenza" style="display:none;background:var(--azione-s,#EAF1FB);border-bottom:1px solid var(--azione);padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--azione-d);flex-shrink:0;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;z-index:31">
@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.93';
+const APP_VERSION='2.31.94';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -1864,13 +1864,32 @@ function condividiLinkReferral(){
 // dell'introduzione di questo campo) NON blocchiamo mai — meglio un falso negativo (qualcuno che
 // continua a usare gratis) che bloccare per errore un account esistente di cui non sappiamo la
 // vera data di iscrizione.
+// Abbonamento che dà ancora diritto a usare l'app: "attivo", oppure "cancellato" (disdetto) ma con
+// il periodo già pagato non ancora finito — la disdetta ha effetto dal ciclo successivo (Termini, art. 5).
+function _abbonamentoValido(){
+  const a=_abbonamento;
+  if(!a)return false;
+  if(a.stato==='attivo')return true;
+  if(a.stato==='cancellato'&&a.scadenza){
+    const scadMs=new Date(a.scadenza).getTime();
+    return !isNaN(scadMs)&&Date.now()<scadMs;
+  }
+  return false;
+}
+// Messaggio di blocco: "prova terminata" solo per chi non si è mai abbonato; chi è stato abbonato
+// (abbonamento disdetto e finito, o scaduto) vede "abbonamento terminato".
+function _msgBloccoOrdini(){
+  const a=_abbonamento;
+  const eraAbbonato=!!(a&&a.stato&&a.stato!=='nessuno');
+  return eraAbbonato?'Il tuo abbonamento è terminato: riattivalo per creare nuovi ordini.':'Il mese di prova è terminato: abbonati per creare nuovi ordini.';
+}
 function calcolaProvaScaduta(){
   if(!_datiCreato)return false;
   const creatoMs=new Date(_datiCreato).getTime();
   if(isNaN(creatoMs))return false;
   const TRENTA_GIORNI_MS=30*24*60*60*1000;
   if(Date.now()<creatoMs+TRENTA_GIORNI_MS)return false; // ancora dentro il mese di prova
-  return !(_abbonamento&&_abbonamento.stato==='attivo'); // scaduto E non abbonato = blocco
+  return !_abbonamentoValido(); // prova finita E nessun abbonamento valido = blocco
 }
 // Giorni interi rimanenti prima della scadenza del mese di prova, SOLO se siamo negli ultimi 5
 // giorni (soglia di preavviso) e l'account non è già abbonato — altrimenti null, così il banner
@@ -1878,7 +1897,7 @@ function calcolaProvaScaduta(){
 const PREAVVISO_PROVA_GIORNI=5;
 function calcolaProvaGiorniRimanenti(){
   if(!_datiCreato)return null;
-  if(_abbonamento&&_abbonamento.stato==='attivo')return null;
+  if(_abbonamentoValido())return null;
   const creatoMs=new Date(_datiCreato).getTime();
   if(isNaN(creatoMs))return null;
   const TRENTA_GIORNI_MS=30*24*60*60*1000;
@@ -1893,6 +1912,8 @@ function applyProvaScadutaUI(){
   const bannerAvviso=document.getElementById('banner-prova-in-scadenza');
   const testoAvviso=document.getElementById('banner-prova-in-scadenza-testo');
   if(bannerScaduto)bannerScaduto.style.display=_provaScaduta?'flex':'none';
+  const testoScaduto=document.getElementById('banner-prova-scaduta-testo');
+  if(testoScaduto&&_provaScaduta)testoScaduto.textContent=_msgBloccoOrdini();
   if(bannerAvviso){
     if(!_provaScaduta&&_provaGiorniRimanenti!==null&&!_provaAvvisoChiuso){
       if(testoAvviso)testoAvviso.textContent=_provaGiorniRimanenti===1?'Il tuo mese di prova termina domani. Abbonati per continuare senza interruzioni.':'Il tuo mese di prova termina tra '+_provaGiorniRimanenti+' giorni. Abbonati per continuare senza interruzioni.';
@@ -1914,7 +1935,7 @@ function dismissProvaInScadenzaBanner(){
 // scaduto e non c'è un abbonamento attivo, reindirizza ad Impostazioni invece di aprire il form.
 function apriNuovoOrdine(){
   if(_provaScaduta){
-    toast('Il mese di prova è terminato: abbonati per creare nuovi ordini.','err');
+    toast(_msgBloccoOrdini(),'err');
     goTab('impostazioni');
     return;
   }
@@ -4018,7 +4039,7 @@ function renderSP(){const card=document.getElementById('card-sel'),el=document.g
   const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi immagine</button></div>`:`<button type="button" onclick="apriImmaginePicker('sel',${s.id})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" aria-label="Rimuovi articolo" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" aria-label="Cerca articolo" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
-async function salvaOrdine(){if(_provaScaduta){toast('Il mese di prova è terminato: abbonati per creare nuovi ordini.','err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();// Se al momento del salvataggio un altro dispositivo aveva appena aggiunto ordini, saveData unisce
+async function salvaOrdine(){if(_provaScaduta){toast(_msgBloccoOrdini(),'err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();// Se al momento del salvataggio un altro dispositivo aveva appena aggiunto ordini, saveData unisce
 // i dati (esito 'unito') oppure, nei casi sospetti, li ricarica senza scrivere (esito 'conflitto'):
 // prima l'ordine appena scritto andava perso, pur comparendo "Ordine aggiunto!". Ora in caso di
 // 'conflitto' lo si rimette sopra ai dati aggiornati e si riprova (fino a 3 volte). Se il numero
@@ -5617,6 +5638,12 @@ function doGoogleLogin(){
     const isNew=result.additionalUserInfo&&result.additionalUserInfo.isNewUser;
     if(isNew){
       isNewUser=true;
+      // Come nella registrazione con email: data di creazione (serve al calcolo del mese di prova)
+      // ed eventuale codice invito arrivato dal link ?ref=. Scrittura in merge: solo questi campi.
+      const _codiceRefG=getCodiceReferralFromURL();
+      const _datiInizialiG={creato:new Date().toISOString()};
+      if(_codiceRefG)_datiInizialiG.referral={invitatoDa:_codiceRefG,creditoErogato:false};
+      db.collection('dati').doc(user.uid).set(_datiInizialiG,{merge:true}).catch(function(e){console.warn('dati iniziali (Google) save error',e);});
       db.collection('profili').doc(user.uid).set({
         attivita:user.displayName||'',
         email:user.email,
