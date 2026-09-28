@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.94';
+const APP_VERSION='2.31.95';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -1834,7 +1834,7 @@ function applyReferralUI(){
     return;
   }
   box.innerHTML=
-    '<div style="font-size:14px;color:var(--sub);font-weight:600;margin-bottom:14px">Invita un amico: quando effettuerà il primo pagamento reale, riceverete entrambi 5€ di sconto sul pagamento successivo.</div>'+
+    '<div style="font-size:14px;color:var(--sub);font-weight:600;margin-bottom:14px">Invita un amico: quando si abbonerà, avrà 5 € di sconto sul suo primo pagamento e tu 5 € di sconto sul tuo prossimo pagamento.</div>'+
     '<div style="background:var(--bg);border-radius:12px;padding:14px;font-size:14px;font-weight:800;color:var(--txt);word-break:break-all;margin-bottom:14px">'+link+'</div>'+
     '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">'+
     '<button class="btn br" style="padding:10px 16px" onclick="condividiLinkReferral()"><i class="ti ti-share"></i> Condividi</button>'+
@@ -1956,11 +1956,31 @@ function applyAbbonamentoUI(){
   }
   const pianoLbl=a.piano==='annuale'?'annuale':'mensile';
   const dataScad=a.scadenza?new Date(a.scadenza).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+  // Abbonamento disdetto il cui periodo pagato è già finito: di fatto terminato. Va trattato come
+  // "scaduto" (pulsanti per abbonarsi di nuovo visibili), altrimenti l'utente resterebbe senza modo
+  // di riabbonarsi: il portale Stripe non riattiva un abbonamento già chiuso.
+  const scadMs=a.scadenza?new Date(a.scadenza).getTime():NaN;
+  const cancellatoFinito=a.stato==='cancellato'&&(isNaN(scadMs)||Date.now()>=scadMs);
   if(a.stato==='attivo'){
-    stato.textContent='Abbonamento '+pianoLbl+' attivo'+(dataScad?' — rinnovo il '+dataScad:'');
-    stato.style.color='var(--g)';
+    // disdetto: disdetta programmata a fine periodo (campo scritto dal webhook Stripe);
+    // inProva: primo addebito rinviato a fine mese gratuito (abbonamento sottoscritto durante la prova).
+    if(a.disdetto){
+      stato.textContent='Abbonamento '+pianoLbl+' disdetto'+(dataScad?' — attivo fino al '+dataScad:'');
+      stato.style.color='var(--sub)';
+    }else if(a.inProva){
+      stato.textContent='Abbonamento '+pianoLbl+' attivo'+(dataScad?' — primo addebito il '+dataScad:'');
+      stato.style.color='var(--g)';
+    }else{
+      stato.textContent='Abbonamento '+pianoLbl+' attivo'+(dataScad?' — rinnovo il '+dataScad:'');
+      stato.style.color='var(--g)';
+    }
     azioni.style.display='none';
     gestisci.style.display='block';
+  }else if(cancellatoFinito){
+    stato.textContent='Abbonamento terminato'+(dataScad?' il '+dataScad:'');
+    stato.style.color='#C4372B';
+    azioni.style.display='flex';
+    gestisci.style.display='none';
   }else if(a.stato==='cancellato'){
     stato.textContent='Abbonamento cancellato'+(dataScad?' — attivo fino al '+dataScad:'');
     stato.style.color='var(--sub)';
