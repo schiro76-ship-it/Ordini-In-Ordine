@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.92';
+const APP_VERSION='2.31.93';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -1634,7 +1634,11 @@ const LIMITI_FREE={ordini:100,articoli:15,stampe:20};
 const LIMITE_DISPOSITIVI=5;
 let _dispositivi={};
 const DEFAULT_UM=['kg','g','fette','pezzi','vaschette','bustine'];
-const DEFAULT_ARTS=getAttivitaById('macelleria').arts.map((a,i)=>({id:i+1,...a}));
+// Riserva usata quando sul server non c'è ancora il catalogo (account appena creato, prima della scelta
+// dell'attività): lista VUOTA. Prima era il catalogo Macelleria, e la copia di riferimento (_base) registrava
+// 12 articoli mai esistiti sul server: scegliendo Macelleria i 12 articoli risultavano "spariti dal server" e
+// saveData bloccava ogni salvataggio. Il catalogo dell'attività scelta lo carica comunque obConfirm().
+const DEFAULT_ARTS=[];
 // --- Unione dei dati in caso di conflitto tra dispositivi ---
 // _base è la copia di come erano i dati sul server l'ultima volta che questo dispositivo li ha visti
 // (caricamento iniziale, aggiornamento in tempo reale, o proprio salvataggio riuscito). Al momento di
