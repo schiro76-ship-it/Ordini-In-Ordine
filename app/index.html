@@ -642,6 +642,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
         <div style="font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;color:#B33D17">Inizia gratis</div>
         <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:var(--sub);margin-top:2px">Primo mese gratis, poi solo 9,99 € al mese. Più Ordine, meno tempo perso.</div>
       </div>
+      <div id="reg-invito" style="display:none;margin:0 0 14px;padding:10px 12px;border-radius:10px;background:#E3F3EE;color:#05573F;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:center"><i class="ti ti-gift" aria-hidden="true"></i> Sei stato invitato: avrai 5 € di sconto sul tuo primo pagamento.</div>
       <div class="login-field"><label>Nome attività *</label><input type="text" id="reg-attivita" placeholder="Nome Attività" autocomplete="organization"></div>
       <div class="login-field"><label>Email</label><input type="email" id="reg-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
       <div class="login-field"><label>Password</label><input type="password" id="reg-pwd" placeholder="Minimo 6 caratteri" autocomplete="new-password"></div>
@@ -723,7 +724,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
     <div id="ob-verify-email" style="display:none;border-top:1px solid #F0F0F0;padding-top:16px;margin-bottom:20px;align-items:center;gap:10px;justify-content:center">
       <span style="font-size:18px"><i class="ti ti-mail"></i></span>
-      <span style="font-size:13px;font-weight:700;color:#92400E">Verifica la tua email — clicca sul link che ti abbiamo inviato</span>
+      <span style="font-size:13px;font-weight:700;color:#92400E">Verifica la tua email — clicca sul link che ti abbiamo inviato (se non la trovi, controlla nella cartella Spam)</span>
     </div>
     <button class="btn br btn-full" onclick="obConfirm()" style="max-width:400px;margin:0 auto">Inizia ad usare l'app →</button>
   </div>
@@ -995,7 +996,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
             </div>
           </div>
           <div class="card">
-            <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-devices"></i> Dispositivi collegati</div><div id="dispositivi-count" style="font-size:13px;color:var(--sub);font-weight:600"></div></div>
+            <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-devices"></i> Dispositivi collegati</div><div id="dispositivi-count" style="font-size:13px;color:var(--sub);font-weight:600"></div><div style="font-size:13px;color:var(--sub);font-weight:600">Puoi usare OrdinInOrdine su 5 dispositivi insieme. Tocca la matita per rinominarli.</div></div>
             <div class="cb"><div id="dispositivi-lista"></div></div>
           </div>
           <div class="card">
@@ -1420,16 +1421,39 @@ function getAttivitaSlugFromURL(){
   }catch(e){}
   return null;
 }
-// Legge il codice di invito dall'URL (?ref=CODICE), se presente, in fase di registrazione.
-// Solo lettera/numeri per evitare che qualcosa di strano finisca su Firestore.
+// Codice di invito (?ref=CODICE). Solo lettere/numeri, per evitare che qualcosa di strano finisca su
+// Firestore. Appena si apre un link di invito il codice viene anche memorizzato nel browser (valido 30
+// giorni): prima veniva letto dall'indirizzo solo nel momento di "Crea account", quindi chi apriva il
+// link ma si registrava più tardi o da un'altra pagina (es. dopo un logout) perdeva l'invito senza
+// accorgersene (successo nella prova del 29/09). Viene cancellato dopo la registrazione.
+const CHIAVE_REF_LOCALE='oio_ref';
+const REF_VALIDITA_MS=30*24*60*60*1000;
 function getCodiceReferralFromURL(){
+  let codice=null;
   try{
-    const params=new URLSearchParams(window.location.search);
-    const raw=(params.get('ref')||'').toUpperCase().trim();
-    if(/^[A-Z0-9]{4,12}$/.test(raw))return raw;
+    const raw=(new URLSearchParams(window.location.search).get('ref')||'').toUpperCase().trim();
+    if(/^[A-Z0-9]{4,12}$/.test(raw))codice=raw;
+  }catch(e){}
+  if(codice){
+    try{localStorage.setItem(CHIAVE_REF_LOCALE,JSON.stringify({codice:codice,ts:Date.now()}));}catch(e){}
+    return codice;
+  }
+  try{
+    const salvato=JSON.parse(localStorage.getItem(CHIAVE_REF_LOCALE)||'null');
+    if(salvato&&/^[A-Z0-9]{4,12}$/.test(salvato.codice||'')&&Date.now()-(Number(salvato.ts)||0)<REF_VALIDITA_MS)return salvato.codice;
   }catch(e){}
   return null;
 }
+function dimenticaCodiceReferral(){try{localStorage.removeItem(CHIAVE_REF_LOCALE);}catch(e){}}
+// All'apertura: memorizza subito l'eventuale codice dell'indirizzo e mostra la riga "Sei stato invitato".
+(function(){
+  const c=getCodiceReferralFromURL();
+  const el=document.getElementById('reg-invito');
+  if(el&&c)el.style.display='block';
+})();
+// Versione dei documenti legali accettati alla registrazione (data di "Ultimo aggiornamento" di Termini,
+// Privacy e Accordo). Va aggiornata insieme ai documenti: resta salvata in profili/{uid}.accettazione.
+const VERSIONE_DOCUMENTI_LEGALI='2026-09-28';
 const DEFAULT_THEME={r:'#C0392B',rs:'#F9EDED',g:'#056D50',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'};
 let obSelectedAttivita=null;
 let _tipoAttivitaCorrente=null;
@@ -1572,7 +1596,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.96';
+const APP_VERSION='2.31.97';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -2359,17 +2383,10 @@ async function checkESaveDispositivo(snapCondiviso){
     try{nomeSalvato=localStorage.getItem('device-nome')||'';tipoSalvato=localStorage.getItem('device-tipo')||'';}catch(e){}
     const tipo=tipoSalvato||rilevaTipoDispositivoLabel();
     let nome=nomeSalvato;
-    if(!nome){
-      nome=tipo;
-      try{
-        if(_registrazioneInCorso)await _registrazioneInCorso;
-        await attendiToastLibero();
-        const scelto=(await modalPromptAsync('Come vuoi chiamare questo dispositivo? Puoi personalizzarlo, ad es. "Telefono di Mario".',tipo)||'').trim();
-        if(scelto)nome=scelto;
-      }catch(e){
-        console.warn('Richiesta nome dispositivo non riuscita, uso il nome di default',e);
-      }
-    }
+    // Al primo accesso non si chiede più il nome del dispositivo (29/09/2026): arrivava prima della
+    // scelta dell'attività, senza contesto. Si usa il nome automatico (es. "PC/Mac", "iPhone"),
+    // modificabile con la matita in Impostazioni → Dispositivi collegati.
+    if(!nome)nome=tipo;
     _dispositivi[_deviceId]={primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo};
     await ref.set({dispositivi:{[_deviceId]:{primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo}}},{merge:true});
     try{localStorage.setItem('device-nome',nome);localStorage.setItem('device-tipo',tipo);localStorage.setItem('device-primo',now);}catch(e){}
@@ -5672,13 +5689,14 @@ let currentUser=null;
 // volta — lo stesso effetto di chiudere e riaprire l'app, ma automatico. Se il problema persiste
 // anche dopo, si passa comunque alla normale schermata di login, senza ripetere all'infinito.
 let _wasLoggedIn=false,_logoutVolontario=false;
-auth.onAuthStateChanged(function(user){if(user){_wasLoggedIn=true;_logoutVolontario=false;currentUser=user;document.getElementById('login-screen').style.display='none';boot();if(!user.emailVerified&&user.providerData&&user.providerData[0]&&user.providerData[0].providerId==='password'){setInterval(function(){if(!currentUser)return;currentUser.reload().then(function(){if(currentUser.emailVerified)refreshAll();});},20000);}}else{
+function _gestisciCambioAuth(user){if(user){_wasLoggedIn=true;_logoutVolontario=false;currentUser=user;document.getElementById('login-screen').style.display='none';boot();if(!user.emailVerified&&user.providerData&&user.providerData[0]&&user.providerData[0].providerId==='password'){setInterval(function(){if(!currentUser)return;currentUser.reload().then(function(){if(currentUser.emailVerified)refreshAll();});},20000);}}else{
   if(_wasLoggedIn&&!_logoutVolontario&&!sessionStorage.getItem('_authReloadTentato')){
     sessionStorage.setItem('_authReloadTentato','1');
     location.reload();
     return;
   }
-  currentUser=null;document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}}});
+  currentUser=null;document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}}}
+auth.onAuthStateChanged(function(user){if(user&&_attesaAccettazioneGoogle){const u=user;_attesaAccettazioneGoogle.then(function(ok){if(ok&&auth.currentUser&&auth.currentUser.uid===u.uid)_gestisciCambioAuth(u);});return;}_gestisciCambioAuth(user);});
 function salvaAttivita(){const nome=document.getElementById('input-attivita').value.trim();if(!nome){toast('Inserisci il nome attività!','err');return;}if(!currentUser){toast('Non sei loggato','err');return;}currentUser.updateProfile({displayName:nome}).then(function(){return db.collection('profili').doc(currentUser.uid).set({attivita:nome,email:currentUser.email,aggiornato:new Date().toISOString()},{merge:true});}).then(function(){const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita)sbAttivita.textContent=nome;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita)inputAttivita.value=nome;toast('Nome attività salvato','v');}).catch(function(e){toast('Errore: '+e.message,'err');});}
 function switchLoginTab(tab){document.getElementById('form-login').style.display=tab==='login'?'block':'none';document.getElementById('form-reg').style.display=tab==='registrati'?'block':'none';document.getElementById('tab-login-btn').classList.toggle('active',tab==='login');document.getElementById('tab-reg-btn').classList.toggle('active',tab==='registrati');document.getElementById('login-err').textContent='';const ls=document.getElementById('login-screen');if(ls)ls.scrollTop=0;}
 function loginErr(msg){document.getElementById('login-err').textContent=msg;}
@@ -5701,36 +5719,70 @@ function evidenziaCampo(id){
 }
 function doLogin(){const email=document.getElementById('login-email').value.trim();const pwd=document.getElementById('login-pwd').value;if(!email||!pwd){loginErr('Inserisci email e password');evidenziaCampo(!email?'login-email':'login-pwd');return;}auth.signInWithEmailAndPassword(email,pwd).catch(function(e){if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')loginErr('Email o password errati');else loginErr('Errore: '+e.message);});}
 function toggleBillingFields(){const f=document.getElementById('billing-fields');const a=document.getElementById('billing-arrow');const t=document.getElementById('billing-toggle');const open=f.style.display!=='none';f.style.display=open?'none':'block';a.style.transform=open?'rotate(0deg)':'rotate(90deg)';if(t)t.setAttribute('aria-expanded',open?'false':'true');}
-function doRegister(){isNewUser=true;const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};_avviaSegnaleRegistrazione();auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString()}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');_liberaSegnaleRegistrazione();},function(e){toast('Errore invio verifica: '+e.code,'err');_liberaSegnaleRegistrazione();});});}).catch(function(e){_liberaSegnaleRegistrazione();if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
+function doRegister(){isNewUser=true;const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};_avviaSegnaleRegistrazione();auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).then(function(){dimenticaCodiceReferral();}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString(),accettazione:{data:new Date().toISOString(),versioneDocumenti:VERSIONE_DOCUMENTI_LEGALI,metodo:'email'}}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');_liberaSegnaleRegistrazione();},function(e){toast('Errore invio verifica: '+e.code,'err');_liberaSegnaleRegistrazione();});});}).catch(function(e){_liberaSegnaleRegistrazione();if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
 function doResetPwd(){const email=document.getElementById('login-email').value.trim();if(!email){loginErr('Inserisci prima la tua email');return;}auth.sendPasswordResetEmail(email).then(function(){loginErr('Email di recupero inviata! Controlla la posta.');}).catch(function(e){loginErr('Email non trovata');});}
+// Accesso con Google. Un account Google NUOVO deve accettare Termini, Privacy e Accordo come chi si
+// registra con email: dalla scheda "Registrati" serve la casella spuntata (controllo prima di aprire
+// Google). Dalla scheda "Accedi" non si può sapere in anticipo se l'account Google è nuovo: se lo è,
+// l'account appena creato su Firebase Auth viene cancellato subito (niente è stato scritto su
+// Firestore), si passa alla scheda "Registrati" e compare lo stesso messaggio della registrazione con
+// email; spuntata la casella, si preme di nuovo "Continua con Google". Finché l'esito non è deciso,
+// onAuthStateChanged non avvia l'app (_attesaAccettazioneGoogle).
+let _attesaAccettazioneGoogle=null,_risolviAccettazioneGoogle=null;
+function _chiudiAttesaGoogle(ok){
+  const r=_risolviAccettazioneGoogle;
+  _attesaAccettazioneGoogle=null;_risolviAccettazioneGoogle=null;
+  if(r)r(ok);
+}
+const MSG_ACCETTA_DOCUMENTI='Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare';
 function doGoogleLogin(){
   const formReg=document.getElementById('form-reg');
   const inRegistrazione=formReg&&formReg.style.display!=='none';
   if(inRegistrazione&&!document.getElementById('reg-privacy-accept').checked){
-    loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');
+    loginErr(MSG_ACCETTA_DOCUMENTI);
     evidenziaCampo('reg-privacy-accept');
     return;
   }
+  const accettatoInRegistrazione=inRegistrazione;
+  _attesaAccettazioneGoogle=new Promise(function(res){_risolviAccettazioneGoogle=res;});
   const provider=new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).then(function(result){
+  auth.signInWithPopup(provider).then(async function(result){
     const user=result.user;
     const isNew=result.additionalUserInfo&&result.additionalUserInfo.isNewUser;
-    if(isNew){
+    if(!isNew){_chiudiAttesaGoogle(true);return;}
+    if(accettatoInRegistrazione){
       isNewUser=true;
-      // Come nella registrazione con email: data di creazione (serve al calcolo del mese di prova)
-      // ed eventuale codice invito arrivato dal link ?ref=. Scrittura in merge: solo questi campi.
-      const _codiceRefG=getCodiceReferralFromURL();
-      const _datiInizialiG={creato:new Date().toISOString()};
-      if(_codiceRefG)_datiInizialiG.referral={invitatoDa:_codiceRefG,creditoErogato:false};
-      db.collection('dati').doc(user.uid).set(_datiInizialiG,{merge:true}).catch(function(e){console.warn('dati iniziali (Google) save error',e);});
-      db.collection('profili').doc(user.uid).set({
-        attivita:user.displayName||'',
-        email:user.email,
-        onboardingCompleto:false,
-        creato:new Date().toISOString()
-      },{merge:true});
+      await scriviDatiNuovoUtenteGoogle(user);
+      _chiudiAttesaGoogle(true);
+      return;
     }
-  }).catch(function(e){loginErr('Errore Google: '+e.message);});
+    // Nuovo account Google dalla scheda "Accedi", senza accettazione: si annulla e si rimanda a "Registrati".
+    _logoutVolontario=true;
+    try{await user.delete();}
+    catch(e){console.warn('Cancellazione account Google senza accettazione non riuscita, esco soltanto',e);try{await auth.signOut();}catch(e2){}}
+    _chiudiAttesaGoogle(false);
+    switchLoginTab('registrati');
+    loginErr(MSG_ACCETTA_DOCUMENTI);
+    evidenziaCampo('reg-privacy-accept');
+  }).catch(function(e){_chiudiAttesaGoogle(false);loginErr('Errore Google: '+e.message);});
+}
+// Dati iniziali di un nuovo account Google, come nella registrazione con email: data di creazione
+// (serve al calcolo del mese di prova), eventuale codice invito, profilo con l'accettazione dei documenti.
+async function scriviDatiNuovoUtenteGoogle(user){
+  const ora=new Date().toISOString();
+  const codiceRef=getCodiceReferralFromURL();
+  const datiIniziali={creato:ora};
+  if(codiceRef)datiIniziali.referral={invitatoDa:codiceRef,creditoErogato:false};
+  try{await db.collection('dati').doc(user.uid).set(datiIniziali,{merge:true});dimenticaCodiceReferral();}catch(e){console.warn('dati iniziali (Google) save error',e);}
+  try{
+    await db.collection('profili').doc(user.uid).set({
+      attivita:user.displayName||'',
+      email:user.email,
+      onboardingCompleto:false,
+      creato:ora,
+      accettazione:{data:ora,versioneDocumenti:VERSIONE_DOCUMENTI_LEGALI,metodo:'google'}
+    },{merge:true});
+  }catch(e){console.warn('profilo (Google) save error',e);}
 }
 // Formatta data+ora di ultimo accesso per la schermata "Dispositivi collegati"
 function fmtDataOraDispositivo(iso){
