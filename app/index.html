@@ -1572,7 +1572,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.95';
+const APP_VERSION='2.31.96';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -1679,7 +1679,11 @@ try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc
 // salvato dopo aver unito modifiche arrivate sul server da un altro dispositivo; 'conflitto' dati
 // ricaricati dal server senza scrivere; 'bloccato' fermato da una protezione; 'errore' scrittura
 // non riuscita.
-async function saveData(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return'bloccato';}if(ords.length===0&&nextNum>1&&!(ordiniArchiviati>0)){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return'bloccato';}
+// Contatore dei salvataggi in corso: il riallineamento col server (_riallineaConServer) non parte
+// mentre un salvataggio è in volo, per non staccare la rete a metà scrittura.
+let _saveInCorso=0;
+async function saveData(){_saveInCorso++;try{return await _saveDataImpl();}finally{_saveInCorso--;}}
+async function _saveDataImpl(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return'bloccato';}if(ords.length===0&&nextNum>1&&!(ordiniArchiviati>0)){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return'bloccato';}
 let _datiUniti=false;
 // --- Controllo conflitti (agosto 2026, dopo l'incidente di perdita dati): prima di scrivere,
 // verifica che nessun ordine presente su Firestore sia assente dalla memoria locale. Un ordine
@@ -2452,7 +2456,62 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
   }catch(e){console.warn('Realtime error',e);}
 }
 
-function refreshAll(){if(_flipLocked)return;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';document.body.classList.toggle('vb-active',showVb);const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderClientiM();renderArtS();renderSP();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');const btnCambiaAtt=document.getElementById('btn-cambia-attivita');if(btnCambiaAtt)btnCambiaAtt.style.display=(ords.length>0||articoliCreatiTotale>0)?'none':'';}
+// --- Riallineamento col server al ritorno in primo piano (29 settembre 2026) ---
+// Con la pagina aperta e il dispositivo in stop (es. Mac chiuso durante la notte, scheda Safari in
+// secondo piano a lungo) il collegamento in tempo reale con Firestore può cadere senza che l'SDK se
+// ne accorga: la pagina resta ferma ai dati vecchi finché non la si ricarica (visto il 29/09: ordini
+// inseriti e ritirati da iPhone non comparivano sul Mac). Quando l'app torna visibile dopo più di un
+// minuto, quando torna la rete, o quando ci si accorge che il dispositivo è stato in stop, si forza
+// il ricollegamento (disableNetwork/enableNetwork) e si rileggono i dati dal server; si ridisegna solo
+// se qualcosa è davvero cambiato. Non parte mentre un salvataggio è in corso.
+const RIALLINEA_DOPO_MS=60*1000;
+let _nascostoDalle=null,_riallineamentoInCorso=false,_ultimoBattito=Date.now();
+async function _riallineaConServer(motivo){
+  if(!currentUser||!_dataLoaded||_riallineamentoInCorso)return;
+  if(_saveInCorso>0){setTimeout(function(){_riallineaConServer(motivo);},1500);return;}
+  _riallineamentoInCorso=true;
+  try{
+    try{await db.disableNetwork();}catch(e){}
+    try{await db.enableNetwork();}catch(e){}
+    const snap=await db.collection('dati').doc(currentUser.uid).get({source:'server'});
+    if(!snap.exists||_saveInCorso>0)return;
+    const d=snap.data();
+    const chiave=function(o){return _chiaveStabile({ords:o.ords||[],arts:o.arts||[],cats:o.cats||[],clienti:o.clienti||[],unitaMisura:o.unitaMisura||[],nextNum:o.nextNum||1});};
+    if(_base&&chiave(_base)===chiave(d)){console.log('Riallineamento ('+motivo+'): dati già aggiornati');return;}
+    console.warn('Riallineamento ('+motivo+'): dati aggiornati dal server');
+    await loadData(snap);
+    refreshAll();
+    const tabRep=document.getElementById('tab-riepilogo');
+    if(tabRep&&tabRep.classList.contains('active'))renderRiepilogo(true);
+    const tabSto=document.getElementById('tab-storico');
+    if(tabSto&&tabSto.classList.contains('active')){renderStoricoMensile();renderStoricoRiepilogo();}
+  }catch(e){
+    console.warn('Riallineamento con il server non riuscito ('+motivo+')',e);
+  }finally{
+    _riallineamentoInCorso=false;
+  }
+}
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden'){_nascostoDalle=Date.now();return;}
+  const eraNascostoMs=_nascostoDalle?Date.now()-_nascostoDalle:0;
+  _nascostoDalle=null;
+  if(eraNascostoMs>=RIALLINEA_DOPO_MS)_riallineaConServer('ritorno in primo piano');
+});
+window.addEventListener('online',function(){_riallineaConServer('rete tornata');});
+window.addEventListener('pageshow',function(e){if(e.persisted)_riallineaConServer('pagina ripristinata');});
+// Stop del dispositivo senza cambio di visibilità (es. Mac chiuso con la scheda in primo piano): i timer
+// si fermano durante lo stop, quindi un intervallo molto più lungo del previsto tra due battiti lo rivela.
+setInterval(function(){
+  const ora=Date.now();
+  if(ora-_ultimoBattito>RIALLINEA_DOPO_MS+30000)_riallineaConServer('risveglio dallo stop');
+  _ultimoBattito=ora;
+},30000);
+
+// Se arriva un aggiornamento mentre un'animazione FLIP blocca il ridisegno, lo si ricorda e lo si
+// esegue appena l'animazione finisce (vedi lo sblocco di _flipLocked): prima veniva perso finché non
+// arrivava la modifica successiva, e la schermata restava indietro rispetto ai dati.
+let _refreshInSospeso=false;
+function refreshAll(){if(_flipLocked){_refreshInSospeso=true;return;}_refreshInSospeso=false;const vb=document.getElementById('verify-banner');const showVb=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password');if(vb)vb.style.display=showVb?'flex':'none';document.body.classList.toggle('vb-active',showVb);const emailEl=document.getElementById('account-email');if(emailEl&&currentUser)emailEl.textContent='Connesso come: '+currentUser.email;const nomeAttivita=currentUser&&currentUser.displayName?currentUser.displayName:'';const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita&&nomeAttivita)sbAttivita.textContent=nomeAttivita;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita&&nomeAttivita&&!inputAttivita.value)inputAttivita.value=nomeAttivita;if(!nomeAttivita&&currentUser){db.collection('profili').doc(currentUser.uid).get().then(function(snap){if(snap.exists&&snap.data().attivita){const n=snap.data().attivita;if(sbAttivita)sbAttivita.textContent=n;if(inputAttivita&&!inputAttivita.value)inputAttivita.value=n;}}).catch(function(){});}renderOrdini();renderArtM();renderClientiM();renderArtS();renderSP();renderPills();renderUMDisplay();refreshCatSelects();stats();const cd=document.getElementById('cat-display');if(cd)cd.innerHTML=cats.sort().map(c=>`<span class="um-chip">${c}</span>`).join('');const btnCambiaAtt=document.getElementById('btn-cambia-attivita');if(btnCambiaAtt)btnCambiaAtt.style.display=(ords.length>0||articoliCreatiTotale>0)?'none':'';}
 
 
 const tabTitles={ordini:'Ordini',riepilogo:'Riepilogo',storico:'Storico',nuovo:'Nuovo Ordine',impostazioni:'Impostazioni',invita:'Sconto di 5 €'};
@@ -2920,7 +2979,7 @@ function flipRenderOrdini(lista){
         });});
       }
     });
-    setTimeout(()=>{_flipLocked=false;},600);
+    setTimeout(()=>{_flipLocked=false;if(_refreshInSospeso)refreshAll();},600);
   };
 
   if(exitEls.length>0){
