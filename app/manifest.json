@@ -1,7 +1,7 @@
 {
   "name": "OrdinInOrdine",
   "short_name": "OrdinInOrdine",
-  "description": "Gestione ordini per piccole attività artigiane alimentari",
+  "description": "Gestione ordini per piccole attività commerciali e artigiane",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

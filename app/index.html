@@ -1459,7 +1459,7 @@ function dimenticaCodiceReferral(){try{localStorage.removeItem(CHIAVE_REF_LOCALE
 })();
 // Versione dei documenti legali accettati alla registrazione (data di "Ultimo aggiornamento" di Termini,
 // Privacy e Accordo). Va aggiornata insieme ai documenti: resta salvata in profili/{uid}.accettazione.
-const VERSIONE_DOCUMENTI_LEGALI='2026-09-28';
+const VERSIONE_DOCUMENTI_LEGALI='2026-09-30';
 const DEFAULT_THEME={r:'#C0392B',rs:'#F9EDED',g:'#056D50',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'};
 let obSelectedAttivita=null;
 let _tipoAttivitaCorrente=null;
@@ -1602,7 +1602,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.100';
+const APP_VERSION='2.31.101';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
