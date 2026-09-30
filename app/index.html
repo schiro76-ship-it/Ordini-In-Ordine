@@ -647,7 +647,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
            fatturazione facoltativa, accettazione dei documenti), poi la scelta tra Google ed email. -->
       <div style="text-align:center;margin-bottom:14px">
         <div style="font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;color:#B33D17">Inizia gratis</div>
-        <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:var(--sub);margin-top:2px">Primo mese gratis, poi solo 9,99 € al mese. Più Ordine, meno tempo perso.</div>
+        <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:var(--sub);margin-top:2px">Primo mese gratis, poi 9,99 € al mese o 99 € all'anno. Più Ordine, meno tempo perso.</div>
       </div>
       <div id="reg-invito" style="display:none;margin:0 0 14px;padding:10px 12px;border-radius:10px;background:#E3F3EE;color:#05573F;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:center"><i class="ti ti-gift" aria-hidden="true"></i> Sei stato invitato: avrai 5 € di sconto sul tuo primo pagamento.</div>
       <div class="login-field"><label for="reg-attivita">Nome attività *</label><input type="text" id="reg-attivita" placeholder="Es. Bottega Rossi" autocomplete="organization"></div>
@@ -1625,7 +1625,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.103';
+const APP_VERSION='2.31.104';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
