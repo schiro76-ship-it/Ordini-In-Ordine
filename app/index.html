@@ -552,7 +552,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 .login-field input{width:100%;padding:12px 14px;border:1.5px solid #E5E7EB;border-radius:11px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:#1A1A2E;outline:none;transition:border-color 0.2s;box-sizing:border-box}
 .login-field input:focus{border-color:#256BC1}
 /* Campo da correggere (2.31.99): bordo rosso come la casella dei documenti, anche col cursore dentro */
-.login-field input[aria-invalid="true"],.login-field input[aria-invalid="true"]:focus{border-color:var(--r)}
+.login-field input[aria-invalid="true"],.login-field input[aria-invalid="true"]:focus{border-color:var(--r);box-shadow:0 0 0 1px var(--r)}
 .login-btn{width:100%;padding:14px;background:#256BC1;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;cursor:pointer;margin-top:8px;transition:all 0.2s}
 .login-btn:hover{filter:brightness(0.85)}
 .login-btn:active{filter:brightness(0.75)}
@@ -1602,7 +1602,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.101';
+const APP_VERSION='2.31.102';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
