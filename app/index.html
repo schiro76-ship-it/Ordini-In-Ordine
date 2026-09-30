@@ -551,6 +551,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 .login-field label{display:block;font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
 .login-field input{width:100%;padding:12px 14px;border:1.5px solid #E5E7EB;border-radius:11px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;color:#1A1A2E;outline:none;transition:border-color 0.2s;box-sizing:border-box}
 .login-field input:focus{border-color:#256BC1}
+/* Campo da correggere (2.31.99): bordo rosso come la casella dei documenti, anche col cursore dentro */
+.login-field input[aria-invalid="true"],.login-field input[aria-invalid="true"]:focus{border-color:var(--r)}
 .login-btn{width:100%;padding:14px;background:#256BC1;color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;cursor:pointer;margin-top:8px;transition:all 0.2s}
 .login-btn:hover{filter:brightness(0.85)}
 .login-btn:active{filter:brightness(0.75)}
@@ -624,8 +626,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       <button id="tab-reg-btn" onclick="switchLoginTab('registrati')">Registrati</button>
     </div>
     <div id="form-login">
-      <div class="login-field"><label>Email</label><input type="email" id="login-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
-      <div class="login-field"><label>Password</label><input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="login-field"><label for="login-email">Email</label><input type="email" id="login-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
+      <div class="login-field"><label for="login-pwd">Password</label><input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="login-btn" onclick="doLogin()">Accedi</button>
       <div class="login-forgot" role="button" tabindex="0" onclick="doResetPwd()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();doResetPwd();}">Password dimenticata? <span>Recupera</span></div>      <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
         <div style="flex:1;height:1px;background:#E5E7EB"></div>
@@ -638,25 +640,24 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       </button>
     </div>
     <div id="form-reg" style="display:none">
+      <!-- Ordine dei campi (30/09/2026): prima ciò che serve a entrambi i modi di registrarsi (nome attività,
+           fatturazione facoltativa, accettazione dei documenti), poi la scelta tra Google ed email. -->
       <div style="text-align:center;margin-bottom:14px">
         <div style="font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;color:#B33D17">Inizia gratis</div>
         <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:var(--sub);margin-top:2px">Primo mese gratis, poi solo 9,99 € al mese. Più Ordine, meno tempo perso.</div>
       </div>
       <div id="reg-invito" style="display:none;margin:0 0 14px;padding:10px 12px;border-radius:10px;background:#E3F3EE;color:#05573F;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:center"><i class="ti ti-gift" aria-hidden="true"></i> Sei stato invitato: avrai 5 € di sconto sul tuo primo pagamento.</div>
-      <div class="login-field"><label>Nome attività *</label><input type="text" id="reg-attivita" placeholder="Nome Attività" autocomplete="organization"></div>
-      <div class="login-field"><label>Email</label><input type="email" id="reg-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
-      <div class="login-field"><label>Password</label><input type="password" id="reg-pwd" placeholder="Minimo 6 caratteri" autocomplete="new-password"></div>
-      <div class="login-field"><label>Conferma password</label><input type="password" id="reg-pwd2" placeholder="Ripeti la password" autocomplete="new-password"></div>
+      <div class="login-field"><label for="reg-attivita">Nome attività *</label><input type="text" id="reg-attivita" placeholder="Es. Bottega Rossi" autocomplete="organization"></div>
       <div id="billing-toggle" role="button" tabindex="0" aria-expanded="false" onclick="toggleBillingFields()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBillingFields();}" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:13px 14px;margin-bottom:14px;user-select:none;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:11px">
         <span id="billing-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
         <span style="font-size:14px;font-weight:800;color:var(--sub)">Aggiungi dati di fatturazione (opzionale)</span>
       </div>
       <div id="billing-fields" style="display:none">
-        <div class="login-field"><label>Nome / Ragione sociale</label><input type="text" id="reg-rag-sociale" placeholder="Es. Mario Rossi Srl" autocomplete="organization"></div>
-        <div class="login-field"><label>Partita IVA</label><input type="text" id="reg-piva" placeholder="Es. 01234567890" autocomplete="off" inputmode="numeric"></div>
-        <div class="login-field"><label>Codice fiscale</label><input type="text" id="reg-cf" placeholder="Es. RSSMRA80A01H501U" autocomplete="off"></div>
-        <div class="login-field"><label>Indirizzo</label><input type="text" id="reg-indirizzo" placeholder="Via, numero, città, CAP" autocomplete="street-address"></div>
-        <div class="login-field"><label>Codice destinatario SDI</label><input type="text" id="reg-sdi" placeholder="Es. 0000000 oppure PEC" autocomplete="off"></div>
+        <div class="login-field"><label for="reg-rag-sociale">Nome / Ragione sociale</label><input type="text" id="reg-rag-sociale" placeholder="Es. Mario Rossi Srl" autocomplete="organization"></div>
+        <div class="login-field"><label for="reg-piva">Partita IVA</label><input type="text" id="reg-piva" placeholder="Es. 01234567890" autocomplete="off" inputmode="numeric"></div>
+        <div class="login-field"><label for="reg-cf">Codice fiscale</label><input type="text" id="reg-cf" placeholder="Es. RSSMRA80A01H501U" autocomplete="off"></div>
+        <div class="login-field"><label for="reg-indirizzo">Indirizzo</label><input type="text" id="reg-indirizzo" placeholder="Via, numero, città, CAP" autocomplete="street-address"></div>
+        <div class="login-field"><label for="reg-sdi">Codice destinatario SDI</label><input type="text" id="reg-sdi" placeholder="Es. 0000000 oppure PEC" autocomplete="off"></div>
       </div>
       <div id="reg-privacy-wrap" style="padding:8px;margin:0 -8px 8px -8px;border:2px solid transparent;border-radius:8px;transition:border-color 0.2s ease">
         <div style="display:flex;align-items:flex-start;gap:8px">
@@ -669,17 +670,22 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <a class="link-legale" href="dpa.html" target="_blank" style="color:#B33D17;font-weight:800;text-decoration:underline;font-size:13px;padding:6px 4px">Accordo sul trattamento dati</a>
         </div>
       </div>
-      <button class="login-btn" onclick="doRegister()">Crea account</button>      <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
-        <div style="flex:1;height:1px;background:#E5E7EB"></div>
-        <span style="font-size:13px;font-weight:700;color:var(--sub)">oppure</span>
-        <div style="flex:1;height:1px;background:#E5E7EB"></div>
-      </div>
-      <button onclick="doGoogleLogin()" style="width:100%;padding:12px;background:#fff;border:1.5px solid #E5E7EB;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:#1A1A2E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='#fff'">
+      <div style="font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin:18px 0 10px">Scegli come registrarti</div>
+      <button id="reg-google-btn" onclick="doGoogleLogin()" style="width:100%;padding:12px;background:#fff;border:1.5px solid #E5E7EB;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:#1A1A2E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='#fff'">
         <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Continua con Google
       </button>
+      <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
+        <div style="flex:1;height:1px;background:#E5E7EB"></div>
+        <span style="font-size:13px;font-weight:700;color:var(--sub)">oppure con email</span>
+        <div style="flex:1;height:1px;background:#E5E7EB"></div>
+      </div>
+      <div class="login-field"><label for="reg-email">Email</label><input type="email" id="reg-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
+      <div class="login-field"><label for="reg-pwd">Password</label><input type="password" id="reg-pwd" placeholder="Minimo 6 caratteri" autocomplete="new-password"></div>
+      <div class="login-field"><label for="reg-pwd2">Conferma password</label><input type="password" id="reg-pwd2" placeholder="Ripeti la password" autocomplete="new-password"></div>
+      <button class="login-btn" onclick="doRegister()">Crea account</button>
     </div>
-    <div class="login-err" id="login-err"></div>
+    <div class="login-err" id="login-err" role="alert" aria-atomic="true"></div>
   </div>
   <div id="login-footer" style="position:fixed;left:0;right:0;bottom:0;text-align:center;padding:6px 12px calc(6px + env(safe-area-inset-bottom,0px));font-size:11px;line-height:1.5;color:var(--sub);font-weight:600;background:#F0F2F5">
     OrdinInOrdine di Greco Rosanna — Via Antonio Maria Valsalva 32, 73039 Tricase (LE) — P.IVA 05485500754 — <a href="mailto:info@ordininordine.it" style="color:var(--sub)">info@ordininordine.it</a> — <a href="privacy.html" target="_blank" style="color:var(--sub);text-decoration:underline">Privacy</a> · <a href="termini.html" target="_blank" style="color:var(--sub);text-decoration:underline">Termini</a>
@@ -1596,7 +1602,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.97';
+const APP_VERSION='2.31.100';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -5698,23 +5704,76 @@ function _gestisciCambioAuth(user){if(user){_wasLoggedIn=true;_logoutVolontario=
   currentUser=null;document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}}}
 auth.onAuthStateChanged(function(user){if(user&&_attesaAccettazioneGoogle){const u=user;_attesaAccettazioneGoogle.then(function(ok){if(ok&&auth.currentUser&&auth.currentUser.uid===u.uid)_gestisciCambioAuth(u);});return;}_gestisciCambioAuth(user);});
 function salvaAttivita(){const nome=document.getElementById('input-attivita').value.trim();if(!nome){toast('Inserisci il nome attività!','err');return;}if(!currentUser){toast('Non sei loggato','err');return;}currentUser.updateProfile({displayName:nome}).then(function(){return db.collection('profili').doc(currentUser.uid).set({attivita:nome,email:currentUser.email,aggiornato:new Date().toISOString()},{merge:true});}).then(function(){const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita)sbAttivita.textContent=nome;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita)inputAttivita.value=nome;toast('Nome attività salvato','v');}).catch(function(e){toast('Errore: '+e.message,'err');});}
-function switchLoginTab(tab){document.getElementById('form-login').style.display=tab==='login'?'block':'none';document.getElementById('form-reg').style.display=tab==='registrati'?'block':'none';document.getElementById('tab-login-btn').classList.toggle('active',tab==='login');document.getElementById('tab-reg-btn').classList.toggle('active',tab==='registrati');document.getElementById('login-err').textContent='';const ls=document.getElementById('login-screen');if(ls)ls.scrollTop=0;}
-function loginErr(msg){document.getElementById('login-err').textContent=msg;}
+function switchLoginTab(tab){document.getElementById('form-login').style.display=tab==='login'?'block':'none';document.getElementById('form-reg').style.display=tab==='registrati'?'block':'none';document.getElementById('tab-login-btn').classList.toggle('active',tab==='login');document.getElementById('tab-reg-btn').classList.toggle('active',tab==='registrati');loginErr('');_pulisciCampiErrore();const ls=document.getElementById('login-screen');if(ls)ls.scrollTop=0;}
+// Messaggio sotto i pulsanti di accesso/registrazione. Con vicinoA (id di un elemento) il messaggio viene
+// spostato subito sotto quell'elemento: serve per il pulsante Google della scheda "Registrati", che dal
+// 30/09/2026 sta a metà modulo — in fondo il messaggio finirebbe fuori vista. Senza vicinoA torna al posto
+// di sempre.
+const _loginErrCasa={parent:null,next:null};
+function loginErr(msg,vicinoA){
+  const el=document.getElementById('login-err');
+  if(!el)return;
+  if(!_loginErrCasa.parent){_loginErrCasa.parent=el.parentNode;_loginErrCasa.next=el.nextSibling;}
+  const ref=vicinoA?document.getElementById(vicinoA):null;
+  if(ref&&ref.parentNode){ref.parentNode.insertBefore(el,ref.nextSibling);}
+  else if(el.parentNode!==_loginErrCasa.parent){_loginErrCasa.parent.insertBefore(el,_loginErrCasa.next);}
+  el.textContent=msg;
+}
+// Errore del pulsante Google in "Registrati": evidenzia i campi e porta in vista il messaggio.
+function _erroreGoogleReg(msg,campi){
+  campi.forEach(function(id){evidenziaCampo(id);});
+  loginErr(msg,'reg-google-btn');
+}
+// Segna un campo da correggere: bordo rosso + aria-invalid (il segnale non passa solo dal colore) e
+// collegamento al messaggio d'errore (aria-describedby). Il segno sparisce appena si scrive nel campo
+// o si spunta la casella, e quando si cambia scheda Accedi/Registrati (_pulisciCampiErrore).
+function _togliErroreCampo(el){
+  el.removeAttribute('aria-invalid');
+  if(el.getAttribute('aria-describedby')==='login-err')el.removeAttribute('aria-describedby');
+  if(el.type==='checkbox'){const wrap=document.getElementById('reg-privacy-wrap')||el.parentElement;wrap.style.borderColor='transparent';}
+}
+function _pulisciCampiErrore(){
+  document.querySelectorAll('#login-screen [aria-invalid="true"]').forEach(_togliErroreCampo);
+}
+// Dopo un errore porta in vista il primo campo da correggere (il più in alto) e, se lo schermo basta,
+// anche il messaggio: prima veniva centrato il messaggio e sul telefono il campo nome restava mezzo
+// fuori vista. Se non ci stanno entrambi, il campo va in alto e il messaggio subito sotto per quanto
+// possibile. Il cursore va nel primo campo da correggere.
+let _timerVistaErrore=null;
+function _programmaVistaErrore(){clearTimeout(_timerVistaErrore);_timerVistaErrore=setTimeout(_portaInVistaErrore,30);}
+function _portaInVistaErrore(){
+  const sc=document.getElementById('login-screen');
+  if(!sc)return;
+  const blocco=function(e){return e.type==='checkbox'?(document.getElementById('reg-privacy-wrap')||e.parentElement):(e.closest('.login-field')||e);};
+  const campi=[].slice.call(sc.querySelectorAll('[aria-invalid="true"]')).filter(function(e){return blocco(e).offsetParent!==null;});
+  if(!campi.length)return;
+  campi.sort(function(a,b){return blocco(a).getBoundingClientRect().top-blocco(b).getBoundingClientRect().top;});
+  const primo=blocco(campi[0]).getBoundingClientRect();
+  const msg=document.getElementById('login-err');
+  const vista=sc.getBoundingClientRect();
+  const altezza=Math.min(vista.height,window.visualViewport?window.visualViewport.height:vista.height);
+  const margine=16;
+  let alto=primo.top,basso=primo.bottom;
+  if(msg&&msg.textContent&&msg.offsetParent!==null){const r=msg.getBoundingClientRect();alto=Math.min(alto,r.top);basso=Math.max(basso,r.bottom);}
+  const spost=(basso-alto+2*margine<=altezza)?((alto+basso)/2-(vista.top+altezza/2)):(primo.top-vista.top-margine);
+  sc.scrollBy({top:spost,behavior:'smooth'});
+  campi[0].focus({preventScroll:true});
+}
 function evidenziaCampo(id){
   const el=document.getElementById(id);
   if(!el)return;
-  el.scrollIntoView({behavior:'smooth',block:'center'});
-  el.focus();
+  el.setAttribute('aria-invalid','true');
+  if(!el.getAttribute('aria-describedby'))el.setAttribute('aria-describedby','login-err');
+  _programmaVistaErrore();
   if(el.type==='checkbox'){
     const wrap=document.getElementById('reg-privacy-wrap')||el.parentElement;
     wrap.style.borderColor='var(--r)';
-    const rimuovi=function(){
-      if(el.checked){
-        wrap.style.borderColor='transparent';
-        el.removeEventListener('change',rimuovi);
-      }
-    };
-    el.addEventListener('change',rimuovi);
+  }
+  if(!el._ascoltaCorrezione){
+    el._ascoltaCorrezione=true;
+    el.addEventListener(el.type==='checkbox'?'change':'input',function(){
+      if(el.type==='checkbox'?el.checked:true)_togliErroreCampo(el);
+    });
   }
 }
 function doLogin(){const email=document.getElementById('login-email').value.trim();const pwd=document.getElementById('login-pwd').value;if(!email||!pwd){loginErr('Inserisci email e password');evidenziaCampo(!email?'login-email':'login-pwd');return;}auth.signInWithEmailAndPassword(email,pwd).catch(function(e){if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')loginErr('Email o password errati');else loginErr('Errore: '+e.message);});}
@@ -5738,12 +5797,18 @@ const MSG_ACCETTA_DOCUMENTI='Devi accettare i Termini e Condizioni, la Privacy P
 function doGoogleLogin(){
   const formReg=document.getElementById('form-reg');
   const inRegistrazione=formReg&&formReg.style.display!=='none';
+  // Dalla scheda "Registrati" gli stessi controlli di "Crea account": nome attività, poi documenti.
+  const nomeAttivitaReg=inRegistrazione?document.getElementById('reg-attivita').value.trim():'';
+  if(inRegistrazione&&!nomeAttivitaReg){
+    _erroreGoogleReg('Inserisci il nome della tua attività',['reg-attivita']);
+    return;
+  }
   if(inRegistrazione&&!document.getElementById('reg-privacy-accept').checked){
-    loginErr(MSG_ACCETTA_DOCUMENTI);
-    evidenziaCampo('reg-privacy-accept');
+    _erroreGoogleReg(MSG_ACCETTA_DOCUMENTI,['reg-privacy-accept']);
     return;
   }
   const accettatoInRegistrazione=inRegistrazione;
+  const fatturazioneReg=inRegistrazione?_leggiFatturazioneReg():null;
   _attesaAccettazioneGoogle=new Promise(function(res){_risolviAccettazioneGoogle=res;});
   const provider=new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).then(async function(result){
@@ -5752,7 +5817,7 @@ function doGoogleLogin(){
     if(!isNew){_chiudiAttesaGoogle(true);return;}
     if(accettatoInRegistrazione){
       isNewUser=true;
-      await scriviDatiNuovoUtenteGoogle(user);
+      await scriviDatiNuovoUtenteGoogle(user,nomeAttivitaReg,fatturazioneReg);
       _chiudiAttesaGoogle(true);
       return;
     }
@@ -5762,22 +5827,34 @@ function doGoogleLogin(){
     catch(e){console.warn('Cancellazione account Google senza accettazione non riuscita, esco soltanto',e);try{await auth.signOut();}catch(e2){}}
     _chiudiAttesaGoogle(false);
     switchLoginTab('registrati');
-    loginErr(MSG_ACCETTA_DOCUMENTI);
-    evidenziaCampo('reg-privacy-accept');
+    _erroreGoogleReg('Questo account Google non è ancora registrato: inserisci il nome della tua attività e accetta i documenti qui sopra, poi premi di nuovo Continua con Google.',['reg-privacy-accept','reg-attivita']);
   }).catch(function(e){_chiudiAttesaGoogle(false);loginErr('Errore Google: '+e.message);});
 }
 // Dati iniziali di un nuovo account Google, come nella registrazione con email: data di creazione
 // (serve al calcolo del mese di prova), eventuale codice invito, profilo con l'accettazione dei documenti.
-async function scriviDatiNuovoUtenteGoogle(user){
+// Dati di fatturazione facoltativi della scheda "Registrati" (stessi campi letti da doRegister).
+function _leggiFatturazioneReg(){
+  const v=function(id){const el=document.getElementById(id);return el&&el.value.trim()?el.value.trim():null;};
+  return{ragSociale:v('reg-rag-sociale'),piva:v('reg-piva'),cf:v('reg-cf'),indirizzo:v('reg-indirizzo'),sdi:v('reg-sdi')};
+}
+async function scriviDatiNuovoUtenteGoogle(user,nomeAttivita,fatturazione){
   const ora=new Date().toISOString();
+  // Il nome attività scritto in "Registrati" diventa il nome dell'account (barra laterale, Impostazioni),
+  // come per chi si registra con email; in mancanza resta il nome dell'account Google.
+  const nome=(nomeAttivita||'').trim()||user.displayName||'';
+  if(nomeAttivita){
+    const u=(auth.currentUser&&auth.currentUser.uid===user.uid)?auth.currentUser:user;
+    try{await u.updateProfile({displayName:nome});}catch(e){console.warn('updateProfile (Google) error',e);}
+  }
   const codiceRef=getCodiceReferralFromURL();
   const datiIniziali={creato:ora};
   if(codiceRef)datiIniziali.referral={invitatoDa:codiceRef,creditoErogato:false};
   try{await db.collection('dati').doc(user.uid).set(datiIniziali,{merge:true});dimenticaCodiceReferral();}catch(e){console.warn('dati iniziali (Google) save error',e);}
   try{
     await db.collection('profili').doc(user.uid).set({
-      attivita:user.displayName||'',
+      attivita:nome,
       email:user.email,
+      fatturazione:fatturazione||{ragSociale:null,piva:null,cf:null,indirizzo:null,sdi:null},
       onboardingCompleto:false,
       creato:ora,
       accettazione:{data:ora,versioneDocumenti:VERSIONE_DOCUMENTI_LEGALI,metodo:'google'}
