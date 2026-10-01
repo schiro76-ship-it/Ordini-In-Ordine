@@ -59,7 +59,7 @@ img{max-width:100%;display:block}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
 .brand img{width:40px;height:40px;border-radius:10px}
 .brand-name{font-family:'Nunito',serif;font-weight:600;font-size:20px;color:var(--navy)}
-.brand-name span{color:var(--amber)}
+.brand-name span{color:#D7302A}
 .nav-cta{
   background:var(--blue);color:#fff;text-decoration:none;
   padding:11px 22px;border-radius:999px;font-weight:600;font-size:15px;
@@ -280,3 +280,6 @@ img{max-width:100%;display:block}
   font-weight:700;font-size:14px;margin-right:10px;flex-shrink:0;
 }
 .step{display:flex;align-items:flex-start;gap:4px;margin-bottom:14px}
+/* Riquadro iniziale delle pagine interne (come-funziona, guida): una colonna, etichetta - titolo - testo */
+.hero.hero-pagina{grid-template-columns:1fr;grid-template-areas:"eyebrow" "title" "text"}
+.hero-pagina .lede{grid-area:text}
