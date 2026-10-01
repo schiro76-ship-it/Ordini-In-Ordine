@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ordininordine.it/sitemap.xml
