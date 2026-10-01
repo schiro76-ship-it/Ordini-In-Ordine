@@ -406,6 +406,8 @@ body.portrait-phone .itag-circle i{font-size:16px}
 .cal-day{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;border-radius:50%;transition:all 0.12s;border:none;background:none;font-family:'Nunito',sans-serif;color:var(--txt);box-sizing:border-box}
 .cal-day:hover{background:var(--azione-s);color:var(--azione-d)}.cal-day.today{color:var(--azione);font-weight:900}
 .cal-day.sel{background:var(--azione);color:#fff!important}.cal-day.other-month{color:var(--brd)}
+/* Giorni del mese precedente/successivo sceglibili (2.31.106): leggibili, non spenti */
+.cal-day.other-month.scegli{color:var(--sub)}
 .cal-day.past{color:var(--brd);cursor:default}.cal-day.past:hover{background:none}
 .cal-row-mp{display:flex;align-items:center;border-top:1px solid var(--brd);height:36px}
 .cal-btn-mp{flex:1;padding:8px 4px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:3px;background:#fff;color:var(--sub)}
@@ -999,6 +1001,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                   <button id="btn-abbonati-mensile" class="btn br" style="padding:10px 16px" onclick="avviaCheckout('mensile')"><i class="ti ti-calendar-event"></i> Abbonamento mensile — 9,99€/mese</button>
                   <button id="btn-abbonati-annuale" class="btn br" style="padding:10px 16px" onclick="avviaCheckout('annuale')"><i class="ti ti-calendar-stats"></i> Abbonamento annuale — 99€/anno</button>
                 </div>
+                <div id="abbonamento-nota-prova" style="display:none;margin-top:10px;font-size:13px;font-weight:600;color:var(--sub)">Se ti abboni adesso, il primo addebito arriva alla fine del mese di prova: non perdi i giorni gratuiti.</div>
                 <div id="abbonamento-gestisci" style="display:none;margin-top:10px">
                   <button id="btn-gestisci-abbonamento" class="btn br" style="padding:10px 16px;min-width:230px" onclick="apriGestioneAbbonamento()"><i class="ti ti-settings-dollar"></i> Gestisci abbonamento</button>
                 </div>
@@ -1628,7 +1631,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.105';
+const APP_VERSION='2.31.106';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -1837,6 +1840,7 @@ function applyRemoteSettings(d){
   ordiniArchiviatiPerCliente=(d.ordiniArchiviatiPerCliente&&typeof d.ordiniArchiviatiPerCliente==='object'&&!Array.isArray(d.ordiniArchiviatiPerCliente))?d.ordiniArchiviatiPerCliente:{};
   clientiAssorbiti=(d.clientiAssorbiti&&typeof d.clientiAssorbiti==='object'&&!Array.isArray(d.clientiAssorbiti))?d.clientiAssorbiti:{};
   _abbonamento=(d.abbonamento&&typeof d.abbonamento==='object')?d.abbonamento:null;
+  _datiCreato=d.creato||null;
   applyAbbonamentoUI();
   _referral=(d.referral&&typeof d.referral==='object')?d.referral:null;
   applyReferralUI();
@@ -1944,12 +1948,32 @@ function _msgBloccoOrdini(){
   const eraAbbonato=!!(a&&a.stato&&a.stato!=='nessuno');
   return eraAbbonato?'Il tuo abbonamento è terminato: riattivalo per creare nuovi ordini.':'Il mese di prova è terminato: abbonati per creare nuovi ordini.';
 }
-function calcolaProvaScaduta(){
-  if(!_datiCreato)return false;
+// Fine del mese di prova: ultimo istante (23:59:59, ora italiana) del 30° giorno dalla registrazione,
+// come su Stripe (Cloud Functions, fineGiornoRomaMs). Prima l'app la faceva finire all'ora esatta
+// della registrazione e per qualche ora bloccava chi, secondo la data mostrata, era ancora in prova.
+function _fineGiornoRomaMs(ms){
+  const giorno=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(ms));
+  const stimaUtc=Date.parse(giorno+'T23:59:59Z');
+  const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(new Date(stimaUtc)).reduce(function(o,x){o[x.type]=x.value;return o;},{});
+  const comeRomaMs=Date.UTC(+p.year,+p.month-1,+p.day,+p.hour%24,+p.minute,+p.second);
+  return stimaUtc-(comeRomaMs-stimaUtc);
+}
+function _fineProvaMs(){
+  if(!_datiCreato)return NaN;
   const creatoMs=new Date(_datiCreato).getTime();
-  if(isNaN(creatoMs))return false;
-  const TRENTA_GIORNI_MS=30*24*60*60*1000;
-  if(Date.now()<creatoMs+TRENTA_GIORNI_MS)return false; // ancora dentro il mese di prova
+  if(isNaN(creatoMs))return NaN;
+  return _fineGiornoRomaMs(creatoMs+30*24*60*60*1000);
+}
+// Giorni di calendario (ora italiana) tra oggi e la fine della prova: 0 = finisce oggi, 1 = domani.
+function _giorniProvaRimasti(fineMs){
+  const g=function(ms){return Date.parse(new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(ms))+'T00:00:00Z');};
+  return Math.round((g(fineMs)-g(Date.now()))/(24*60*60*1000));
+}
+function _dataItaliana(ms){return new Date(ms).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'Europe/Rome'});}
+function calcolaProvaScaduta(){
+  const fine=_fineProvaMs();
+  if(isNaN(fine))return false;
+  if(Date.now()<=fine)return false; // ancora dentro il mese di prova
   return !_abbonamentoValido(); // prova finita E nessun abbonamento valido = blocco
 }
 // Giorni interi rimanenti prima della scadenza del mese di prova, SOLO se siamo negli ultimi 5
@@ -1957,15 +1981,11 @@ function calcolaProvaScaduta(){
 // morbido non appare né troppo presto né dopo che l'account si è già abbonato.
 const PREAVVISO_PROVA_GIORNI=5;
 function calcolaProvaGiorniRimanenti(){
-  if(!_datiCreato)return null;
   if(_abbonamentoValido())return null;
-  const creatoMs=new Date(_datiCreato).getTime();
-  if(isNaN(creatoMs))return null;
-  const TRENTA_GIORNI_MS=30*24*60*60*1000;
-  const scadenzaMs=creatoMs+TRENTA_GIORNI_MS;
-  const msRimanenti=scadenzaMs-Date.now();
-  if(msRimanenti<=0)return null; // già scaduto: gestito dal banner di blocco, non da questo
-  const giorni=Math.ceil(msRimanenti/(24*60*60*1000));
+  const fine=_fineProvaMs();
+  if(isNaN(fine))return null;
+  if(Date.now()>fine)return null; // già scaduto: gestito dal banner di blocco, non da questo
+  const giorni=_giorniProvaRimasti(fine); // 0 = ultimo giorno
   return giorni<=PREAVVISO_PROVA_GIORNI?giorni:null;
 }
 function applyProvaScadutaUI(){
@@ -1977,7 +1997,7 @@ function applyProvaScadutaUI(){
   if(testoScaduto&&_provaScaduta)testoScaduto.textContent=_msgBloccoOrdini();
   if(bannerAvviso){
     if(!_provaScaduta&&_provaGiorniRimanenti!==null&&!_provaAvvisoChiuso){
-      if(testoAvviso)testoAvviso.textContent=_provaGiorniRimanenti===1?'Il tuo mese di prova termina domani. Abbonati per continuare senza interruzioni.':'Il tuo mese di prova termina tra '+_provaGiorniRimanenti+' giorni. Abbonati per continuare senza interruzioni.';
+      if(testoAvviso)testoAvviso.textContent=_provaGiorniRimanenti===0?'Il tuo mese di prova termina oggi. Abbonati per continuare senza interruzioni.':_provaGiorniRimanenti===1?'Il tuo mese di prova termina domani. Abbonati per continuare senza interruzioni.':'Il tuo mese di prova termina tra '+_provaGiorniRimanenti+' giorni. Abbonati per continuare senza interruzioni.';
       bannerAvviso.style.display='flex';
     }else{
       bannerAvviso.style.display='none';
@@ -2008,9 +2028,25 @@ function applyAbbonamentoUI(){
   const gestisci=document.getElementById('abbonamento-gestisci');
   if(!stato||!azioni||!gestisci)return;
   const a=_abbonamento;
+  const notaProva=document.getElementById('abbonamento-nota-prova');
+  if(notaProva)notaProva.style.display='none';
   if(!a||!a.stato||a.stato==='nessuno'){
-    stato.textContent='Nessun abbonamento attivo';
-    stato.style.color='var(--sub)';
+    // Nessun abbonamento: durante il mese gratuito si mostra fino a quando dura, e che abbonandosi
+    // subito non si perdono i giorni rimasti (il primo addebito è rinviato alla fine della prova dalle
+    // Cloud Functions, purché manchino più di 48 ore: sotto quella soglia Stripe addebita subito).
+    const fine=_fineProvaMs();
+    if(!isNaN(fine)&&Date.now()<=fine){
+      const g=_giorniProvaRimasti(fine);
+      stato.textContent='Mese di prova gratuito fino al '+_dataItaliana(fine)+' — '+(g===0?'termina oggi':g===1?'termina domani':'termina tra '+g+' giorni');
+      stato.style.color='var(--g)';
+      if(notaProva&&fine-Date.now()>49*60*60*1000)notaProva.style.display='block';
+    }else if(!isNaN(fine)){
+      stato.textContent='Mese di prova terminato il '+_dataItaliana(fine);
+      stato.style.color='#C4372B';
+    }else{
+      stato.textContent='Nessun abbonamento attivo';
+      stato.style.color='var(--sub)';
+    }
     azioni.style.display='flex';
     gestisci.style.display='none';
     return;
@@ -3762,14 +3798,14 @@ function renderDetCalGrid(){
   const gm=new Date(detCalYear,detCalMonth+1,0).getDate(),gmp=new Date(detCalYear,detCalMonth,0).getDate();
   const dow=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
   let h=dow.map(d=>`<div class="cal-dow">${d}</div>`).join('');
-  for(let i=sd-1;i>=0;i--)h+=`<button class="cal-day other-month" disabled>${gmp-i}</button>`;
+  for(let i=sd-1;i>=0;i--)h+=_giornoAltroMese(detCalYear,detCalMonth-1,gmp-i,hn,'detCalVaiAlGiorno');
   for(let g=1;g<=gm;g++){
     const iso=`${detCalYear}-${String(detCalMonth+1).padStart(2,'0')}-${String(g).padStart(2,'0')}`;
     const d=new Date(detCalYear,detCalMonth,g);
     const past=d<hn,isT=d.getTime()===hn.getTime(),isSel=iso===detCalSelDate;
     h+=`<button class="cal-day${past?' past':''}${isT?' today':''}${isSel?' sel':''}" ${past?'disabled':''} onclick="detCalSelGiorno('${iso}')">${g}</button>`;
   }
-  const rest=(7-(sd+gm)%7)%7;for(let i=1;i<=rest;i++)h+=`<button class="cal-day other-month" disabled>${i}</button>`;
+  const rest=(7-(sd+gm)%7)%7;for(let i=1;i<=rest;i++)h+=_giornoAltroMese(detCalYear,detCalMonth+1,i,hn,'detCalVaiAlGiorno');
   const grid=document.getElementById('det-cal-grid');if(grid)grid.innerHTML=h;
   // Riga M/P e ora
   const rowExtra=document.getElementById('det-cal-row-extra');
@@ -4080,7 +4116,7 @@ function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getE
 function getCats(){return['Tutti',...cats.sort()]}
 function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" role="button" tabindex="0" onclick="setC('${c}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setC('${c}');}">${c}</span>`).join('')}
 function setC(c){catS=c;renderPills();renderArtS()}
-function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')||codMatch(c,a))).sort((a,b)=>a.nome.localeCompare(b.nome));agrid.innerHTML=l.length?l.map(a=>{const s=sel.find(x=>x.id===a.id);return`<button class="ac ${s?'sel':''}" onclick="togArt(${a.id})">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}${s?'<span style="position:absolute;bottom:5px;right:7px;font-size:13px;color:var(--azione);font-weight:900"><i class="ti ti-check"></i></span>':''}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun '+lblArt(false)+' trovato.</p>';}
+function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c&&catS==='Tutti'){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(!c||ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')||codMatch(c,a))).sort((a,b)=>a.nome.localeCompare(b.nome));agrid.innerHTML=l.length?l.map(a=>{const s=sel.find(x=>x.id===a.id);return`<button class="ac ${s?'sel':''}" onclick="togArt(${a.id})">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}${s?'<span style="position:absolute;bottom:5px;right:7px;font-size:13px;color:var(--azione);font-weight:900"><i class="ti ti-check"></i></span>':''}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun '+lblArt(false)+' trovato.</p>';}
 function tornaRicerca(){
   const can=document.getElementById('can');
   if(can){can.value='';can.focus();}
@@ -4821,6 +4857,17 @@ function calNavMese(d){
   if(calMonth>11){calMonth=0;calYear++}
   renderCal();
 }
+// Giorno del mese precedente o successivo nella griglia di un calendario ordini: se non è passato si
+// può toccare, sceglie quel giorno e porta il calendario sul suo mese (prima era sempre disattivato).
+function _giornoAltroMese(anno,mese,giorno,hn,fn){
+  const d=new Date(anno,mese,giorno);
+  if(d<hn)return `<button class="cal-day other-month" disabled>${d.getDate()}</button>`;
+  const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const lbl=d.toLocaleDateString('it-IT',{day:'numeric',month:'long'});
+  return `<button class="cal-day other-month scegli" aria-label="${lbl}" onclick="${fn}('${iso}')">${d.getDate()}</button>`;
+}
+function calVaiAlGiorno(iso){const p=iso.split('-');calYear=+p[0];calMonth=+p[1]-1;calSelDate=null;calSelGiorno(iso);}
+function detCalVaiAlGiorno(iso){const p=iso.split('-');detCalYear=+p[0];detCalMonth=+p[1]-1;detCalSelDate=null;detCalSelGiorno(iso);}
 function renderCal(){
   const mesi=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
   const lbl=document.getElementById('cal-mese-lbl');
@@ -4830,7 +4877,7 @@ function renderCal(){
   const gm=new Date(calYear,calMonth+1,0).getDate(),gmp=new Date(calYear,calMonth,0).getDate();
   const dow=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
   let h=dow.map(d=>`<div class="cal-dow">${d}</div>`).join('');
-  for(let i=sd-1;i>=0;i--)h+=`<button class="cal-day other-month" disabled>${gmp-i}</button>`;
+  for(let i=sd-1;i>=0;i--)h+=_giornoAltroMese(calYear,calMonth-1,gmp-i,hn,'calVaiAlGiorno');
   for(let g=1;g<=gm;g++){
     const d=new Date(calYear,calMonth,g);
     const iso=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(g).padStart(2,'0')}`;
@@ -4838,7 +4885,7 @@ function renderCal(){
     h+=`<button class="cal-day${past?' past':''}${isT?' today':''}${isSel?' sel':''}" ${past?'disabled':''} onclick="calSelGiorno('${iso}')">${g}</button>`;
   }
   const rest=(7-(sd+gm)%7)%7;
-  for(let i=1;i<=rest;i++)h+=`<button class="cal-day other-month" disabled>${i}</button>`;
+  for(let i=1;i<=rest;i++)h+=_giornoAltroMese(calYear,calMonth+1,i,hn,'calVaiAlGiorno');
   const grid=document.getElementById('cal-grid');
   if(grid)grid.innerHTML=h;
   // Mostra/nascondi riga M/P e ora
@@ -5723,13 +5770,35 @@ let currentUser=null;
 // volta — lo stesso effetto di chiudere e riaprire l'app, ma automatico. Se il problema persiste
 // anche dopo, si passa comunque alla normale schermata di login, senza ripetere all'infinito.
 let _wasLoggedIn=false,_logoutVolontario=false;
-function _gestisciCambioAuth(user){if(user){_wasLoggedIn=true;_logoutVolontario=false;currentUser=user;document.getElementById('login-screen').style.display='none';boot();if(!user.emailVerified&&user.providerData&&user.providerData[0]&&user.providerData[0].providerId==='password'){setInterval(function(){if(!currentUser)return;currentUser.reload().then(function(){if(currentUser.emailVerified)refreshAll();});},20000);}}else{
+// Controllo periodico della verifica email (ogni 20 secondi): uno solo alla volta. Prima ne partiva uno
+// nuovo a ogni accesso nella stessa sessione e non si fermavano mai; ora si ferma appena l'email
+// risulta verificata o quando si esce.
+let _timerVerificaEmail=null;
+function _fermaControlloVerificaEmail(){if(_timerVerificaEmail){clearInterval(_timerVerificaEmail);_timerVerificaEmail=null;}}
+function _avviaControlloVerificaEmail(){
+  _fermaControlloVerificaEmail();
+  _timerVerificaEmail=setInterval(function(){
+    if(!currentUser){_fermaControlloVerificaEmail();return;}
+    currentUser.reload().then(function(){if(currentUser&&currentUser.emailVerified){_fermaControlloVerificaEmail();refreshAll();}}).catch(function(){});
+  },20000);
+}
+// Schermata di caricamento all'accesso: prima, entrando dal modulo, restava per qualche secondo uno
+// schermo grigio vuoto (il caricamento era già stato nascosto per mostrare il modulo). Dopo
+// "Crea account" il testo dice che l'account si sta creando. boot() la nasconde come sempre.
+let _caricamentoNuovoAccount=false;
+function _mostraCaricamento(){
+  const el=document.getElementById('loading');if(!el)return;
+  const t=el.querySelector('p');if(t)t.textContent=_caricamentoNuovoAccount?'Creazione dell\'account in corso…':'Caricamento…';
+  _caricamentoNuovoAccount=false;
+  el.classList.remove('hidden');
+}
+function _gestisciCambioAuth(user){if(user){_wasLoggedIn=true;_logoutVolontario=false;currentUser=user;document.getElementById('login-screen').style.display='none';_mostraCaricamento();boot();if(!user.emailVerified&&user.providerData&&user.providerData[0]&&user.providerData[0].providerId==='password'){_avviaControlloVerificaEmail();}}else{
   if(_wasLoggedIn&&!_logoutVolontario&&!sessionStorage.getItem('_authReloadTentato')){
     sessionStorage.setItem('_authReloadTentato','1');
     location.reload();
     return;
   }
-  currentUser=null;document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}}}
+  currentUser=null;_fermaControlloVerificaEmail();document.getElementById('login-screen').style.display='flex';document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='none';document.getElementById('device-limit-screen').style.display='none';document.getElementById('device-removed-screen').style.display='none';if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}if(_timerBloccoDispositivo){clearTimeout(_timerBloccoDispositivo);_timerBloccoDispositivo=null;}}}
 auth.onAuthStateChanged(function(user){if(user&&_attesaAccettazioneGoogle){const u=user;_attesaAccettazioneGoogle.then(function(ok){if(ok&&auth.currentUser&&auth.currentUser.uid===u.uid)_gestisciCambioAuth(u);});return;}_gestisciCambioAuth(user);});
 function salvaAttivita(){const nome=document.getElementById('input-attivita').value.trim();if(!nome){toast('Inserisci il nome attività!','err');return;}if(!currentUser){toast('Non sei loggato','err');return;}currentUser.updateProfile({displayName:nome}).then(function(){return db.collection('profili').doc(currentUser.uid).set({attivita:nome,email:currentUser.email,aggiornato:new Date().toISOString()},{merge:true});}).then(function(){const sbAttivita=document.getElementById('sb-attivita');if(sbAttivita)sbAttivita.textContent=nome;const inputAttivita=document.getElementById('input-attivita');if(inputAttivita)inputAttivita.value=nome;toast('Nome attività salvato','v');}).catch(function(e){toast('Errore: '+e.message,'err');});}
 function switchLoginTab(tab){document.getElementById('form-login').style.display=tab==='login'?'block':'none';document.getElementById('form-reg').style.display=tab==='registrati'?'block':'none';document.getElementById('tab-login-btn').classList.toggle('active',tab==='login');document.getElementById('tab-reg-btn').classList.toggle('active',tab==='registrati');loginErr('');_pulisciCampiErrore();const ls=document.getElementById('login-screen');if(ls)ls.scrollTop=0;}
@@ -5807,7 +5876,10 @@ function evidenziaCampo(id){
 }
 function doLogin(){const email=document.getElementById('login-email').value.trim();const pwd=document.getElementById('login-pwd').value;if(!email||!pwd){loginErr('Inserisci email e password');evidenziaCampo(!email?'login-email':'login-pwd');return;}auth.signInWithEmailAndPassword(email,pwd).catch(function(e){if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')loginErr('Email o password errati');else loginErr('Errore: '+e.message);});}
 function toggleBillingFields(){const f=document.getElementById('billing-fields');const a=document.getElementById('billing-arrow');const t=document.getElementById('billing-toggle');const open=f.style.display!=='none';f.style.display=open?'none':'block';a.style.transform=open?'rotate(0deg)':'rotate(90deg)';if(t)t.setAttribute('aria-expanded',open?'false':'true');}
-function doRegister(){isNewUser=true;const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};_avviaSegnaleRegistrazione();auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).then(function(){dimenticaCodiceReferral();}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString(),accettazione:{data:new Date().toISOString(),versioneDocumenti:VERSIONE_DOCUMENTI_LEGALI,metodo:'email'}}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');_liberaSegnaleRegistrazione();},function(e){toast('Errore invio verifica: '+e.code,'err');_liberaSegnaleRegistrazione();});});}).catch(function(e){_liberaSegnaleRegistrazione();if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
+// isNewUser va impostato solo quando la registrazione parte davvero (dopo i controlli sui campi): prima
+// un tentativo con un campo vuoto lo lasciava a true e il successivo accesso con un account esistente
+// mostrava di nuovo la scelta dell'attività (punto 41 della ricognizione).
+function doRegister(){const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};isNewUser=true;_caricamentoNuovoAccount=true;_avviaSegnaleRegistrazione();auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).then(function(){dimenticaCodiceReferral();}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString(),accettazione:{data:new Date().toISOString(),versioneDocumenti:VERSIONE_DOCUMENTI_LEGALI,metodo:'email'}}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');_liberaSegnaleRegistrazione();},function(e){toast('Errore invio verifica: '+e.code,'err');_liberaSegnaleRegistrazione();});});}).catch(function(e){isNewUser=false;_caricamentoNuovoAccount=false;_liberaSegnaleRegistrazione();if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
 // Recupero password. Firebase, per sicurezza, non dice se un indirizzo è registrato: il messaggio di
 // conferma lo rispecchia e compare nel riquadro informativo, non in quello rosso degli errori.
 function doResetPwd(){
@@ -5867,7 +5939,7 @@ function doGoogleLogin(){
     const isNew=result.additionalUserInfo&&result.additionalUserInfo.isNewUser;
     if(!isNew){_chiudiAttesaGoogle(true);return;}
     if(accettatoInRegistrazione){
-      isNewUser=true;
+      isNewUser=true;_caricamentoNuovoAccount=true;
       await scriviDatiNuovoUtenteGoogle(user,nomeAttivitaReg,fatturazioneReg);
       _chiudiAttesaGoogle(true);
       return;
