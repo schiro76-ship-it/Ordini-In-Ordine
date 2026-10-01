@@ -1650,7 +1650,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.108';
+const APP_VERSION='2.31.109';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -5898,20 +5898,60 @@ function toggleBillingFields(){const f=document.getElementById('billing-fields')
 // isNewUser va impostato solo quando la registrazione parte davvero (dopo i controlli sui campi): prima
 // un tentativo con un campo vuoto lo lasciava a true e il successivo accesso con un account esistente
 // mostrava di nuovo la scelta dell'attività (punto 41 della ricognizione).
-function doRegister(){const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};isNewUser=true;_caricamentoNuovoAccount=true;_avviaSegnaleRegistrazione();auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).then(function(){dimenticaCodiceReferral();}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString(),accettazione:{data:new Date().toISOString(),versioneDocumenti:VERSIONE_DOCUMENTI_LEGALI,metodo:'email'}}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');_liberaSegnaleRegistrazione();},function(e){toast('Errore invio verifica: '+e.code,'err');_liberaSegnaleRegistrazione();});});}).catch(function(e){isNewUser=false;_caricamentoNuovoAccount=false;_liberaSegnaleRegistrazione();if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
+// ─── Email di verifica e di recupero inviate da noi (2.31.109) ───────────────────────────────
+// Firebase non lascia cambiare i modelli né l'indirizzo dei link: le email le spedisce la funzione
+// cloud inviaEmailAccount (da Aruba, con il link diretto alla nostra schermata). Se la funzione non
+// risponde, si ripiega sull'invio standard di Firebase, così l'email arriva comunque.
+// Esiti: 'ok', 'troppe', 'email-non-valida', 'offline', 'errore' (= ripiega su Firebase).
+const URL_FUNZIONE_EMAIL='https://europe-west1-ordini-in-ordine-f4966.cloudfunctions.net/inviaEmailAccount';
+async function _inviaEmailAccount(dati,utente){
+  let timer=null;
+  try{
+    const headers={'Content-Type':'application/json'};
+    if(utente)headers['Authorization']='Bearer '+await utente.getIdToken();
+    const ctrl=(typeof AbortController!=='undefined')?new AbortController():null;
+    if(ctrl)timer=setTimeout(function(){ctrl.abort();},15000);
+    const resp=await fetch(URL_FUNZIONE_EMAIL,{method:'POST',headers:headers,body:JSON.stringify({data:dati}),signal:ctrl?ctrl.signal:undefined});
+    const json=await resp.json();
+    if(json&&json.result&&json.result.ok)return 'ok';
+    const err=json&&json.error;
+    if(err&&err.status==='RESOURCE_EXHAUSTED')return 'troppe';
+    if(err&&err.status==='INVALID_ARGUMENT'&&err.message==='email-non-valida')return 'email-non-valida';
+    return 'errore';
+  }catch(e){
+    console.warn('inviaEmailAccount non raggiungibile',e);
+    return navigator.onLine===false?'offline':'errore';
+  }finally{if(timer)clearTimeout(timer);}
+}
+// Email di verifica: la funzione cloud, oppure l'invio standard di Firebase come rete di sicurezza.
+function _inviaVerificaEmail(utente){
+  return _inviaEmailAccount({tipo:'verifica'},utente).then(function(esito){
+    if(esito==='ok')return;
+    if(esito==='troppe'){const e=new Error('Troppe richieste: riprova tra qualche minuto.');e.code='auth/too-many-requests';throw e;}
+    return utente.sendEmailVerification({url:'https://ordininordine.it/app/'});
+  });
+}
+function doRegister(){const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};isNewUser=true;_caricamentoNuovoAccount=true;_avviaSegnaleRegistrazione();auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).then(function(){dimenticaCodiceReferral();}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString(),accettazione:{data:new Date().toISOString(),versioneDocumenti:VERSIONE_DOCUMENTI_LEGALI,metodo:'email'}}).catch(function(e){console.warn('profilo save error',e);});return _inviaVerificaEmail(cred.user).then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');_liberaSegnaleRegistrazione();},function(e){toast('Errore invio verifica: '+e.code,'err');_liberaSegnaleRegistrazione();});});}).catch(function(e){isNewUser=false;_caricamentoNuovoAccount=false;_liberaSegnaleRegistrazione();if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
 // Recupero password. Firebase, per sicurezza, non dice se un indirizzo è registrato: il messaggio di
 // conferma lo rispecchia e compare nel riquadro informativo, non in quello rosso degli errori.
 function doResetPwd(){
   const email=document.getElementById('login-email').value.trim();
   if(!email){loginErr('Inserisci prima la tua email');evidenziaCampo('login-email');return;}
   const msgInviata='Se l\'indirizzo è registrato, riceverai a breve un\'email per reimpostare la password. Controlla anche la cartella Spam.';
-  auth.sendPasswordResetEmail(email).then(function(){loginErr(msgInviata,null,'info');}).catch(function(e){
-    const c=e&&e.code;
-    if(c==='auth/user-not-found')loginErr(msgInviata,null,'info');
-    else if(c==='auth/invalid-email'||c==='auth/missing-email'){loginErr('Indirizzo email non valido');evidenziaCampo('login-email');}
-    else if(c==='auth/network-request-failed')loginErr('Connessione assente: riprova quando sei online.');
-    else if(c==='auth/too-many-requests')loginErr('Troppe richieste: riprova tra qualche minuto.');
-    else loginErr('Non è stato possibile inviare l\'email, riprova tra poco.');
+  _inviaEmailAccount({tipo:'recupero',email:email},null).then(function(esito){
+    if(esito==='ok'){loginErr(msgInviata,null,'info');return;}
+    if(esito==='troppe'){loginErr('Troppe richieste: riprova tra qualche minuto.');return;}
+    if(esito==='email-non-valida'){loginErr('Indirizzo email non valido');evidenziaCampo('login-email');return;}
+    if(esito==='offline'){loginErr('Connessione assente: riprova quando sei online.');return;}
+    // Rete di sicurezza: la funzione non ha risposto, usiamo l'invio standard di Firebase.
+    auth.sendPasswordResetEmail(email,{url:'https://ordininordine.it/app/'}).then(function(){loginErr(msgInviata,null,'info');}).catch(function(e){
+      const c=e&&e.code;
+      if(c==='auth/user-not-found')loginErr(msgInviata,null,'info');
+      else if(c==='auth/invalid-email'||c==='auth/missing-email'){loginErr('Indirizzo email non valido');evidenziaCampo('login-email');}
+      else if(c==='auth/network-request-failed')loginErr('Connessione assente: riprova quando sei online.');
+      else if(c==='auth/too-many-requests')loginErr('Troppe richieste: riprova tra qualche minuto.');
+      else loginErr('Non è stato possibile inviare l\'email, riprova tra poco.');
+    });
   });
 }
 // 15: dai pulsanti "Inizia gratis" del sito (?registrati) e dai link di invito (?ref=) l'app si apre
@@ -6302,7 +6342,7 @@ async function doLogout(){
   try{localStorage.removeItem('mac-data');}catch(e){}
   auth.signOut();
 }
-function reinviaVerificaEmail(){if(!currentUser){return;}currentUser.sendEmailVerification().then(function(){toast('Email di verifica inviata!','v');}).catch(function(e){toast('Errore: '+e.message,'err');});}
+function reinviaVerificaEmail(){if(!currentUser){return;}_inviaVerificaEmail(currentUser).then(function(){toast('Email di verifica inviata!','v');}).catch(function(e){toast((e&&e.code==='auth/too-many-requests')?e.message:'Errore: '+e.message,'err');});}
 
 
 var _deviceType=null; // 'phone' | 'tablet' | null
