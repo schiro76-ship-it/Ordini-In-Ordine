@@ -561,6 +561,9 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 .login-btn:active{filter:brightness(0.75)}
 .login-err{color:#C0392B;font-size:14px;font-weight:700;text-align:center;margin-top:10px;min-height:20px}
 .login-err:not(:empty){background:#FDECEA;border:1.5px solid #F5C2BE;border-radius:10px;padding:11px 14px}
+/* Messaggio informativo (non un errore) nello stesso riquadro, per esempio l'email di recupero inviata (2.31.105) */
+.login-err.login-info{color:#1B4F8C}
+.login-err.login-info:not(:empty){background:#EAF1FB;border-color:#B8D0EE}
 .login-forgot{text-align:center;margin-top:12px;font-size:14px;font-weight:700;color:var(--sub);cursor:pointer}
 .login-forgot span{color:#B33D17}
 .logo-text{font-size:18px}.logo-sub{font-size:10px}
@@ -630,7 +633,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     </div>
     <div id="form-login">
       <div class="login-field"><label for="login-email">Email</label><input type="email" id="login-email" placeholder="tuaemail@esempio.it" autocomplete="email"></div>
-      <div class="login-field"><label for="login-pwd">Password</label><input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="login-field"><label for="login-pwd">Password</label><input type="password" id="login-pwd" placeholder="La tua password" autocomplete="current-password"></div>
       <button class="login-btn" onclick="doLogin()">Accedi</button>
       <div class="login-forgot" role="button" tabindex="0" onclick="doResetPwd()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();doResetPwd();}">Password dimenticata? <span>Recupera</span></div>      <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
         <div style="flex:1;height:1px;background:#E5E7EB"></div>
@@ -704,7 +707,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           <span style="color:#FFE033">Ordin</span><span style="color:#FF6B35">I</span><span style="color:#FFE033">nOrdine</span>
         </div>
       </div>
-      <p class="ob-tagline"><ul class="ob-tagline-ul" style="list-style:disc;padding-left:20px;margin:0;text-align:left"><li style="margin-bottom:8px">Tutti gli ordini in un unico posto</li><li style="margin-bottom:8px">Il Riepilogo ti dice cosa preparare e quando</li><li>Lo Storico ti aiuta a programmare il lavoro nei periodi più intensi</li></ul></p>
+      <div class="ob-tagline"><ul class="ob-tagline-ul" style="list-style:disc;padding-left:20px;margin:0;text-align:left"><li style="margin-bottom:8px">Tutti gli ordini in un unico posto</li><li style="margin-bottom:8px">Il Riepilogo ti dice cosa preparare e quando</li><li>Lo Storico ti aiuta a programmare il lavoro nei periodi più intensi</li></ul></div>
     </div>
     <h2 style="margin-top:24px">Qual è la tua attività?</h2>
     <div class="ob-grid" id="ob-attivita-grid"></div>
@@ -720,7 +723,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:32px">
       <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
         <span style="font-size:22px;color:var(--sub);flex-shrink:0;margin-top:1px"><i class="ti ti-clipboard-list"></i></span>
-        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Ordini</div><div id="ob-info-ordini-desc" style="font-size:13px;color:var(--sub);font-weight:600;margin-top:2px">Registra gli ordini dei tuoi clienti con articoli, note e data di ritiro. Stampa le etichette e tieni tutto in ordine</div></div>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Ordini</div><div id="ob-info-ordini-desc" style="font-size:13px;color:var(--sub);font-weight:600;margin-top:2px">Registra gli ordini dei tuoi clienti con articoli, note e data di ritiro. Se ti serve, stampa le etichette e tieni tutto in ordine</div></div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
         <span style="font-size:22px;color:var(--sub);flex-shrink:0;margin-top:1px"><i class="ti ti-chart-bar"></i></span>
@@ -961,7 +964,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           </div>
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-folder"></i> <span id="lbl-articoli-settings">Articoli</span></div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-articoli');renderArtM();resetArtNuovo()"><i class="ti ti-pencil"></i> Gestisci</button></div>
-            <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Catalogo: <span id="acb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
+            <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Catalogo: <span id="acb-summary" style="font-weight:900;color:var(--txt)">0 articoli</span></div></div>
           </div>
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-ruler-2"></i> Unità di misura</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-um')"><i class="ti ti-plus"></i> Aggiungi</button></div>
@@ -969,7 +972,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
           </div>
           <div class="card">
             <div class="ch"><div class="ct"><i class="ti ti-users"></i> Clienti</div><button class="btn br" style="padding:6px 12px;font-size:12px" onclick="openModal('modal-clienti');renderClientiM()"><i class="ti ti-pencil"></i> Gestisci</button></div>
-            <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Anagrafica: <span id="clienti-cb-summary" style="font-weight:900;color:var(--txt)">0 totali</span></div></div>
+            <div class="cb"><div style="font-size:14px;color:var(--sub);font-weight:700">Anagrafica: <span id="clienti-cb-summary" style="font-weight:900;color:var(--txt)">0 clienti</span></div></div>
           </div>
           <div class="card">
             <div class="ch" style="flex-direction:column;align-items:flex-start;gap:4px"><div class="ct"><i class="ti ti-database"></i> Dati</div><div id="lbl-dati-desc" style="font-size:13px;color:var(--sub);font-weight:600">Crea una copia di sicurezza di tutti i tuoi ordini e articoli, e ripristinala quando vuoi.</div></div>
@@ -1489,7 +1492,7 @@ let _tipoAttivitaCorrente=null;
 function _isLavanderia(){return (_tipoAttivitaCorrente||obSelectedAttivita)==='lavanderia';}
 function lblArt(plurale,maiuscola){const w=_isLavanderia()?(plurale?'servizi':'servizio'):(plurale?'articoli':'articolo');return maiuscola?(w.charAt(0).toUpperCase()+w.slice(1)):w;}
 function applicaLabelArticoli(){
-  const el1=document.getElementById('ob-info-ordini-desc');if(el1)el1.textContent='Registra gli ordini dei tuoi clienti con '+lblArt(true)+', note e data di ritiro. Stampa le etichette e tieni tutto in ordine';
+  const el1=document.getElementById('ob-info-ordini-desc');if(el1)el1.textContent='Registra gli ordini dei tuoi clienti con '+lblArt(true)+', note e data di ritiro. Se ti serve, stampa le etichette e tieni tutto in ordine';
   const co=document.getElementById('co');if(co)co.placeholder='Cerca per nome, numero, '+lblArt(false)+'…';
   const rc=document.getElementById('riepilogo-cerca');if(rc)rc.placeholder='Cerca '+lblArt(false)+'…';
   const lsa=document.getElementById('lbl-storico-articoli');if(lsa)lsa.textContent='Storico '+lblArt(true);
@@ -1625,7 +1628,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.104';
+const APP_VERSION='2.31.105';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -3292,7 +3295,7 @@ function renderStoricoRiepilogo(){
     else{
       let html=`<p style="font-size:13px;color:var(--sub);font-weight:700;margin-bottom:10px">${ordsF.length+_nRiep} ordini ritirati nel periodo</p>`+_avvisoArchivioHtml();
       if(!filtrate.length){html+='<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun '+lblArt(false)+' trovato.</p>';}
-      else{html+=filtrate.map(v=>{const qStr=Object.entries(v.ums).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span class="rp-qty" style="color:var(--azione)">${q}</span><span class="rp-um" style="color:var(--azione)">${um?' '+um:''}</span>`;}).join('<span style="color:var(--sub);margin:0 3px">+</span>');return`<div class="rp-row" style="flex-wrap:wrap;row-gap:2px"><div class="rp-art" style="white-space:normal;padding:14px 0;flex-shrink:1;min-width:0">${v.nome}${v.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${v.cat}</span>`:''}</div><div style="margin-left:auto;flex-shrink:0;display:flex;align-items:baseline;gap:6px;white-space:nowrap"><span>${qStr}</span><span style="font-size:12px;color:var(--sub);font-weight:700">${v.nOrdini} ordini</span></div></div>`;}).join('');}
+      else{html+=filtrate.map(v=>{const qStr=Object.entries(v.ums).map(([um,qty])=>{const q=qty%1===0?qty:qty.toFixed(2).replace(/\.?0+$/,'');return`<span class="rp-qty" style="color:var(--azione)">${q}</span><span class="rp-um" style="color:var(--azione)">${um?' '+um:''}</span>`;}).join('<span style="color:var(--sub);margin:0 3px">+</span>');return`<div class="rp-row" style="flex-wrap:wrap;row-gap:2px"><div class="rp-art" style="white-space:normal;padding:14px 0;flex-shrink:1;min-width:0">${v.nome}${v.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${v.cat}</span>`:''}</div><div style="margin-left:auto;flex-shrink:0;display:flex;align-items:baseline;gap:6px;white-space:nowrap"><span>${qStr}</span><span style="font-size:12px;color:var(--sub);font-weight:700">${v.nOrdini} ${v.nOrdini===1?'ordine':'ordini'}</span></div></div>`;}).join('');}
       el.innerHTML=html;
     }
   }
@@ -4220,7 +4223,7 @@ else toast('Ordine #'+numFinale+' aggiunto!','v');_scrollToOrdineId=id;goTab('or
     renderOrdini();
   }
 }
-function renderArtM(){const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' totali';const aml=document.getElementById('aml');if(!aml)return;const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')||codMatch(c,a)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' totali';aml.innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.codice?`<span class="ar-cod">${a.codice}</span>`:''}${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})" aria-label="Modifica ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="confDelArt(${a.id})" aria-label="Elimina ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun '+lblArt(false)+'.</p></div>';}
+function renderArtM(){const summaryEl=document.getElementById('acb-summary');if(summaryEl)summaryEl.textContent=arts.length+' '+lblArt(arts.length!==1);const aml=document.getElementById('aml');if(!aml)return;const c=(document.getElementById('cam')&&document.getElementById('cam').value||'').toLowerCase();const l=arts.filter(a=>!c||ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')||codMatch(c,a)).sort((a,b)=>a.nome.localeCompare(b.nome));document.getElementById('acb').textContent=arts.length+' '+lblArt(arts.length!==1);aml.innerHTML=l.length?l.map(a=>`<div class="ar"><div class="ar-name">${a.nome}</div>${a.codice?`<span class="ar-cod">${a.codice}</span>`:''}${a.cat?`<span class="ar-cat">${a.cat}</span>`:''}<button class="ibtn" onclick="editArt(${a.id})" aria-label="Modifica ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="confDelArt(${a.id})" aria-label="Elimina ${a.nome.replace(/"/g,'&quot;')}"><i class="ti ti-trash"></i></button></div>`).join(''):'<div class="empty"><div class="ei"><i class="ti ti-folder-open"></i></div><p>Nessun '+lblArt(false)+'.</p></div>';}
 function editArt(id){const a=arts.find(x=>x.id===id);if(!a)return;openModal('modal-edit-art');document.getElementById('edit-art-id').value=id;document.getElementById('edit-art-nome').value=a.nome;document.getElementById('edit-art-cod').value=a.codice||'';const sel=document.getElementById('edit-art-cat');sel.innerHTML=`<option value="">— Nessuna —</option>`+cats.map(c=>`<option value="${c}"${a.cat===c?' selected':''}>${c}</option>`).join('')+`<option value="__nuova__">＋ Nuova…</option>`;document.getElementById('edit-art-nuova-wrap').style.display='none';}
 async function salvaEditArt(){const id=parseInt(document.getElementById('edit-art-id').value);const a=arts.find(x=>x.id===id);if(!a)return;const n=document.getElementById('edit-art-nome').value.trim();if(!n){toast('Inserisci il nome!','err');return}const cod=document.getElementById('edit-art-cod').value.trim();if(cod&&arts.find(x=>x.id!==id&&x.codice&&x.codice.toLowerCase()===cod.toLowerCase())){toast('Codice già in uso da un altro '+lblArt(false),'err');return}const sel=document.getElementById('edit-art-cat');let c=sel.value==='__nuova__'?'':sel.value;const ni=document.getElementById('edit-art-nuova-input');if(sel.value==='__nuova__'&&ni.value.trim())c=ni.value.trim();if(c&&!cats.includes(c)){cats.push(c);cats.sort()}a.nome=n;a.cat=c;a.codice=cod;await saveData();refreshAll();closeModal('modal-edit-art');toast('"'+n+'" aggiornato','v');}
 async function addArt(){const n=document.getElementById('an').value.trim();const cod=document.getElementById('an-cod').value.trim();const s=document.getElementById('ac2');let c=s.value==='__nuova__'?'':s.value;const ni=document.getElementById('nuova-cat-input');if(s.value==='__nuova__'&&ni&&ni.value.trim())c=ni.value.trim();if(!n){toast('Inserisci il nome!','err');return}if(arts.find(a=>a.nome.toLowerCase()===n.toLowerCase()&&(a.cat||'')===(c||''))){toast('Già presente!','err');return}if(cod&&arts.find(a=>a.codice&&a.codice.toLowerCase()===cod.toLowerCase())){toast('Codice già in uso da un altro '+lblArt(false),'err');return}if(LIMITE_ARTICOLI_ATTIVO&&articoliCreatiTotale>=LIMITI_FREE.articoli){toast('Hai raggiunto il limite di '+LIMITI_FREE.articoli+' '+lblArt(true)+' del piano gratuito','err');return}const id=arts.length?Math.max.apply(null,arts.map(x=>x.id))+1:1;arts.push({id:id,nome:n,cat:c,codice:cod});articoliCreatiTotale++;
@@ -4394,11 +4397,11 @@ function syncClienteDaOrdine(o){
 }
 // --- Vista Clienti in Impostazioni: elenco, modifica, elimina, unisci doppioni ---
 function renderClientiM(){
-  const summaryEl=document.getElementById('clienti-cb-summary');if(summaryEl)summaryEl.textContent=clienti.length+' totali';
+  const summaryEl=document.getElementById('clienti-cb-summary');if(summaryEl)summaryEl.textContent=clienti.length+(clienti.length===1?' cliente':' clienti');
   const cml=document.getElementById('cml');if(!cml)return;
   const c=(document.getElementById('ccm')&&document.getElementById('ccm').value||'').toLowerCase().trim();
   const l=clienti.filter(x=>!c||ricercaIntelligente(c,x.nome)||(x.telefono&&x.telefono.includes(c))).sort((a,b)=>a.nome.localeCompare(b.nome));
-  document.getElementById('ccb').textContent=clienti.length+' totali';
+  document.getElementById('ccb').textContent=clienti.length+(clienti.length===1?' cliente':' clienti');
   cml.innerHTML=l.length?l.map(cl=>{
     const n=ords.filter(o=>o.clienteId===cl.id).length+ordiniArchiviatiDelCliente(cl.id);
     return`<div class="ar"><div style="flex:1;min-width:0"><div class="ar-name">${cl.nome}</div><div style="font-size:13px;color:var(--sub);font-weight:700">${cl.telefono?cl.telefono+' · ':''}${n} ordin${n===1?'e':'i'}</div></div><button class="ibtn" onclick="editCliente(${cl.id})" aria-label="Modifica"><i class="ti ti-pencil"></i></button><button class="ibtn" onclick="apriUnisciCliente(${cl.id})" aria-label="Unisci con un altro cliente"><i class="ti ti-git-merge"></i></button><button class="ibtn d" onclick="confermaEliminaCliente(${cl.id})" aria-label="Elimina"><i class="ti ti-trash"></i></button></div>`;
@@ -5023,7 +5026,7 @@ function importaDati(input){const file=input.files[0];if(!file)return;const read
   if(typeof d.ordiniCreatiTotale==='number')ordiniCreatiTotale=d.ordiniCreatiTotale;
   if(typeof d.articoliCreatiTotale==='number')articoliCreatiTotale=d.articoliCreatiTotale;
   if(d.ordiniPerMese&&typeof d.ordiniPerMese==='object')ordiniPerMese=d.ordiniPerMese;
-  await saveData();refreshAll();toast('Importati '+ords.length+' ordini e '+arts.length+' '+lblArt(true),'v');}catch(err){toast('Errore nel file!','err')}};reader.readAsText(file);input.value='';}
+  await saveData();refreshAll();toast('Importati '+ords.length+(ords.length===1?' ordine e ':' ordini e ')+arts.length+' '+lblArt(arts.length!==1),'v');}catch(err){toast('Errore nel file!','err')}};reader.readAsText(file);input.value='';}
 let _toastVisibileFino=0;
 function toast(m,t){var e=document.getElementById('toast');var icona=t==='v'?'<i class="ti ti-circle-check" style="margin-right:6px;vertical-align:-2px"></i>':t==='err'?'<i class="ti ti-alert-triangle" style="margin-right:6px;vertical-align:-2px"></i>':'';e.innerHTML=icona+m;e.className='show'+(t?' '+t:'');clearTimeout(e._t);_toastVisibileFino=Date.now()+2700;e._t=setTimeout(function(){e.className='';_toastVisibileFino=0;},2700)}
 // Evita che un modal si apra sopra un toast ancora a schermo (es. email di verifica + richiesta
@@ -5542,7 +5545,7 @@ function aggiungiTuttiAlGruppoStampa(){
     }
   });
   _aggiornaBadgeGruppo();
-  if(aggiunte>0)toast(aggiunte+' etichette aggiunte alla coda','v');
+  if(aggiunte>0)toast(aggiunte===1?'1 etichetta aggiunta alla coda':aggiunte+' etichette aggiunte alla coda','v');
   else toast('Erano già tutte in coda','err');
 }
 
@@ -5577,7 +5580,7 @@ function aggiungiArticoloAlGruppoStampa(artId,oidsList){
     }
   });
   _aggiornaBadgeGruppo();
-  if(aggiunte>0)toast(aggiunte+' etichette aggiunte alla coda','v');
+  if(aggiunte>0)toast(aggiunte===1?'1 etichetta aggiunta alla coda':aggiunte+' etichette aggiunte alla coda','v');
   else toast('Erano già tutte in coda','err');
 }
 
@@ -5735,9 +5738,10 @@ function switchLoginTab(tab){document.getElementById('form-login').style.display
 // 30/09/2026 sta a metà modulo — in fondo il messaggio finirebbe fuori vista. Senza vicinoA torna al posto
 // di sempre.
 const _loginErrCasa={parent:null,next:null};
-function loginErr(msg,vicinoA){
+function loginErr(msg,vicinoA,tipo){
   const el=document.getElementById('login-err');
   if(!el)return;
+  el.classList.toggle('login-info',tipo==='info');
   if(!_loginErrCasa.parent){_loginErrCasa.parent=el.parentNode;_loginErrCasa.next=el.nextSibling;}
   const ref=vicinoA?document.getElementById(vicinoA):null;
   if(ref&&ref.parentNode){ref.parentNode.insertBefore(el,ref.nextSibling);}
@@ -5804,7 +5808,29 @@ function evidenziaCampo(id){
 function doLogin(){const email=document.getElementById('login-email').value.trim();const pwd=document.getElementById('login-pwd').value;if(!email||!pwd){loginErr('Inserisci email e password');evidenziaCampo(!email?'login-email':'login-pwd');return;}auth.signInWithEmailAndPassword(email,pwd).catch(function(e){if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')loginErr('Email o password errati');else loginErr('Errore: '+e.message);});}
 function toggleBillingFields(){const f=document.getElementById('billing-fields');const a=document.getElementById('billing-arrow');const t=document.getElementById('billing-toggle');const open=f.style.display!=='none';f.style.display=open?'none':'block';a.style.transform=open?'rotate(0deg)':'rotate(90deg)';if(t)t.setAttribute('aria-expanded',open?'false':'true');}
 function doRegister(){isNewUser=true;const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};_avviaSegnaleRegistrazione();auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).then(function(){dimenticaCodiceReferral();}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString(),accettazione:{data:new Date().toISOString(),versioneDocumenti:VERSIONE_DOCUMENTI_LEGALI,metodo:'email'}}).catch(function(e){console.warn('profilo save error',e);});return cred.user.sendEmailVerification().then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');_liberaSegnaleRegistrazione();},function(e){toast('Errore invio verifica: '+e.code,'err');_liberaSegnaleRegistrazione();});});}).catch(function(e){_liberaSegnaleRegistrazione();if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
-function doResetPwd(){const email=document.getElementById('login-email').value.trim();if(!email){loginErr('Inserisci prima la tua email');return;}auth.sendPasswordResetEmail(email).then(function(){loginErr('Email di recupero inviata! Controlla la posta.');}).catch(function(e){loginErr('Email non trovata');});}
+// Recupero password. Firebase, per sicurezza, non dice se un indirizzo è registrato: il messaggio di
+// conferma lo rispecchia e compare nel riquadro informativo, non in quello rosso degli errori.
+function doResetPwd(){
+  const email=document.getElementById('login-email').value.trim();
+  if(!email){loginErr('Inserisci prima la tua email');evidenziaCampo('login-email');return;}
+  const msgInviata='Se l\'indirizzo è registrato, riceverai a breve un\'email per reimpostare la password. Controlla anche la cartella Spam.';
+  auth.sendPasswordResetEmail(email).then(function(){loginErr(msgInviata,null,'info');}).catch(function(e){
+    const c=e&&e.code;
+    if(c==='auth/user-not-found')loginErr(msgInviata,null,'info');
+    else if(c==='auth/invalid-email'||c==='auth/missing-email'){loginErr('Indirizzo email non valido');evidenziaCampo('login-email');}
+    else if(c==='auth/network-request-failed')loginErr('Connessione assente: riprova quando sei online.');
+    else if(c==='auth/too-many-requests')loginErr('Troppe richieste: riprova tra qualche minuto.');
+    else loginErr('Non è stato possibile inviare l\'email, riprova tra poco.');
+  });
+}
+// 15: dai pulsanti "Inizia gratis" del sito (?registrati) e dai link di invito (?ref=) l'app si apre
+// direttamente sulla scheda Registrati; il collegamento "Accedi" del sito resta sulla scheda Accedi.
+(function(){
+  try{
+    const p=new URLSearchParams(window.location.search);
+    if(p.has('registrati')||p.get('ref'))switchLoginTab('registrati');
+  }catch(e){console.warn('Apertura scheda Registrati non riuscita',e);}
+})();
 // Accesso con Google. Un account Google NUOVO deve accettare Termini, Privacy e Accordo come chi si
 // registra con email: dalla scheda "Registrati" serve la casella spuntata (controllo prima di aprire
 // Google). Dalla scheda "Accedi" non si può sapere in anticipo se l'account Google è nuovo: se lo è,
