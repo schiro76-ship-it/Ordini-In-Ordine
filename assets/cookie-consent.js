@@ -81,7 +81,7 @@
       '<div class="cookie-banner-inner">' +
         '<div class="cookie-banner-text">' +
           '<strong>Cookie e statistiche</strong>' +
-          '<span>Statistiche anonime sui visitatori, niente pubblicità personalizzata. ' +
+          '<span>Statistiche sui visitatori con Google Analytics, solo se accetti. Niente pubblicità personalizzata. ' +
             '<a href="' + PRIVACY_URL + '">Maggiori informazioni</a>' +
           '</span>' +
         '</div>' +
