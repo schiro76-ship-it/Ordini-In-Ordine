@@ -59,7 +59,7 @@
 <div class="wrap">
   <div class="brand">Ordin<span>I</span>nOrdine</div>
   <h1>Privacy Policy</h1>
-  <div class="meta">Ultimo aggiornamento: 30 settembre 2026</div>
+  <div class="meta">Ultimo aggiornamento: 1 ottobre 2026</div>
 
   <section>
     <h2>Titolare del trattamento</h2>
@@ -79,6 +79,7 @@
       <li>Nome dell'attività</li>
       <li>Indirizzo email</li>
       <li>Password (salvata in forma sicura e cifrata, non leggibile da noi)</li>
+      <li>Se accedi con Google, al posto della password usiamo il tuo account Google: da Google riceviamo il tuo nome e il tuo indirizzo email</li>
     </ul>
     <h3>Dati di fatturazione (facoltativi)</h3>
     <ul>
@@ -92,11 +93,19 @@
     <p>Per il corretto funzionamento del Servizio, l'App memorizza i dati che inserisci durante l'utilizzo, tra cui ordini dei tuoi clienti (nome cliente, numero di telefono se lo inserisci, articoli ordinati, quantità, data e orario di ritiro, note, eventuali foto allegate alle righe d'ordine), un'anagrafica clienti che associa nome e numero di telefono agli ordini corrispondenti per facilitarne la gestione ed evitare inserimenti duplicati, catalogo articoli e categorie della tua attività, e unità di misura personalizzate.</p>
     <p>Questi dati sono inseriti volontariamente da te per gestire la tua attività e non vengono condivisi con terzi né utilizzati per finalità diverse dal funzionamento del Servizio.</p>
     <p>Se inserisci il numero di telefono di un cliente, l'App ti permette di avviare una chiamata o aprire una conversazione WhatsApp direttamente dal tuo dispositivo. Questa azione è gestita interamente dal tuo dispositivo (che apre l'app Telefono o WhatsApp già installata): il numero non viene trasmesso ai nostri server né a terzi da parte nostra in questo processo.</p>
+    <h3>Dati tecnici e di servizio</h3>
+    <ul>
+      <li><strong>Dispositivi collegati</strong>: il nome che dai a ciascun dispositivo, il tipo (telefono, tablet o computer) e la data dell'ultimo accesso, per gestire il limite di dispositivi dell'account</li>
+      <li><strong>Notifiche</strong>: se le attivi, un identificativo del dispositivo fornito da Firebase Cloud Messaging, usato solo per inviarti le notifiche dell'App</li>
+      <li><strong>Programma "Invita un amico"</strong>: il tuo codice invito e, se ti sei registrato tramite un invito, il codice di chi ti ha invitato, per riconoscere gli sconti previsti</li>
+      <li><strong>Segnalazioni</strong>: se usi "Segnala un problema", il testo che scrivi, il tuo indirizzo email, la versione dell'App e il tipo di dispositivo e di browser, per poterti rispondere e correggere il problema</li>
+      <li><strong>Copia sul dispositivo</strong>: l'App conserva sul dispositivo che usi una copia dei tuoi dati, usata solo quando non riesce a collegarsi al server; viene cancellata quando esci dall'account o lo elimini</li>
+    </ul>
   </section>
 
   <section>
     <h2>Come raccogliamo i dati</h2>
-    <p>I dati sono raccolti direttamente da te, al momento della registrazione e durante l'utilizzo ordinario dell'App, e automaticamente dal sistema di autenticazione (Firebase Authentication), che gestisce in modo sicuro le credenziali di accesso.</p>
+    <p>I dati sono raccolti direttamente da te, al momento della registrazione e durante l'utilizzo ordinario dell'App, e automaticamente dal sistema di autenticazione (Firebase Authentication), che gestisce in modo sicuro le credenziali di accesso, oppure da Google se scegli di accedere con il tuo account Google.</p>
     <p>L'App (la parte del Servizio che usi dopo la registrazione, per gestire ordini e catalogo) <strong>non utilizza cookie di tracciamento, analytics o pubblicità di terze parti</strong>. Non monitoriamo la tua navigazione all'interno dell'App per scopi commerciali o di profilazione.</p>
     <p>Il <strong>sito promozionale</strong> (le pagine informative su ordininordine.it, separate dall'App) utilizza invece Google Analytics: vedi la sezione "Cookie e Google Analytics" qui sotto.</p>
   </section>
@@ -126,18 +135,19 @@
     <h2>Base giuridica del trattamento</h2>
     <p>Trattiamo i tuoi dati sulla base di:</p>
     <ul>
-      <li><strong>Esecuzione di un contratto</strong>: i dati necessari a fornirti il Servizio che hai richiesto registrandoti</li>
-      <li><strong>Obbligo di legge</strong>: per i dati di fatturazione, quando necessari ad adempimenti fiscali</li>
-      <li><strong>Consenso</strong>: per dati facoltativi che fornisci volontariamente (es. dati di fatturazione)</li>
+      <li><strong>Esecuzione di un contratto</strong>: i dati necessari a fornirti il Servizio che hai richiesto registrandoti, compresi i dati di fatturazione che scegli di indicare per ricevere le fatture</li>
+      <li><strong>Obbligo di legge</strong>: la conservazione dei dati di fatturazione e delle fatture per i tempi previsti dalla normativa fiscale</li>
+      <li><strong>Legittimo interesse</strong>: la sicurezza del Servizio e la prevenzione di usi impropri (per esempio del programma "Invita un amico")</li>
     </ul>
   </section>
 
   <section>
     <h2>Dove sono conservati i dati</h2>
-    <p>I dati operativi dell'attività (ordini, catalogo articoli) sono conservati su <strong>Google Cloud Firestore</strong>, un servizio fornito da Google Ireland Limited, su server situati nella regione europea (eur3), nel rispetto della normativa europea sulla protezione dei dati.</p>
-    <p>Il servizio di autenticazione (<strong>Firebase Authentication</strong>), che gestisce l'accesso tramite email e password, opera invece esclusivamente da data center situati negli Stati Uniti. Questo trasferimento di dati verso un paese extra-UE è disciplinato dalle Clausole Contrattuali Standard incluse nei Termini sul trattamento dei dati di Firebase, la garanzia prevista dal Regolamento europeo (GDPR — Regolamento UE 2016/679, art. 46) per questo tipo di trasferimenti.</p>
+    <p>I dati operativi dell'attività (ordini, catalogo articoli) sono conservati su <strong>Google Cloud Firestore</strong>, un servizio fornito da Google Ireland Limited, su server situati nella regione europea (eur3), nel rispetto della normativa europea sulla protezione dei dati. Le foto allegate agli ordini sono conservate su <strong>Firebase Storage</strong> e le elaborazioni automatiche (per esempio le copie di sicurezza e l'archiviazione notturna degli ordini) avvengono tramite <strong>Cloud Functions</strong>, entrambi servizi di Google Ireland Limited con server in Belgio (regione europe-west1).</p>
+    <p>Il servizio di autenticazione (<strong>Firebase Authentication</strong>), che gestisce l'accesso tramite email e password o account Google, opera invece esclusivamente da data center situati negli Stati Uniti. Questo trasferimento di dati verso un paese extra-UE è disciplinato dalle Clausole Contrattuali Standard incluse nei Termini sul trattamento dei dati di Firebase, la garanzia prevista dal Regolamento europeo (GDPR — Regolamento UE 2016/679, art. 46) per questo tipo di trasferimenti.</p>
     <p>Google agisce come responsabile del trattamento per nostro conto, in conformità con il GDPR.</p>
     <p>I dati relativi ai pagamenti (dati della carta, indirizzo di fatturazione) sono trattati direttamente da <strong>Stripe</strong>, un servizio fornito da Stripe Payments Europe, Limited (per i clienti europei), che agisce come responsabile autonomo del trattamento per quanto riguarda l'elaborazione dei pagamenti. Non memorizziamo né abbiamo accesso ai dati completi della tua carta di pagamento: questi sono gestiti esclusivamente da Stripe secondo i più elevati standard di sicurezza del settore (certificazione PCI DSS). Per maggiori informazioni su come Stripe tratta i tuoi dati, consulta la <a href="https://stripe.com/it/privacy" target="_blank" rel="noopener">Privacy Policy di Stripe</a>.</p>
+    <p>Le email che inviamo dal nostro indirizzo info@ordininordine.it (per esempio la conferma di eliminazione dell'account) e le segnalazioni che ci invii dall'App passano dal servizio di posta elettronica di <strong>Aruba S.p.A.</strong>, con server in Italia.</p>
   </section>
 
   <section>

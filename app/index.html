@@ -1488,7 +1488,7 @@ function dimenticaCodiceReferral(){try{localStorage.removeItem(CHIAVE_REF_LOCALE
 })();
 // Versione dei documenti legali accettati alla registrazione (data di "Ultimo aggiornamento" di Termini,
 // Privacy e Accordo). Va aggiornata insieme ai documenti: resta salvata in profili/{uid}.accettazione.
-const VERSIONE_DOCUMENTI_LEGALI='2026-09-30';
+const VERSIONE_DOCUMENTI_LEGALI='2026-10-01';
 const DEFAULT_THEME={r:'#C0392B',rs:'#F9EDED',g:'#056D50',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'};
 let obSelectedAttivita=null;
 let _tipoAttivitaCorrente=null;
@@ -1631,7 +1631,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.106';
+const APP_VERSION='2.31.107';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -6189,6 +6189,10 @@ async function doLogout(){
       await db.collection('dati').doc(currentUser.uid).update(updates);
     }
   }catch(e){console.warn('Impossibile liberare lo slot dispositivo al logout',e);}
+  // Uscendo si cancella dal dispositivo la copia locale dei dati (ordini, clienti, catalogo): usata
+  // solo quando il server non risponde, non deve restare su un dispositivo condiviso né essere
+  // mostrata a un altro account che entra senza connessione (Privacy, "Copia sul dispositivo").
+  try{localStorage.removeItem('mac-data');}catch(e){}
   auth.signOut();
 }
 function reinviaVerificaEmail(){if(!currentUser){return;}currentUser.sendEmailVerification().then(function(){toast('Email di verifica inviata!','v');}).catch(function(e){toast('Errore: '+e.message,'err');});}
