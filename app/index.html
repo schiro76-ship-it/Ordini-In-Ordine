@@ -1002,8 +1002,8 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
               <div style="padding:12px 0;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);margin-bottom:14px">
                 <div id="abbonamento-stato" style="font-size:15px;font-weight:800">Nessun abbonamento attivo</div>
                 <div id="abbonamento-azioni" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-                  <button id="btn-abbonati-mensile" class="btn br" style="padding:10px 16px" onclick="avviaCheckout('mensile')"><i class="ti ti-calendar-event"></i> Abbonamento mensile — 9,99€/mese</button>
-                  <button id="btn-abbonati-annuale" class="btn br" style="padding:10px 16px" onclick="avviaCheckout('annuale')"><i class="ti ti-calendar-stats"></i> Abbonamento annuale — 99€/anno</button>
+                  <button id="btn-abbonati-mensile" class="btn br" style="padding:10px 16px" onclick="avviaCheckout('mensile')"><i class="ti ti-calendar-event"></i> Abbonamento mensile — 9,99&nbsp;€/mese</button>
+                  <button id="btn-abbonati-annuale" class="btn br" style="padding:10px 16px" onclick="avviaCheckout('annuale')"><i class="ti ti-calendar-stats"></i> Abbonamento annuale — 99&nbsp;€/anno</button>
                 </div>
                 <div id="abbonamento-nota-prova" style="display:none;margin-top:10px;font-size:13px;font-weight:600;color:var(--sub)">Se ti abboni adesso, il primo addebito arriva alla fine del mese di prova: non perdi i giorni gratuiti.</div>
                 <div id="abbonamento-gestisci" style="display:none;margin-top:10px">
@@ -1654,7 +1654,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.111';
+const APP_VERSION='2.31.112';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -1991,7 +1991,10 @@ function _fineProvaMs(){
   if(!_datiCreato)return NaN;
   const creatoMs=new Date(_datiCreato).getTime();
   if(isNaN(creatoMs))return NaN;
-  return _fineGiornoRomaMs(creatoMs+30*24*60*60*1000);
+  // Giorni di calendario, non 30 × 24 ore: chi si registra fra mezzanotte e l'una vicino al cambio
+  // dell'ora legale avrebbe altrimenti 29 o 31 giorni (2.31.112). Stessa formula della funzione cloud.
+  const g=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(creatoMs)).split('-').map(Number);
+  return _fineGiornoRomaMs(Date.UTC(g[0],g[1]-1,g[2]+30,12));
 }
 // Giorni di calendario (ora italiana) tra oggi e la fine della prova: 0 = finisce oggi, 1 = domani.
 function _giorniProvaRimasti(fineMs){
