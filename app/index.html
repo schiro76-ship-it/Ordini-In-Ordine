@@ -589,6 +589,10 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
 .ob-card{border:2px solid #E5E7EB;border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fff}
 .ob-card:hover{border-color:transparent;box-shadow:inset 0 0 0 1.5px #9CA3AF;background:#F9FAFB}
 .ob-card.selected{border-color:var(--azione-d);background:#D6E5F7}
+/* 2.31.110 (EAA): le caselle sono pulsanti veri, raggiungibili e selezionabili da tastiera */
+button.ob-card{font:inherit;color:inherit;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;-webkit-appearance:none;appearance:none}
+button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
+.ob-card:focus-visible{outline:3px solid var(--azione);outline-offset:2px}
 .ob-card.selected:hover{border-color:var(--azione-d);background:#D6E5F7;box-shadow:none;filter:brightness(0.97)}
 .ob-card .ob-emoji{font-size:32px;margin-bottom:8px}
 .ob-card .ob-label{font-size:14px;font-weight:800;color:#1A1A2E}
@@ -711,8 +715,8 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
       </div>
       <div class="ob-tagline"><ul class="ob-tagline-ul" style="list-style:disc;padding-left:20px;margin:0;text-align:left"><li style="margin-bottom:8px">Tutti gli ordini in un unico posto</li><li style="margin-bottom:8px">Il Riepilogo ti dice cosa preparare e quando</li><li>Lo Storico ti aiuta a programmare il lavoro nei periodi più intensi</li></ul></div>
     </div>
-    <h2 style="margin-top:24px">Qual è la tua attività?</h2>
-    <div class="ob-grid" id="ob-attivita-grid"></div>
+    <h2 style="margin-top:24px" id="ob-titolo-attivita">Qual è la tua attività?</h2>
+    <div class="ob-grid" id="ob-attivita-grid" role="group" aria-labelledby="ob-titolo-attivita"></div>
     <button class="btn br btn-full" onclick="obNext()" id="ob-btn1" disabled style="opacity:0.4;max-width:400px;margin:0 auto">Avanti →</button>
   </div>
   <div class="ob-step" id="ob-step2" style="display:none">
@@ -917,7 +921,7 @@ body.portrait-phone .empty p[style]{color:rgba(255,255,255,0.75)!important}
                     <button id="cal-btn-pom" class="cal-btn-mp" onclick="calSceglTurno('pomeriggio')"><i class="ti ti-sunset-2"></i> Pom.</button>
                     <div id="cal-time-wrap" class="cal-time-wrap" style="display:none">
                       <span style="font-size:13px;color:var(--sub)"><i class="ti ti-clock"></i></span>
-                      <input type="time" id="cal-time-inp" class="cal-time-inp" onchange="calSceglOra(this.value)" onblur="calTimeInpBlur()">
+                      <input type="time" id="cal-time-inp" class="cal-time-inp" aria-label="Orario di ritiro" onchange="calSceglOra(this.value)" onblur="calTimeInpBlur()">
                     </div>
                   </div>
                 </div>
@@ -1532,8 +1536,8 @@ function applicaLabelArticoli(){
   const qan=document.getElementById('qan');if(qan)qan.placeholder='Es. Nome '+lblArt(false);
 }
 function showOnboarding(){obSelectedAttivita=null;const el=document.getElementById('onboarding-screen');el.style.display='flex';el.style.zIndex='99999';renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}
-function renderObAttivita(){const grid=document.getElementById('ob-attivita-grid');if(!grid||!ATTIVITA_TYPES)return;grid.innerHTML='';ATTIVITA_TYPES.forEach(function(a){const sel=(obSelectedAttivita&&obSelectedAttivita===a.id)?' selected':'';const div=document.createElement('div');div.className='ob-card'+sel;div.innerHTML='<div class="ob-emoji">'+a.emoji+'</div><div class="ob-label">'+a.label+'</div>';div.onclick=function(){selectAttivita(a.id);};grid.appendChild(div);});}
-function selectAttivita(id){obSelectedAttivita=id;renderObAttivita();const btn=document.getElementById('ob-btn1');if(btn){btn.disabled=false;btn.style.opacity='1';btn.scrollIntoView({behavior:'smooth',block:'nearest'});}}
+function renderObAttivita(){const grid=document.getElementById('ob-attivita-grid');if(!grid||!ATTIVITA_TYPES)return;grid.innerHTML='';ATTIVITA_TYPES.forEach(function(a){const scelta=!!(obSelectedAttivita&&obSelectedAttivita===a.id);const b=document.createElement('button');b.type='button';b.className='ob-card'+(scelta?' selected':'');b.dataset.id=a.id;b.setAttribute('aria-pressed',scelta?'true':'false');b.innerHTML='<span class="ob-emoji" aria-hidden="true">'+a.emoji+'</span><span class="ob-label">'+a.label+'</span>';b.onclick=function(){selectAttivita(a.id);};grid.appendChild(b);});}
+function selectAttivita(id){obSelectedAttivita=id;renderObAttivita();const scelta=document.querySelector('#ob-attivita-grid .ob-card[data-id="'+id+'"]');if(scelta)scelta.focus({preventScroll:true});const btn=document.getElementById('ob-btn1');if(btn){btn.disabled=false;btn.style.opacity='1';btn.scrollIntoView({behavior:'smooth',block:'nearest'});}}
 function obNext(){
   if(!obSelectedAttivita)return;
   document.getElementById('ob-step1').style.display='none';
@@ -1650,7 +1654,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.109';
+const APP_VERSION='2.31.110';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -5977,6 +5981,42 @@ function _azioneMostra(o){
   if(o.pulsante){b.textContent=o.pulsante;b.onclick=o.azione;b.style.display='block';}else{b.style.display='none';}
   setTimeout(function(){const f=o.form?_azioneEl('azione-pwd'):(o.pulsante?b:null);if(f)f.focus();},50);
 }
+// ─── Schermate a tutta pagina (2.31.110, EAA) ───────────────────────────────────────────────
+// Mentre una di queste schermate è aperta, l'app e le altre schermate sotto diventano "inert":
+// la tastiera e il lettore di schermo non ci arrivano più. Elenco dalla più alta alla più bassa.
+// Le finestre (modal) e i messaggi (toast) stanno fuori da questi contenitori e restano raggiungibili.
+const _SCHERMATE_PIENE=['azione-screen','account-eliminato-screen','device-removed-screen','device-limit-screen','onboarding-screen'];
+const _SOTTO_SCHERMATE=['app','login-screen','bottom-nav','tablet-top-bar'];
+let _schermataPienaAttiva=null;
+function _aggiornaSchermatePiene(){
+  const visibile=_SCHERMATE_PIENE.map(function(id){return document.getElementById(id);})
+    .find(function(el){return el&&getComputedStyle(el).display!=='none';})||null;
+  _SOTTO_SCHERMATE.concat(_SCHERMATE_PIENE).forEach(function(id){
+    const el=document.getElementById(id);
+    if(!el)return;
+    const inerte=!!visibile&&el!==visibile;
+    if(inerte)el.setAttribute('inert','');else el.removeAttribute('inert');
+  });
+  if(visibile&&visibile!==_schermataPienaAttiva&&!visibile.contains(document.activeElement)){
+    // Porta il cursore nella schermata appena aperta: sul titolo, se c'è, altrimenti sul primo pulsante.
+    const vis=function(e){return e&&e.offsetParent!==null;};
+    const titolo=Array.from(visibile.querySelectorAll('h1,h2,[id$="-titolo"]')).find(vis);
+    const primo=Array.from(visibile.querySelectorAll('button,a[href],input,[tabindex]:not([tabindex="-1"])')).find(vis);
+    const dest=titolo||primo;
+    if(dest){if(dest===titolo&&!dest.hasAttribute('tabindex'))dest.setAttribute('tabindex','-1');try{dest.focus({preventScroll:true});}catch(e){}}
+  }
+  _schermataPienaAttiva=visibile;
+}
+(function(){
+  try{
+    const oss=new MutationObserver(_aggiornaSchermatePiene);
+    _SCHERMATE_PIENE.forEach(function(id){const el=document.getElementById(id);if(el)oss.observe(el,{attributes:true,attributeFilter:['style','class']});});
+    // Alcuni contenitori (per esempio la barra in basso) arrivano dopo: ricontrolla quando cambiano i figli di body.
+    oss.observe(document.body,{childList:true});
+    document.addEventListener('DOMContentLoaded',_aggiornaSchermatePiene);
+    _aggiornaSchermatePiene();
+  }catch(e){console.warn('Gestione schermate a tutta pagina non attiva',e);}
+})();
 function _azioneChiudi(poi){
   _azioneEl('azione-screen').style.display='none';
   try{history.replaceState({},'',window.location.pathname);}catch(e){}
