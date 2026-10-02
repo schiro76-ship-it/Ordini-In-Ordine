@@ -1654,7 +1654,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.110';
+const APP_VERSION='2.31.111';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -1854,7 +1854,7 @@ const _orNuovo=Object.values(_notifSettingsAll).some(v=>v&&v.nuovoOrdine!==false
 const _orUrg=Object.values(_notifSettingsAll).some(v=>v&&v.ordiniUrgenti!==false);
 const payload={arts,ords,unitaMisura,cats,nextNum,clienti,clientiAssorbiti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};let _esitoSalvataggio='ok';try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});_registraBase();}catch(e){console.warn('Firebase save error',e);_esitoSalvataggio='errore';}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}if(_esitoSalvataggio==='ok'&&_datiUniti){refreshAll();return'unito';}return _esitoSalvataggio;}
 let _abbonamento=null; // {stato,piano,scadenza,stripeCustomerId,stripeSubscriptionId} — scritto solo dal webhook Stripe, mai dal client
-let _referral=null; // {codice,invitatoDa,creditoErogato} — codice generato dal client, invitatoDa/creditoErogato letti/scritti anche dal webhook
+let _referral=null; // {codice,invitatoDa,creditoErogato} — codice assegnato dal server (ottieniCodiceInvito, 2.31.111), invitatoDa scritto alla registrazione, il resto dal webhook
 let _datiCreato=null; // data di creazione account, per calcolare la scadenza del mese di prova
 let _provaScaduta=false;
 let _provaGiorniRimanenti=null; // null = non calcolabile o non prossima alla scadenza
@@ -1892,22 +1892,28 @@ function applyRemoteSettings(d){
 }
 // Aggiorna la card Account con lo stato abbonamento corrente. Il campo _abbonamento è scritto
 // esclusivamente dal webhook Stripe (mai dal client): qui ci limitiamo a leggerlo e mostrarlo.
-// Genera un codice invito personale la prima volta che serve (nessun codice ancora salvato per
-// questo account) e lo salva su Firestore. Non tocca invitatoDa/creditoErogato se già presenti:
-// costruiamo l'oggetto referral completo partendo da quello che c'è già, così il salvataggio con
-// merge non perde eventuali campi scritti nel frattempo dal webhook (es. creditoErogato).
-function ensureCodiceReferral(){
-  if(!_dataLoaded)return;
+// Codice invito personale: dalla 2.31.111 lo assegna il server (funzione ottieniCodiceInvito),
+// che controlla che sia unico; l'app non può più scriverselo da sola (regole Firestore). Se la
+// funzione non risponde si riprova alla prossima apertura della sezione inviti.
+let _richiestaCodiceInCorso=false,_ultimoErroreCodice=0;
+async function ensureCodiceReferral(){
+  if(!_dataLoaded||!currentUser||_richiestaCodiceInCorso)return;
   if(_referral&&_referral.codice)return;
-  const alfabeto='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // esclude 0/O e 1/I per evitare ambiguità quando il codice viene letto ad alta voce o scritto a mano
-  let codice='';
-  for(let i=0;i<6;i++)codice+=alfabeto[Math.floor(Math.random()*alfabeto.length)];
-  const nuovoReferral=Object.assign({},_referral||{},{codice:codice});
-  const uid=currentUser?currentUser.uid:DOC_ID;
-  db.collection('dati').doc(uid).set({referral:nuovoReferral},{merge:true}).then(function(){
-    _referral=nuovoReferral;
-    applyReferralUI();
-  }).catch(function(e){console.warn('Errore generazione codice referral',e);});
+  if(Date.now()-_ultimoErroreCodice<60000)return; // dopo un errore si riprova al massimo una volta al minuto
+  _richiestaCodiceInCorso=true;
+  try{
+    const idToken=await currentUser.getIdToken();
+    const resp=await fetch('https://europe-west1-ordini-in-ordine-f4966.cloudfunctions.net/ottieniCodiceInvito',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken},body:JSON.stringify({data:{}})
+    });
+    const json=await resp.json();
+    const codice=json&&json.result&&json.result.codice;
+    if(codice){
+      _referral=Object.assign({},_referral||{},{codice:codice});
+      applyReferralUI();
+    }else{_ultimoErroreCodice=Date.now();console.warn('Codice invito non assegnato',json&&json.error);}
+  }catch(e){_ultimoErroreCodice=Date.now();console.warn('Errore richiesta codice invito',e);}
+  finally{_richiestaCodiceInCorso=false;}
 }
 function linkReferral(){
   if(!_referral||!_referral.codice)return '';
@@ -2206,8 +2212,12 @@ function mostraModalVerificaEmail(){
   document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');reinviaVerificaEmail();};
 }
 async function avviaCheckout(piano){
-  const btn=document.getElementById('btn-abbonati-'+piano);
-  if(btn)btn.disabled=true;
+  // Entrambi i pulsanti bloccati finché non si apre la pagina di pagamento: niente doppio tocco
+  // né un secondo piano avviato in parallelo (giro B). Se si va al pagamento restano bloccati.
+  const btns=['mensile','annuale'].map(function(p){return document.getElementById('btn-abbonati-'+p);}).filter(Boolean);
+  if(btns.some(function(b){return b.getAttribute('aria-busy')==='true';}))return;
+  btns.forEach(function(b){b.disabled=true;b.setAttribute('aria-busy','true');});
+  let vaAlPagamento=false;
   try{
     if(!currentUser)throw new Error('Devi essere autenticato');
     // Blocco lato client: solo per chi si è registrato con email/password (chi usa Google ha
@@ -2230,7 +2240,12 @@ async function avviaCheckout(piano){
     });
     const json=await resp.json();
     if(json&&json.result&&json.result.url){
+      vaAlPagamento=true;
       window.location.href=json.result.url;
+    }else if(json&&json.error&&json.error.message==='gia-abbonato'){
+      toast('Hai già un abbonamento attivo: lo trovi in «Gestisci abbonamento».','err');
+    }else if(json&&json.error&&json.error.message==='pagamento-in-corso'){
+      toast('Il pagamento si sta già aprendo: attendi qualche secondo.','err');
     }else if(json&&json.error){
       toast('Errore avvio pagamento: '+(json.error.message||'sconosciuto'),'err');
     }else{
@@ -2240,9 +2255,12 @@ async function avviaCheckout(piano){
     console.warn('Errore creazione checkout',e);
     toast('Errore avvio pagamento: '+(e.message||e.code||'sconosciuto'),'err');
   }finally{
-    if(btn)btn.disabled=false;
+    if(!vaAlPagamento)btns.forEach(function(b){b.disabled=false;b.removeAttribute('aria-busy');});
   }
 }
+// Tornando indietro dalla pagina di pagamento il browser può mostrare la pagina com'era, con i
+// pulsanti ancora bloccati: si riattivano.
+window.addEventListener('pageshow',function(e){if(!e.persisted)return;['mensile','annuale'].forEach(function(p){const b=document.getElementById('btn-abbonati-'+p);if(b){b.disabled=false;b.removeAttribute('aria-busy');}});});
 async function loadData(snapCondiviso){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=snapCondiviso!==undefined?snapCondiviso:await db.collection('dati').doc(uid).get();if(snap&&snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;_registraBase();try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;clienti=[];stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
 // Banner "Aggiungi a Home" per iOS — Safari, Chrome, Firefox, Edge su iOS usano tutti il motore WebKit,
 // quindi stesso comportamento su qualsiasi browser: nessun banner automatico di installazione come su Android,
