@@ -1654,7 +1654,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.112';
+const APP_VERSION='2.31.113';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -1730,8 +1730,32 @@ const DEFAULT_ARTS=[];
 // in archivio) viene tenuto. Così nessuna delle due modifiche va persa.
 let _base=null;
 function _registraBase(){
-  try{_base=JSON.parse(JSON.stringify({arts,ords,clienti,cats,unitaMisura,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese}));}catch(e){_base=null;}
+  try{const j=JSON.stringify({arts,ords,clienti,cats,unitaMisura,nextNum,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese});_base=JSON.parse(j);
+    // Copia dell'ultima versione confermata dal server (2.31.113): serve a unire correttamente le modifiche
+    // fatte senza rete, anche dopo aver chiuso e riaperto l'app.
+    // Si aggiorna insieme anche la copia dei dati, che in questo momento coincide con quella del server:
+    // se le due copie fossero di momenti diversi, l'unione dopo un avvio senza rete scambierebbe per
+    // cancellati qui gli ordini arrivati nel frattempo dagli altri dispositivi.
+    if(!_copiaLocaleBloccata()){try{localStorage.setItem('mac-base',j);}catch(e){}}
+    _scriviCopiaLocale({arts,ords,unitaMisura,cats,nextNum,clienti,clientiAssorbiti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod});
+  }catch(e){_base=null;}
 }
+// Unione del numero del prossimo ordine (2.31.113). Prima vinceva sempre il più alto, e così
+// "Azzera numerazione" e l'azzeramento automatico (annuale, mensile, settimanale) venivano annullati al
+// salvataggio. Ora: se è cambiato da una parte sola vale quel cambiamento; un azzeramento (numero più
+// basso di prima) vale anche se l'altra parte ha aggiunto ordini; altrimenti il più alto.
+function _unisciNextNum(base,locale,remoto){
+  const b=Number(base)||1,l=Number(locale)||1,r=Number(remoto)||1;
+  if(l===b)return r;
+  if(r===b)return l;
+  if(l<b&&r<b)return Math.max(l,r);
+  if(l<b)return l;
+  if(r<b)return r;
+  return Math.max(l,r);
+}
+// Testo da passare come argomento in un onclick="..." (2.31.113): prima i nomi venivano messi tra
+// apici così com'erano, e un apostrofo ("Olio d'oliva") rompeva il pulsante.
+function _jsArg(v){return JSON.stringify(String(v)).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function _chiaveStabile(v){
   return JSON.stringify(v,function(k,val){
     if(val&&typeof val==='object'&&!Array.isArray(val)){return Object.keys(val).sort().reduce(function(o,kk){o[kk]=val[kk];return o;},{});}
@@ -1760,11 +1784,64 @@ try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc
 // Esito restituito (usato da salvaOrdine, ignorato dalle altre chiamate): 'ok' salvato; 'unito'
 // salvato dopo aver unito modifiche arrivate sul server da un altro dispositivo; 'conflitto' dati
 // ricaricati dal server senza scrivere; 'bloccato' fermato da una protezione; 'errore' scrittura
-// non riuscita.
+// non riuscita; 'in-attesa' rete assente o server che non risponde: i dati sono nella copia locale e
+// vengono inviati (uniti a quelli del server) appena torna la connessione (2.31.113).
 // Contatore dei salvataggi in corso: il riallineamento col server (_riallineaConServer) non parte
 // mentre un salvataggio è in volo, per non staccare la rete a metà scrittura.
 let _saveInCorso=0;
-async function saveData(){_saveInCorso++;try{return await _saveDataImpl();}finally{_saveInCorso--;}}
+const TEMPO_MAX_SALVATAGGIO_MS=10000; // vedi saveData: oltre, si considera la rete assente (2.31.113)
+let _snapshotRimandato=false; // aggiornamento in tempo reale arrivato durante un salvataggio (2.31.113)
+// Salvataggio in sospeso (2.31.113): modifiche fatte senza rete. Restano nella copia locale ('mac-data'),
+// insieme all'ultima versione confermata dal server ('mac-base'), e si inviano unendole a quelle del
+// server appena torna la connessione, anche se nel frattempo l'app è stata chiusa e riaperta.
+// 'mac-in-sospeso' contiene l'uid dell'account a cui appartengono.
+let _daRisalvare=false;
+function _segnaInSospeso(){_daRisalvare=true;try{if(currentUser)localStorage.setItem('mac-in-sospeso',currentUser.uid);}catch(e){}}
+function _togliInSospeso(){_daRisalvare=false;try{localStorage.removeItem('mac-in-sospeso');}catch(e){}}
+function _inSospesoPerQuestoAccount(){try{return !!currentUser&&localStorage.getItem('mac-in-sospeso')===currentUser.uid;}catch(e){return false;}}
+// Invio delle modifiche fatte senza rete, unite a quelle del server. Un ordine creato senza rete può
+// avere lo stesso numero di uno aggiunto nel frattempo da un altro dispositivo: in quel caso il nostro
+// passa al primo numero libero e lo si dice chiaramente.
+async function _inviaModificheInSospeso(){
+  if(!_daRisalvare||_saveInCorso>0||!currentUser)return;
+  const r=await saveData();
+  if(r==='bloccato'||r==='errore'){
+    // Il server ha rifiutato le modifiche (o una protezione le ha fermate): ritentare non servirebbe e
+    // l'app smetterebbe di ricevere gli aggiornamenti. Si torna ai dati del server e lo si dice.
+    _togliInSospeso();
+    try{localStorage.removeItem('mac-ordini-offline');}catch(e){}
+    await loadData();refreshAll();
+    toast('Le modifiche fatte senza connessione non sono state inviate: ricontrolla gli ultimi ordini','err');
+    return;
+  }
+  if(r!=='ok'&&r!=='unito')return;
+  const cambi=[];
+  let lista=[];try{lista=JSON.parse(localStorage.getItem('mac-ordini-offline')||'[]');}catch(e){}
+  for(const id of lista){
+    const mio=ords.find(o=>o.id===id);
+    if(mio&&!isRitiratoVecchio(mio)&&ords.some(o=>o.id!==id&&!isRitiratoVecchio(o)&&o.num===mio.num)){
+      const prima=mio.num;mio.num=minNumeroLibero();if(mio.num>=nextNum)nextNum=mio.num+1;
+      cambi.push(mio.nome+' da #'+prima+' a #'+mio.num);
+    }
+  }
+  try{localStorage.removeItem('mac-ordini-offline');}catch(e){}
+  if(cambi.length)await saveData();
+  refreshAll();
+  if(cambi.length)toast('Modifiche fatte senza connessione inviate. Numero già usato da un altro dispositivo, cambiato: '+cambi.join('; '),'err');
+  else toast('Modifiche fatte senza connessione inviate','v');
+}
+// Copia locale dei dati con l'account a cui appartiene (2.31.113): le modifiche in sospeso e la versione
+// di riferimento si riusano solo per lo stesso account.
+function _copiaLocaleBloccata(){return (typeof _logoutVolontario!=='undefined'&&_logoutVolontario)||(typeof _accountEliminatoGestito!=='undefined'&&_accountEliminatoGestito);}
+function _scriviCopiaLocale(dati){if(_copiaLocaleBloccata())return; // uscita o account eliminato: la copia locale si cancella, non si riscrive
+  try{localStorage.setItem('mac-data',JSON.stringify(dati));if(currentUser)localStorage.setItem('mac-proprietario',currentUser.uid);}catch(e){}}
+function _copiaLocaleDiQuestoAccount(){try{return !!currentUser&&localStorage.getItem('mac-proprietario')===currentUser.uid;}catch(e){return false;}}
+let _controlloDispositivoSaltato=false; // avvio senza rete: il dispositivo si registra al primo dato dal server
+async function saveData(){_saveInCorso++;try{return await _saveDataImpl();}finally{_saveInCorso--;
+  // Un aggiornamento da un altro dispositivo arrivato mentre si salvava non è stato applicato (avrebbe
+  // cancellato dalla memoria l'ordine appena aggiunto, 2.31.113): finito il salvataggio si rilegge il server.
+  if(_saveInCorso===0&&_snapshotRimandato){_snapshotRimandato=false;setTimeout(function(){_riallineaConServer('aggiornamento arrivato durante un salvataggio',true);},0);}
+}}
 async function _saveDataImpl(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return'bloccato';}if(ords.length===0&&nextNum>1&&!(ordiniArchiviati>0)){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return'bloccato';}
 let _datiUniti=false;
 // --- Controllo conflitti (agosto 2026, dopo l'incidente di perdita dati): prima di scrivere,
@@ -1774,9 +1851,19 @@ let _datiUniti=false;
 // eviterebbe di sovrascriverlo), si ricaricano i dati freschi e si avvisa l'utente. Non blocca
 // invece se manca un ordine che questo stesso dispositivo ha appena cancellato: si guarda solo
 // agli ID remoti assenti in locale, mai il contrario.
+let _letturaFallita=false;
 try{
   const uid=currentUser?currentUser.uid:DOC_ID;
-  const remoteSnap=await db.collection('dati').doc(uid).get();
+  // Se manca una versione di riferimento ma ci sono modifiche fatte senza rete (dispositivo nuovo o copia
+  // locale senza 'mac-base'), si usa come riferimento una lista vuota: si tengono sia gli elementi di
+  // questo dispositivo sia quelli del server; i contatori non vengono contati due volte.
+  if(!_base&&_daRisalvare)_base={arts:[],ords:[],clienti:[],cats:[],unitaMisura:[],nextNum:nextNum,stampeCount:stampeCount,ordiniCreatiTotale:ordiniCreatiTotale,articoliCreatiTotale:articoliCreatiTotale,ordiniPerMese:JSON.parse(JSON.stringify(ordiniPerMese||{}))};
+  let remoteSnap;
+  try{remoteSnap=await db.collection('dati').doc(uid).get();}
+  catch(e){if((e&&e.code==='unavailable')||navigator.onLine===false){_letturaFallita=true;}throw e;}
+  // Lettura servita dalla memoria del dispositivo invece che dal server: la rete non c'è (succede quando
+  // la connessione cade con l'app aperta). Si tratta come lettura non riuscita: niente scrittura.
+  if(remoteSnap.metadata&&remoteSnap.metadata.fromCache){_letturaFallita=true;throw new Error('lettura dalla memoria locale: rete assente');}
   if(!remoteSnap.exists&&currentUser&&await _verificaAccountEliminato())return'bloccato';
   if(remoteSnap.exists){
     const remoteOrds=remoteSnap.data().ords||[];
@@ -1811,7 +1898,10 @@ try{
       // in archivio), articoli o clienti che qui non sono stati toccati, qualcosa non va: non si scrive,
       // si ricaricano i dati e si avvisa, come faceva prima questo controllo.
       const rimossiSospetti=uO.rimossiDalServer.filter(o=>!_eForseArchiviato(o)).length+uA.rimossiDalServer.length+uC.rimossiDalServer.length;
-      if(rimossiSospetti>5){
+      // Con modifiche fatte senza rete da inviare non si blocca (2.31.113): si ricaricherebbero di nuovo le
+      // stesse modifiche locali e il blocco si ripeterebbe a ogni tentativo. L'unione tiene comunque le
+      // cancellazioni fatte sugli altri dispositivi e le aggiunte fatte qui.
+      if(rimossiSospetti>5&&!_daRisalvare){
         console.warn('saveData bloccato: '+rimossiSospetti+' elementi spariti dal server senza essere stati modificati qui');
         await loadData();
         refreshAll();
@@ -1822,7 +1912,7 @@ try{
         ords:uO.lista,arts:uA.lista,clienti:uC.lista,
         cats:_chiaveStabile(cats)!==_chiaveStabile(_base.cats)?cats:(rd.cats||[]),
         unitaMisura:_chiaveStabile(unitaMisura)!==_chiaveStabile(_base.unitaMisura)?unitaMisura:(rd.unitaMisura||unitaMisura),
-        nextNum:Math.max(Number(nextNum)||1,Number(rd.nextNum)||1),
+        nextNum:_unisciNextNum(_base.nextNum,nextNum,rd.nextNum),
         stampeCount:_unisciContatore(_base.stampeCount,stampeCount,rd.stampeCount),
         ordiniCreatiTotale:_unisciContatore(_base.ordiniCreatiTotale,ordiniCreatiTotale,rd.ordiniCreatiTotale),
         articoliCreatiTotale:_unisciContatore(_base.articoliCreatiTotale,articoliCreatiTotale,rd.articoliCreatiTotale),
@@ -1848,11 +1938,28 @@ try{
       return'conflitto';
     }
   }
-}catch(e){console.warn('Controllo conflitti saveData fallito, procedo comunque',e);}
+}catch(e){if(!_letturaFallita)console.warn('Controllo conflitti saveData fallito, procedo comunque',e);}
 _notifSettingsAll[_deviceId]={nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti};
 const _orNuovo=Object.values(_notifSettingsAll).some(v=>v&&v.nuovoOrdine!==false);
 const _orUrg=Object.values(_notifSettingsAll).some(v=>v&&v.ordiniUrgenti!==false);
-const payload={arts,ords,unitaMisura,cats,nextNum,clienti,clientiAssorbiti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};let _esitoSalvataggio='ok';try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});_registraBase();}catch(e){console.warn('Firebase save error',e);_esitoSalvataggio='errore';}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}if(_esitoSalvataggio==='ok'&&_datiUniti){refreshAll();return'unito';}return _esitoSalvataggio;}
+const payload={arts,ords,unitaMisura,cats,nextNum,clienti,clientiAssorbiti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};let _esitoSalvataggio='ok';
+// Senza rete NON si scrive sul server (2.31.113): la scrittura partirebbe al ritorno della connessione con
+// dati non uniti a quelli degli altri dispositivi, cancellando quello che hanno aggiunto nel frattempo. Si
+// tiene tutto nella copia locale e si salva (unendo) appena torna la rete.
+if(_letturaFallita){
+  _scriviCopiaLocale(payload);
+  _segnaInSospeso();
+  console.warn('saveData: rete assente, modifiche tenute su questo dispositivo');
+  return'in-attesa';
+}
+// La copia locale si scrive PRIMA del server (2.31.113): senza rete la scrittura su Firestore resta in
+// attesa e prima la copia locale non veniva mai aggiornata. Dopo TEMPO_MAX_SALVATAGGIO_MS senza risposta
+// si smette di aspettare: la scrittura resta in coda e parte da sola quando torna la rete (esito
+// 'in-attesa'), invece di lasciare l'app ferma senza nessun messaggio.
+_scriviCopiaLocale(payload);
+try{const uid=currentUser?currentUser.uid:DOC_ID;const _scrittura=db.collection('dati').doc(uid).set(payload,{merge:true});let _timerAttesa=null;const _gara=await Promise.race([_scrittura.then(()=>'ok'),new Promise(r=>{_timerAttesa=setTimeout(()=>r('in-attesa'),TEMPO_MAX_SALVATAGGIO_MS);})]);clearTimeout(_timerAttesa);if(_gara==='ok'){_registraBase();_togliInSospeso();}else{_esitoSalvataggio='in-attesa';_segnaInSospeso();console.warn('saveData: nessuna risposta dal server, scrittura in coda fino al ritorno della rete');_scrittura.then(()=>console.log('saveData: scrittura in coda arrivata sul server')).catch(e=>console.warn('saveData: scrittura in coda non riuscita',e));}}catch(e){console.warn('Firebase save error',e);_esitoSalvataggio='errore';
+  // Scrittura rifiutata: la copia locale torna all'ultima versione confermata dal server (2.31.113).
+  if(_base)_scriviCopiaLocale(Object.assign({},payload,_base));}if(_esitoSalvataggio==='ok'&&_datiUniti){refreshAll();return'unito';}return _esitoSalvataggio;}
 let _abbonamento=null; // {stato,piano,scadenza,stripeCustomerId,stripeSubscriptionId} — scritto solo dal webhook Stripe, mai dal client
 let _referral=null; // {codice,invitatoDa,creditoErogato} — codice assegnato dal server (ottieniCodiceInvito, 2.31.111), invitatoDa scritto alla registrazione, il resto dal webhook
 let _datiCreato=null; // data di creazione account, per calcolare la scadenza del mese di prova
@@ -1863,12 +1970,12 @@ function applyRemoteSettings(d){
   ordiniArchiviatiPerCliente=(d.ordiniArchiviatiPerCliente&&typeof d.ordiniArchiviatiPerCliente==='object'&&!Array.isArray(d.ordiniArchiviatiPerCliente))?d.ordiniArchiviatiPerCliente:{};
   clientiAssorbiti=(d.clientiAssorbiti&&typeof d.clientiAssorbiti==='object'&&!Array.isArray(d.clientiAssorbiti))?d.clientiAssorbiti:{};
   _abbonamento=(d.abbonamento&&typeof d.abbonamento==='object')?d.abbonamento:null;
-  _datiCreato=d.creato||null;
+  _datiCreato=d.creato||_creatoDiRiserva();
   applyAbbonamentoUI();
   _referral=(d.referral&&typeof d.referral==='object')?d.referral:null;
   applyReferralUI();
   ensureCodiceReferral();
-  _datiCreato=d.creato||null;
+  _datiCreato=d.creato||_creatoDiRiserva();
   _provaScaduta=calcolaProvaScaduta();
   _provaGiorniRimanenti=calcolaProvaGiorniRimanenti();
   applyProvaScadutaUI();
@@ -2002,6 +2109,29 @@ function _giorniProvaRimasti(fineMs){
   return Math.round((g(fineMs)-g(Date.now()))/(24*60*60*1000));
 }
 function _dataItaliana(ms){return new Date(ms).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'Europe/Rome'});}
+// Data di creazione di riserva (2.31.113). Il campo "creato" si scrive una volta sola alla
+// registrazione; se quella scrittura non riusciva (rete debole) nessuno lo riscriveva e il periodo di
+// prova non scadeva mai. Ora, se manca, si usa la data di creazione dell'account (la stessa che usa il
+// server per la prova di Stripe) e la si salva. Vale solo per gli account creati da questa versione in
+// poi: quelli più vecchi senza "creato" (beta tester) restano come prima.
+const CREATO_RISERVA_DAL_MS=Date.parse('2026-10-03T00:00:00+02:00');
+let _creatoRiservaSalvato=false;
+function _creatoDiRiserva(){
+  const ct=currentUser&&currentUser.metadata&&currentUser.metadata.creationTime;
+  const ms=ct?Date.parse(ct):NaN;
+  if(isNaN(ms)||ms<CREATO_RISERVA_DAL_MS)return null;
+  const iso=new Date(ms).toISOString();
+  // Si scrive solo dopo 10 minuti dalla creazione, così non si sovrappone alla registrazione ancora in
+  // corso (che scrive "creato" insieme all'eventuale invito), e solo se sul server manca davvero.
+  if(!_creatoRiservaSalvato&&Date.now()-ms>10*60*1000){
+    _creatoRiservaSalvato=true;
+    const ref=db.collection('dati').doc(currentUser.uid);
+    ref.get().then(function(snap){
+      if(snap.exists&&!snap.data().creato)return ref.set({creato:iso},{merge:true});
+    }).catch(function(e){_creatoRiservaSalvato=false;console.warn('Salvataggio data di creazione non riuscito',e);});
+  }
+  return iso;
+}
 function calcolaProvaScaduta(){
   const fine=_fineProvaMs();
   if(isNaN(fine))return false;
@@ -2264,7 +2394,24 @@ async function avviaCheckout(piano){
 // Tornando indietro dalla pagina di pagamento il browser può mostrare la pagina com'era, con i
 // pulsanti ancora bloccati: si riattivano.
 window.addEventListener('pageshow',function(e){if(!e.persisted)return;['mensile','annuale'].forEach(function(p){const b=document.getElementById('btn-abbonati-'+p);if(b){b.disabled=false;b.removeAttribute('aria-busy');}});});
-async function loadData(snapCondiviso){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=snapCondiviso!==undefined?snapCondiviso:await db.collection('dati').doc(uid).get();if(snap&&snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;_registraBase();try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;clienti=[];stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
+// Riapertura con modifiche fatte senza rete non ancora inviate (2.31.113): invece dei dati del server si
+// rimettono in memoria quelli del dispositivo, con la loro versione di riferimento; il salvataggio che
+// parte subito dopo li unisce a quelli del server. Le impostazioni e l'abbonamento restano quelli del server.
+function _riprendiModificheInSospeso(){
+  if(!_inSospesoPerQuestoAccount())return false;
+  if(!_copiaLocaleDiQuestoAccount()){_togliInSospeso();return false;}
+  try{
+    const l=JSON.parse(localStorage.getItem('mac-data')||'null');
+    const b=JSON.parse(localStorage.getItem('mac-base')||'null');
+    if(!l||!Array.isArray(l.ords)){_togliInSospeso();return false;}
+    arts=l.arts||arts;ords=l.ords;unitaMisura=l.unitaMisura||unitaMisura;cats=l.cats||cats;nextNum=l.nextNum||nextNum;clienti=l.clienti||clienti;
+    stampeCount=l.stampeCount||0;ordiniCreatiTotale=l.ordiniCreatiTotale||0;articoliCreatiTotale=l.articoliCreatiTotale||0;ordiniPerMese=l.ordiniPerMese||{};
+    _base=b;_daRisalvare=true;
+    console.warn('Riapertura con modifiche fatte senza rete: verranno unite a quelle del server');
+    return true;
+  }catch(e){console.warn('Ripresa modifiche in sospeso non riuscita',e);return false;}
+}
+async function loadData(snapCondiviso){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=snapCondiviso!==undefined?snapCondiviso:await db.collection('dati').doc(uid).get();if(snap&&snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;if(_riprendiModificheInSospeso())return;_registraBase();_scriviCopiaLocale({arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod});return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;try{const b=_copiaLocaleDiQuestoAccount()?localStorage.getItem('mac-base'):null;_base=b?JSON.parse(b):null;}catch(e){_base=null;}if(_inSospesoPerQuestoAccount()&&_copiaLocaleDiQuestoAccount())_daRisalvare=true;return;}}catch{}arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;clienti=[];stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
 // Banner "Aggiungi a Home" per iOS — Safari, Chrome, Firefox, Edge su iOS usano tutti il motore WebKit,
 // quindi stesso comportamento su qualsiasi browser: nessun banner automatico di installazione come su Android,
 // va costruito manualmente. Non richiede alcuna infrastruttura Firebase, puro client-side.
@@ -2474,6 +2621,10 @@ async function checkESaveDispositivo(snapCondiviso){
     const uid=currentUser?currentUser.uid:DOC_ID;
     const ref=db.collection('dati').doc(uid);
     const snap=snapCondiviso!==undefined?snapCondiviso:await ref.get();
+    // Lettura non riuscita (di solito rete assente): il controllo dei dispositivi si salta e l'app si apre
+    // con la copia locale (2.31.113). Prima si registrava questo dispositivo come nuovo e si aspettava la
+    // risposta del server, che senza rete non arriva mai: l'app restava su "Caricamento…".
+    if(!snap){console.warn('Controllo dispositivi saltato: dati del server non disponibili');_controlloDispositivoSaltato=true;return false;}
     const d=snap&&snap.exists?snap.data():{};
     _dispositivi=(d.dispositivi&&typeof d.dispositivi==='object'&&!Array.isArray(d.dispositivi))?d.dispositivi:{};
     const now=new Date().toISOString();
@@ -2481,7 +2632,8 @@ async function checkESaveDispositivo(snapCondiviso){
       const esistente=_dispositivi[_deviceId];
       const primo=esistente.primoAccesso||now;
       _dispositivi[_deviceId]=Object.assign({},esistente,{primoAccesso:primo,ultimoAccesso:now});
-      await ref.set({dispositivi:{[_deviceId]:{primoAccesso:primo,ultimoAccesso:now}}},{merge:true});
+      // Non si aspetta la risposta del server (2.31.113): con rete lenta o assente l'avvio restava fermo.
+      ref.set({dispositivi:{[_deviceId]:{primoAccesso:primo,ultimoAccesso:now}}},{merge:true}).catch(function(e){console.warn('Aggiornamento ultimo accesso non riuscito',e);});
       try{localStorage.setItem('device-nome',esistente.nome||'');localStorage.setItem('device-tipo',esistente.tipo||'');localStorage.setItem('device-primo',primo);}catch(e){}
       return false;
     }
@@ -2501,7 +2653,7 @@ async function checkESaveDispositivo(snapCondiviso){
     // modificabile con la matita in Impostazioni → Dispositivi collegati.
     if(!nome)nome=tipo;
     _dispositivi[_deviceId]={primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo};
-    await ref.set({dispositivi:{[_deviceId]:{primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo}}},{merge:true});
+    ref.set({dispositivi:{[_deviceId]:{primoAccesso:now,ultimoAccesso:now,nome:nome,tipo:tipo}}},{merge:true}).catch(function(e){console.warn('Registrazione dispositivo non riuscita',e);});
     try{localStorage.setItem('device-nome',nome);localStorage.setItem('device-tipo',tipo);localStorage.setItem('device-primo',now);}catch(e){}
     return false;
   }catch(e){
@@ -2527,17 +2679,39 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
   const _uidBoot=currentUser?currentUser.uid:DOC_ID;
   let _snapDatiIniziale=null;
   try{_snapDatiIniziale=await db.collection('dati').doc(_uidBoot).get();}catch(e){console.warn('Lettura iniziale dati non riuscita, si procede con i fallback locali',e);}
-  const _bloccato=await checkESaveDispositivo(_snapDatiIniziale);if(_bloccato){mostraLimiteDispositivi();return;}try{await loadData(_snapDatiIniziale);}catch(e){console.warn('loadData error',e);}document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_ripristinaGruppoStampaLocale();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);setTimeout(adjustPhdrFit,0);checkIosInstallBanner();gestisciRitornoCheckout();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
+  const _bloccato=await checkESaveDispositivo(_snapDatiIniziale);if(_bloccato){mostraLimiteDispositivi();return;}try{await loadData(_snapDatiIniziale);}catch(e){console.warn('loadData error',e);}if(_daRisalvare&&_snapDatiIniziale)setTimeout(_inviaModificheInSospeso,0);document.getElementById('loading').classList.add('hidden');document.getElementById('app').style.display='flex';calInit();refreshAll();_ripristinaGruppoStampaLocale();_aggiornaBadgeGruppo();setTimeout(syncPhdrHeight,0);setTimeout(adjustPhdrFit,0);checkIosInstallBanner();gestisciRitornoCheckout();if((_notifNuovoOrdine||_notifOrdiniUrgenti)&&!installBannerVisibile()){initFCM().then((ok)=>{if(ok==='denied'){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;rimuoviTokenDispositivo();applyNotifSettings();saveData();}}).catch((e)=>{console.warn('Auto-init FCM fallito',e);});}else if(_notifNuovoOrdine||_notifOrdiniUrgenti){_notifNuovoOrdine=false;_notifOrdiniUrgenti=false;applyNotifSettings();saveData();}if(isNewUser){isNewUser=false;const el=document.getElementById('onboarding-screen');el.style.cssText='display:flex!important;position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:#fff;z-index:99999;flex-direction:column;overflow-y:auto';const _slugAttivita=getAttivitaSlugFromURL();if(_slugAttivita){obSelectedAttivita=_slugAttivita;const _chip=document.getElementById('ob-attivita-corrente');const _chipNome=document.getElementById('ob-attivita-corrente-nome');if(_chipNome)_chipNome.textContent=getAttivitaById(_slugAttivita).label;if(_chip)_chip.style.display='block';document.getElementById('ob-step1').style.display='none';document.getElementById('ob-step2').style.display='flex';applicaLabelArticoli();const obVerifyEl=document.getElementById('ob-verify-email');if(obVerifyEl)obVerifyEl.style.display=(currentUser&&!currentUser.emailVerified&&currentUser.providerData&&currentUser.providerData[0]&&currentUser.providerData[0].providerId==='password')?'flex':'none';}else{obSelectedAttivita=null;renderObAttivita();document.getElementById('ob-step1').style.display='flex';document.getElementById('ob-step2').style.display='none';}}else{setTimeout(checkOnboarding,300);}
   try{
     if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
     _unsubDatiListener=db.collection('dati').doc(currentUser?currentUser.uid:DOC_ID).onSnapshot((snap)=>{
       if(!snap.exists){if(_dataLoaded&&!(snap.metadata&&snap.metadata.fromCache))_verificaAccountEliminato();return;}
       const d=snap.data();
+      // Durante un salvataggio i dati in memoria NON si sostituiscono (2.31.113): saveData li sta unendo
+      // a quelli del server, e sostituirli a metà faceva sparire l'ordine appena aggiunto pur mostrando
+      // "Ordine aggiunto!". Se l'aggiornamento viene da un altro dispositivo (nessuna scrittura nostra in
+      // corso), lo si recupera rileggendo il server appena il salvataggio è finito.
+      const _daServer=!(snap.metadata&&snap.metadata.fromCache);
+      if(_daRisalvare){
+        // Ci sono modifiche fatte senza rete: non si sovrascrivono, si inviano unendole (vedi saveData).
+        if(_daServer)setTimeout(_inviaModificheInSospeso,0);
+      }else if(_saveInCorso>0){
+        if(!(snap.metadata&&snap.metadata.hasPendingWrites))_snapshotRimandato=true;
+      }else{
       arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};
       applyRemoteSettings(d);
       _registraBase();
+      }
       _dispositivi=(d.dispositivi&&typeof d.dispositivi==='object'&&!Array.isArray(d.dispositivi))?d.dispositivi:{};
+      // Avvio senza rete: il controllo del dispositivo era stato saltato; lo si fa ora, con i primi dati
+      // veri del server (2.31.113), prima di decidere se il dispositivo è stato rimosso.
+      if(_controlloDispositivoSaltato&&_daServer){
+        _controlloDispositivoSaltato=false;
+        checkESaveDispositivo(snap);
+        // checkESaveDispositivo aggiunge subito questo dispositivo; se non c'è, il limite è raggiunto.
+        if(!_dispositivi[_deviceId]){mostraLimiteDispositivi();return;}
+      }
       if(!_dispositivi[_deviceId]){
+        // Schermata del limite dispositivi già mostrata: non la si sostituisce con "dispositivo rimosso".
+        {const _lim=document.getElementById('device-limit-screen');if(_lim&&_lim.style.display&&_lim.style.display!=='none')return;}
         if(_dispositivoInPausaVolontaria){
           // Siamo noi stessi ad aver tolto lo slot (scheda Safari in sottofondo, vedi più sotto):
           // non è una vera rimozione da un altro dispositivo, non mostrare nulla.
@@ -2596,19 +2770,26 @@ async function boot(){applyTheme(DEFAULT_THEME);document.getElementById('device-
 // se qualcosa è davvero cambiato. Non parte mentre un salvataggio è in corso.
 const RIALLINEA_DOPO_MS=60*1000;
 let _nascostoDalle=null,_riallineamentoInCorso=false,_ultimoBattito=Date.now();
-async function _riallineaConServer(motivo){
-  if(!currentUser||!_dataLoaded||_riallineamentoInCorso)return;
-  if(_saveInCorso>0){setTimeout(function(){_riallineaConServer(motivo);},1500);return;}
+async function _riallineaConServer(motivo,forza){
+  if(!currentUser||!_dataLoaded)return;
+  if(_riallineamentoInCorso){if(forza)setTimeout(function(){_riallineaConServer(motivo,forza);},1500);return;}
+  if(_saveInCorso>0){setTimeout(function(){_riallineaConServer(motivo,forza);},1500);return;}
+  // Modifiche fatte senza rete ancora da inviare: invece di ricaricare (le perderebbe) si salva unendo.
+  if(_daRisalvare){await _inviaModificheInSospeso();return;}
   _riallineamentoInCorso=true;
   try{
-    try{await db.disableNetwork();}catch(e){}
-    try{await db.enableNetwork();}catch(e){}
+    // forza: rilettura dopo un aggiornamento arrivato durante un salvataggio (2.31.113): la connessione
+    // funziona, non serve staccarla e riattaccarla, e si applica tutto (anche impostazioni e abbonamento).
+    if(!forza){
+      try{await db.disableNetwork();}catch(e){}
+      try{await db.enableNetwork();}catch(e){}
+    }
     const snap=await db.collection('dati').doc(currentUser.uid).get({source:'server'});
     if(!snap.exists){await _verificaAccountEliminato();return;}
-    if(_saveInCorso>0)return;
+    if(_saveInCorso>0){if(forza)_snapshotRimandato=true;return;}
     const d=snap.data();
     const chiave=function(o){return _chiaveStabile({ords:o.ords||[],arts:o.arts||[],cats:o.cats||[],clienti:o.clienti||[],unitaMisura:o.unitaMisura||[],nextNum:o.nextNum||1});};
-    if(_base&&chiave(_base)===chiave(d)){console.log('Riallineamento ('+motivo+'): dati già aggiornati');return;}
+    if(!forza&&_base&&chiave(_base)===chiave(d)){console.log('Riallineamento ('+motivo+'): dati già aggiornati');return;}
     console.warn('Riallineamento ('+motivo+'): dati aggiornati dal server');
     await loadData(snap);
     refreshAll();
@@ -2635,6 +2816,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted)_riallineaConServe
 setInterval(function(){
   const ora=Date.now();
   if(ora-_ultimoBattito>RIALLINEA_DOPO_MS+30000)_riallineaConServer('risveglio dallo stop');
+  else if(_daRisalvare&&_saveInCorso===0&&navigator.onLine!==false)_riallineaConServer('modifiche fatte senza rete');
   _ultimoBattito=ora;
 },30000);
 
@@ -3368,7 +3550,7 @@ function renderStoricoRiepilogo(){
       for(const um in (r.ums||{}))map[k].ums[um]=(map[k].ums[um]||0)+(Number(r.ums[um])||0);
       map[k].nOrdini+=Number(r.n)||0;}
   }}
-  const voci=Object.values(map).sort((a,b)=>a.nome.localeCompare(b.nome));const catsP=['Tutte',...[...new Set(voci.map(v=>v.cat).filter(Boolean))].sort()];if(!catsP.includes(stCatFilter))stCatFilter='Tutte';const pillsEl=document.getElementById('st-cat-pills');if(pillsEl)pillsEl.innerHTML=catsP.map(c=>`<span class="pill ${c===stCatFilter?'active':''}" role="button" tabindex="0" onclick="setStCat('${c}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setStCat('${c}');}">${c}</span>`).join('');const filtrate=voci.filter(v=>{if(stCatFilter!=='Tutte'&&v.cat!==stCatFilter)return false;if(cerca&&!ricercaIntelligente(cerca,v.nome)&&!codMatch(cerca,v))return false;return true;});
+  const voci=Object.values(map).sort((a,b)=>a.nome.localeCompare(b.nome));const catsP=['Tutte',...[...new Set(voci.map(v=>v.cat).filter(Boolean))].sort()];if(!catsP.includes(stCatFilter))stCatFilter='Tutte';const pillsEl=document.getElementById('st-cat-pills');if(pillsEl)pillsEl.innerHTML=catsP.map(c=>`<span class="pill ${c===stCatFilter?'active':''}" role="button" tabindex="0" onclick="setStCat(${_jsArg(c)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setStCat(${_jsArg(c)});}">${c}</span>`).join('');const filtrate=voci.filter(v=>{if(stCatFilter!=='Tutte'&&v.cat!==stCatFilter)return false;if(cerca&&!ricercaIntelligente(cerca,v.nome)&&!codMatch(cerca,v))return false;return true;});
   const el=document.getElementById('storico-riepilogo');
   if(el){
     if(!ordsF.length&&!_nRiep){el.innerHTML=_avvisoArchivioHtml()+'<p style="color:var(--sub);font-size:15px;font-weight:600;text-align:center;padding:20px">Nessun ordine ritirato nel periodo selezionato.</p>';}
@@ -3393,7 +3575,7 @@ function renderStoricoRiepilogo(){
     return true;
   });
   const stDetCats=['Tutte',...[...new Set(ordsDetBase.flatMap(o=>(o.items||[]).map(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat||'';}).filter(Boolean)))].sort()];
-  const stDetPills=stDetCats.map(c=>`<span class="pill ${c===stDetCat?'active':''}" role="button" tabindex="0" onclick="_stDetCat='${c}';renderStoricoRiepilogo()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();_stDetCat='${c}';renderStoricoRiepilogo();}">${c}</span>`).join('');
+  const stDetPills=stDetCats.map(c=>`<span class="pill ${c===stDetCat?'active':''}" role="button" tabindex="0" onclick="_stDetCat=${_jsArg(c)};renderStoricoRiepilogo()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();_stDetCat=${_jsArg(c)};renderStoricoRiepilogo();}">${c}</span>`).join('');
   const ordsFiltered=ordsDetBase.filter(o=>{
     if(stDetCerca&&!ricercaIntelligente(stDetCerca,nomeAttuale(o))&&!String(o.num).includes(stDetCerca)&&!(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&(ricercaIntelligente(stDetCerca,a.nome)||codMatch(stDetCerca,a));}))return false;
     if(stDetCat!=='Tutte'&&!(o.items||[]).some(it=>{const a=arts.find(x=>x.id===it.artId);return a&&a.cat===stDetCat;}))return false;
@@ -3581,7 +3763,7 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     } else { dayPillsEl.innerHTML=''; dayPillsEl.style.display='none'; }
   }
   const pillsEl=document.getElementById('riepilogo-cat-pills');
-  if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" role="button" tabindex="0" onclick="setRpCat('${c}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setRpCat('${c}');}">${c}</span>`).join('');
+  if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" role="button" tabindex="0" onclick="setRpCat(${_jsArg(c)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setRpCat(${_jsArg(c)});}">${c}</span>`).join('');
   }
   const map={};
   ev.forEach(o=>(o.items||[]).forEach(it=>{
@@ -3733,7 +3915,7 @@ function renderDetModal(o){
     unitaMisura.forEach(function(u){
       const sel=it.um===u;
       const dis=isRitirato?'disabled':'' ;
-      umPills+=`<button ${dis} class="um-pill${sel?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detUpdUM(${o.id},${idx},'${u}')" onclick="detUpdUM(${o.id},${idx},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--azione)':'var(--brd)'};background:${sel?'var(--azione)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
+      umPills+=`<button ${dis} class="um-pill${sel?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detUpdUM(${o.id},${idx},${_jsArg(u)})" onclick="detUpdUM(${o.id},${idx},${_jsArg(u)})" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--azione)':'var(--brd)'};background:${sel?'var(--azione)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
     });
     if(!isRitirato)umPills+=`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVoloDet(${o.id},${idx})" onclick="addUMVoloDet(${o.id},${idx})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
     const imgRow=it.itemId&&it.imgCaricata
@@ -3931,7 +4113,7 @@ function renderDetArtGrid(oid){
   const el=document.getElementById('det-art-grid');if(!el)return;
   const pillsEl=document.getElementById('det-cat-pills');
   const catsDisp=['Tutti',...cats.sort()];
-  if(pillsEl)pillsEl.innerHTML=catsDisp.map(c=>`<span class="pill ${c===detCatFilter?'active':''}" role="button" tabindex="0" onclick="setDetCat('${c}',${oid})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setDetCat('${c}',${oid});}">${c}</span>`).join('');
+  if(pillsEl)pillsEl.innerHTML=catsDisp.map(c=>`<span class="pill ${c===detCatFilter?'active':''}" role="button" tabindex="0" onclick="setDetCat(${_jsArg(c)},${oid})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setDetCat(${_jsArg(c)},${oid});}">${c}</span>`).join('');
   const c=(document.getElementById('det-search-art')&&document.getElementById('det-search-art').value||'').toLowerCase().trim();
   if(!c){el.innerHTML='';return;}
   const p=new Set((o.items||[]).map(function(it){return it.artId}));
@@ -4158,7 +4340,7 @@ function applyNumResetFreqUI(){
 }
 function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getElementById('nuovo-num-top');if(elTop)elTop.value=numLibero;const badge=document.getElementById('nuovo-num-badge');if(badge)badge.textContent='';document.getElementById('nn').value='';const nnTelEl=document.getElementById('nn-tel');if(nnTelEl)nnTelEl.value='';nnClienteId=null;const nnSuggEl=document.getElementById('nn-sugg');if(nnSuggEl){nnSuggEl.style.display='none';nnSuggEl.innerHTML='';}const noteResetEl=document.getElementById('note-ordine');if(noteResetEl)noteResetEl.value='';tNuovo=null;calSelDate=null;calOra=null;const tr=document.getElementById('cal-trigger');if(tr){tr.classList.remove('has-val');document.getElementById('cal-trigger-txt').textContent='Scegli giorno e turno…'}const cw=document.getElementById('cal-wrap');if(cw)cw.style.display='none';calInit();catS='Tutti';renderPills();const canEl=document.getElementById('can');if(canEl)canEl.value='';renderArtS();sel=[];renderSP();}
 function getCats(){return['Tutti',...cats.sort()]}
-function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" role="button" tabindex="0" onclick="setC('${c}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setC('${c}');}">${c}</span>`).join('')}
+function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" role="button" tabindex="0" onclick="setC(${_jsArg(c)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setC(${_jsArg(c)});}">${c}</span>`).join('')}
 function setC(c){catS=c;renderPills();renderArtS()}
 function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c&&catS==='Tutti'){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(!c||ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')||codMatch(c,a))).sort((a,b)=>a.nome.localeCompare(b.nome));agrid.innerHTML=l.length?l.map(a=>{const s=sel.find(x=>x.id===a.id);return`<button class="ac ${s?'sel':''}" onclick="togArt(${a.id})">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}${s?'<span style="position:absolute;bottom:5px;right:7px;font-size:13px;color:var(--azione);font-weight:900"><i class="ti ti-check"></i></span>':''}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun '+lblArt(false)+' trovato.</p>';}
 function tornaRicerca(){
@@ -4246,7 +4428,7 @@ function rimuoviImgSel(id){
   renderSP();
 }
 function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent=lblArt(true,true)+' '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
-  const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},'${u}')" onclick="selUMpill(${s.id},'${u}')" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
+  const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},${_jsArg(u)})" onclick="selUMpill(${s.id},${_jsArg(u)})" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi immagine</button></div>`:`<button type="button" onclick="apriImmaginePicker('sel',${s.id})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" aria-label="Rimuovi articolo" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" aria-label="Cerca articolo" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
 async function salvaOrdine(){if(_provaScaduta){toast(_msgBloccoOrdini(),'err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();// Se al momento del salvataggio un altro dispositivo aveva appena aggiunto ordini, saveData unisce
@@ -4275,7 +4457,18 @@ for(let tentativo=0;tentativo<3;tentativo++){
     }
     if(esito==='unito')esito='ok';
   }
+  // Controllo finale (2.31.113): l'ordine deve essere davvero nei dati appena salvati; se manca si
+  // rimette e si salva di nuovo, invece di mostrare "Ordine aggiunto!" per un ordine non salvato.
+  if((esito==='ok'||esito==='in-attesa')&&!ords.find(o=>o.id===id))esito='conflitto';
   if(esito!=='conflitto')break;
+}
+if(esito==='in-attesa'){
+  try{const l=JSON.parse(localStorage.getItem('mac-ordini-offline')||'[]');if(!l.includes(id))l.push(id);localStorage.setItem('mac-ordini-offline',JSON.stringify(l));}catch(e){}
+  // Nessuna risposta dal server (rete assente o molto lenta): l'ordine è su questo dispositivo e parte
+  // da solo appena torna la connessione, purché l'app resti aperta.
+  toast('Connessione assente: ordine #'+numFinale+' salvato su questo dispositivo, verrà inviato appena torna la rete','err');
+  _scrollToOrdineId=id;goTab('ordini');
+  return;
 }
 if(esito!=='ok'){
   // Non salvato: l'ordine si toglie dalla lista locale (altrimenti verrebbe scritto più tardi insieme
@@ -4317,11 +4510,11 @@ async function addArt(){const n=document.getElementById('an').value.trim();const
   toast('"'+n+'" aggiunto','v');
 }
 async function delArt(id){arts=arts.filter(x=>x.id!==id);await saveData();renderArtM();stats();toast('Eliminato','v')}
-function renderUMDisplay(){document.getElementById('um-display').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" role="button" tabindex="0" aria-label="Rimuovi unità ${u.replace(/"/g,'&quot;')}" onclick="confDelUM('${u}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}" style="margin-left:4px;cursor:pointer;color:var(--r);font-size:13px"><i class="ti ti-x"></i></span></span>`).join('')}
-function renderUMModal(){const listEl=document.getElementById('um-modal-list');if(!listEl)return;listEl.innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" role="button" tabindex="0" aria-label="Rimuovi unità ${u.replace(/"/g,'&quot;')}" onclick="confDelUM('${u}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><i class="ti ti-x"></i></span></span>`).join('')}
+function renderUMDisplay(){document.getElementById('um-display').innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" role="button" tabindex="0" aria-label="Rimuovi unità ${u.replace(/"/g,'&quot;')}" onclick="confDelUM(${_jsArg(u)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}" style="margin-left:4px;cursor:pointer;color:var(--r);font-size:13px"><i class="ti ti-x"></i></span></span>`).join('')}
+function renderUMModal(){const listEl=document.getElementById('um-modal-list');if(!listEl)return;listEl.innerHTML=unitaMisura.map(u=>`<span class="um-chip">${u}<span class="del-um" role="button" tabindex="0" aria-label="Rimuovi unità ${u.replace(/"/g,'&quot;')}" onclick="confDelUM(${_jsArg(u)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"><i class="ti ti-x"></i></span></span>`).join('')}
 async function addUM(){const v=document.getElementById('um-new').value.trim().toLowerCase();if(!v||unitaMisura.includes(v)){toast(v?'Già presente!':'Inserisci nome!','err');return}unitaMisura.push(v);document.getElementById('um-new').value='';await saveData();renderUMDisplay();renderUMModal();toast('"'+v+'" aggiunto','v');}
 async function delUM(u){if(unitaMisura.length<=1){toast('Almeno una unità di misura!','err');return}unitaMisura=unitaMisura.filter(x=>x!==u);await saveData();renderUMDisplay();renderUMModal();toast('Rimosso','v');}
-function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} ${lblArt(true)}</span><button class="ibtn" onclick="rinominaCat('${c}')" aria-label="Rinomina ${c.replace(/"/g,'&quot;')}"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="confDelCat('${c}')" aria-label="Elimina ${c.replace(/"/g,'&quot;')}"><i class="ti ti-trash"></i></button></div>`).join('');}
+function renderCatList(){const el=document.getElementById('cat-modal-list');if(!el)return;if(!cats.length){el.innerHTML='<p style="color:var(--sub);font-size:14px;font-weight:600">Nessuna categoria.</p>';return}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)"><span style="flex:1;font-weight:700;font-size:16px">${c}</span><span style="font-size:12px;color:var(--sub);font-weight:600">${arts.filter(a=>a.cat===c).length} ${lblArt(true)}</span><button class="ibtn" onclick="rinominaCat(${_jsArg(c)})" aria-label="Rinomina ${c.replace(/"/g,'&quot;')}"><i class="ti ti-pencil"></i></button><button class="ibtn d" onclick="confDelCat(${_jsArg(c)})" aria-label="Elimina ${c.replace(/"/g,'&quot;')}"><i class="ti ti-trash"></i></button></div>`).join('');}
 async function delCat(nome){cats=cats.filter(x=>x!==nome);arts.forEach(function(a){if(a.cat===nome)a.cat=''});await saveData();refreshAll();renderCatList();toast('Categoria eliminata','v');}
 async function addCatVolo(){const v=document.getElementById('cat-new').value.trim();if(!v){toast('Inserisci nome!','err');return}if(cats.includes(v)){toast('Già presente!','err');return}cats.push(v);cats.sort();await saveData();document.getElementById('cat-new').value='';refreshAll();renderCatList();toast('"'+v+'" aggiunta','v');}
 async function rinominaCat(nome){const v=(await modalPromptAsync('Nuovo nome per la categoria:',nome)||'').trim();if(!v||v===nome)return;if(cats.includes(v)){toast('Già presente!','err');return}cats=cats.map(c=>c===nome?v:c);cats.sort();arts.forEach(function(a){if(a.cat===nome)a.cat=v});await saveData();refreshAll();renderCatList();toast('Categoria rinominata','v');}
@@ -6357,7 +6550,7 @@ function _chiudiSessioneAccountEliminato(testo){
   if(_accountEliminatoGestito)return;
   _accountEliminatoGestito=true;
   const uid=currentUser?currentUser.uid:null;
-  try{localStorage.removeItem('mac-data');if(uid)localStorage.removeItem('codaStampa_'+uid);}catch(e){}
+  try{localStorage.removeItem('mac-data');localStorage.removeItem('mac-base');localStorage.removeItem('mac-in-sospeso');localStorage.removeItem('mac-ordini-offline');localStorage.removeItem('mac-proprietario');if(uid)localStorage.removeItem('codaStampa_'+uid);}catch(e){}
   if(_unsubDatiListener){_unsubDatiListener();_unsubDatiListener=null;}
   _dataLoaded=false;
   document.getElementById('accel-testo').textContent=testo;
@@ -6400,7 +6593,8 @@ async function doLogout(){
   // Uscendo si cancella dal dispositivo la copia locale dei dati (ordini, clienti, catalogo): usata
   // solo quando il server non risponde, non deve restare su un dispositivo condiviso né essere
   // mostrata a un altro account che entra senza connessione (Privacy, "Copia sul dispositivo").
-  try{localStorage.removeItem('mac-data');}catch(e){}
+  try{localStorage.removeItem('mac-data');localStorage.removeItem('mac-base');localStorage.removeItem('mac-in-sospeso');localStorage.removeItem('mac-ordini-offline');localStorage.removeItem('mac-proprietario');}catch(e){}
+  _daRisalvare=false;
   auth.signOut();
 }
 function reinviaVerificaEmail(){if(!currentUser){return;}_inviaVerificaEmail(currentUser).then(function(){toast('Email di verifica inviata!','v');}).catch(function(e){toast((e&&e.code==='auth/too-many-requests')?e.message:'Errore: '+e.message,'err');});}
