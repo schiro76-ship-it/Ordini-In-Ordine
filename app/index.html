@@ -1312,6 +1312,17 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
     <div class="ma"><button class="btn bg2 btn-full" onclick="closeModal('modal-backup')">Chiudi</button></div>
   </div>
 </div>
+<div class="ov" id="modal-esci-conf" style="align-items:center;padding:20px;z-index:210" onkeydown="if(event.key==='Escape'){event.preventDefault();_rispostaEsci(false);}">
+  <div class="modal" style="max-width:360px;text-align:center;border-radius:18px" role="dialog" aria-modal="true" aria-labelledby="esci-conf-titolo" aria-describedby="esci-conf-txt">
+    <div style="font-size:36px;margin-bottom:12px" aria-hidden="true"><i class="ti ti-cloud-off"></i></div>
+    <div class="mta" id="esci-conf-titolo" style="font-size:18px">Ordini non ancora inviati</div>
+    <p id="esci-conf-txt" style="color:var(--sub);font-size:14px;font-weight:600;margin-bottom:16px"></p>
+    <div class="ma">
+      <button class="btn bg2" style="flex:1" onclick="_rispostaEsci(false)">Resta nell'app</button>
+      <button class="btn btn-danger" style="flex:1" onclick="_rispostaEsci(true)">Esci comunque</button>
+    </div>
+  </div>
+</div>
 <div class="ov" id="modal-backup-conf" style="align-items:center;padding:20px;z-index:210">
   <div class="modal" style="max-width:340px;text-align:center;border-radius:18px">
     <div style="font-size:36px;margin-bottom:12px"><i class="ti ti-history"></i></div>
@@ -1654,7 +1665,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.113';
+const APP_VERSION='2.31.114';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -5259,6 +5270,8 @@ function openModal(id){
   },0);
 }
 function closeModal(id){
+  // Finestra "Ordini non ancora inviati" chiusa con Esc o toccando fuori: vale come "Resta nell'app".
+  if(id==='modal-esci-conf'&&_rispostaEsciCb){const cb=_rispostaEsciCb;_rispostaEsciCb=null;setTimeout(function(){cb(false);},0);}
   if(id==='modal-det'){
     _flushDetCalToast();
     ords.forEach(o=>{if(!o.items||!o.items.length)return;const tuttiDone=o.items.every(it=>it.done);if(tuttiDone&&o.stato==='evadere')o.stato='completato';if(!tuttiDone&&o.stato==='completato')o.stato='evadere';});
@@ -5272,7 +5285,7 @@ function closeModal(id){
   if(el&&el.isConnected)el.remove();
   if(returnFocus&&document.body.contains(returnFocus)&&typeof returnFocus.focus==='function')returnFocus.focus();
 }
-document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-prompt','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo','modal-backup','modal-backup-conf','modal-clienti','modal-edit-cliente','modal-unisci-pick','modal-unisci-conferma','modal-tel-menu','modal-img-menu'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
+document.addEventListener('click',function(e){['modal-det','modal-um','modal-qart','modal-edit-art','modal-cat','modal-del-conf','modal-prompt','modal-etichetta','modal-articoli','modal-segnala','modal-rimuovi-dispositivo','modal-backup','modal-backup-conf','modal-esci-conf','modal-clienti','modal-edit-cliente','modal-unisci-pick','modal-unisci-conferma','modal-tel-menu','modal-img-menu'].forEach(function(id){const ov=document.getElementById(id);if(ov&&e.target===ov)closeModal(id);});});
 function apriSegnalaProblema(){openModal('modal-segnala');document.getElementById('segnala-testo').value='';}
 async function inviaSegnalazione(){
   const testo=document.getElementById('segnala-testo').value.trim();
@@ -6577,7 +6590,36 @@ async function _verificaAccountEliminato(){
   _chiudiSessioneAccountEliminato('Questo account è stato eliminato da un altro dispositivo. Per usare di nuovo OrdinInOrdine crea un nuovo account.');
   return true;
 }
+// "Esci" con modifiche fatte senza rete (2.31.114): prima si prova a inviarle; se non si riesce si chiede
+// conferma, perché uscendo la copia sul dispositivo si cancella e quelle modifiche andrebbero perse.
+let _logoutInCorso=false,_rispostaEsciCb=null;
+function _rispostaEsci(esci){const cb=_rispostaEsciCb;_rispostaEsciCb=null;closeModal('modal-esci-conf');if(cb)cb(esci);}
+function _chiediConfermaEsci(){
+  let n=0;try{n=JSON.parse(localStorage.getItem('mac-ordini-offline')||'[]').length;}catch(e){}
+  const t=document.getElementById('esci-conf-txt')||(_modalRefs['modal-esci-conf']&&_modalRefs['modal-esci-conf'].querySelector('#esci-conf-txt'));
+  if(t)t.textContent=(n===1?'C\'è 1 ordine fatto senza connessione che non è ancora arrivato sul server.':n>1?'Ci sono '+n+' ordini fatti senza connessione che non sono ancora arrivati sul server.':'Ci sono modifiche fatte senza connessione che non sono ancora arrivate sul server.')+' Se esci adesso andranno persi. Restando nell\'app partono da soli appena torna la rete.';
+  return new Promise(function(res){_rispostaEsciCb=res;openModal('modal-esci-conf');});
+}
 async function doLogout(){
+  if(_logoutInCorso)return;
+  _logoutInCorso=true;
+  try{
+    if(_daRisalvare){
+      if(navigator.onLine!==false){
+        toast('Invio degli ordini in corso…','v');
+        // un salvataggio già in corso finisce prima (al massimo qualche secondo)
+        for(let i=0;i<20&&_saveInCorso>0;i++)await new Promise(r=>setTimeout(r,250));
+        await Promise.race([_inviaModificheInSospeso(),new Promise(r=>setTimeout(r,TEMPO_MAX_SALVATAGGIO_MS+2000))]);
+      }
+      if(_daRisalvare){
+        const esci=await _chiediConfermaEsci();
+        if(!esci)return;
+      }
+    }
+    await _esciDavvero();
+  }finally{_logoutInCorso=false;}
+}
+async function _esciDavvero(){
   _logoutVolontario=true;// evita che il recupero automatico da disconnessione improvvisa scatti qui: questo logout è voluto
   // Libera subito lo slot dispositivo di questo dispositivo, cosicché il conteggio dei 5 dispositivi
   // simultanei si aggiorni immediatamente e non resti "fantasma" occupato dopo un logout volontario.
@@ -6587,7 +6629,12 @@ async function doLogout(){
       updates['dispositivi.'+_deviceId]=firebase.firestore.FieldValue.delete();
       updates['fcmTokens.'+_deviceId]=firebase.firestore.FieldValue.delete();
       updates['notifSettings.'+_deviceId]=firebase.firestore.FieldValue.delete();
-      await db.collection('dati').doc(currentUser.uid).update(updates);
+      // Senza rete la risposta non arriva: dopo qualche secondo si esce lo stesso (2.31.114). Lo slot del
+      // dispositivo si potrà togliere da un altro dispositivo in Impostazioni → Dispositivi collegati.
+      let _t=null;
+      const esito=await Promise.race([db.collection('dati').doc(currentUser.uid).update(updates).then(()=>'ok'),new Promise(r=>{_t=setTimeout(()=>r('attesa'),5000);})]);
+      clearTimeout(_t);
+      if(esito!=='ok')console.warn('Slot dispositivo non liberato: rete assente');
     }
   }catch(e){console.warn('Impossibile liberare lo slot dispositivo al logout',e);}
   // Uscendo si cancella dal dispositivo la copia locale dei dati (ordini, clienti, catalogo): usata
