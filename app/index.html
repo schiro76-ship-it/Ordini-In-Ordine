@@ -1654,7 +1654,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.117';
+const APP_VERSION='2.31.118';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -1972,7 +1972,7 @@ function condividiLinkReferral(){
   const link=linkReferral();
   if(!link)return;
   if(navigator.share){
-    navigator.share({title:'OrdinInOrdine',text:'Prova OrdinInOrdine, il gestionale ordini per la tua attività:',url:link}).catch(function(){});
+    navigator.share({title:'OrdinInOrdine',text:'Ciao! Ti consiglio OrdinInOrdine, la web app che uso per gestire gli ordini della mia attività. Funziona su telefono, tablet e computer, senza scaricare nulla dagli store.\nPrimo mese gratis, senza carta di credito, poi 9,99\u00A0€ al mese (o 99\u00A0€ all\'anno), disdici quando vuoi.\nIscrivendoti da questo link hai 5\u00A0€ di sconto sul primo pagamento:',url:link}).catch(function(){});
   }else{
     copiaLinkReferral();
   }
