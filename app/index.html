@@ -653,24 +653,14 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
     </div>
     <div id="form-reg" style="display:none">
       <!-- Ordine dei campi (30/09/2026): prima ciò che serve a entrambi i modi di registrarsi (nome attività,
-           fatturazione facoltativa, accettazione dei documenti), poi la scelta tra Google ed email. -->
+           accettazione dei documenti), poi la scelta tra Google ed email. I dati di fatturazione non si
+           chiedono più qui (2.31.119): li raccoglie la pagina di pagamento di Stripe. -->
       <div style="text-align:center;margin-bottom:14px">
         <div style="font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;color:#B33D17">Inizia gratis</div>
         <div style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:var(--sub);margin-top:2px">Primo mese gratis, poi 9,99 € al mese o 99 € all'anno. Più Ordine, meno tempo perso.</div>
       </div>
       <div id="reg-invito" style="display:none;margin:0 0 14px;padding:10px 12px;border-radius:10px;background:#E3F3EE;color:#05573F;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:center"><i class="ti ti-gift" aria-hidden="true"></i> Sei stato invitato: avrai 5 € di sconto sul tuo primo pagamento.</div>
       <div class="login-field"><label for="reg-attivita">Nome attività *</label><input type="text" id="reg-attivita" placeholder="Es. Bottega Rossi" autocomplete="organization"></div>
-      <div id="billing-toggle" role="button" tabindex="0" aria-expanded="false" onclick="toggleBillingFields()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBillingFields();}" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:13px 14px;margin-bottom:14px;user-select:none;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:11px">
-        <span id="billing-arrow" class="exp-arrow"><i class="ti ti-chevron-right"></i></span>
-        <span style="font-size:14px;font-weight:800;color:var(--sub)">Aggiungi dati di fatturazione (opzionale)</span>
-      </div>
-      <div id="billing-fields" style="display:none">
-        <div class="login-field"><label for="reg-rag-sociale">Nome / Ragione sociale</label><input type="text" id="reg-rag-sociale" placeholder="Es. Mario Rossi Srl" autocomplete="organization"></div>
-        <div class="login-field"><label for="reg-piva">Partita IVA</label><input type="text" id="reg-piva" placeholder="Es. 01234567890" autocomplete="off" inputmode="numeric"></div>
-        <div class="login-field"><label for="reg-cf">Codice fiscale</label><input type="text" id="reg-cf" placeholder="Es. RSSMRA80A01H501U" autocomplete="off"></div>
-        <div class="login-field"><label for="reg-indirizzo">Indirizzo</label><input type="text" id="reg-indirizzo" placeholder="Via, numero, città, CAP" autocomplete="street-address"></div>
-        <div class="login-field"><label for="reg-sdi">Codice destinatario SDI</label><input type="text" id="reg-sdi" placeholder="Es. 0000000 oppure PEC" autocomplete="off"></div>
-      </div>
       <div id="reg-privacy-wrap" style="padding:8px;margin:0 -8px 8px -8px;border:2px solid transparent;border-radius:8px;transition:border-color 0.2s ease">
         <div style="display:flex;align-items:flex-start;gap:8px">
           <input type="checkbox" id="reg-privacy-accept" style="margin-top:3px;width:16px;height:16px;flex-shrink:0;cursor:pointer">
@@ -1511,7 +1501,7 @@ function dimenticaCodiceReferral(){try{localStorage.removeItem(CHIAVE_REF_LOCALE
 })();
 // Versione dei documenti legali accettati alla registrazione (data di "Ultimo aggiornamento" di Termini,
 // Privacy e Accordo). Va aggiornata insieme ai documenti: resta salvata in profili/{uid}.accettazione.
-const VERSIONE_DOCUMENTI_LEGALI='2026-10-03';
+const VERSIONE_DOCUMENTI_LEGALI='2026-10-04';
 const DEFAULT_THEME={r:'#C0392B',rs:'#F9EDED',g:'#056D50',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'};
 let obSelectedAttivita=null;
 let _tipoAttivitaCorrente=null;
@@ -1654,7 +1644,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.118';
+const APP_VERSION='2.31.119';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -5975,7 +5965,6 @@ function evidenziaCampo(id){
   }
 }
 function doLogin(){const email=document.getElementById('login-email').value.trim();const pwd=document.getElementById('login-pwd').value;if(!email||!pwd){loginErr('Inserisci email e password');evidenziaCampo(!email?'login-email':'login-pwd');return;}auth.signInWithEmailAndPassword(email,pwd).catch(function(e){if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')loginErr('Email o password errati');else loginErr('Errore: '+e.message);});}
-function toggleBillingFields(){const f=document.getElementById('billing-fields');const a=document.getElementById('billing-arrow');const t=document.getElementById('billing-toggle');const open=f.style.display!=='none';f.style.display=open?'none':'block';a.style.transform=open?'rotate(0deg)':'rotate(90deg)';if(t)t.setAttribute('aria-expanded',open?'false':'true');}
 // isNewUser va impostato solo quando la registrazione parte davvero (dopo i controlli sui campi): prima
 // un tentativo con un campo vuoto lo lasciava a true e il successivo accesso con un account esistente
 // mostrava di nuovo la scelta dell'attività (punto 41 della ricognizione).
@@ -6012,7 +6001,7 @@ function _inviaVerificaEmail(utente){
     return utente.sendEmailVerification({url:'https://ordininordine.it/app/'});
   });
 }
-function doRegister(){const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const ragSociale=document.getElementById('reg-rag-sociale').value.trim();const piva=document.getElementById('reg-piva').value.trim();const cf=document.getElementById('reg-cf').value.trim();const indirizzo=document.getElementById('reg-indirizzo').value.trim();const sdi=document.getElementById('reg-sdi').value.trim();const fatturazione={ragSociale:ragSociale||null,piva:piva||null,cf:cf||null,indirizzo:indirizzo||null,sdi:sdi||null};isNewUser=true;_caricamentoNuovoAccount=true;_avviaSegnaleRegistrazione();auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).then(function(){dimenticaCodiceReferral();}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString(),accettazione:{data:new Date().toISOString(),versioneDocumenti:VERSIONE_DOCUMENTI_LEGALI,metodo:'email'}}).catch(function(e){console.warn('profilo save error',e);});return _inviaVerificaEmail(cred.user).then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');_liberaSegnaleRegistrazione();},function(e){toast('Errore invio verifica: '+e.code,'err');_liberaSegnaleRegistrazione();});});}).catch(function(e){isNewUser=false;_caricamentoNuovoAccount=false;_liberaSegnaleRegistrazione();if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
+function doRegister(){const attivita=document.getElementById('reg-attivita').value.trim();const email=document.getElementById('reg-email').value.trim();const pwd=document.getElementById('reg-pwd').value;const pwd2=document.getElementById('reg-pwd2').value;if(!attivita){loginErr('Inserisci il nome della tua attività');evidenziaCampo('reg-attivita');return;}if(!email||!pwd){loginErr('Inserisci tutti i campi');evidenziaCampo(!email?'reg-email':'reg-pwd');return;}if(pwd.length<6){loginErr('La password deve avere almeno 6 caratteri');evidenziaCampo('reg-pwd');return;}if(pwd!==pwd2){loginErr('Le password non coincidono');evidenziaCampo('reg-pwd2');return;}if(!document.getElementById('reg-privacy-accept').checked){loginErr('Devi accettare i Termini e Condizioni, la Privacy Policy e l\'Accordo sul trattamento dati per continuare');evidenziaCampo('reg-privacy-accept');return;}const fatturazione={ragSociale:null,piva:null,cf:null,indirizzo:null,sdi:null}; /* campo vuoto: i dati di fatturazione li raccoglie Stripe al pagamento (2.31.119) */isNewUser=true;_caricamentoNuovoAccount=true;_avviaSegnaleRegistrazione();auth.createUserWithEmailAndPassword(email,pwd).then(function(cred){const _codiceRef=getCodiceReferralFromURL();const _datiIniziali={creato:new Date().toISOString()};if(_codiceRef)_datiIniziali.referral={invitatoDa:_codiceRef,creditoErogato:false};db.collection('dati').doc(cred.user.uid).set(_datiIniziali,{merge:true}).then(function(){dimenticaCodiceReferral();}).catch(function(e){console.warn('dati iniziali save error',e);});return cred.user.updateProfile({displayName:attivita}).catch(function(e){console.warn('updateProfile error',e);}).then(function(){db.collection('profili').doc(cred.user.uid).set({attivita:attivita,email:email,fatturazione:fatturazione,onboardingCompleto:false,creato:new Date().toISOString(),accettazione:{data:new Date().toISOString(),versioneDocumenti:VERSIONE_DOCUMENTI_LEGALI,metodo:'email'}}).catch(function(e){console.warn('profilo save error',e);});return _inviaVerificaEmail(cred.user).then(function(){toast('Email di verifica inviata a '+cred.user.email,'v');_liberaSegnaleRegistrazione();},function(e){toast('Errore invio verifica: '+e.code,'err');_liberaSegnaleRegistrazione();});});}).catch(function(e){isNewUser=false;_caricamentoNuovoAccount=false;_liberaSegnaleRegistrazione();if(e.code==='auth/email-already-in-use')loginErr('Email già registrata');else if(e.code==='auth/invalid-email')loginErr('Email non valida');else loginErr('Errore: '+e.message);});}
 // Recupero password. Firebase, per sicurezza, non dice se un indirizzo è registrato: il messaggio di
 // conferma lo rispecchia e compare nel riquadro informativo, non in quello rosso degli errori.
 function doResetPwd(){
@@ -6195,7 +6184,7 @@ function doGoogleLogin(){
     return;
   }
   const accettatoInRegistrazione=inRegistrazione;
-  const fatturazioneReg=inRegistrazione?_leggiFatturazioneReg():null;
+  const fatturazioneReg=null; // i dati di fatturazione li raccoglie Stripe al pagamento (2.31.119)
   _attesaAccettazioneGoogle=new Promise(function(res){_risolviAccettazioneGoogle=res;});
   const provider=new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).then(async function(result){
@@ -6219,11 +6208,6 @@ function doGoogleLogin(){
 }
 // Dati iniziali di un nuovo account Google, come nella registrazione con email: data di creazione
 // (serve al calcolo del mese di prova), eventuale codice invito, profilo con l'accettazione dei documenti.
-// Dati di fatturazione facoltativi della scheda "Registrati" (stessi campi letti da doRegister).
-function _leggiFatturazioneReg(){
-  const v=function(id){const el=document.getElementById(id);return el&&el.value.trim()?el.value.trim():null;};
-  return{ragSociale:v('reg-rag-sociale'),piva:v('reg-piva'),cf:v('reg-cf'),indirizzo:v('reg-indirizzo'),sdi:v('reg-sdi')};
-}
 async function scriviDatiNuovoUtenteGoogle(user,nomeAttivita,fatturazione){
   const ora=new Date().toISOString();
   // Il nome attività scritto in "Registrati" diventa il nome dell'account (barra laterale, Impostazioni),
@@ -6584,7 +6568,6 @@ document.addEventListener('keydown',function(e){
 const _enterSubmitMap={
   'login-email':doLogin,'login-pwd':doLogin,
   'reg-attivita':doRegister,'reg-email':doRegister,'reg-pwd':doRegister,'reg-pwd2':doRegister,
-  'reg-rag-sociale':doRegister,'reg-piva':doRegister,'reg-cf':doRegister,'reg-indirizzo':doRegister,'reg-sdi':doRegister,
   'rimdisp-pwd':confermaRimuoviDispositivoPwd,
   'edit-art-nome':salvaEditArt,'edit-art-nuova-input':salvaEditArt,
   'qan':addArtRapido,'qnuova-cat-input':addArtRapido,

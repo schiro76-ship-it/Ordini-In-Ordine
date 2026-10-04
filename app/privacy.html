@@ -59,7 +59,7 @@
 <div class="wrap">
   <div class="brand">Ordin<span>I</span>nOrdine</div>
   <h1>Privacy Policy</h1>
-  <div class="meta">Ultimo aggiornamento: 1 ottobre 2026</div>
+  <div class="meta">Ultimo aggiornamento: 4 ottobre 2026</div>
 
   <section>
     <h2>Titolare del trattamento</h2>
@@ -81,13 +81,13 @@
       <li>Password (salvata in forma sicura e cifrata, non leggibile da noi)</li>
       <li>Se accedi con Google, al posto della password usiamo il tuo account Google: da Google riceviamo il tuo nome e il tuo indirizzo email</li>
     </ul>
-    <h3>Dati di fatturazione (facoltativi)</h3>
+    <h3>Dati di fatturazione</h3>
+    <p>Quando attivi un abbonamento, li inserisci nella pagina di pagamento di Stripe (vedi più sotto «Dove sono conservati i dati»):</p>
     <ul>
       <li>Nome o ragione sociale</li>
-      <li>Partita IVA</li>
-      <li>Codice fiscale</li>
       <li>Indirizzo</li>
-      <li>Codice destinatario SDI</li>
+      <li>Partita IVA</li>
+      <li>Codice destinatario SDI o PEC, se lo indichi</li>
     </ul>
     <h3>Dati operativi dell'attività</h3>
     <p>Per il corretto funzionamento del Servizio, l'App memorizza i dati che inserisci durante l'utilizzo, tra cui ordini dei tuoi clienti (nome cliente, numero di telefono se lo inserisci, articoli ordinati, quantità, data e orario di ritiro, note, eventuali foto allegate alle righe d'ordine), un'anagrafica clienti che associa nome e numero di telefono agli ordini corrispondenti per facilitarne la gestione ed evitare inserimenti duplicati, catalogo articoli e categorie della tua attività, e unità di misura personalizzate.</p>
@@ -126,7 +126,7 @@
       <li><strong>Fornire il Servizio</strong>: permetterti di registrarti, accedere e utilizzare le funzionalità dell'App (gestione ordini, riepilogo, storico)</li>
       <li><strong>Sicurezza dell'account</strong>: verificare la tua identità tramite email di conferma e proteggere l'accesso al tuo account</li>
       <li><strong>Comunicazioni di servizio</strong>: inviarti email necessarie al funzionamento del Servizio (es. verifica email, recupero password)</li>
-      <li><strong>Adempimenti fiscali e di fatturazione</strong>: se fornisci dati di fatturazione, li utilizziamo esclusivamente per emettere fatture relative all'abbonamento al Servizio, quando applicabile</li>
+      <li><strong>Adempimenti fiscali e di fatturazione</strong>: utilizziamo i dati di fatturazione che indichi al momento del pagamento esclusivamente per emettere le fatture relative all'abbonamento al Servizio</li>
     </ol>
     <p>Non utilizziamo i tuoi dati per finalità di marketing senza un consenso specifico e separato, che ti verrà richiesto esplicitamente se in futuro introdurremo questa possibilità.</p>
   </section>
@@ -135,7 +135,7 @@
     <h2>Base giuridica del trattamento</h2>
     <p>Trattiamo i tuoi dati sulla base di:</p>
     <ul>
-      <li><strong>Esecuzione di un contratto</strong>: i dati necessari a fornirti il Servizio che hai richiesto registrandoti, compresi i dati di fatturazione che scegli di indicare per ricevere le fatture</li>
+      <li><strong>Esecuzione di un contratto</strong>: i dati necessari a fornirti il Servizio che hai richiesto registrandoti, compresi i dati di fatturazione necessari per emettere le fatture dell'abbonamento</li>
       <li><strong>Obbligo di legge</strong>: la conservazione dei dati di fatturazione e delle fatture per i tempi previsti dalla normativa fiscale</li>
       <li><strong>Legittimo interesse</strong>: la sicurezza del Servizio e la prevenzione di usi impropri (per esempio del programma "Invita un amico")</li>
     </ul>
@@ -146,7 +146,7 @@
     <p>I dati operativi dell'attività (ordini, catalogo articoli) sono conservati su <strong>Google Cloud Firestore</strong>, un servizio fornito da Google Ireland Limited, su server situati nella regione europea (eur3), nel rispetto della normativa europea sulla protezione dei dati. Le foto allegate agli ordini sono conservate su <strong>Firebase Storage</strong> e le elaborazioni automatiche (per esempio le copie di sicurezza e l'archiviazione notturna degli ordini) avvengono tramite <strong>Cloud Functions</strong>, entrambi servizi di Google Ireland Limited con server in Belgio (regione europe-west1).</p>
     <p>Il servizio di autenticazione (<strong>Firebase Authentication</strong>), che gestisce l'accesso tramite email e password o account Google, opera invece esclusivamente da data center situati negli Stati Uniti. Questo trasferimento di dati verso un paese extra-UE è disciplinato dalle Clausole Contrattuali Standard incluse nei Termini sul trattamento dei dati di Firebase, la garanzia prevista dal Regolamento europeo (GDPR — Regolamento UE 2016/679, art. 46) per questo tipo di trasferimenti.</p>
     <p>Google agisce come responsabile del trattamento per nostro conto, in conformità con il GDPR.</p>
-    <p>I dati relativi ai pagamenti (dati della carta, indirizzo di fatturazione) sono trattati direttamente da <strong>Stripe</strong>, un servizio fornito da Stripe Payments Europe, Limited (per i clienti europei), che agisce come responsabile autonomo del trattamento per quanto riguarda l'elaborazione dei pagamenti. Non memorizziamo né abbiamo accesso ai dati completi della tua carta di pagamento: questi sono gestiti esclusivamente da Stripe secondo i più elevati standard di sicurezza del settore (certificazione PCI DSS). Per maggiori informazioni su come Stripe tratta i tuoi dati, consulta la <a href="https://stripe.com/it/privacy" target="_blank" rel="noopener">Privacy Policy di Stripe</a>.</p>
+    <p>I dati relativi ai pagamenti (dati della carta e dati di fatturazione) sono trattati direttamente da <strong>Stripe</strong>, un servizio fornito da Stripe Payments Europe, Limited (per i clienti europei), che agisce come responsabile autonomo del trattamento per quanto riguarda l'elaborazione dei pagamenti. Non memorizziamo né abbiamo accesso ai dati completi della tua carta di pagamento: questi sono gestiti esclusivamente da Stripe secondo i più elevati standard di sicurezza del settore (certificazione PCI DSS). Per maggiori informazioni su come Stripe tratta i tuoi dati, consulta la <a href="https://stripe.com/it/privacy" target="_blank" rel="noopener">Privacy Policy di Stripe</a>.</p>
     <p>Le email che inviamo dal nostro indirizzo info@ordininordine.it (per esempio la conferma di eliminazione dell'account) e le segnalazioni che ci invii dall'App passano dal servizio di posta elettronica di <strong>Aruba S.p.A.</strong>, con server in Italia.</p>
   </section>
 
