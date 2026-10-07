@@ -78,7 +78,7 @@ img{max-width:100%;display:block}
   padding-top:20px;padding-bottom:40px;
   display:grid;
   grid-template-columns:1.1fr .9fr;
-  grid-template-areas:"question photo" "eyebrow photo" "title photo" "text photo";
+  grid-template-areas:"question photo" "eyebrow photo" "title photo" "start photo" "text photo";
   column-gap:56px;row-gap:10px;
   align-items:start;
 }
@@ -113,6 +113,10 @@ img{max-width:100%;display:block}
 }
 .feature-link:hover{text-decoration:underline}
 
+/* Pulsante "Inizia gratis" in cima all'hero (ottobre 2026): subito sotto il titolo, prima della foto
+   su smartphone, così chi arriva dai post lo vede nella prima schermata. Resta anche quello in fondo. */
+.hero-start{grid-area:start;margin:6px 0 8px}
+
 /* Foto hero — operatore che consegna l'ordine */
 .hero-photo{grid-area:photo;max-width:420px;margin:0 auto}
 .hero-photo img{
@@ -121,7 +125,7 @@ img{max-width:100%;display:block}
   box-shadow:0 18px 40px -20px rgba(22,35,61,.35);
 }
 @media (max-width:800px){
-  .hero{grid-template-columns:1fr;grid-template-areas:"question" "eyebrow" "title" "photo" "text";row-gap:16px}
+  .hero{grid-template-columns:1fr;grid-template-areas:"question" "eyebrow" "title" "start" "photo" "text";row-gap:16px}
   .hero-photo{max-width:340px}
 }
 
@@ -143,13 +147,13 @@ img{max-width:100%;display:block}
 
 /* Hero pagine attività — stesso schema della home (domanda, etichetta, titolo,
    foto, descrizione), poi screenshot affiancati a tutta larghezza e "Come funziona" */
-.hero.hero-activity{grid-template-areas:"question photo" "eyebrow photo" "title photo" "text photo" "shots shots" "cta cta"}
+.hero.hero-activity{grid-template-areas:"question photo" "eyebrow photo" "title photo" "start photo" "text photo" "shots shots" "cta cta"}
 .hero-activity .hero-shot{grid-area:shots}
 .hero-shot-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;margin-top:36px}
 .hero-activity .hero-cta{grid-area:cta;margin-top:0}
 .hero-activity .hero-cta .hero-link{margin-top:8px}
 @media (max-width:800px){
-  .hero.hero-activity{grid-template-areas:"question" "eyebrow" "title" "photo" "text" "shots" "cta"}
+  .hero.hero-activity{grid-template-areas:"question" "eyebrow" "title" "start" "photo" "text" "shots" "cta"}
   .hero-shot-row{grid-template-columns:1fr;max-width:420px;width:100%;margin:12px auto 0;gap:14px}
 }
 
