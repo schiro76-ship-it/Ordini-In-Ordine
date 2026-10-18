@@ -59,7 +59,7 @@
 <div class="wrap">
   <div class="brand">Ordin<span>I</span>nOrdine</div>
   <h1>Privacy Policy</h1>
-  <div class="meta">Ultimo aggiornamento: 4 ottobre 2026</div>
+  <div class="meta">Ultimo aggiornamento: 18 ottobre 2026</div>
 
   <section>
     <h2>Titolare del trattamento</h2>
@@ -91,7 +91,15 @@
     </ul>
     <h3>Dati operativi dell'attività</h3>
     <p>Per il corretto funzionamento del Servizio, l'App memorizza i dati che inserisci durante l'utilizzo, tra cui ordini dei tuoi clienti (nome cliente, numero di telefono se lo inserisci, articoli ordinati, quantità, data e orario di ritiro, note, eventuali foto allegate alle righe d'ordine), un'anagrafica clienti che associa nome e numero di telefono agli ordini corrispondenti per facilitarne la gestione ed evitare inserimenti duplicati, catalogo articoli e categorie della tua attività, e unità di misura personalizzate.</p>
-    <p>Questi dati sono inseriti volontariamente da te per gestire la tua attività e non vengono condivisi con terzi né utilizzati per finalità diverse dal funzionamento del Servizio.</p>
+    <p>Questi dati sono inseriti volontariamente da te per gestire la tua attività e non vengono condivisi con terzi né utilizzati per finalità diverse dal funzionamento del Servizio, salvo i fornitori tecnici indicati più sotto in «Dove sono conservati i dati».</p>
+    <h3 id="inserimento-rapido">Inserimento rapido e Modifica rapida</h3>
+    <p>Se usi l'Inserimento rapido (in Nuovo ordine) o la Modifica rapida (in un ordine già salvato), l'App legge per te il messaggio del cliente e compila o modifica l'ordine. Per farlo invia a un servizio di intelligenza artificiale, <strong>Google Gemini API</strong>:</p>
+    <ul>
+      <li>il testo che scrivi, incolli o detti, e le foto o gli screenshot che scegli (fino a 3), che possono contenere nome, numero di telefono e messaggi del cliente</li>
+      <li>le informazioni dell'App che servono a riconoscere l'ordine: catalogo articoli, unità di misura, anagrafica clienti (nome e telefono), modalità del calendario e, nella Modifica rapida, l'ordine da modificare</li>
+    </ul>
+    <p>Le foto servono solo a leggere l'ordine: l'App non le salva e non le conserva. Il risultato ti viene mostrato come proposta e diventa parte dell'ordine solo se lo confermi tu. L'Inserimento rapido è facoltativo: se non lo usi, nessun dato viene inviato a questo servizio.</p>
+    <p>Se detti l'ordine con il pulsante «Detta» o con il microfono della tastiera, il riconoscimento della voce è svolto dal tuo dispositivo o dal tuo browser con i servizi del loro produttore (per esempio Apple o Google), secondo le loro condizioni: l'App riceve solo il testo già trascritto.</p>
     <p>Se inserisci il numero di telefono di un cliente, l'App ti permette di avviare una chiamata o aprire una conversazione WhatsApp direttamente dal tuo dispositivo. Questa azione è gestita interamente dal tuo dispositivo (che apre l'app Telefono o WhatsApp già installata): il numero non viene trasmesso ai nostri server né a terzi da parte nostra in questo processo.</p>
     <h3>Dati tecnici e di servizio</h3>
     <ul>
@@ -123,7 +131,7 @@
     <h2>Perché raccogliamo questi dati</h2>
     <p>Trattiamo i tuoi dati per le seguenti finalità:</p>
     <ol>
-      <li><strong>Fornire il Servizio</strong>: permetterti di registrarti, accedere e utilizzare le funzionalità dell'App (gestione ordini, riepilogo, storico)</li>
+      <li><strong>Fornire il Servizio</strong>: permetterti di registrarti, accedere e utilizzare le funzionalità dell'App (gestione ordini, riepilogo, storico, Inserimento rapido e Modifica rapida)</li>
       <li><strong>Sicurezza dell'account</strong>: verificare la tua identità tramite email di conferma e proteggere l'accesso al tuo account</li>
       <li><strong>Comunicazioni di servizio</strong>: inviarti email necessarie al funzionamento del Servizio (es. verifica email, recupero password)</li>
       <li><strong>Adempimenti fiscali e di fatturazione</strong>: utilizziamo i dati di fatturazione che indichi al momento del pagamento esclusivamente per emettere le fatture relative all'abbonamento al Servizio</li>
@@ -145,6 +153,7 @@
     <h2>Dove sono conservati i dati</h2>
     <p>I dati operativi dell'attività (ordini, catalogo articoli) sono conservati su <strong>Google Cloud Firestore</strong>, un servizio fornito da Google Ireland Limited, su server situati nella regione europea (eur3), nel rispetto della normativa europea sulla protezione dei dati. Le foto allegate agli ordini sono conservate su <strong>Firebase Storage</strong> e le elaborazioni automatiche (per esempio le copie di sicurezza e l'archiviazione notturna degli ordini) avvengono tramite <strong>Cloud Functions</strong>, entrambi servizi di Google Ireland Limited con server in Belgio (regione europe-west1).</p>
     <p>Il servizio di autenticazione (<strong>Firebase Authentication</strong>), che gestisce l'accesso tramite email e password o account Google, opera invece esclusivamente da data center situati negli Stati Uniti. Questo trasferimento di dati verso un paese extra-UE è disciplinato dalle Clausole Contrattuali Standard incluse nei Termini sul trattamento dei dati di Firebase, la garanzia prevista dal Regolamento europeo (GDPR — Regolamento UE 2016/679, art. 46) per questo tipo di trasferimenti.</p>
+    <p>L'Inserimento rapido e la Modifica rapida, se li usi, si appoggiano a <strong>Google Gemini API</strong>, nella versione a pagamento: in base alle condizioni di Google, i testi, le foto e le risposte non vengono usati per addestrare o migliorare i prodotti di Google e sono trattati secondo l'Addendum sul trattamento dei dati in cui Google agisce come responsabile. Google li conserva per <strong>55 giorni</strong> al solo scopo di individuare usi vietati del servizio, poi li cancella. L'elaborazione può avvenire anche in data center fuori dall'Unione europea: questo trasferimento è disciplinato dalle Clausole Contrattuali Standard incluse nei termini sul trattamento dei dati di Google (GDPR, art. 46).</p>
     <p>Google agisce come responsabile del trattamento per nostro conto, in conformità con il GDPR.</p>
     <p>I dati relativi ai pagamenti (dati della carta e dati di fatturazione) sono trattati direttamente da <strong>Stripe</strong>, un servizio fornito da Stripe Payments Europe, Limited (per i clienti europei), che agisce come responsabile autonomo del trattamento per quanto riguarda l'elaborazione dei pagamenti. Non memorizziamo né abbiamo accesso ai dati completi della tua carta di pagamento: questi sono gestiti esclusivamente da Stripe secondo i più elevati standard di sicurezza del settore (certificazione PCI DSS). Per maggiori informazioni su come Stripe tratta i tuoi dati, consulta la <a href="https://stripe.com/it/privacy" target="_blank" rel="noopener">Privacy Policy di Stripe</a>.</p>
     <p>Le email che inviamo dal nostro indirizzo info@ordininordine.it (per esempio la conferma di eliminazione dell'account) e le segnalazioni che ci invii dall'App passano dal servizio di posta elettronica di <strong>Aruba S.p.A.</strong>, con server in Italia.</p>

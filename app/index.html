@@ -659,6 +659,76 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
 .ob-card .ob-emoji{font-size:32px;margin-bottom:8px}
 .ob-card .ob-label{font-size:14px;font-weight:800;color:#1A1A2E}
 
+/* 2.32.0 Inserimento rapido: riquadro AI in cima a Nuovo ordine */
+.ai-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.ai-box{border:2px solid var(--azione)}
+.ai-testa{display:flex;align-items:center;gap:8px;padding:10px 12px 10px 16px}
+.ai-box.aperto .ai-testa{border-bottom:1px solid var(--brd);padding:12px 14px 12px 18px}
+.ai-titolo{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:16px;font-weight:900;margin:0;color:var(--txt);line-height:1.2}
+.ai-titolo .ti{color:var(--azione);font-size:20px}
+.ai-box:not(.aperto) .ai-testa{flex-wrap:wrap;padding:12px 14px 14px 16px}
+.ai-box:not(.aperto) .ai-titolo{flex-basis:100%}
+.ai-pulsanti-compatti{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;max-width:480px}
+.ai-qk{width:auto;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:11px;border:1.5px solid var(--brd);background:#fff;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:var(--txt);cursor:pointer;padding:4px 0}
+.ai-qk .ti{font-size:20px}
+.ai-ricomincia{padding:8px 14px;min-height:44px;background:#fff;border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--sub);cursor:pointer}
+.ai-box.aperto .ai-corpo{padding:16px 18px}
+.ai-testo{resize:vertical;min-height:84px;line-height:1.4}
+.ai-pulsanti{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+.ai-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:6px 10px;border-radius:11px;border:1.5px solid var(--brd);background:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:var(--txt);cursor:pointer}
+.ai-btn .ti{font-size:18px}
+.ai-btn[aria-pressed="true"]{border-color:var(--urg);color:var(--urg)}
+.ai-btn:disabled{opacity:0.5;cursor:default}
+.ai-btn-piccolo{font-size:14px}
+.ai-compila{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border:none;border-radius:12px;background:var(--azione);color:#fff;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer}
+.ai-compila[aria-disabled="true"]{background:var(--azione-d);cursor:default}
+.ai-giro{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,0.35);border-top-color:#fff;animation:ai-gira 0.8s linear infinite}
+@keyframes ai-gira{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.ai-giro{animation-duration:2.4s}}
+.ai-hint{font-size:13px;font-weight:600;color:var(--sub);margin:10px 0 0}
+.ai-hint:empty{display:none}
+.ai-foto-riga{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.ai-foto{position:relative;padding:8px 8px 0 0}
+.ai-foto img{width:72px;height:128px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd);display:block}
+.ai-foto-x{position:absolute;top:-6px;right:-10px;width:32px;height:32px;border-radius:50%;border:2px solid #fff;background:var(--txt);color:#fff;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.3)}
+.ai-foto-x .ti{font-size:16px}
+.ai-esito{display:flex;gap:10px;align-items:flex-start;background:var(--azione-s);border-radius:12px;padding:12px 14px;color:var(--azione-d);font-size:15px;line-height:1.4;outline:none}
+.ai-esito:focus-visible{outline:2px solid var(--azione);outline-offset:2px}
+.ai-esito .ti{font-size:22px;flex-shrink:0}
+.ai-punti{color:var(--ev);font-weight:800}
+.ai-dubbio{display:flex;gap:8px;align-items:center;background:var(--mats);border:1.5px solid var(--mat);border-radius:10px;padding:8px 10px;margin-top:10px;color:var(--ev);font-size:14px;font-weight:700;line-height:1.35}
+.ai-dubbio .ti{font-size:18px;flex-shrink:0}
+.ai-dubbio span{flex:1}
+.ai-ok{min-height:40px;min-width:48px;padding:4px 12px;border-radius:9px;border:1.5px solid var(--mat);background:#fff;color:var(--ev);font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;flex-shrink:0}
+.ai-dubbio-riga{margin:0 0 8px}
+.ai-vedi{width:100%;margin-top:10px}
+.ai-originale{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--bg);font-size:14px;line-height:1.45;white-space:pre-wrap;color:var(--txt)}
+.ai-scelta{margin-top:14px;border-top:1px solid var(--brd);padding-top:12px}
+.ai-scelta-riga{display:flex;gap:10px;align-items:flex-start;padding:10px 4px;font-size:15px;line-height:1.4;cursor:pointer;min-height:44px}
+.ai-scelta-riga input{width:22px;height:22px;margin-top:1px;flex-shrink:0;accent-color:var(--azione)}
+.ai-badge{display:inline-block;margin-left:4px;padding:1px 8px;border-radius:10px;background:var(--mats);color:var(--ev);font-size:12px;font-weight:800}
+.ai-scelta .ai-compila{margin-top:8px}
+#ai-da-completare{display:none;background:#fff;border-radius:var(--rad);box-shadow:var(--sh);padding:14px 16px;margin-bottom:14px;border:2px solid var(--mat)}
+.ai-dc{padding:10px 0;border-top:1px solid var(--brd)}
+.ai-dc:first-of-type{border-top:none}
+.ai-dc-testo{display:flex;gap:8px;color:var(--ev);font-size:14px;font-weight:700;line-height:1.4}
+.ai-dc-testo .ti{font-size:18px;flex-shrink:0}
+.ai-dc-testo b{color:var(--txt)}
+.ai-dc-azioni{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.aim-voci{margin-top:10px}
+.aim-voce{display:flex;gap:10px;align-items:flex-start;padding:10px 4px;border-bottom:1px solid var(--brd);font-size:15px;line-height:1.4;cursor:pointer;min-height:44px}
+.aim-voce:last-child{border-bottom:none}
+.aim-voce input{width:22px;height:22px;margin-top:1px;flex-shrink:0;accent-color:var(--azione)}
+.aim-voce-no{cursor:default}
+.aim-tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:800;vertical-align:1px}
+.aim-tag-g{background:var(--gs);color:var(--g)}
+.aim-tag-b{background:var(--azione-s);color:var(--azione-d)}
+.aim-tag-r{background:var(--rs);color:var(--r)}
+.aim-tag-y{background:var(--mats);color:var(--ev)}
+.aim-det{color:var(--sub);font-size:14px;font-weight:700}
+.aim-dubbio{display:block;margin-top:4px;color:var(--ev);font-size:14px;font-weight:700}
+.aim-azioni{display:grid;grid-template-columns:auto 1fr;gap:8px;margin-top:12px}
+.aim-azioni .ai-compila{min-height:44px}
 </style>
 </head>
 <body>
@@ -967,9 +1037,25 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
       <div class="sec" id="tab-nuovo">
         <div class="phdr"><h2>Nuovo Ordine <span id="nuovo-num-badge" style="font-size:13px;color:var(--urg)"></span></h2><div style="display:flex;align-items:center;gap:12px"><div style="display:flex;align-items:center;gap:4px"><span style="font-size:19px;font-weight:900;color:var(--txt)">#</span><input type="number" id="nuovo-num-top" min="1" aria-label="Numero ordine" style="width:64px;font-size:20px;font-weight:900;color:var(--txt);border:none;border-bottom:2px solid var(--azione);background:transparent;font-family:'Nunito',sans-serif;outline:none;text-align:center" oninput="sincNuovoNum(this.value)"></div><button class="phdr-annulla" onclick="goTab(_tabPrimaDiNuovo)" style="padding:8px 16px;background:#fff;color:var(--txt);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Annulla</button></div></div>
         <div class="pbody has-bottom-bar">
+          <section class="card ai-box" id="ai-box" aria-labelledby="ai-titolo" style="margin-bottom:14px">
+            <div class="ai-testa">
+              <h3 class="ai-titolo" id="ai-titolo"><i class="ti ti-sparkles" aria-hidden="true"></i>Inserimento rapido</h3>
+              <div class="ai-pulsanti-compatti" id="ai-pulsanti-compatti">
+                <button type="button" class="ai-qk" onclick="aiApri()"><i class="ti ti-pencil" aria-hidden="true"></i>Scrivi</button>
+                <button type="button" class="ai-qk" onclick="aiApri('incolla')"><i class="ti ti-clipboard" aria-hidden="true"></i>Incolla</button>
+                <button type="button" class="ai-qk" onclick="aiApri('detta')"><i class="ti ti-microphone" aria-hidden="true"></i>Detta</button>
+                <button type="button" class="ai-qk" onclick="aiApri('foto')"><i class="ti ti-camera" aria-hidden="true"></i>Foto</button>
+              </div>
+              <button type="button" class="ai-ricomincia" id="ai-ricomincia" style="display:none" onclick="aiRicomincia()">Ricomincia</button>
+            </div>
+            <div class="ai-corpo" id="ai-corpo"></div>
+            <input type="file" id="ai-foto-input" accept="image/*" multiple hidden onchange="aiFotoScelte(this)">
+            <div class="ai-sr" id="ai-annuncio" role="status" aria-live="polite"></div>
+          </section>
           <div class="card" style="margin-bottom:14px">
             <div class="ch"><div class="ct"><i class="ti ti-calendar"></i> Ritiro</div></div>
             <div class="cb">
+              <div id="ai-dubbio-ritiro"></div>
               <div class="fg">
                 <div class="cal-compact" id="cal-nuovo">
                   <div class="cal-nav"><button onclick="calNavMese(-1)">‹</button><span class="cn-lbl" id="cal-mese-lbl"></span><button onclick="calNavMese(+1)">›</button></div>
@@ -994,7 +1080,8 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
           <div class="card card-cliente-nuovo" style="margin-bottom:14px">
             <div class="ch"><div class="ct"><i class="ti ti-user"></i> Cliente</div></div>
             <div class="cb">
-              <div class="fg fg-rel"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi" autocomplete="off" oninput="capWords(this);renderClienteSugg()" onblur="nascondiClienteSugg()" onfocus="renderClienteSugg()"><div class="cliente-sugg" id="nn-sugg"></div></div>
+              <div id="ai-dubbio-cliente"></div>
+              <div class="fg fg-rel"><label class="fl">Nome cliente *</label><input class="fi" type="text" id="nn" placeholder="Es. Mario Rossi" autocomplete="off" oninput="capWords(this);renderClienteSugg();_aiClienteToccato()" onblur="nascondiClienteSugg()" onfocus="renderClienteSugg()"><div class="cliente-sugg" id="nn-sugg"></div></div>
               <div class="fg"><label class="fl">Telefono</label><input class="fi" type="tel" id="nn-tel" placeholder="Facoltativo" inputmode="tel"></div>
             </div>
           </div>
@@ -1012,6 +1099,7 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
               <div id="agrid"></div>
             </div>
           </div>
+          <div id="ai-da-completare" role="region" aria-labelledby="ai-dc-t"></div>
           <div id="card-sel" style="display:none;margin-bottom:10px"><div id="sp"></div><div id="sel-count" style="font-size:12px;font-weight:800;color:var(--txt);text-transform:uppercase;margin-top:8px;margin-bottom:4px"></div></div>
         <div id="nuovo-bottom-bar" style="display:none">
           <div id="bottom-bar-count" style="font-size:14px;font-weight:800;color:var(--sub);text-align:center;margin-bottom:8px;display:none"></div>
@@ -1580,7 +1668,7 @@ function dimenticaCodiceReferral(){try{localStorage.removeItem(CHIAVE_REF_LOCALE
 })();
 // Versione dei documenti legali accettati alla registrazione (data di "Ultimo aggiornamento" di Termini,
 // Privacy e Accordo). Va aggiornata insieme ai documenti: resta salvata in profili/{uid}.accettazione.
-const VERSIONE_DOCUMENTI_LEGALI='2026-10-04';
+const VERSIONE_DOCUMENTI_LEGALI='2026-10-18';
 const DEFAULT_THEME={r:'#C0392B',rs:'#F9EDED',g:'#056D50',gs:'#E3F3EE',bg:'#F0F2F5',sb:'#2C3E50'};
 let obSelectedAttivita=null;
 let _tipoAttivitaCorrente=null;
@@ -1723,7 +1811,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.123';
+const APP_VERSION='2.32.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -4221,6 +4309,7 @@ function renderDetModal(o){
         </div>
       </div>
     </div>
+    ${_aiModHtml(o)}
     <div style="margin-bottom:14px;border-bottom:1px solid var(--brd);padding-bottom:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase">Aggiungi ${lblArt(false)}</span>
@@ -4578,7 +4667,7 @@ function applyNumResetFreqUI(){
     el.parentElement.style.background=active?'var(--azione-s)':'transparent';
   });
 }
-function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getElementById('nuovo-num-top');if(elTop)elTop.value=numLibero;const badge=document.getElementById('nuovo-num-badge');if(badge)badge.textContent='';document.getElementById('nn').value='';const nnTelEl=document.getElementById('nn-tel');if(nnTelEl)nnTelEl.value='';nnClienteId=null;const nnSuggEl=document.getElementById('nn-sugg');if(nnSuggEl){nnSuggEl.style.display='none';nnSuggEl.innerHTML='';}const noteResetEl=document.getElementById('note-ordine');if(noteResetEl)noteResetEl.value='';tNuovo=null;calSelDate=null;calOra=null;const tr=document.getElementById('cal-trigger');if(tr){tr.classList.remove('has-val');document.getElementById('cal-trigger-txt').textContent='Scegli giorno e turno…'}const cw=document.getElementById('cal-wrap');if(cw)cw.style.display='none';calInit();catS='Tutti';renderPills();const canEl=document.getElementById('can');if(canEl)canEl.value='';renderArtS();sel=[];renderSP();}
+function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getElementById('nuovo-num-top');if(elTop)elTop.value=numLibero;const badge=document.getElementById('nuovo-num-badge');if(badge)badge.textContent='';document.getElementById('nn').value='';const nnTelEl=document.getElementById('nn-tel');if(nnTelEl)nnTelEl.value='';nnClienteId=null;const nnSuggEl=document.getElementById('nn-sugg');if(nnSuggEl){nnSuggEl.style.display='none';nnSuggEl.innerHTML='';}const noteResetEl=document.getElementById('note-ordine');if(noteResetEl)noteResetEl.value='';tNuovo=null;calSelDate=null;calOra=null;const tr=document.getElementById('cal-trigger');if(tr){tr.classList.remove('has-val');document.getElementById('cal-trigger-txt').textContent='Scegli giorno e turno…'}const cw=document.getElementById('cal-wrap');if(cw)cw.style.display='none';calInit();catS='Tutti';renderPills();const canEl=document.getElementById('can');if(canEl)canEl.value='';renderArtS();sel=[];renderSP();_aiAllaApertura();}
 function getCats(){return['Tutti',...cats.sort()]}
 function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" role="button" tabindex="0" onclick="setC(${_jsArg(c)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setC(${_jsArg(c)});}">${c}</span>`).join('')}
 function setC(c){catS=c;renderPills();renderArtS()}
@@ -4603,6 +4692,7 @@ function togArt(id){
     renderSP();
   } else {
     sel.push({id:id,qty:'',um:'',nota:'',done:false});
+    _aiDopoSceltaArticolo(id); // 2.32.0: riga da completare dell'Inserimento rapido
     // Azzera campo ricerca e aggiorna griglia senza perdere focus
     const can=document.getElementById('can');
     if(can)can.value='';
@@ -4625,6 +4715,7 @@ function setSelUM(id,v){const s=sel.find(x=>x.id===id);if(s)s.um=v}
 function selUMpill(id,v){
   const s=sel.find(x=>x.id===id);if(!s)return;
   s.um=v;
+  if(s.aiDubbio){delete s.aiDubbio;setTimeout(_aiAggiornaEsito,0);} // 2.32.0: riga controllata
   renderSP();
   // Focus su nota dopo selezione UM
   setTimeout(function(){
@@ -4670,8 +4761,8 @@ function rimuoviImgSel(id){
 function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent=lblArt(true,true)+' '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
   const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},${_jsArg(u)})" onclick="selUMpill(${s.id},${_jsArg(u)})" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi immagine</button></div>`:`<button type="button" onclick="apriImmaginePicker('sel',${s.id})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`;
-  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" aria-label="Rimuovi articolo" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" aria-label="Cerca articolo" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}</div>`;}).join('');}
-async function salvaOrdine(){if(_provaScaduta){toast(_msgBloccoOrdini(),'err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();// Se al momento del salvataggio un altro dispositivo aveva appena aggiunto ordini, saveData unisce
+  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" aria-label="Rimuovi articolo" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" aria-label="Cerca articolo" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}${_aiHtmlRiga(s)}</div>`;}).join('');}
+async function salvaOrdine(){if(_provaScaduta){toast(_msgBloccoOrdini(),'err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}if(!_aiControllaPrimaDiSalvare())return;const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();// Se al momento del salvataggio un altro dispositivo aveva appena aggiunto ordini, saveData unisce
 // i dati (esito 'unito') oppure, nei casi sospetti, li ricarica senza scrivere (esito 'conflitto'):
 // prima l'ordine appena scritto andava perso, pur comparendo "Ordine aggiunto!". Ora in caso di
 // 'conflitto' lo si rimette sopra ai dati aggiornati e si riprova (fino a 3 volte). Se il numero
@@ -4710,7 +4801,7 @@ if(esito!=='ok'){
   return;
 }
 if(numFinale!==numInput)toast('Il #'+numInput+' era appena stato usato da un altro dispositivo: ordine salvato come #'+numFinale,'v');
-else toast('Ordine #'+numFinale+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');
+else toast('Ordine #'+numFinale+' aggiunto!','v');_scrollToOrdineId=id;goTab('ordini');_aiDopoSalvataggio();
   // Caricamento foto in background: l'ordine è già salvato, l'utente non deve aspettare l'upload
   const _daCaricare=_selSnapshot.filter(s=>s.imgBlob);
   if(_daCaricare.length){
@@ -4774,6 +4865,7 @@ async function addArtRapido(){
     detQArtOid=null;
   } else {
     sel.push({id:id,qty:'',um:'',nota:'',done:false});
+    _aiDopoSceltaArticolo(id); // 2.32.0: "Crea articolo" dall'Inserimento rapido
     // Crea input temporaneo e focus sincrono prima del render — unico modo per aprire tastiera su iOS
     const _tmp=document.createElement('input');
     _tmp.setAttribute('type','number');
@@ -5365,12 +5457,15 @@ function renderCal(){
   const timeWrap=document.getElementById('cal-time-wrap');
   const timeInp=document.getElementById('cal-time-inp');
   if(rowExtra){
-    if(btnMat)btnMat.style.display=_calSetMP?'':'none';
-    if(btnPom)btnPom.style.display=_calSetMP?'':'none';
+    // 2.32.0: in modalità "Orario" un turno senza ora può arrivare solo dall'Inserimento rapido
+    // ("giovedì mattina"): si mostrano anche Mattina/Pom. con il turno scelto, e l'ora resta vuota.
+    const _turnoSenzaOra=_calSetOra&&!!tNuovo&&!calOra;
+    if(btnMat)btnMat.style.display=(_calSetMP||_turnoSenzaOra)?'':'none';
+    if(btnPom)btnPom.style.display=(_calSetMP||_turnoSenzaOra)?'':'none';
     if(timeWrap)timeWrap.style.display=_calSetOra?'flex':'none';
     // Valore di default per input ora
     if(timeInp&&_calSetOra&&!calOra){
-      timeInp.value=tNuovo==='pomeriggio'?'14:00':'08:00';
+      timeInp.value=_turnoSenzaOra?'':(tNuovo==='pomeriggio'?'14:00':'08:00');
     }
     if(timeInp&&calOra&&timeInp.value!==calOra)timeInp.value=calOra;
     // Aggiorna stati attivi
@@ -5382,6 +5477,7 @@ function renderCal(){
   if(calComp)calComp.classList.toggle('has-val',!!calSelDate);
 }
 function calSelGiorno(iso){
+  _aiRitiroToccato(); // 2.32.0
   const giaSelezionato=calSelDate===iso;
   calSelDate=giaSelezionato?null:iso;
   // Il focus sull'elemento successivo avviene sempre PRIMA di ricostruire la griglia del
@@ -5404,6 +5500,7 @@ function calSelGiorno(iso){
   }
 }
 function calSceglTurno(t){
+  _aiRitiroToccato(); // 2.32.0
   if(tNuovo===t&&!calOra){tNuovo=null;}
   else{tNuovo=t;calOra=null;const ti=document.getElementById('cal-time-inp');if(ti)ti.value='';}
   renderCal();
@@ -5415,6 +5512,7 @@ function calSceglTurno(t){
   }
 }
 function calSceglOra(v){
+  _aiRitiroToccato(); // 2.32.0
   calOra=v||null;
   if(calOra)tNuovo=null;
   renderCal();
@@ -7183,6 +7281,652 @@ if('serviceWorker' in navigator){
       console.warn('Service Worker non registrato',e);
     });
   });
+}
+// ─── Inserimento rapido (2.32.0) ──────────────────────────────────────────────────────────
+// Riquadro in cima a Nuovo ordine: il negoziante incolla un messaggio, lo detta o aggiunge fino
+// a 3 foto (screenshot di chat, foglietti) e preme "Compila modulo". La Cloud Function leggiOrdine
+// restituisce una PROPOSTA: qui la si scrive nel modulo, solo nei campi ancora vuoti, e i punti
+// incerti restano in giallo. Niente viene salvato finché il negoziante non preme "Aggiungi ordine".
+// Le foto si mandano alla funzione solo per la compilazione: non vengono salvate da nessuna parte.
+const AI_URL='https://europe-west1-ordini-in-ordine-f4966.cloudfunctions.net/leggiOrdine';
+const AI_MAX_FOTO=3;
+const AI_LATO_FOTO=1600; // lato lungo, come nelle prove dei modelli
+let _aiAperto=false;      // riquadro aperto (completo) o chiuso (riga compatta)
+let _aiFoto=[];           // [{tipo,dati,url}] foto pronte da mandare
+let _aiTipo='testo';      // 'testo' | 'voce'
+let _aiStato='vuoto';     // 'vuoto' | 'compilo' | 'compilato'
+let _aiFonte='';          // "dal messaggio" | "dalla dettatura" | "dalla foto"
+let _aiTestoUsato='';     // testo e foto usati per l'ultima compilazione (per "Vedi messaggio")
+let _aiFotoUsate=[];
+let _aiAvvisi=[];         // avvisi sull'ordine intero (vecchio, già inserito, messaggio tagliato)
+let _aiDubbiRitiro=null;  // testo del dubbio su giorno/orario/turno, null se nessuno
+let _aiDubbioCliente=null;
+let _aiDaCompletare=[];   // righe con articolo non trovato: [{chiave,testo,qty,um,nota,dubbio,candidati}]
+let _aiSceltaPer=null;    // chiave della riga da completare per cui si sta cercando nel catalogo
+let _aiCoda=[];           // altri ordini dello stesso messaggio, da compilare dopo il salvataggio
+let _aiCodaTotale=0;
+let _aiOrdiniTrovati=null;// più ordini trovati: si sceglie quali compilare
+let _aiConfermaSalva=false;
+let _aiRiconoscimento=null;
+let _aiProssimoInCoda=false; // si sta aprendo il modulo per il prossimo ordine dello stesso messaggio
+
+function _aiEsc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function _aiEl(id){return document.getElementById(id);}
+function _aiAnnuncia(t){const s=_aiEl('ai-annuncio');if(s){s.textContent='';setTimeout(function(){s.textContent=t;},50);}}
+function _aiTelefono(){return _deviceType==='phone'||(('ontouchstart' in window)&&window.innerWidth<=900);}
+
+// Chiamata alla Cloud Function: stesso "protocollo callable" con fetch diretto usato per Stripe.
+async function _aiChiama(dati){
+  if(!currentUser)throw {codice:'unauthenticated'};
+  if(!navigator.onLine)throw {codice:'offline'};
+  const idToken=await currentUser.getIdToken();
+  let resp;
+  try{
+    resp=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken},body:JSON.stringify({data:dati})});
+  }catch(e){throw {codice:'offline'};}
+  let json=null;try{json=await resp.json();}catch(e){}
+  if(json&&json.result)return json.result;
+  throw {codice:(json&&json.error&&json.error.message)||'sconosciuto'};
+}
+function _aiMessaggioErrore(codice){
+  switch(codice){
+    case 'limite-mese':return 'Hai usato tutte le compilazioni di questo mese. Puoi sempre compilare il modulo a mano.';
+    case 'abbonamento':return _msgBloccoOrdini();
+    case 'offline':return 'Nessuna connessione: riprova quando sei online.';
+    case 'ingresso-vuoto':return 'Incolla o detta un messaggio, oppure aggiungi una foto.';
+    case 'testo-troppo-lungo':return 'Il messaggio è troppo lungo: incolla solo la parte con l\'ordine.';
+    case 'foto-troppo-grande':case 'foto-non-valida':return 'Questa foto non si può usare: prova con uno screenshot o un\'altra foto.';
+    case 'ordine-non-trovato':return 'Ordine non trovato: chiudi e riapri la modifica.';
+    default:return 'Non è stato possibile compilare il modulo: riprova tra poco.';
+  }
+}
+
+// ── Riquadro ──
+function _aiRender(){
+  const box=_aiEl('ai-box');if(!box)return;
+  box.classList.toggle('aperto',_aiAperto);
+  const corpo=_aiEl('ai-corpo');
+  if(!_aiAperto){corpo.innerHTML='';_aiEl('ai-ricomincia').style.display='none';_aiEl('ai-pulsanti-compatti').style.display='';return;}
+  _aiEl('ai-pulsanti-compatti').style.display='none';
+  _aiEl('ai-ricomincia').style.display=_aiStato==='compilato'?'':'none';
+  if(_aiStato==='compilato'){corpo.innerHTML=_aiHtmlCompilato();return;}
+  const occupato=_aiStato==='compilo';
+  const conFoto=_aiFoto.length>0;
+  let h='';
+  if(conFoto){
+    h+=`<span class="fl" id="ai-foto-lbl">Foto · ${_aiFoto.length} di ${AI_MAX_FOTO}</span><div class="ai-foto-riga" role="list" aria-labelledby="ai-foto-lbl">`+
+      _aiFoto.map(function(f,i){return `<div class="ai-foto" role="listitem"><img src="${f.url}" alt="Foto ${i+1}"><button type="button" class="ai-foto-x" aria-label="Rimuovi foto ${i+1}" onclick="aiRimuoviFoto(${i})" ${occupato?'disabled':''}><i class="ti ti-x" aria-hidden="true"></i></button></div>`;}).join('')+
+      `</div><textarea class="fi ai-testo" id="ai-testo" rows="2" aria-label="Nota" placeholder="Aggiungi una nota (facoltativa)" ${occupato?'disabled':''} onpaste="aiSuIncolla(event)"></textarea>`;
+  }else{
+    h+=`<label class="fl" for="ai-testo">Messaggio, dettatura o foto</label><textarea class="fi ai-testo" id="ai-testo" rows="3" placeholder="Incolla il messaggio o detta l'ordine" ${occupato?'disabled':''} onpaste="aiSuIncolla(event)"></textarea>`;
+  }
+  h+=`<div class="ai-pulsanti">`+
+    `<button type="button" class="ai-btn" onclick="aiIncolla()" ${occupato?'disabled':''}><i class="ti ti-clipboard" aria-hidden="true"></i>Incolla</button>`+
+    `<button type="button" class="ai-btn" id="ai-btn-detta" onclick="aiDetta()" ${occupato?'disabled':''} aria-pressed="${_aiInAscolto('nuovo')?'true':'false'}">${_aiInAscolto('nuovo')?'<i class="ti ti-player-stop" aria-hidden="true"></i>Ferma':'<i class="ti ti-microphone" aria-hidden="true"></i>Detta'}</button>`+
+    `<button type="button" class="ai-btn" onclick="aiScegliFoto()" ${occupato||_aiFoto.length>=AI_MAX_FOTO?'disabled':''}><i class="ti ti-camera" aria-hidden="true"></i>Foto</button></div>`+
+    `<div id="ai-suggerimento" class="ai-hint" role="status"></div>`+
+    `<button type="button" class="ai-compila" id="ai-compila" onclick="aiCompila()" ${occupato?'aria-disabled="true"':''}>`+
+    (occupato?'<span class="ai-giro" aria-hidden="true"></span>Compilo il modulo…':'<i class="ti ti-sparkles" aria-hidden="true"></i>Compila modulo')+`</button>`+
+    `<p class="ai-hint">${occupato?'Di solito servono pochi secondi.':'Controlla prima di aggiungere l\'ordine.'}</p>`;
+  if(_aiOrdiniTrovati)h+=_aiHtmlScelta();
+  const prima=_aiEl('ai-testo');const testoPrima=prima?prima.value:'';
+  corpo.innerHTML=h;
+  const t=_aiEl('ai-testo');if(t)t.value=testoPrima;
+}
+function _aiHtmlCompilato(){
+  const punti=aiPuntiDaControllare();
+  let h=`<div class="ai-esito" tabindex="-1" id="ai-esito"><i class="ti ti-circle-check" aria-hidden="true"></i><div><b>Modulo compilato ${_aiEsc(_aiFonte)}. Controlla e salva.</b>`;
+  if(_aiCodaTotale>1)h+=`<br><span>Ordine ${_aiCodaTotale-_aiCoda.length} di ${_aiCodaTotale}${_aiCoda.length?': il prossimo si compila dopo il salvataggio.':'.'}</span>`;
+  if(punti)h+=`<br><span class="ai-punti">${punti===1?'1 punto da controllare, in giallo':punti+' punti da controllare, in giallo'}</span>`;
+  h+=`</div></div>`;
+  _aiAvvisi.forEach(function(a){h+=`<div class="ai-dubbio" role="note"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span>${_aiEsc(a)}</span></div>`;});
+  h+=`<button type="button" class="ai-btn ai-vedi" aria-expanded="false" aria-controls="ai-originale" onclick="aiVediMessaggio(this)"><i class="ti ti-eye" aria-hidden="true"></i>Vedi messaggio</button>`+
+    `<div id="ai-originale" class="ai-originale" hidden>`+
+    (_aiFotoUsate.length?`<div class="ai-foto-riga">`+_aiFotoUsate.map(function(f,i){return `<div class="ai-foto"><img src="${f.url}" alt="Foto ${i+1}"></div>`;}).join('')+`</div>`:'')+
+    (_aiTestoUsato?`<p>${_aiEsc(_aiTestoUsato)}</p>`:'')+`</div>`;
+  return h;
+}
+function _aiHtmlScelta(){
+  const o=_aiOrdiniTrovati;
+  const sel=o.filter(function(x){return x._scelto;}).length;
+  let h=`<div class="ai-scelta" role="group" aria-labelledby="ai-scelta-t"><p class="fl" id="ai-scelta-t">${o.length} ordini trovati</p>`;
+  o.forEach(function(x,i){
+    const giorno=x.giorno&&x.giorno.valore?_aiGiornoLeggibile(x.giorno.valore):'giorno non indicato';
+    const n=x.righe.length;
+    const badge=x.giaInserito?`<span class="ai-badge">Già inserito${x.giaInserito.num!=null?' (#'+_aiEsc(x.giaInserito.num)+')':''}</span>`:(x.vecchio?'<span class="ai-badge">Data passata</span>':'');
+    h+=`<label class="ai-scelta-riga"><input type="checkbox" ${x._scelto?'checked':''} onchange="aiScegliOrdine(${i},this.checked)"><span><b>${_aiEsc(x.cliente.nome||'Cliente non indicato')}</b> · ${_aiEsc(giorno)} · ${n===1?'1 '+lblArt(false):n+' '+lblArt(true)} ${badge}</span></label>`;
+  });
+  h+=`<button type="button" class="ai-compila" onclick="aiCompilaScelti()" ${sel?'':'aria-disabled="true"'}><i class="ti ti-sparkles" aria-hidden="true"></i>${sel===0?'Spunta almeno un ordine':(sel===1?'Compila 1 ordine':'Compila '+sel+' ordini')}</button></div>`;
+  return h;
+}
+function _aiGiornoLeggibile(iso){
+  const d=new Date(iso+'T12:00:00');
+  return isNaN(d)?iso:d.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+}
+function aiApri(azione){
+  _aiAperto=true;_aiRender();
+  if(azione==='incolla')aiIncolla();
+  else if(azione==='detta')aiDetta();
+  else if(azione==='foto')aiScegliFoto();
+  else{const t=_aiEl('ai-testo');if(t)t.focus();}
+}
+function aiVediMessaggio(btn){
+  const box=_aiEl('ai-originale');if(!box)return;
+  box.hidden=!box.hidden;btn.setAttribute('aria-expanded',box.hidden?'false':'true');
+  btn.innerHTML=box.hidden?'<i class="ti ti-eye" aria-hidden="true"></i>Vedi messaggio':'<i class="ti ti-eye-off" aria-hidden="true"></i>Nascondi messaggio';
+}
+function _aiSuggerisci(t){const s=_aiEl('ai-suggerimento');if(s)s.textContent=t||'';}
+
+// ── Ingressi (Incolla, Detta, Foto) ──
+// Servono sia al riquadro di Nuovo ordine ('nuovo') sia alla Modifica rapida in Modifica ordine ('mod').
+const _AI_CTX={
+  nuovo:{testo:'ai-testo',input:'ai-foto-input',sugg:'ai-suggerimento',foto:function(){return _aiFoto;},voce:function(){_aiTipo='voce';},testoScritto:function(){_aiTipo='testo';},
+    ridisegna:function(){_aiRender();},dopoFoto:function(){_aiStato='vuoto';_aiAperto=true;_aiRender();}},
+  mod:{testo:'aim-testo',input:'aim-foto-input',sugg:'aim-suggerimento',foto:function(){return _aiMod.foto;},voce:function(){_aiMod.tipo='voce';},testoScritto:function(){_aiMod.tipo='testo';},
+    ridisegna:function(){_aiModAggiorna();},dopoFoto:function(){_aiMod.stato='vuoto';_aiMod.aperto=true;_aiMod.proposta=null;_aiModAggiorna();}}
+};
+let _aiRiconoscimentoCtx='nuovo';
+function _aiCtx(c){return _AI_CTX[c==='mod'?'mod':'nuovo'];}
+function _aiSuggerisciIn(c,t){const s=_aiEl(_aiCtx(c).sugg);if(s)s.textContent=t||'';}
+
+// ── Incolla ──
+async function aiIncolla(c){
+  const ctx=_aiCtx(c);const t=_aiEl(ctx.testo);
+  // Prima le immagini (screenshot copiato), poi il testo.
+  try{
+    if(navigator.clipboard&&navigator.clipboard.read){
+      const voci=await navigator.clipboard.read();
+      for(const v of voci){
+        const tipo=v.types.find(function(x){return x.indexOf('image/')===0;});
+        if(tipo){await _aiAggiungiFoto(await v.getType(tipo),c);return;}
+      }
+    }
+  }catch(e){/* permesso negato o non supportato: si prova col testo */}
+  try{
+    const testo=await navigator.clipboard.readText();
+    if(testo&&testo.trim()){
+      if(t){t.value=(t.value?t.value+'\n':'')+testo.trim();t.focus();t.dispatchEvent(new Event('input'));}
+      ctx.testoScritto();_aiSuggerisciIn(c,'');return;
+    }
+    _aiSuggerisciIn(c,'Non c\'è niente da incollare: copia prima il messaggio.');
+  }catch(e){
+    if(t)t.focus();
+    _aiSuggerisciIn(c,_aiTelefono()?'Tieni premuto nel riquadro e scegli «Incolla».':'Premi Cmd + V (su Windows Ctrl + V) per incollare.');
+  }
+}
+function aiSuIncolla(ev,c){
+  const voci=ev.clipboardData&&ev.clipboardData.items;if(!voci)return;
+  for(const v of voci){
+    if(v.kind==='file'&&v.type.indexOf('image/')===0){ev.preventDefault();_aiAggiungiFoto(v.getAsFile(),c);return;}
+  }
+}
+
+// ── Detta ──
+// Telefono: si usa il microfono della tastiera (nelle app installate su iPhone il riconoscimento
+// vocale del browser non c'è). Computer: si ascolta nell'app se il browser lo permette, altrimenti
+// si indica la dettatura del sistema.
+function aiDetta(c){
+  const ctx=_aiCtx(c);const t=_aiEl(ctx.testo);
+  if(_aiRiconoscimento){try{_aiRiconoscimento.stop();}catch(e){}return;}
+  ctx.voce();
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const scorciatoia=/Mac/.test(navigator.platform)?'premi due volte il tasto Fn (o il tasto con il mappamondo) e detta l\'ordine.':'premi Windows + H e detta l\'ordine.';
+  if(_aiTelefono()||!SR){
+    if(t)t.focus();
+    _aiSuggerisciIn(c,_aiTelefono()?'Tocca il microfono della tastiera e detta.':scorciatoia.charAt(0).toUpperCase()+scorciatoia.slice(1));
+    return;
+  }
+  const r=new SR();r.lang='it-IT';r.interimResults=true;r.continuous=true;
+  const base=t&&t.value?t.value+' ':'';
+  r.onresult=function(e){let s='';for(let i=0;i<e.results.length;i++)s+=e.results[i][0].transcript;const tt=_aiEl(ctx.testo);if(tt){tt.value=base+s;tt.dispatchEvent(new Event('input'));}};
+  r.onerror=function(e){
+    _aiRiconoscimento=null;ctx.ridisegna();
+    if(e.error==='not-allowed'||e.error==='service-not-allowed')_aiSuggerisciIn(c,'Microfono non disponibile: '+scorciatoia);
+  };
+  r.onend=function(){_aiRiconoscimento=null;ctx.ridisegna();_aiSuggerisciIn(c,'');const tt=_aiEl(ctx.testo);if(tt)tt.focus();};
+  try{r.start();_aiRiconoscimento=r;_aiRiconoscimentoCtx=c==='mod'?'mod':'nuovo';ctx.ridisegna();_aiSuggerisciIn(c,'In ascolto: parla normalmente, poi premi «Ferma».');}
+  catch(e){_aiRiconoscimento=null;_aiSuggerisciIn(c,'Non riesco ad ascoltare: scrivi o incolla il messaggio.');}
+}
+function _aiInAscolto(c){return !!_aiRiconoscimento&&_aiRiconoscimentoCtx===(c==='mod'?'mod':'nuovo');}
+
+// ── Foto ──
+function aiScegliFoto(c){
+  const ctx=_aiCtx(c);
+  if(ctx.foto().length>=AI_MAX_FOTO){_aiSuggerisciIn(c,'Puoi aggiungere al massimo '+AI_MAX_FOTO+' foto.');return;}
+  const inp=_aiEl(ctx.input);if(inp){inp.value='';inp.click();}
+}
+async function aiFotoScelte(inp,c){
+  const ctx=_aiCtx(c);
+  const files=[...(inp.files||[])];
+  for(const f of files){if(ctx.foto().length>=AI_MAX_FOTO){_aiSuggerisciIn(c,'Puoi aggiungere al massimo '+AI_MAX_FOTO+' foto.');break;}await _aiAggiungiFoto(f,c);}
+}
+async function _aiAggiungiFoto(blob,c){
+  const ctx=_aiCtx(c);
+  if(!blob)return;
+  if(ctx.foto().length>=AI_MAX_FOTO){_aiSuggerisciIn(c,'Puoi aggiungere al massimo '+AI_MAX_FOTO+' foto.');return;}
+  try{
+    const img=await createImageBitmap(blob);
+    const k=Math.min(1,AI_LATO_FOTO/Math.max(img.width,img.height));
+    const cv=document.createElement('canvas');cv.width=Math.round(img.width*k);cv.height=Math.round(img.height*k);
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    const url=cv.toDataURL('image/jpeg',0.82);
+    ctx.foto().push({tipo:'image/jpeg',dati:url.split(',')[1],url:url});
+    ctx.dopoFoto();
+    _aiAnnuncia('Foto '+ctx.foto().length+' aggiunta');
+  }catch(e){
+    console.warn('Foto non leggibile',e);
+    _aiSuggerisciIn(c,'Questa foto non si può leggere: su iPhone prova con uno screenshot.');
+  }
+}
+function aiRimuoviFoto(i,c){const ctx=_aiCtx(c);ctx.foto().splice(i,1);ctx.ridisegna();_aiAnnuncia('Foto rimossa');}
+
+// ── Compilazione ──
+async function aiCompila(){
+  if(_aiStato==='compilo')return;
+  if(_provaScaduta){toast(_msgBloccoOrdini(),'err');return;}
+  const t=_aiEl('ai-testo');const testo=t?t.value.trim():'';
+  if(!testo&&!_aiFoto.length){_aiSuggerisci(_aiMessaggioErrore('ingresso-vuoto'));if(t)t.focus();return;}
+  if(_aiRiconoscimento){try{_aiRiconoscimento.stop();}catch(e){}}
+  _aiStato='compilo';_aiRender();_aiAnnuncia('Compilo il modulo');
+  const box=_aiEl('ai-box');if(box)box.setAttribute('aria-busy','true');
+  try{
+    const r=await _aiChiama({modo:'nuovo',tipo:_aiTipo,testo:testo,foto:_aiFoto.map(function(f){return {tipo:f.tipo,dati:f.dati};})});
+    _aiTestoUsato=testo;_aiFotoUsate=_aiFoto.slice();
+    _aiFonte=_aiFoto.length?(_aiFoto.length===1?'dalla foto':'dalle foto'):(_aiTipo==='voce'?'dalla dettatura':'dal messaggio');
+    const ordini=(r.proposta&&r.proposta.ordini)||[];
+    if(!ordini.length){
+      _aiStato='vuoto';_aiRender();const tt=_aiEl('ai-testo');if(tt)tt.value=testo;
+      _aiSuggerisci('Non ho trovato un ordine in questo messaggio.');_aiAnnuncia('Non ho trovato un ordine in questo messaggio');
+      return;
+    }
+    if(ordini.length===1){_aiApplicaOrdine(ordini[0]);}
+    else{
+      // Più ordini: si propongono selezionati quelli recenti e non già inseriti.
+      _aiOrdiniTrovati=ordini.map(function(o){o._scelto=!o.vecchio&&!o.giaInserito;return o;});
+      _aiStato='vuoto';_aiRender();const tt=_aiEl('ai-testo');if(tt)tt.value=testo;
+      _aiAnnuncia(ordini.length+' ordini trovati: scegli quali compilare');
+      const g=document.querySelector('.ai-scelta input');if(g)g.focus();
+    }
+    if(typeof r.rimaste==='number'&&r.rimaste<=20)toast(r.rimaste===1?'Ti resta 1 compilazione questo mese':'Ti restano '+r.rimaste+' compilazioni questo mese','v');
+  }catch(e){
+    _aiStato='vuoto';_aiRender();const tt=_aiEl('ai-testo');if(tt)tt.value=testo;
+    const msg=_aiMessaggioErrore(e&&e.codice);_aiSuggerisci(msg);_aiAnnuncia(msg);
+  }finally{
+    const b=_aiEl('ai-box');if(b)b.removeAttribute('aria-busy');
+  }
+}
+function aiScegliOrdine(i,v){if(_aiOrdiniTrovati&&_aiOrdiniTrovati[i])_aiOrdiniTrovati[i]._scelto=v;_aiRender();}
+function aiCompilaScelti(){
+  const scelti=(_aiOrdiniTrovati||[]).filter(function(o){return o._scelto;});
+  if(!scelti.length){_aiAnnuncia('Scegli almeno un ordine');return;}
+  _aiOrdiniTrovati=null;_aiCoda=scelti.slice(1);_aiCodaTotale=scelti.length;
+  _aiApplicaOrdine(scelti[0]);
+}
+
+// Scrive la proposta nel modulo: SOLO i campi ancora vuoti; gli articoli si aggiungono a quelli già scelti.
+function _aiApplicaOrdine(o){
+  _aiAvvisi=[];_aiDubbiRitiro=null;_aiDubbioCliente=null;_aiDaCompletare=[];_aiSceltaPer=null;
+  if(o.giaInserito)_aiAvvisi.push('Sembra già inserito'+(o.giaInserito.num!=null?': ordine #'+o.giaInserito.num:'')+'. Controlla prima di aggiungerlo di nuovo.');
+  if(o.dubbio)_aiAvvisi.push(o.dubbio);
+  else if(o.vecchio)_aiAvvisi.push('Data passata: forse è già stato evaso.');
+  // Ritiro
+  const dubbiRitiro=[];
+  if(!calSelDate&&o.giorno&&o.giorno.valore){
+    const p=o.giorno.valore.split('-');calYear=+p[0];calMonth=+p[1]-1;calSelDate=o.giorno.valore;
+  }
+  if(!calOra&&!tNuovo){
+    if(o.orario&&o.orario.valore){calOra=o.orario.valore;const ti=_aiEl('cal-time-inp');if(ti)ti.value=calOra;}
+    else if(o.turno&&o.turno.valore)tNuovo=o.turno.valore;
+  }
+  [o.giorno,o.orario,o.turno].forEach(function(c){if(c&&c.dubbio&&dubbiRitiro.indexOf(c.dubbio)<0)dubbiRitiro.push(c.dubbio);});
+  // Solo "mattina"/"pomeriggio" o solo il giorno: si registra così com'è, senza punti gialli.
+  if(dubbiRitiro.length)_aiDubbiRitiro=dubbiRitiro.join(' · ');
+  renderCal();if(typeof _aggiornaTriggerLabel==='function')_aggiornaTriggerLabel();
+  // Cliente
+  const nn=_aiEl('nn'),tel=_aiEl('nn-tel');
+  const c=o.cliente||{};
+  if(nn&&!nn.value.trim()){
+    if(c.id!=null&&clienti.find(function(x){return x.id===c.id;}))selezionaCliente(c.id);
+    else if(c.nome)nn.value=c.nome;
+  }
+  if(tel&&!tel.value.trim()&&c.telefono)tel.value=c.telefono;
+  // "Cliente non in anagrafica" non è un problema: il cliente nuovo si aggiunge salvando l'ordine.
+  if(c.dubbio&&!(c.id==null&&c.nome&&/non in anagrafica/i.test(c.dubbio)))_aiDubbioCliente=c.dubbio;
+  if(!c.nome&&c.id==null&&!(nn&&nn.value.trim()))_aiDubbioCliente=c.dubbio||'Nome del cliente non indicato';
+  // Note dell'ordine
+  const note=_aiEl('note-ordine');if(note&&!note.value.trim()&&o.nota)note.value=o.nota;
+  // Articoli
+  (o.righe||[]).forEach(function(r,i){
+    const dubbi=[r.articolo&&r.articolo.dubbio,r.quantita&&r.quantita.dubbio,r.unita&&r.unita.dubbio].filter(Boolean);
+    const qty=r.quantita&&r.quantita.valore!=null?String(r.quantita.valore).replace('.',','):'';
+    const um=r.unita&&r.unita.valore?r.unita.valore:'';
+    const id=r.articolo?r.articolo.id:null;
+    if(id!=null&&arts.find(function(a){return a.id===id;})){
+      if(sel.find(function(s){return s.id===id;}))return; // già nel modulo: non si tocca
+      const s={id:id,qty:qty,um:um,nota:r.nota||'',done:false};
+      const dd=dubbi.filter(function(d){return !/non in catalogo/i.test(d);});
+      if(dd.length)s.aiDubbio=dd.join(' · ');
+      sel.push(s);
+    }else{
+      _aiDaCompletare.push({chiave:'r'+Date.now()+'_'+i,testo:r.testo||'',qty:qty,um:um,nota:r.nota||'',dubbio:dubbi.join(' · ')||'Articolo non in catalogo',candidati:((r.articolo&&r.articolo.candidati)||[]).filter(function(cid){return arts.find(function(a){return a.id===cid;});})});
+    }
+  });
+  renderSP();_aiRenderDubbi();
+  _aiStato='compilato';_aiAperto=true;_aiRender();
+  const es=_aiEl('ai-esito');if(es)es.focus();
+  const punti=aiPuntiDaControllare();
+  _aiAnnuncia('Modulo compilato '+_aiFonte+'. '+(punti?(punti===1?'1 punto da controllare.':punti+' punti da controllare.'):'Controlla e salva.'));
+}
+
+// ── Dubbi e righe da completare ──
+function aiPuntiDaControllare(){
+  return (_aiDubbiRitiro?1:0)+(_aiDubbioCliente?1:0)+_aiDaCompletare.length+sel.filter(function(s){return s.aiDubbio;}).length;
+}
+function _aiRenderDubbi(){
+  const r=_aiEl('ai-dubbio-ritiro');
+  if(r)r.innerHTML=_aiDubbiRitiro?_aiHtmlDubbio(_aiDubbiRitiro,'aiOkRitiro()'):'';
+  const c=_aiEl('ai-dubbio-cliente');
+  if(c)c.innerHTML=_aiDubbioCliente?_aiHtmlDubbio(_aiDubbioCliente,'aiOkCliente()'):'';
+  const box=_aiEl('ai-da-completare');if(!box)return;
+  if(!_aiDaCompletare.length){box.innerHTML='';box.style.display='none';return;}
+  box.style.display='block';
+  box.innerHTML=`<p class="fl" id="ai-dc-t">Da completare: ${_aiDaCompletare.length===1?'1 riga':_aiDaCompletare.length+' righe'}</p>`+
+    _aiDaCompletare.map(function(r){
+      const q=[r.qty,r.um].filter(function(x){return x!==''&&x!=null;}).join(' ');
+      const cand=r.candidati.map(function(id){const a=arts.find(function(x){return x.id===id;});return a?`<button type="button" class="ai-btn ai-btn-piccolo" onclick="aiUsaCandidato(${_jsArg(r.chiave)},${id})">Usa ${_aiEsc(a.nome)}</button>`:'';}).join('');
+      const nomeNuovo=r.testo?_aiNomeDaTesto(r.testo):'';
+      return `<div class="ai-dc" role="group" aria-label="${_aiEsc(r.testo||'Riga senza articolo')}">`+
+        `<div class="ai-dc-testo"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span><b>«${_aiEsc(r.testo||'?')}»</b>${q?' · '+_aiEsc(q):''}<br>${_aiEsc(r.dubbio)}</span></div>`+
+        `<div class="ai-dc-azioni">${cand}<button type="button" class="ai-btn ai-btn-piccolo" onclick="aiScegliDalCatalogo(${_jsArg(r.chiave)})"><i class="ti ti-search" aria-hidden="true"></i>Scegli dal catalogo</button>`+
+        (nomeNuovo?`<button type="button" class="ai-btn ai-btn-piccolo" onclick="aiCreaArticolo(${_jsArg(r.chiave)})"><i class="ti ti-plus" aria-hidden="true"></i>Crea ${lblArt(false)} «${_aiEsc(nomeNuovo)}»</button>`:'')+
+        `<button type="button" class="ai-btn ai-btn-piccolo" onclick="aiScartaRiga(${_jsArg(r.chiave)})" aria-label="Elimina la riga ${_aiEsc(r.testo||'')}"><i class="ti ti-trash" aria-hidden="true"></i>Elimina</button></div></div>`;
+    }).join('');
+}
+function _aiHtmlDubbio(testo,azioneOk){
+  return `<div class="ai-dubbio" role="note"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span>${_aiEsc(testo)}</span><button type="button" class="ai-ok" onclick="${azioneOk}">Ok</button></div>`;
+}
+// Nome per un articolo nuovo: le parole del cliente senza quantità e unità, con l'iniziale maiuscola.
+function _aiNomeDaTesto(t){
+  let s=String(t).replace(/^\s*[\d.,½]+\s*/,'').replace(/^(un|una|uno|mezzo|mezza|due|tre|quattro|cinque|sei|sette|otto|nove|dieci)\s+/i,'')
+    .replace(/^(kg|chili|chilo|kilo|g|grammi|etti|etto|pezzi|pezzo|fette|fettine|vaschette|vaschetta|euro|€)\s+(di\s+|d')?/i,'').replace(/^(di\s+|d')/i,'').trim();
+  if(!s)return '';
+  return s.charAt(0).toUpperCase()+s.slice(1,60);
+}
+// Il negoziante ha cambiato giorno/orario o il nome del cliente: il punto giallo è controllato.
+function _aiRitiroToccato(){if(_aiDubbiRitiro){_aiDubbiRitiro=null;_aiRenderDubbi();_aiAggiornaEsito();}}
+function _aiClienteToccato(){if(_aiDubbioCliente){_aiDubbioCliente=null;_aiRenderDubbi();_aiAggiornaEsito();}}
+function aiOkRitiro(){_aiDubbiRitiro=null;_aiRenderDubbi();_aiAggiornaEsito();}
+function aiOkCliente(){_aiDubbioCliente=null;_aiRenderDubbi();_aiAggiornaEsito();}
+function aiOkRiga(id){const s=sel.find(function(x){return x.id===id;});if(s)delete s.aiDubbio;renderSP();_aiAggiornaEsito();}
+function _aiAggiornaEsito(){if(_aiStato==='compilato'&&_aiAperto)_aiRender();}
+function _aiTrovaRiga(chiave){return _aiDaCompletare.find(function(r){return r.chiave===chiave;});}
+function _aiRigaInModulo(r,idArt){
+  _aiDaCompletare=_aiDaCompletare.filter(function(x){return x!==r;});
+  const esiste=sel.find(function(s){return s.id===idArt;});
+  if(!esiste)sel.push({id:idArt,qty:r.qty,um:unitaMisura.indexOf(r.um)>=0?r.um:'',nota:r.nota||'',done:false});
+  else{if(!esiste.qty&&r.qty!=='')esiste.qty=r.qty;if(!esiste.um&&unitaMisura.indexOf(r.um)>=0)esiste.um=r.um;}
+  _aiSceltaPer=null;renderSP();_aiRenderDubbi();_aiAggiornaEsito();
+}
+function aiUsaCandidato(chiave,idArt){const r=_aiTrovaRiga(chiave);if(r)_aiRigaInModulo(r,idArt);}
+function aiScartaRiga(chiave){_aiDaCompletare=_aiDaCompletare.filter(function(r){return r.chiave!==chiave;});_aiRenderDubbi();_aiAggiornaEsito();}
+function aiScegliDalCatalogo(chiave){
+  const r=_aiTrovaRiga(chiave);if(!r)return;
+  _aiSceltaPer=chiave;
+  const can=_aiEl('can');
+  if(can){can.value=_aiNomeDaTesto(r.testo).split(' ')[0]||'';can.focus();renderArtS();if(typeof toggleClearBtn==='function')toggleClearBtn(can);setTimeout(function(){can.scrollIntoView({behavior:'smooth',block:'center'});},80);}
+  _aiAnnuncia('Cerca e tocca l\'articolo giusto per «'+(r.testo||'')+'»');
+}
+function aiCreaArticolo(chiave){
+  const r=_aiTrovaRiga(chiave);if(!r)return;
+  _aiSceltaPer=chiave;
+  openQArt();
+  const qan=_aiEl('qan');if(qan)qan.value=_aiNomeDaTesto(r.testo);
+}
+// Chiamata da togArt() e addArtRapido() quando un articolo entra nel modulo: se si stava completando
+// una riga, le si passano quantità, unità e nota lette dal messaggio.
+function _aiDopoSceltaArticolo(idArt){
+  if(!_aiSceltaPer)return;
+  const r=_aiTrovaRiga(_aiSceltaPer);_aiSceltaPer=null;if(!r)return;
+  const s=sel.find(function(x){return x.id===idArt;});
+  if(s){if(s.qty===''||s.qty==null)s.qty=r.qty;if(!s.um&&unitaMisura.indexOf(r.um)>=0)s.um=r.um;if(!s.nota&&r.nota)s.nota=r.nota;}
+  _aiDaCompletare=_aiDaCompletare.filter(function(x){return x!==r;});
+  _aiRenderDubbi();_aiAggiornaEsito();
+}
+// Avviso giallo dentro la scheda dell'articolo (chiamata da renderSP).
+function _aiHtmlRiga(s){
+  return s&&s.aiDubbio?`<div class="ai-dubbio ai-dubbio-riga" role="note"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span>${_aiEsc(s.aiDubbio)}</span><button type="button" class="ai-ok" onclick="aiOkRiga(${s.id})">Ok</button></div>`:'';
+}
+
+// ── Salvataggio ──
+// Chiamata da salvaOrdine() dopo i controlli: se restano punti gialli chiede conferma una volta.
+function _aiControllaPrimaDiSalvare(){
+  if(_aiConfermaSalva){_aiConfermaSalva=false;return true;}
+  const punti=aiPuntiDaControllare();
+  if(!punti)return true;
+  openModal('modal-del-conf');_modalDelResetDefault();
+  _aiEl('modal-del-icon').innerHTML='<i class="ti ti-alert-triangle" aria-hidden="true"></i>';
+  _aiEl('modal-del-txt').textContent=punti===1?'C\'è 1 punto da controllare':'Ci sono '+punti+' punti da controllare';
+  const sub=_aiEl('modal-del-sub');
+  sub.textContent=_aiDaCompletare.length?(_aiDaCompletare.length===1?'1 riga non è nel catalogo e non verrà salvata. ':_aiDaCompletare.length+' righe non sono nel catalogo e non verranno salvate. ')+'Aggiungere comunque l\'ordine?':'Sono segnati in giallo. Aggiungere comunque l\'ordine?';
+  const btn=_aiEl('modal-del-btn');btn.textContent='Aggiungi comunque';btn.className='btn br';btn.style.flex='1';
+  btn.onclick=function(){closeModal('modal-del-conf');_aiConfermaSalva=true;salvaOrdine();};
+  return false;
+}
+// Chiamata da salvaOrdine() a ordine salvato: se il messaggio conteneva altri ordini, si compila il prossimo.
+function _aiDopoSalvataggio(){
+  const prossimo=_aiCoda.shift();
+  if(!prossimo){_aiCodaTotale=0;return;}
+  setTimeout(function(){
+    // goTab('nuovo') prepara il modulo due volte (subito e dopo 100 ms): si compila dopo la seconda.
+    _aiProssimoInCoda=true;
+    apriNuovoOrdine();
+    setTimeout(function(){_aiProssimoInCoda=false;_aiApplicaOrdine(prossimo);},250);
+  },600);
+}
+// Chiamata da initNuovo(): modulo nuovo, riquadro chiuso e vuoto (tranne quando si compila il prossimo ordine della coda).
+function _aiAllaApertura(){
+  if(_aiRiconoscimento){try{_aiRiconoscimento.stop();}catch(e){}_aiRiconoscimento=null;}
+  if(!_aiProssimoInCoda){_aiFonte='';_aiTestoUsato='';_aiFotoUsate=[];}
+  _aiFoto=[];_aiTipo='testo';_aiStato='vuoto';_aiAvvisi=[];
+  _aiDubbiRitiro=null;_aiDubbioCliente=null;_aiDaCompletare=[];_aiSceltaPer=null;_aiOrdiniTrovati=null;_aiConfermaSalva=false;
+  _aiAperto=_aiProssimoInCoda;
+  _aiRender();_aiRenderDubbi();
+}
+function aiRicomincia(){
+  openModal('modal-del-conf');_modalDelResetDefault();
+  _aiEl('modal-del-icon').innerHTML='<i class="ti ti-refresh" aria-hidden="true"></i>';
+  _aiEl('modal-del-txt').textContent='Ricominciare da capo?';
+  _aiEl('modal-del-sub').textContent='Il modulo e il riquadro vengono svuotati.';
+  const btn=_aiEl('modal-del-btn');btn.textContent='Ricomincia';btn.className='btn br';btn.style.flex='1';
+  btn.onclick=function(){closeModal('modal-del-conf');_aiCoda=[];_aiCodaTotale=0;initNuovo();_aiAperto=true;_aiRender();const t=_aiEl('ai-testo');if(t)t.focus();};
+}
+// ── Modifica rapida (Modifica ordine) ──
+// In Modifica ordine ogni cambiamento si salva subito: per questo le modifiche trovate dall'AI
+// restano una PROPOSTA (Aggiunta, Modificata, Eliminata) e si scrivono nell'ordine solo con
+// "Applica N modifiche", tutte insieme. Quelle incerte partono non spuntate.
+let _aiMod={oid:null,aperto:false,stato:'vuoto',foto:[],tipo:'testo',testo:'',proposta:null,voci:[]};
+function _aiModReset(oid){_aiMod={oid:oid,aperto:false,stato:'vuoto',foto:[],tipo:'testo',testo:'',proposta:null,voci:[]};}
+// Chiamata da renderDetModal(): restituisce il riquadro per l'ordine aperto.
+function _aiModHtml(o){
+  if(!o||o.stato==='ritirato')return '';
+  if(_aiMod.oid!==o.id){if(_aiRiconoscimento&&_aiRiconoscimentoCtx==='mod'){try{_aiRiconoscimento.stop();}catch(e){}}_aiModReset(o.id);}
+  return `<section class="card ai-box ai-box-mod${_aiMod.aperto?' aperto':''}" id="aim-box" aria-labelledby="aim-titolo" style="margin-bottom:14px">`+_aiModInterno(o)+`</section>`;
+}
+function _aiModAggiorna(){
+  const box=_aiEl('aim-box');const o=ords.find(function(x){return x.id===_aiMod.oid;});
+  if(!box||!o)return;
+  box.classList.toggle('aperto',_aiMod.aperto);
+  box.innerHTML=_aiModInterno(o);
+  const t=_aiEl('aim-testo');if(t)t.value=_aiMod.testo;
+}
+function _aiModInterno(o){
+  const occupato=_aiMod.stato==='compilo';
+  let h=`<div class="ai-testa"><h3 class="ai-titolo" id="aim-titolo"><i class="ti ti-sparkles" aria-hidden="true"></i>Modifica rapida</h3>`;
+  if(!_aiMod.aperto){
+    h+=`<div class="ai-pulsanti-compatti"><button type="button" class="ai-qk" onclick="aiModApri()"><i class="ti ti-pencil" aria-hidden="true"></i>Scrivi</button><button type="button" class="ai-qk" onclick="aiModApri('incolla')"><i class="ti ti-clipboard" aria-hidden="true"></i>Incolla</button><button type="button" class="ai-qk" onclick="aiModApri('detta')"><i class="ti ti-microphone" aria-hidden="true"></i>Detta</button><button type="button" class="ai-qk" onclick="aiModApri('foto')"><i class="ti ti-camera" aria-hidden="true"></i>Foto</button></div></div>`;
+    return h+`<input type="file" id="aim-foto-input" accept="image/*" multiple hidden onchange="aiFotoScelte(this,'mod')">`;
+  }
+  h+=`</div><div class="ai-corpo">`;
+  if(_aiMod.proposta){h+=_aiModHtmlProposta(o);return h+`</div>`;}
+  if(_aiMod.foto.length){
+    h+=`<span class="fl" id="aim-foto-lbl">Foto · ${_aiMod.foto.length} di ${AI_MAX_FOTO}</span><div class="ai-foto-riga" role="list" aria-labelledby="aim-foto-lbl">`+
+      _aiMod.foto.map(function(f,i){return `<div class="ai-foto" role="listitem"><img src="${f.url}" alt="Foto ${i+1}"><button type="button" class="ai-foto-x" aria-label="Rimuovi foto ${i+1}" onclick="aiRimuoviFoto(${i},'mod')" ${occupato?'disabled':''}><i class="ti ti-x" aria-hidden="true"></i></button></div>`;}).join('')+
+      `</div><textarea class="fi ai-testo" id="aim-testo" rows="2" aria-label="Nota" placeholder="Aggiungi una nota (facoltativa)" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea>`;
+  }else{
+    h+=`<label class="fl" for="aim-testo">Cosa cambia</label><textarea class="fi ai-testo" id="aim-testo" rows="3" placeholder="Es. aggiungi mezzo chilo di polpette e togli la salsiccia" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea>`;
+  }
+  h+=`<div class="ai-pulsanti">`+
+    `<button type="button" class="ai-btn" onclick="aiIncolla('mod')" ${occupato?'disabled':''}><i class="ti ti-clipboard" aria-hidden="true"></i>Incolla</button>`+
+    `<button type="button" class="ai-btn" onclick="aiDetta('mod')" ${occupato?'disabled':''} aria-pressed="${_aiInAscolto('mod')?'true':'false'}">${_aiInAscolto('mod')?'<i class="ti ti-player-stop" aria-hidden="true"></i>Ferma':'<i class="ti ti-microphone" aria-hidden="true"></i>Detta'}</button>`+
+    `<button type="button" class="ai-btn" onclick="aiScegliFoto('mod')" ${occupato||_aiMod.foto.length>=AI_MAX_FOTO?'disabled':''}><i class="ti ti-camera" aria-hidden="true"></i>Foto</button></div>`+
+    `<div id="aim-suggerimento" class="ai-hint" role="status"></div>`+
+    `<button type="button" class="ai-compila" onclick="aiModTrova()" ${occupato?'aria-disabled="true"':''}>`+
+    (occupato?'<span class="ai-giro" aria-hidden="true"></span>Cerco le modifiche…':'<i class="ti ti-sparkles" aria-hidden="true"></i>Trova le modifiche')+`</button>`+
+    `<p class="ai-hint">${occupato?'Di solito servono pochi secondi.':'Finché non applichi, l\'ordine resta com\'è.'}</p>`+
+    `<input type="file" id="aim-foto-input" accept="image/*" multiple hidden onchange="aiFotoScelte(this,'mod')"></div>`;
+  return h;
+}
+function aiModApri(azione){
+  _aiMod.aperto=true;_aiModAggiorna();
+  if(azione==='incolla')aiIncolla('mod');
+  else if(azione==='detta')aiDetta('mod');
+  else if(azione==='foto')aiScegliFoto('mod');
+  else{const t=_aiEl('aim-testo');if(t)t.focus();}
+}
+async function aiModTrova(){
+  if(_aiMod.stato==='compilo')return;
+  const o=ords.find(function(x){return x.id===_aiMod.oid;});if(!o)return;
+  const t=_aiEl('aim-testo');if(t)_aiMod.testo=t.value;
+  const testo=(_aiMod.testo||'').trim();
+  if(!testo&&!_aiMod.foto.length){_aiSuggerisciIn('mod','Scrivi, incolla o detta cosa cambia, oppure aggiungi una foto.');if(t)t.focus();return;}
+  if(_aiRiconoscimento){try{_aiRiconoscimento.stop();}catch(e){}}
+  _aiMod.stato='compilo';_aiModAggiorna();_aiAnnuncia('Cerco le modifiche');
+  try{
+    const r=await _aiChiama({modo:'modifica',ordineId:o.id,tipo:_aiMod.tipo,testo:testo,foto:_aiMod.foto.map(function(f){return {tipo:f.tipo,dati:f.dati};})});
+    _aiMod.stato='vuoto';
+    _aiMod.proposta=r.proposta||{modifiche:{},nessunaModifica:true};
+    _aiMod.voci=_aiModVoci(o,_aiMod.proposta);
+    _aiModAggiorna();
+    const n=_aiMod.voci.length;
+    _aiAnnuncia(n?(n===1?'1 modifica trovata':n+' modifiche trovate'):'Nessuna modifica trovata');
+    const g=_aiEl('aim-esito');if(g)g.focus();
+    if(typeof r.rimaste==='number'&&r.rimaste<=20)toast(r.rimaste===1?'Ti resta 1 compilazione questo mese':'Ti restano '+r.rimaste+' compilazioni questo mese','v');
+  }catch(e){
+    _aiMod.stato='vuoto';_aiModAggiorna();
+    const msg=_aiMessaggioErrore(e&&e.codice);_aiSuggerisciIn('mod',msg);_aiAnnuncia(msg);
+  }
+}
+function _aiQtyTesto(q,um){
+  const n=(q===''||q==null)?'':String(q).replace('.',',');
+  if(n&&!um)return n+', senza unità';
+  return [n,um||''].filter(Boolean).join(' ')||'senza quantità';
+}
+function _aiNomeArt(id){const a=arts.find(function(x){return x.id===id;});return a?a.nome:lblArt(false);}
+// Trasforma la proposta in voci da mostrare e applicare. Ogni voce: {tipo, titolo, dettaglio, dubbio, applicabile, scelta, applica(o)}.
+function _aiModVoci(o,p){
+  const m=p.modifiche||{};const voci=[];
+  const righe=o.items||[];
+  const campo=function(c,etich,prima,scrivi){
+    if(!c||(c.valore==null&&!c.dubbio))return;
+    if(c.valore==null){voci.push({tipo:'Da controllare',titolo:etich,dettaglio:'',dubbio:c.dubbio,applicabile:false,scelta:false});return;}
+    voci.push({tipo:'Modificata',titolo:etich,dettaglio:scrivi(c.valore)+(prima?' · prima '+prima:''),dubbio:c.dubbio,applicabile:true,scelta:!c.dubbio,applica:function(oo){if(etich==='Giorno')oo.data=c.valore;else if(etich==='Orario'){oo.ora=c.valore;oo.turno=null;}else{oo.turno=c.valore;oo.ora=null;}}});
+  };
+  campo(m.giorno,'Giorno',o.data?_aiGiornoLeggibile(o.data):'',function(v){return _aiGiornoLeggibile(v);});
+  campo(m.orario,'Orario',o.ora||'',function(v){return v;});
+  campo(m.turno,'Turno',o.turno||'',function(v){return v;});
+  // Nota dell'ordine ("già pagato", "consegnare a domicilio"): il modello restituisce la nota completa.
+  const nota=typeof m.nota==='string'?m.nota.trim():'';
+  if(nota&&nota!==(o.note||'').trim())
+    voci.push({tipo:'Modificata',titolo:'Note',dettaglio:nota+(o.note?' · prima '+o.note:''),dubbio:'',applicabile:true,scelta:true,applica:function(oo){oo.note=nota;}});
+  (m.righeAggiunte||[]).forEach(function(r){
+    const id=r.articolo&&r.articolo.id;
+    const ok=id!=null&&arts.some(function(a){return a.id===id;});
+    const q=r.quantita&&r.quantita.valore!=null?r.quantita.valore:'';
+    const u=r.unita&&r.unita.valore?r.unita.valore:'';
+    const dubbi=[r.articolo&&r.articolo.dubbio,r.quantita&&r.quantita.dubbio,r.unita&&r.unita.dubbio].filter(Boolean);
+    if(!ok){voci.push({tipo:'Aggiunta',titolo:'«'+(r.testo||'?')+'»',dettaglio:_aiQtyTesto(q,u),dubbio:(dubbi.join(' · ')||'Articolo non in catalogo')+': aggiungilo a mano dal catalogo qui sotto.',applicabile:false,scelta:false});return;}
+    voci.push({tipo:'Aggiunta',titolo:_aiNomeArt(id),dettaglio:_aiQtyTesto(q,u),dubbio:dubbi.join(' · '),applicabile:true,scelta:!dubbi.length,
+      applica:function(oo){oo.items.push({artId:id,qty:q===''?'':q,um:u,nota:r.nota||'',done:false});}});
+  });
+  (m.righeCambiate||[]).forEach(function(r){
+    const it=r.riga?righe[r.riga-1]:null;
+    if(!it){voci.push({tipo:'Modificata',titolo:'«'+(r.testo||'?')+'»',dettaglio:'',dubbio:r.dubbio||'Non è chiaro a quale riga si riferisce',applicabile:false,scelta:false});return;}
+    const nuovoId=r.articolo&&r.articolo.id!=null&&arts.some(function(a){return a.id===r.articolo.id;})?r.articolo.id:null;
+    const q=r.quantita&&r.quantita.valore!=null?r.quantita.valore:null;
+    const u=r.unita&&r.unita.valore?r.unita.valore:null;
+    const dubbi=[r.dubbio,r.articolo&&r.articolo.dubbio,r.quantita&&r.quantita.dubbio,r.unita&&r.unita.dubbio].filter(Boolean);
+    if(nuovoId==null&&q==null&&u==null&&!r.nota){voci.push({tipo:'Modificata',titolo:_aiNomeArt(it.artId),dettaglio:'',dubbio:dubbi.join(' · ')||'Modifica non chiara',applicabile:false,scelta:false});return;}
+    // Nel dettaglio solo quello che cambia: quantità/unità uguali a prima non si ripetono.
+    const qtyCambia=(q!=null&&parseQty(q)!==parseQty(it.qty))||(u!=null&&u!==(it.um||''));
+    const notaCambia=!!r.nota&&r.nota!==(it.nota||'');
+    const parti=[];
+    if(qtyCambia)parti.push(_aiQtyTesto(q!=null?q:it.qty,u!=null?u:it.um)+' · prima '+_aiQtyTesto(it.qty,it.um));
+    if(notaCambia)parti.push('Nota: '+r.nota+(it.nota?' · prima: '+it.nota:''));
+    if(!parti.length&&!(nuovoId!=null&&nuovoId!==it.artId)){voci.push({tipo:'Modificata',titolo:_aiNomeArt(it.artId),dettaglio:'Nessun cambiamento rispetto a ora',dubbio:dubbi.join(' · '),applicabile:false,scelta:false});return;}
+    voci.push({tipo:'Modificata',titolo:(nuovoId!=null&&nuovoId!==it.artId?_aiNomeArt(it.artId)+' → '+_aiNomeArt(nuovoId):_aiNomeArt(it.artId)),
+      dettaglio:parti.join(' · '),dubbio:dubbi.join(' · '),applicabile:true,scelta:!dubbi.length,
+      applica:function(oo,mappa){const x=mappa(it);if(!x)return;if(nuovoId!=null)x.artId=nuovoId;if(q!=null)x.qty=q;if(u!=null)x.um=u;if(r.nota)x.nota=r.nota;}});
+  });
+  (m.righeTolte||[]).forEach(function(r){
+    const it=r.riga?righe[r.riga-1]:null;
+    if(!it){voci.push({tipo:'Eliminata',titolo:'«'+(r.testo||'?')+'»',dettaglio:'',dubbio:r.dubbio||'Nell\'ordine non c\'è questo articolo',applicabile:false,scelta:false});return;}
+    voci.push({tipo:'Eliminata',titolo:_aiNomeArt(it.artId),dettaglio:_aiQtyTesto(it.qty,it.um),dubbio:r.dubbio||'',applicabile:true,scelta:!r.dubbio,elimina:it});
+  });
+  // Il cliente è quello dell'ordine: il telefono si aggiunge e basta. Se il numero è finito solo nel
+  // dubbio ("telefono … non presente in anagrafica"), lo si prende da lì e quel dubbio non si mostra.
+  let tel=m.cliente&&m.cliente.telefono;let dubbioCliente=m.cliente&&m.cliente.dubbio;
+  if(!tel&&dubbioCliente){const n=dubbioCliente.match(/(?:\+|00)?\d[\d .\-\/]{7,16}\d/);const cifre=n?n[0].replace(/\D/g,'').replace(/^(0039|39)(?=\d{9,10}$)/,''):'';if(cifre.length>=9&&cifre.length<=11)tel=cifre;}
+  if(tel&&dubbioCliente&&/telefono|numero|anagrafica/i.test(dubbioCliente))dubbioCliente=null;
+  if(tel&&String(tel).replace(/\D/g,'')!==String(telefonoAttuale(o)||'').replace(/\D/g,''))
+    voci.unshift({tipo:'Modificata',titolo:'Telefono',dettaglio:tel+(telefonoAttuale(o)?' · prima '+telefonoAttuale(o):''),dubbio:'',applicabile:true,scelta:true,applica:function(oo){oo.telefono=tel;syncClienteDaOrdine(oo);}});
+  if(dubbioCliente)voci.unshift({tipo:'Da controllare',titolo:'Cliente',dettaglio:'',dubbio:dubbioCliente,applicabile:false,scelta:false});
+  return voci;
+}
+function _aiModHtmlProposta(o){
+  const voci=_aiMod.voci;
+  const scelte=voci.filter(function(v){return v.applicabile&&v.scelta;}).length;
+  const n=voci.length;
+  let h=`<div class="ai-esito" tabindex="-1" id="aim-esito"><i class="ti ti-${n?'list-check':'info-circle'}" aria-hidden="true"></i><div><b>${n?(n===1?'1 modifica trovata':n+' modifiche trovate'):'Nessuna modifica trovata nel messaggio.'}</b></div></div>`;
+  if(n){
+    h+=`<div class="aim-voci" role="group" aria-labelledby="aim-esito">`+voci.map(function(v,i){
+      const id='aim-v-'+i;
+      const cls=v.tipo==='Eliminata'?'aim-tag-r':(v.tipo==='Aggiunta'?'aim-tag-g':'aim-tag-b');
+      const testa=`<span class="aim-tag ${v.applicabile?cls:'aim-tag-y'}">${_aiEsc(v.tipo)}</span> <b>${_aiEsc(v.titolo)}</b>${v.dettaglio?'<br><span class="aim-det">'+_aiEsc(v.dettaglio)+'</span>':''}`;
+      const dub=v.dubbio?`<span class="aim-dubbio"><i class="ti ti-alert-triangle" aria-hidden="true"></i> ${_aiEsc(v.dubbio)}</span>`:'';
+      return v.applicabile
+        ?`<label class="aim-voce" for="${id}"><input type="checkbox" id="${id}" ${v.scelta?'checked':''} onchange="aiModScegli(${i},this.checked)"><span>${testa}${dub}</span></label>`
+        :`<div class="aim-voce aim-voce-no"><i class="ti ti-alert-triangle" aria-hidden="true" style="color:var(--ev);font-size:20px;flex-shrink:0"></i><span>${testa}${dub}</span></div>`;
+    }).join('')+`</div>`;
+  }
+  h+=`<div class="aim-azioni"><button type="button" class="ai-btn" onclick="aiModAnnulla()">Annulla</button>`+
+    (n?`<button type="button" class="ai-compila" onclick="aiModApplica()" ${scelte?'':'aria-disabled="true"'}>${scelte===0?'Spunta almeno una modifica':(scelte===1?'Applica 1 modifica':'Applica '+scelte+' modifiche')}</button>`:'')+`</div>`+
+    `<p class="ai-hint">Finché non applichi, l'ordine resta com'è.</p>`;
+  return h;
+}
+function aiModScegli(i,v){if(_aiMod.voci[i])_aiMod.voci[i].scelta=v;_aiModAggiorna();const c=_aiEl('aim-v-'+i);if(c)c.focus();}
+function aiModAnnulla(){_aiMod.proposta=null;_aiMod.voci=[];_aiMod.stato='vuoto';_aiModAggiorna();const t=_aiEl('aim-testo');if(t)t.focus();}
+async function aiModApplica(){
+  const o=ords.find(function(x){return x.id===_aiMod.oid;});if(!o)return;
+  const scelte=_aiMod.voci.filter(function(v){return v.applicabile&&v.scelta;});
+  if(!scelte.length){_aiAnnuncia('Spunta almeno una modifica');return;}
+  _flushDetCalToast();
+  // Le righe si ritrovano per riferimento: così aggiunte ed eliminazioni non spostano le altre.
+  const mappa=function(it){return o.items.indexOf(it)>=0?it:null;};
+  scelte.forEach(function(v){if(v.applica)v.applica(o,mappa);});
+  const daTogliere=scelte.filter(function(v){return v.elimina;}).map(function(v){return v.elimina;});
+  const tolte=o.items.filter(function(it){return daTogliere.indexOf(it)>=0;});
+  o.items=o.items.filter(function(it){return daTogliere.indexOf(it)<0;});
+  const esito=await saveData();
+  if(esito!=='ok'&&esito!=='unito'){
+    const uo=ords.find(function(x){return x.id===o.id;});if(uo)renderDetModal(uo);renderOrdini();
+    toast('Modifiche NON salvate: controlla la connessione e riprova','err');return;
+  }
+  if(tolte.length)eliminaFotoRighe(tolte);
+  const n=scelte.length;
+  _aiModReset(o.id);
+  const uo=ords.find(function(x){return x.id===o.id;});if(uo)renderDetModal(uo);
+  renderOrdini();if(typeof renderRiepilogo==='function')renderRiepilogo();
+  toast(n===1?'1 modifica applicata':n+' modifiche applicate','v');
 }
 </script>
 

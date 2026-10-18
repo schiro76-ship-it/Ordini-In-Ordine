@@ -57,7 +57,7 @@
 <div class="wrap">
   <div class="brand">Ordin<span>I</span>nOrdine</div>
   <h1>Accordo di Nomina a Responsabile del Trattamento</h1>
-  <div class="meta">Data Processing Agreement — Ultimo aggiornamento: 1 ottobre 2026</div>
+  <div class="meta">Data Processing Agreement — Ultimo aggiornamento: 18 ottobre 2026</div>
 
   <section>
     <h2>Premessa</h2>
@@ -78,6 +78,7 @@
       <li>Articoli ordinati, quantità, note relative all'ordine</li>
       <li>Data e orario di ritiro</li>
       <li>Eventuali foto allegate alle righe d'ordine, se inserite dal Titolare</li>
+      <li>Testi, dettature, foto e screenshot di messaggi del cliente forniti dal Titolare per l'Inserimento rapido o la Modifica rapida, se il Titolare usa queste funzioni</li>
     </ul>
     <p>L'App organizza inoltre nome e numero di telefono in un'anagrafica clienti collegata ai relativi ordini, per facilitare la gestione da parte del Titolare ed evitare inserimenti duplicati.</p>
     <p>Questi dati sono necessari esclusivamente per consentire al Titolare di gestire gli ordini della propria attività tramite il Servizio.</p>
@@ -90,6 +91,7 @@
       <li>Memorizzazione dei dati su infrastruttura cloud (Google Firebase)</li>
       <li>Visualizzazione e organizzazione dei dati all'interno dell'App (liste ordini, riepilogo, storico)</li>
       <li>Generazione di etichette per la stampa, su richiesta del Titolare</li>
+      <li>Lettura automatica dei messaggi dei clienti tramite un servizio di intelligenza artificiale (Google Gemini API), solo quando il Titolare usa l'Inserimento rapido o la Modifica rapida: il servizio riceve il testo e le foto forniti dal Titolare insieme a catalogo, unità di misura, anagrafica clienti e, per la Modifica rapida, l'ordine da modificare, e restituisce una proposta che il Titolare può confermare, correggere o scartare. Le foto non vengono salvate dal Responsabile</li>
       <li>Predisposizione di collegamenti per avviare una chiamata o una conversazione WhatsApp dal dispositivo del Titolare, se è stato inserito un numero di telefono: questa azione è eseguita localmente sul dispositivo e non comporta trasmissione del dato ai server del Responsabile</li>
     </ul>
     <p>Il Responsabile <strong>non utilizza</strong> questi dati per finalità proprie, non li cede a terzi, non li utilizza per marketing, profilazione o qualsiasi finalità diversa dalla fornitura del Servizio richiesto dal Titolare.</p>
@@ -120,6 +122,7 @@
     <p>Per fornire il Servizio, il Responsabile si avvale dei seguenti sub-responsabili:</p>
     <ul>
       <li><strong>Google Firebase</strong> (Google Ireland Limited). L'archiviazione dei dati (Cloud Firestore) avviene su server situati in territorio europeo (regione eur3). Le foto allegate agli ordini sono conservate su <strong>Firebase Storage</strong> e le elaborazioni automatiche (per esempio le copie di sicurezza e l'archiviazione notturna degli ordini) avvengono tramite <strong>Cloud Functions</strong>, entrambi servizi di Google Ireland Limited con server in Belgio (regione europe-west1). Il servizio di autenticazione (Firebase Authentication) opera invece esclusivamente da data center situati negli Stati Uniti; questo trasferimento extra-UE è disciplinato dalle Clausole Contrattuali Standard incluse nei Termini sul trattamento dei dati di Firebase, la garanzia prevista dal GDPR per questo tipo di trasferimenti.</li>
+      <li><strong>Google Gemini API</strong> (Google), nella versione a pagamento, usata solo per l'Inserimento rapido e la Modifica rapida. In base alle condizioni di Google, i dati inviati e le risposte non vengono usati per addestrare o migliorare i prodotti di Google, sono trattati secondo l'Addendum sul trattamento dei dati in cui Google agisce come responsabile e sono conservati per 55 giorni al solo scopo di individuare usi vietati del servizio. L'elaborazione può avvenire anche fuori dall'Unione europea; questo trasferimento è disciplinato dalle Clausole Contrattuali Standard incluse nei termini sul trattamento dei dati di Google.</li>
       <li><strong>Stripe</strong> (Stripe Payments Europe, Limited, per i clienti europei). Elabora i dati di pagamento (dati della carta, indirizzo di fatturazione) necessari all'erogazione degli abbonamenti a pagamento, secondo i propri standard di sicurezza certificati PCI DSS.</li>
     </ul>
     <p>Il Responsabile garantisce che i sub-responsabili siano vincolati a obblighi di protezione dei dati equivalenti a quelli del presente accordo. Eventuali modifiche relative ai sub-responsabili utilizzati verranno comunicate tramite aggiornamento di questo documento.</p>
