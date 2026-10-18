@@ -688,7 +688,8 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
 .ai-hint{font-size:13px;font-weight:600;color:var(--sub);margin:10px 0 0}
 /* 2.32.1 Detta con il microfono della tastiera: guida ben visibile dentro il campo (vuoto) o sotto (con testo) */
 .ai-campo{position:relative}
-.ai-guida-detta{position:absolute;inset:6px;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 12px;border-radius:9px;background:var(--azione-s);color:var(--azione-d);pointer-events:none;text-align:left}
+.ai-campo .ai-testo{display:block}
+.ai-guida-detta{position:absolute;inset:1.5px;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 14px;border-radius:9.5px;background:var(--azione-s);color:var(--azione-d);pointer-events:none;text-align:left}
 .ai-guida-detta[hidden]{display:none}
 .ai-guida-detta .ti,.ai-hint-detta .ti{font-size:34px;flex-shrink:0}
 .ai-guida-detta span{font-size:18px;font-weight:800;line-height:1.3}
@@ -1819,7 +1820,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.32.1';
+const APP_VERSION='2.32.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
