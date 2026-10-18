@@ -659,6 +659,19 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
 .ob-card .ob-emoji{font-size:32px;margin-bottom:8px}
 .ob-card .ob-label{font-size:14px;font-weight:800;color:#1A1A2E}
 
+/* 2.33.0 Avviso di nuova versione e finestra delle novità */
+#agg-avviso{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:50%;transform:translateX(-50%);z-index:9500;width:calc(100% - 24px);max-width:480px;display:flex;align-items:center;gap:10px;background:#fff;border:2px solid var(--azione);border-radius:14px;box-shadow:var(--shl);padding:10px 8px 10px 14px}
+#agg-avviso[hidden]{display:none}
+#agg-avviso .agg-ic{font-size:24px;color:var(--azione);flex-shrink:0}
+#agg-avviso .agg-testo{flex:1;min-width:0;font-size:15px;font-weight:800;color:var(--txt);line-height:1.3}
+#agg-avviso .agg-ok{min-height:44px;padding:6px 14px;border:none;border-radius:10px;background:var(--azione);color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;flex-shrink:0}
+#agg-avviso .agg-x{width:44px;height:44px;border:none;background:none;border-radius:10px;color:var(--sub);font-size:20px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+#agg-avviso button:focus-visible{outline:2px solid var(--azione);outline-offset:2px}
+.nov-ic{font-size:40px;color:var(--azione);display:block;text-align:center;margin-bottom:6px}
+.nov-testo{font-size:16px;line-height:1.5;color:var(--txt);margin:0 0 12px}
+.nov-nota{font-size:14px;font-weight:700;color:var(--sub);margin:0 0 18px}
+.nov-pulsanti{display:flex;flex-direction:column;gap:10px}
+.nov-pulsanti .btn{width:100%}
 /* 2.32.0 Inserimento rapido: riquadro AI in cima a Nuovo ordine */
 .ai-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .ai-box{border:2px solid var(--azione)}
@@ -1820,7 +1833,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.32.2';
+const APP_VERSION='2.33.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -2062,6 +2075,7 @@ function applyRemoteSettings(d){
   _provaScaduta=calcolaProvaScaduta();
   _provaGiorniRimanenti=calcolaProvaGiorniRimanenti();
   applyProvaScadutaUI();
+  _novitaPianifica(); // 2.33.0
   _urgDays=(typeof d.urgDays==='number'&&d.urgDays>=0)?d.urgDays:0;
   _calMode=d.calMode||'ora';
   dateFormat=d.dateFormat||'gg dd/mm';
@@ -7810,7 +7824,7 @@ function _aiModInterno(o){
       _aiMod.foto.map(function(f,i){return `<div class="ai-foto" role="listitem"><img src="${f.url}" alt="Foto ${i+1}"><button type="button" class="ai-foto-x" aria-label="Rimuovi foto ${i+1}" onclick="aiRimuoviFoto(${i},'mod')" ${occupato?'disabled':''}><i class="ti ti-x" aria-hidden="true"></i></button></div>`;}).join('')+
       `</div><div class="ai-campo"><textarea class="fi ai-testo" id="aim-testo" rows="2" aria-label="Nota" placeholder="Aggiungi una nota (facoltativa)" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea><div class="ai-guida-detta" id="aim-testo-guida" aria-hidden="true" hidden></div></div>`;
   }else{
-    h+=`<label class="fl" for="aim-testo">Cosa cambia</label><div class="ai-campo"><textarea class="fi ai-testo" id="aim-testo" rows="3" placeholder="Es. aggiungi mezzo chilo di polpette e togli la salsiccia" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea><div class="ai-guida-detta" id="aim-testo-guida" aria-hidden="true" hidden></div></div>`;
+    h+=`<label class="fl" for="aim-testo">Cosa cambia</label><div class="ai-campo"><textarea class="fi ai-testo" id="aim-testo" rows="3" placeholder="${_aiEsc(_aiEsempioModifica())}" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea><div class="ai-guida-detta" id="aim-testo-guida" aria-hidden="true" hidden></div></div>`;
   }
   h+=`<div class="ai-pulsanti">`+
     `<button type="button" class="ai-btn" onclick="aiIncolla('mod')" ${occupato?'disabled':''}><i class="ti ti-clipboard" aria-hidden="true"></i>Incolla</button>`+
@@ -7965,6 +7979,135 @@ async function aiModApplica(){
   renderOrdini();if(typeof renderRiepilogo==='function')renderRiepilogo();
   toast(n===1?'1 modifica applicata':n+' modifiche applicate','v');
 }
+// ─── Avviso di nuova versione (2.33.0) ─────────────────────────────────────────────────────
+// Il service worker apre subito la copia salvata e scarica quella nuova in sottofondo: senza
+// avviso la nuova versione si vede solo all'apertura successiva. Ogni tanto si legge la versione
+// pubblicata (richiesta con «controllo-versione», che il service worker lascia passare alla rete);
+// se è più recente compare una fascia con «Aggiorna». Non compare mentre si compila un nuovo
+// ordine (ricaricando si perderebbe) né sopra finestre e schermate aperte.
+const _AGG={versione:null,rimandata:null,ultimo:0,timer:null};
+function _aggUrl(){const u=new URL('index.html',location.href);u.search='controllo-versione='+Date.now();u.hash='';return u.href;}
+function _versionePiuNuova(a,b){
+  const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);
+  for(let i=0;i<Math.max(x.length,y.length);i++){const d=(x[i]||0)-(y[i]||0);if(d)return d>0;}
+  return false;
+}
+async function _aggControlla(forza){
+  if(!forza&&Date.now()-_AGG.ultimo<5*60*1000)return;
+  if(navigator.onLine===false)return;
+  _AGG.ultimo=Date.now();
+  try{
+    const r=await fetch(_aggUrl(),{cache:'no-store'});
+    if(!r.ok)return;
+    const m=(await r.text()).match(/const APP_VERSION='([0-9.]+)'/);
+    if(m&&_versionePiuNuova(m[1],APP_VERSION)){_AGG.versione=m[1];_aggMostra();}
+  }catch(e){/* rete assente o lenta: si riprova più tardi */}
+}
+function _aggPuoMostrare(){
+  if(!_AGG.versione||_AGG.rimandata===_AGG.versione)return false;
+  if(_currentTab==='nuovo')return false;
+  if(document.querySelector('.ov.open'))return false;
+  if(typeof _schermataPienaAttiva!=='undefined'&&_schermataPienaAttiva)return false;
+  return true;
+}
+function _aggMostra(){
+  let el=document.getElementById('agg-avviso');
+  if(!el){
+    el=document.createElement('div');el.id='agg-avviso';el.setAttribute('role','region');el.setAttribute('aria-label','Aggiornamento dell\'app');el.hidden=true;
+    el.innerHTML='<i class="ti ti-refresh agg-ic" aria-hidden="true"></i><span class="agg-testo" role="status">È disponibile una nuova versione dell\'app</span>'+
+      '<button type="button" class="agg-ok" onclick="aggAggiorna()">Aggiorna</button>'+
+      '<button type="button" class="agg-x" onclick="aggRimanda()" aria-label="Più tardi"><i class="ti ti-x" aria-hidden="true"></i></button>';
+    document.body.appendChild(el);
+  }
+  el.hidden=!_aggPuoMostrare();
+  // Finché c'è una versione in attesa, si ricontrolla ogni pochi secondi se la fascia può comparire
+  // (per esempio appena si chiude il nuovo ordine o una finestra).
+  if(!_AGG.timer&&_AGG.versione&&_AGG.rimandata!==_AGG.versione)_AGG.timer=setInterval(function(){
+    if(!_AGG.versione||_AGG.rimandata===_AGG.versione){clearInterval(_AGG.timer);_AGG.timer=null;}
+    const e=document.getElementById('agg-avviso');if(e)e.hidden=!_aggPuoMostrare();
+  },3000);
+}
+function aggRimanda(){
+  _AGG.rimandata=_AGG.versione;
+  const el=document.getElementById('agg-avviso');
+  if(el){if(el.contains(document.activeElement))document.activeElement.blur();el.hidden=true;}
+}
+async function aggAggiorna(){
+  const b=document.querySelector('#agg-avviso .agg-ok');if(b){b.disabled=true;b.textContent='Aggiorno…';}
+  // Si mette la versione appena scaricata nella copia salvata, così il ricaricamento la mostra subito.
+  try{
+    const r=await fetch(_aggUrl(),{cache:'no-store'});
+    if(r.ok&&window.caches){
+      const qui=new URL(location.href);const dir=qui.pathname.replace(/[^/]*$/,'');
+      const percorsi=[qui.pathname,dir,dir+'index.html'];
+      for(const nome of await caches.keys()){
+        const c=await caches.open(nome);
+        for(const req of await c.keys()){
+          if(percorsi.indexOf(new URL(req.url).pathname)>=0)await c.put(req,r.clone());
+        }
+      }
+    }
+  }catch(e){/* se non riesce, il ricaricamento prende comunque la versione aggiornata appena possibile */}
+  location.reload();
+}
+setTimeout(function(){_aggControlla(true);},20000);
+setInterval(function(){_aggControlla(false);},30*60*1000);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_aggControlla(false);});
+
+// ─── Novità (2.33.0) ───────────────────────────────────────────────────────────────────────
+// Dopo un aggiornamento importante, una finestra spiega cosa c'è di nuovo, una volta sola per
+// dispositivo. Chi crea l'account dopo l'uscita della novità non la vede (la scopre da sé).
+const NOVITA={id:'2026-10-inserimento-rapido',dal:'2026-10-19'};
+let _novitaPianificata=false,_novitaTentativi=0;
+function _novitaGiaVista(){try{return localStorage.getItem('oio-novita-vista')===NOVITA.id;}catch(e){return true;}}
+function _novitaSegnaVista(){try{localStorage.setItem('oio-novita-vista',NOVITA.id);}catch(e){}}
+function _novitaPianifica(){
+  if(_novitaPianificata||_novitaGiaVista())return;
+  _novitaPianificata=true;
+  setTimeout(_novitaProva,1500);
+}
+function _novitaProva(){
+  if(_novitaGiaVista())return;
+  const creato=_datiCreato?new Date(_datiCreato).getTime():NaN;
+  if(!isNaN(creato)&&creato>=new Date(NOVITA.dal+'T00:00:00').getTime()){_novitaSegnaVista();return;}
+  const app=document.getElementById('app');
+  const pronta=app&&app.style.display!=='none'&&!document.querySelector('.ov.open')&&!(typeof _schermataPienaAttiva!=='undefined'&&_schermataPienaAttiva)&&_currentTab!=='nuovo';
+  if(!pronta){if(++_novitaTentativi<40)setTimeout(_novitaProva,3000);return;}
+  if(_provaScaduta)return; // senza prova né abbonamento la funzione non si può usare: si mostrerà più avanti
+  _novitaSegnaVista();
+  _novitaMostra();
+}
+function _novitaMostra(){
+  const vecchia=document.getElementById('modal-novita');if(vecchia)vecchia.remove();
+  const ov=document.createElement('div');ov.className='ov';ov.id='modal-novita';ov.style.cssText='align-items:center;padding:20px;z-index:200';
+  ov.innerHTML='<div class="modal" role="dialog" aria-modal="true" aria-labelledby="novita-titolo" style="max-width:440px;border-radius:18px">'+
+    '<i class="ti ti-sparkles nov-ic" aria-hidden="true"></i>'+
+    '<h2 class="mta" id="novita-titolo" style="text-align:center;margin-bottom:12px">Novità: Inserimento rapido</h2>'+
+    '<p class="nov-testo">In cima a Nuovo ordine ora puoi scrivere l\'ordine come ti viene, incollare il messaggio del cliente, dettarlo o fotografarlo: l\'app riempie i campi per te.</p>'+
+    '<p class="nov-testo">Funziona anche negli ordini già salvati, con la Modifica rapida: «'+_aiEsc(_aiEsempioAggiunta())+'», «spostalo a venerdì», «già pagato».</p>'+
+    '<p class="nov-nota">Controlla sempre l\'ordine prima di salvarlo.</p>'+
+    '<div class="nov-pulsanti">'+
+    '<button type="button" class="btn br" onclick="novitaProva()"><i class="ti ti-sparkles" aria-hidden="true"></i>Prova ora</button>'+
+    '<button type="button" class="btn bg2" onclick="novitaGuida()"><i class="ti ti-help-circle" aria-hidden="true"></i>Come funziona</button>'+
+    '<button type="button" class="btn bg2" onclick="closeModal(\'modal-novita\')">Chiudi</button>'+
+    '</div></div>';
+  ov.addEventListener('click',function(e){if(e.target===ov)closeModal('modal-novita');});
+  ov.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();closeModal('modal-novita');}});
+  document.body.appendChild(ov);
+  openModal('modal-novita');
+}
+// Esempi con un articolo del catalogo di chi legge (l'app la usano attività diverse); senza catalogo, esempi neutri.
+function _aiEsempioArticolo(){
+  const a=(typeof arts!=='undefined'&&Array.isArray(arts)?arts:[]).find(function(x){return x&&typeof x.nome==='string'&&x.nome.trim();});
+  if(!a)return '';
+  const n=a.nome.trim();
+  // "Petto di pollo" → "petto di pollo"; le sigle ("BBQ") restano come sono
+  return /^[A-ZÀ-Ý][a-zà-ÿ]/.test(n)?n.charAt(0).toLowerCase()+n.slice(1):n;
+}
+function _aiEsempioAggiunta(){const n=_aiEsempioArticolo();return n?'aggiungi anche '+n:'aggiungine altri due';}
+function _aiEsempioModifica(){return 'Es. '+_aiEsempioAggiunta()+', spostalo a venerdì';}
+function novitaProva(){closeModal('modal-novita');apriNuovoOrdine();setTimeout(function(){if(_currentTab==='nuovo'&&typeof aiApri==='function')aiApri();},350);}
+function novitaGuida(){closeModal('modal-novita');apriGuida('come-funziona','inserimento-rapido');}
 </script>
 
 <nav id="bottom-nav" aria-label="Menu di navigazione">

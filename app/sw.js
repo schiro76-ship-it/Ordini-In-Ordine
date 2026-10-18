@@ -36,7 +36,7 @@
  * ---------------------------------------------------------
  */
 
-const CACHE_NAME = 'ordininordine-cache-v5';
+const CACHE_NAME = 'ordininordine-cache-v6';
 
 // Pagine del sito mostrate come guide dentro l'app (2.31.122): una copia si salva già
 // all'installazione, così la guida si apre anche senza rete fin dalla prima volta.
@@ -96,6 +96,12 @@ self.addEventListener('fetch', function(event) {
   if (richiesta.method !== 'GET' || !stessoOrigine) {
     return;
   }
+
+  // Controllo della versione pubblicata (app 2.33.0, «È disponibile una nuova versione»):
+  // deve arrivare sempre dalla rete e non va salvato in cache.
+  try {
+    if (new URL(richiesta.url).searchParams.has('controllo-versione')) return;
+  } catch (e) {}
 
   event.respondWith(
     caches.open(CACHE_NAME).then(function(cache) {
