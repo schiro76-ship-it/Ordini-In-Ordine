@@ -36,11 +36,34 @@
  * ---------------------------------------------------------
  */
 
-const CACHE_NAME = 'ordininordine-cache-v4';
+const CACHE_NAME = 'ordininordine-cache-v5';
+
+// Pagine del sito mostrate come guide dentro l'app (2.31.122): una copia si salva già
+// all'installazione, così la guida si apre anche senza rete fin dalla prima volta.
+// Percorsi relativi a questo file (che sta in /app/).
+const GUIDE_DA_SALVARE = ['../come-funziona.html', '../guida-stampa-etichette.html'];
+
+// Si salvano solo le risposte riuscite (codice 200) dello stesso dominio: prima si salvava
+// qualunque risposta, anche una pagina di errore di GitHub, che poi veniva mostrata
+// all'apertura successiva al posto dell'app (controllo del 3 ottobre 2026, punto 10).
+function rispostaDaSalvare(risposta) {
+  return !!risposta && risposta.status === 200 && risposta.type === 'basic';
+}
 
 self.addEventListener('install', function(event) {
   // Attiva subito la nuova versione, senza attendere la chiusura di tutte le schede aperte
   self.skipWaiting();
+  // Copia delle guide: "al meglio", se una non arriva l'installazione non si blocca
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(function(cache) {
+      return Promise.all(GUIDE_DA_SALVARE.map(function(percorso) {
+        const indirizzo = new URL(percorso, self.location.href).href;
+        return fetch(indirizzo).then(function(risposta) {
+          if (rispostaDaSalvare(risposta)) return cache.put(indirizzo, risposta);
+        }).catch(function() {});
+      }));
+    }).catch(function() {})
+  );
 });
 
 self.addEventListener('activate', function(event) {
@@ -81,7 +104,11 @@ self.addEventListener('fetch', function(event) {
         // della prossima apertura (succede in sottofondo, non blocca nulla)
         const richiestaRete = fetch(richiesta)
           .then(function(rispostaRete) {
-            cache.put(richiesta, rispostaRete.clone());
+            if (rispostaDaSalvare(rispostaRete)) {
+              cache.put(richiesta, rispostaRete.clone()).catch(function() {});
+            }
+            // Una risposta di errore dalla rete: se c'è una copia buona in cache si usa quella
+            if (!rispostaRete.ok && rispostaCache) return rispostaCache;
             return rispostaRete;
           })
           .catch(function() {

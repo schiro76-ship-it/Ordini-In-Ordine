@@ -53,7 +53,13 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .sb-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.12)}
 .sb-logo .title{font-size:18px;font-weight:900;color:#fff}
 .sb-logo .sub{font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
-.sb-nav{flex:1;padding:10px 8px;overflow-y:auto}
+.sb-nav{flex:1;padding:10px 8px;overflow-y:auto;display:flex;flex-direction:column}
+/* 2.31.122: gruppo "Aiuto" in fondo alla sidebar. Sta dentro la parte che scorre, così sugli schermi
+   bassi scorre insieme alle altre voci invece di toglier loro spazio. */
+.sb-aiuto{margin-top:auto;padding-top:10px;border-top:1px solid rgba(255,255,255,0.12)}
+.sb-gruppo-titolo{font-size:12px;font-weight:800;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:1px;padding:4px 13px 6px;margin:0}
+.sb-aiuto .ni{font-size:15px;padding:9px 13px;min-height:44px}
+.sb-aiuto .ni .ic{font-size:19px}
 .sb-nav .ni{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:10px;cursor:pointer;color:#fff;font-size:16px;font-weight:700;transition:all 0.15s;margin-bottom:3px;user-select:none}
 .sb-nav .ni .ic{font-size:20px;flex-shrink:0}
 .sb-nav .ni:hover{background:rgba(255,255,255,0.15)}
@@ -71,8 +77,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
 .page-wrap{flex:1;min-height:0;overflow-y:auto}
 .sec{display:none}.sec.active{display:block}
 @media(max-width:639px){
-  .sidebar{position:fixed;top:0;left:0;height:100vh;transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
+  .sidebar{position:fixed;top:0;left:0;height:100vh;transform:translateX(-100%);visibility:hidden;transition:transform 0.25s ease,visibility 0s linear 0.25s}
+  .sidebar.open{transform:translateX(0);visibility:visible;transition:transform 0.25s ease}
   .topbar{display:flex}
   .phdr{padding:16px 16px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
   .phdr h2{font-size:22px;font-weight:900}
@@ -83,8 +89,50 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-h
   #tab-ordini .stats-row{grid-template-columns:repeat(5,1fr)}
 }
 /* Fallback: se JS rileva portrait smartphone, aggiunge classe al body */
-body.portrait-phone .sidebar{display:none!important}
-body.portrait-phone .sb-overlay{display:none!important}
+/* 2.31.122: su smartphone verticale la sidebar è un cassetto che si apre dal pulsante menu in alto a sinistra.
+   Da chiuso è anche "visibility:hidden": fuori schermo non basta, altrimenti Tab e lettore di schermo
+   ci entrerebbero lo stesso. Sta sopra la barra in basso (z-index 300). */
+body.portrait-phone .sidebar{position:fixed;top:0;bottom:0;left:0;height:auto;width:min(280px,85vw);overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,0px);transform:translateX(-100%);visibility:hidden;transition:transform 0.25s ease,visibility 0s linear 0.25s;z-index:320}
+body.portrait-phone .sidebar.open{transform:translateX(0);visibility:visible;transition:transform 0.25s ease;box-shadow:4px 0 24px rgba(0,0,0,0.35)}
+body.portrait-phone .sb-overlay{z-index:310}
+/* Le voci avevano "transition:all": nel cassetto anche la visibilità ereditata si animava e per un
+   attimo le voci restavano nascoste, quindi il cursore non ci entrava all'apertura. */
+.sidebar .ni,.sidebar .ni-nuovo-top{transition-property:background-color,border-color,color,filter,opacity}
+@media (prefers-reduced-motion:reduce){.sidebar,.sidebar.open,body.portrait-phone .sidebar,body.portrait-phone .sidebar.open{transition:none}}
+/* Pulsante menu nell'intestazione delle schede: solo su smartphone verticale */
+.phdr-menu{display:none}
+body.portrait-phone .phdr-menu{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:44px;height:44px;margin-left:-10px;margin-right:-4px;background:none;border:none;border-radius:10px;color:#fff;font-size:26px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+body.portrait-phone .phdr-menu:active{opacity:0.6}
+body.portrait-phone .phdr-menu:focus-visible{outline:2px solid #fff;outline-offset:2px}
+body.portrait-phone .phdr-menu+h2{margin-right:auto}
+/* Guide dentro l'app (2.31.122). Sopra la barra in basso (300) e le finestre (100), sotto le schermate
+   di sistema (9998+). La barra in alto è scura come la sidebar e lascia spazio alla zona sicura di iPhone. */
+#guida-screen{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:9000;background:var(--bg);flex-direction:column}
+.guida-barra{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#2C3E50;color:#fff;padding:10px 12px 10px 16px;padding-top:calc(10px + env(safe-area-inset-top,0px));flex-shrink:0}
+.guida-barra h2{font-size:19px;font-weight:900;color:#fff;margin:0;min-width:0}
+.guida-chiudi{display:flex;align-items:center;gap:6px;min-height:44px;padding:8px 14px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.5);border-radius:22px;color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;flex-shrink:0}
+.guida-chiudi i{font-size:18px}
+.guida-chiudi:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.guida-corpo{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 16px calc(32px + env(safe-area-inset-bottom,0px))}
+#guida-contenuto{max-width:720px;margin:0 auto;background:#fff;border-radius:var(--rad);box-shadow:var(--sh);padding:22px 20px 26px;font-size:16px;line-height:1.55;color:var(--txt)}
+#guida-contenuto .guida-pagina-titolo{font-size:21px;font-weight:900;line-height:1.3;margin:0 0 8px}
+#guida-contenuto .guida-intro{font-size:16px;font-weight:600;color:var(--sub);margin:0 0 18px}
+#guida-contenuto h3{font-size:19px;font-weight:900;line-height:1.3;margin:26px 0 8px}
+#guida-contenuto h4{font-size:17px;font-weight:800;margin:20px 0 6px}
+#guida-contenuto p{margin:0 0 12px}
+#guida-contenuto ul,#guida-contenuto ol{margin:0 0 12px;padding-left:22px}
+#guida-contenuto li{margin-bottom:4px}
+#guida-contenuto a{color:var(--azione);text-decoration:underline;text-underline-offset:2px}
+#guida-contenuto a:focus-visible{outline:2px solid var(--azione);outline-offset:2px;border-radius:2px}
+#guida-contenuto .step{display:flex;gap:12px;align-items:flex-start;margin:14px 0}
+#guida-contenuto .step h3{margin-top:2px}
+#guida-contenuto .step-num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--azione);color:#fff;font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+#guida-contenuto .callout{background:#EAF1FB;border-left:4px solid var(--azione);border-radius:10px;padding:12px 14px;margin:14px 0}
+#guida-contenuto .callout i{margin-right:6px;color:var(--azione-d)}
+#guida-contenuto .callout p:last-child{margin-bottom:0}
+#guida-contenuto .guida-stato{text-align:center;color:var(--sub);font-weight:700;padding:24px 0}
+#guida-contenuto .guida-stato .btn{margin-top:12px}
+@media(min-width:640px){#guida-contenuto{padding:28px 32px 32px}.guida-corpo{padding-top:28px}}
 body.portrait-phone .topbar{display:none!important}
 body.portrait-phone .page-wrap{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 body.portrait-phone #bottom-nav{display:flex}
@@ -112,6 +160,12 @@ body.portrait-phone #bottom-nav{display:flex}
   box-shadow:0 4px 16px rgba(37,107,193,0.5);
   border:3px solid #2C3E50;
 }
+/* 2.31.122: il pulsante centrale ha anche la scritta "Nuovo ordine". Il cerchio occupa 5 px più
+   dell'icona delle altre voci: il margine negativo allinea le tre scritte sulla stessa riga.
+   La scritta segue gli stessi colori delle altre voci (bianca solo sulla scheda attiva). */
+.bn-item.bn-new .bn-ic-wrap{margin-bottom:-5px}
+.bn-item.bn-new>span:last-child{color:rgba(255,255,255,0.7)}
+.bn-item.bn-new.active>span:last-child{color:#fff}
 #nuovo-bottom-bar{display:none;background:transparent;padding:10px 0 8px}
 #nuovo-bottom-bar.visible{display:block}
 /* Solo tablet/desktop: fixed in fondo, bottone a dimensione normale allineato a destra
@@ -213,7 +267,7 @@ body:not(.portrait-phone) .phdr input[type=number]{color:var(--azione)!important
 body:not(.portrait-phone) .phdr span{color:var(--azione)!important}
 body:not(.portrait-phone) .phdr-stampa span{color:#4F46E5!important}
 body:not(.portrait-phone) #sel-count{color:var(--azione)!important}
-body.portrait-phone .phdr button:not(.phdr-invita):not(.phdr-stampa){background:var(--bg)!important;color:var(--sub)!important;border:1.5px solid var(--brd)!important}
+body.portrait-phone .phdr button:not(.phdr-invita):not(.phdr-stampa):not(.phdr-menu){background:var(--bg)!important;color:var(--sub)!important;border:1.5px solid var(--brd)!important}
 body.portrait-phone .phdr input[type=number]{border-bottom-color:#fff!important}
 body.portrait-phone #sel-count{color:#fff!important}
 body.portrait-phone .phdr{padding:14px 16px 0}
@@ -755,7 +809,7 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
 </div>
 
 <div class="shell" id="app" style="display:none">
-  <div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+  <div class="sb-overlay" id="sb-overlay" onclick="closeSidebar(true)"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sb-logo" style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.12)">
       <div class="logo-box" style="background:#FFE033;border-radius:12px;padding:8px 10px;display:flex;align-items:center;gap:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.35)">
@@ -780,6 +834,12 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importaDati(this)">
       <input type="file" id="img-input-camera" accept="image/*" capture="environment" style="display:none" onchange="onImgPickerChange(this)">
       <input type="file" id="img-input-gallery" accept="image/*" style="display:none" onchange="onImgPickerChange(this)">
+      <div class="sb-aiuto" role="group" aria-labelledby="sb-aiuto-titolo">
+        <p class="sb-gruppo-titolo" id="sb-aiuto-titolo">Aiuto</p>
+        <div class="ni" role="button" tabindex="0" onclick="apriGuida('come-funziona')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();apriGuida('come-funziona');}"><span class="ic"><i class="ti ti-help-circle" aria-hidden="true"></i></span>Come funziona</div>
+        <div class="ni" role="button" tabindex="0" onclick="apriGuida('stampa')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();apriGuida('stampa');}"><span class="ic"><i class="ti ti-printer" aria-hidden="true"></i></span>Guida alla stampa</div>
+        <div class="ni" role="button" tabindex="0" onclick="apriSegnalaDalMenu()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();apriSegnalaDalMenu();}"><span class="ic"><i class="ti ti-bug" aria-hidden="true"></i></span>Segnala un problema</div>
+      </div>
     </nav>
   </aside>
   <div class="pcontent">
@@ -807,7 +867,7 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
       <button onclick="dismissProvaInScadenzaBanner()" aria-label="Chiudi" style="background:none;border:none;cursor:pointer;color:inherit;padding:4px;display:flex;align-items:center;opacity:0.7"><i class="ti ti-x" style="font-size:16px"></i></button>
     </div>
     <div class="topbar">
-      <button class="tb-menu" aria-label="Apri menu" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
+      <button class="tb-menu" aria-label="Menu" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar(this)"><i class="ti ti-menu-2"></i></button>
       <div class="tb-title" id="topbar-title" style="font-family:'Nunito',sans-serif;font-weight:900"><span style="color:#2C3E50">Ordin</span><span style="color:#D7302A">I</span><span style="color:#2C3E50">nOrdine</span></div>
     </div>
     <main class="page-wrap">
@@ -1382,6 +1442,17 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
      https://ordininordine.it/app/ i link arrivano qui con ?mode=…&oobCode=… (2.31.108, punto 37).
      Sta sopra anche alla scelta dell'attività (onboarding, z-index 99999): chi si è appena registrato
      apre spesso il link prima di aver scelto l'attività. -->
+<!-- Guide dentro l'app (2.31.122): il testo arriva dalle pagine del sito (come-funziona.html,
+     guida-stampa-etichette.html), così aggiornando la pagina del sito si aggiorna anche qui. -->
+<div id="guida-screen" role="dialog" aria-modal="true" aria-labelledby="guida-titolo" style="display:none">
+  <div class="guida-barra">
+    <h2 id="guida-titolo">Guida</h2>
+    <button type="button" class="guida-chiudi" onclick="chiudiGuida()"><i class="ti ti-x" aria-hidden="true"></i>Chiudi</button>
+  </div>
+  <div class="guida-corpo" id="guida-corpo">
+    <div id="guida-contenuto"></div>
+  </div>
+</div>
 <div id="azione-screen" role="dialog" aria-modal="true" aria-labelledby="azione-titolo" style="display:none;position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:#F0F2F5;z-index:100000;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto">
   <div class="login-box" style="text-align:center">
     <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px"><img src="icon.png" alt="" width="40" height="40" style="border-radius:10px"><span style="font-family:'Nunito',sans-serif;font-size:22px;font-weight:900;color:#2C3E50">Ordin<span style="color:#D7302A">I</span>nOrdine</span></div>
@@ -1644,7 +1715,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.121';
+const APP_VERSION='2.31.122';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -2759,13 +2830,268 @@ function goTab(name){
     setTimeout(function(){
       if(_currentTab!==name)return;
       const sec=document.getElementById('tab-'+name);
-      const items=sec&&_getFocusable(sec);
+      // Il pulsante menu (2.31.122) è il primo elemento dell'intestazione: si salta, così il cursore
+      // arriva come prima sul primo comando della scheda.
+      const items=sec&&_getFocusable(sec).filter(function(el){return !el.classList.contains('phdr-menu');});
       if(items&&items.length)items[0].focus();
     },0);
   }
 }
-function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open')}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open')}
+// ─── Sidebar a cassetto (2.31.122) ──────────────────────────────────────────────────────────
+// Su smartphone verticale (e su finestre strette) la sidebar si apre dal pulsante menu.
+// EAA: il pulsante dice se il menu è aperto (aria-expanded); da aperto il resto dell'app è "inert",
+// quindi Tab resta nel menu; Esc o un tocco fuori lo chiudono e il cursore torna sul pulsante.
+let _sidebarAperturaDa=null;
+function _sidebarComeCassetto(){
+  return document.body.classList.contains('portrait-phone')||window.matchMedia('(max-width:639px)').matches;
+}
+function _sidebarAggiornaPulsanti(aperta){
+  document.querySelectorAll('.phdr-menu,.tb-menu').forEach(function(b){b.setAttribute('aria-expanded',aperta?'true':'false');});
+}
+function _sidebarInerte(attiva){
+  ['.pcontent','#bottom-nav','#tablet-top-bar'].forEach(function(sel){
+    const el=document.querySelector(sel);
+    if(!el)return;
+    if(attiva)el.setAttribute('inert','');else el.removeAttribute('inert');
+  });
+}
+function openSidebar(origine){
+  const sb=document.getElementById('sidebar');
+  sb.classList.add('open');
+  document.getElementById('sb-overlay').classList.add('open');
+  if(!_sidebarComeCassetto())return;
+  _sidebarAperturaDa=origine||document.activeElement||null;
+  _sidebarAggiornaPulsanti(true);
+  _sidebarInerte(true);
+  // Cursore sulla voce della scheda attuale, altrimenti sul primo comando del menu
+  setTimeout(function(){
+    if(!sb.classList.contains('open'))return;
+    const dest=sb.querySelector('.sb-nav .ni.active')||_getFocusable(sb)[0];
+    if(dest)try{dest.focus({preventScroll:true});}catch(e){}
+  },0);
+}
+// ripristinaFocus=true quando il menu si chiude senza andare altrove (Esc, tocco fuori, pulsante menu);
+// quando invece si sceglie una voce, il cursore lo sposta la voce scelta.
+function closeSidebar(ripristinaFocus){
+  const sb=document.getElementById('sidebar');
+  const eraAperta=sb.classList.contains('open');
+  sb.classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('open');
+  _sidebarAggiornaPulsanti(false);
+  _sidebarInerte(false);
+  const origine=_sidebarAperturaDa;
+  _sidebarAperturaDa=null;
+  if(eraAperta&&ripristinaFocus===true&&origine&&document.body.contains(origine)&&origine.offsetParent!==null){
+    try{origine.focus({preventScroll:true});}catch(e){}
+  }
+  return origine;
+}
+function toggleSidebar(btn){
+  if(document.getElementById('sidebar').classList.contains('open'))closeSidebar(true);
+  else openSidebar(btn);
+}
+// Una voce del menu che apre qualcosa sopra l'app (guida, segnalazione): chiude prima il cassetto
+// e rimette il cursore sul pulsante menu, così alla chiusura di quella finestra il cursore torna lì.
+function _chiudiCassettoPerFinestra(){
+  const sb=document.getElementById('sidebar');
+  if(!sb||!sb.classList.contains('open')||!_sidebarComeCassetto()){closeSidebar();return;}
+  closeSidebar(true);
+}
+function apriSegnalaDalMenu(){
+  _chiudiCassettoPerFinestra();
+  apriSegnalaProblema();
+}
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  const sb=document.getElementById('sidebar');
+  if(sb&&sb.classList.contains('open')&&_sidebarComeCassetto()){e.preventDefault();closeSidebar(true);}
+});
+// Ruotando il telefono o allargando la finestra il cassetto diventa una sidebar fissa: niente più "inert".
+window.addEventListener('resize',function(){
+  const sb=document.getElementById('sidebar');
+  if(sb&&sb.classList.contains('open')&&!_sidebarComeCassetto())closeSidebar();
+});
+// Il pulsante menu va in ogni intestazione di scheda (visibile solo su smartphone verticale).
+// Non in Nuovo ordine: lì l'intestazione è già piena (numero e Annulla) e si esce con Annulla.
+(function(){
+  try{
+    document.querySelectorAll('.sec:not(#tab-nuovo) .phdr').forEach(function(phdr){
+      if(phdr.querySelector('.phdr-menu'))return;
+      const h2=phdr.querySelector('h2');
+      if(!h2||h2.parentNode!==phdr)return;
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='phdr-menu';
+      b.setAttribute('aria-label','Menu');
+      b.setAttribute('aria-controls','sidebar');
+      b.setAttribute('aria-expanded','false');
+      b.innerHTML='<i class="ti ti-menu-2" aria-hidden="true"></i>';
+      b.addEventListener('click',function(){toggleSidebar(b);});
+      phdr.insertBefore(b,h2);
+    });
+  }catch(e){console.warn('Pulsante menu non aggiunto',e);}
+})();
+// ─── Guide dentro l'app (2.31.122) ──────────────────────────────────────────────────────────
+// Il testo arriva dalle pagine del sito: si aggiorna la pagina sul sito e si aggiorna anche qui.
+// Della pagina si tiene solo il contenuto (niente intestazione, piè di pagina, script, pulsanti
+// "Inizia ora"). Il service worker ne tiene una copia, così la guida si legge anche senza rete.
+const _GUIDE={
+  'come-funziona':{titolo:'Come funziona',url:'../come-funziona.html',file:'come-funziona.html'},
+  'stampa':{titolo:'Guida alla stampa',url:'../guida-stampa-etichette.html',file:'guida-stampa-etichette.html'}
+};
+let _guidaRitorno=null;
+let _guidaRichiesta=0;
+function _guidaAperta(){
+  const scr=document.getElementById('guida-screen');
+  return !!scr&&scr.style.display!=='none';
+}
+function apriGuida(nome,ancora){
+  const g=_GUIDE[nome];
+  if(!g)return;
+  const scr=document.getElementById('guida-screen');
+  const giaAperta=_guidaAperta();
+  if(!giaAperta){
+    _chiudiCassettoPerFinestra();
+    _guidaRitorno=document.activeElement&&document.activeElement!==document.body?document.activeElement:null;
+  }
+  document.getElementById('guida-titolo').textContent=g.titolo;
+  scr.style.display='flex';
+  if(giaAperta){
+    // Da una guida all'altra: il cursore torna sul titolo, come all'apertura
+    const t=document.getElementById('guida-titolo');
+    if(!t.hasAttribute('tabindex'))t.setAttribute('tabindex','-1');
+    try{t.focus({preventScroll:true});}catch(e){}
+  }
+  _caricaGuida(nome,ancora);
+}
+function chiudiGuida(){
+  if(!_guidaAperta())return;
+  _guidaRichiesta++;// un caricamento ancora in corso non scrive più nulla
+  document.getElementById('guida-screen').style.display='none';
+  // Toglie subito "inert" dall'app (l'osservatore lo farebbe un attimo dopo), così il cursore può tornare dov'era
+  if(typeof _aggiornaSchermatePiene==='function')_aggiornaSchermatePiene();
+  const r=_guidaRitorno;
+  _guidaRitorno=null;
+  if(r&&document.body.contains(r)&&r.offsetParent!==null){try{r.focus({preventScroll:true});}catch(e){}}
+}
+async function _caricaGuida(nome,ancora){
+  const g=_GUIDE[nome];
+  const richiesta=++_guidaRichiesta;
+  const box=document.getElementById('guida-contenuto');
+  const corpo=document.getElementById('guida-corpo');
+  box.setAttribute('aria-busy','true');
+  box.innerHTML='<p class="guida-stato">Caricamento…</p>';
+  corpo.scrollTop=0;
+  let indirizzo;
+  try{
+    indirizzo=new URL(g.url,window.location.href).href;
+    const r=await fetch(indirizzo,{credentials:'same-origin'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const html=await r.text();
+    if(richiesta!==_guidaRichiesta)return;
+    const contenuto=_estraiGuida(html,indirizzo);
+    if(!contenuto)throw new Error('pagina senza contenuto');
+    box.innerHTML='';
+    box.appendChild(contenuto);
+  }catch(e){
+    if(richiesta!==_guidaRichiesta)return;
+    console.warn('Guida non caricata',e);
+    const senzaRete=navigator.onLine===false;
+    box.innerHTML='<div class="guida-stato"><p role="status">'+(senzaRete?'Per aprire questa guida la prima volta serve la connessione. Riprova quando torna la rete.':'Non è stato possibile aprire la guida. Riprova tra poco.')+'</p><button type="button" class="btn br">Riprova</button></div>';
+    box.querySelector('button').addEventListener('click',function(){_caricaGuida(nome,ancora);});
+  }
+  box.removeAttribute('aria-busy');
+  if(ancora){
+    const t=document.getElementById('guida-'+ancora);
+    if(t)t.scrollIntoView({block:'start'});
+  }
+}
+function _estraiGuida(html,base){
+  const doc=new DOMParser().parseFromString(html,'text/html');
+  doc.querySelectorAll('script,style,link,meta,iframe,object,embed,form,header,footer,noscript').forEach(function(el){el.remove();});
+  const hero=doc.querySelector('.hero');
+  const titoloPagina=hero&&hero.querySelector('h1');
+  const intro=hero&&hero.querySelector('.lede');
+  if(hero)hero.remove();
+  const sorgente=doc.querySelector('.article')||doc.querySelector('main')||doc.body;
+  if(!sorgente)return null;
+  const wrap=document.createElement('div');
+  if(titoloPagina&&titoloPagina.textContent.trim()){
+    const p=document.createElement('p');p.className='guida-pagina-titolo';p.textContent=titoloPagina.textContent.trim();wrap.appendChild(p);
+  }
+  if(intro&&intro.textContent.trim()){
+    const p=document.createElement('p');p.className='guida-intro';p.textContent=intro.textContent.trim();wrap.appendChild(p);
+  }
+  Array.from(sorgente.childNodes).forEach(function(n){wrap.appendChild(document.importNode(n,true));});
+  // Pulsanti "Inizia ora" del sito: qui non servono (chi legge è già dentro l'app)
+  wrap.querySelectorAll('.btn-primary,.nav-cta').forEach(function(el){
+    const padre=el.parentElement;
+    el.remove();
+    if(padre&&padre!==wrap&&!padre.textContent.trim()&&!padre.querySelector('img'))padre.remove();
+  });
+  // Titoli un livello sotto il titolo della finestra (h2): h1/h2 diventano h3, h3 e oltre h4
+  wrap.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(function(h){
+    const livello=Number(h.tagName.charAt(1));
+    const nuovo=document.createElement(livello<=2?'h3':'h4');
+    Array.from(h.attributes).forEach(function(a){nuovo.setAttribute(a.name,a.value);});
+    while(h.firstChild)nuovo.appendChild(h.firstChild);
+    h.replaceWith(nuovo);
+  });
+  const origine=new URL(base).origin;
+  wrap.querySelectorAll('*').forEach(function(el){
+    // Niente codice nei contenuti; id con prefisso, per non scontrarsi con quelli dell'app
+    Array.from(el.attributes).forEach(function(a){if(/^on/i.test(a.name))el.removeAttribute(a.name);});
+    if(el.id)el.id='guida-'+el.id;
+  });
+  wrap.querySelectorAll('img').forEach(function(img){
+    const src=img.getAttribute('src');
+    if(src)try{img.src=new URL(src,base).href;}catch(e){img.remove();return;}
+    if(!img.hasAttribute('alt'))img.setAttribute('alt','');
+    img.setAttribute('loading','lazy');
+    img.style.maxWidth='100%';img.style.height='auto';
+  });
+  wrap.querySelectorAll('a[href]').forEach(function(a){
+    const href=a.getAttribute('href');
+    if(href.charAt(0)==='#'){a.setAttribute('data-ancora',href.slice(1));return;}
+    let u;
+    try{u=new URL(href,base);}catch(e){a.removeAttribute('href');return;}
+    if(u.protocol==='mailto:'||u.protocol==='tel:')return;
+    if(u.protocol!=='https:'&&u.protocol!=='http:'){a.removeAttribute('href');return;}
+    if(u.origin===origine){
+      const nomeGuida=Object.keys(_GUIDE).find(function(k){return u.pathname.endsWith('/'+_GUIDE[k].file);});
+      if(nomeGuida){
+        a.href=u.href;a.setAttribute('data-guida',nomeGuida);
+        if(u.hash)a.setAttribute('data-ancora',u.hash.slice(1));
+        a.removeAttribute('target');
+        return;
+      }
+      // Collegamenti all'app stessa (per esempio "Accedi"): chi legge è già nell'app, resta solo il testo
+      if(/\/app\/?(index\.html)?$/.test(u.pathname)){a.replaceWith(document.createTextNode(a.textContent));return;}
+    }
+    a.href=u.href;
+    a.target='_blank';
+    const rel=(a.getAttribute('rel')||'').split(/\s+/).filter(Boolean);
+    if(rel.indexOf('noopener')===-1)rel.push('noopener');
+    a.setAttribute('rel',rel.join(' '));
+  });
+  return wrap.childNodes.length?wrap:null;
+}
+document.addEventListener('click',function(e){
+  const a=e.target.closest&&e.target.closest('#guida-contenuto a[data-guida],#guida-contenuto a[data-ancora]');
+  if(!a)return;
+  const guida=a.getAttribute('data-guida');
+  const ancora=a.getAttribute('data-ancora');
+  e.preventDefault();
+  if(guida){apriGuida(guida,ancora||null);return;}
+  const t=document.getElementById('guida-'+ancora);
+  if(t){t.scrollIntoView({block:'start'});if(!t.hasAttribute('tabindex'))t.setAttribute('tabindex','-1');try{t.focus({preventScroll:true});}catch(err){}}
+});
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape'||!_guidaAperta())return;
+  if(document.querySelector('.ov.open'))return;// una finestra aperta sopra si chiude per prima
+  e.preventDefault();
+  chiudiGuida();
+});
 function stats(){
   const visibili=ords.filter(o=>!isRitiratoVecchio(o)&&(ftData==='tutti'||!o.data||o.data<=ftData));
   const ev=visibili.filter(o=>o.stato==='evadere').length;
@@ -6078,7 +6404,7 @@ function _azioneMostra(o){
 // Mentre una di queste schermate è aperta, l'app e le altre schermate sotto diventano "inert":
 // la tastiera e il lettore di schermo non ci arrivano più. Elenco dalla più alta alla più bassa.
 // Le finestre (modal) e i messaggi (toast) stanno fuori da questi contenitori e restano raggiungibili.
-const _SCHERMATE_PIENE=['azione-screen','account-eliminato-screen','device-removed-screen','device-limit-screen','onboarding-screen'];
+const _SCHERMATE_PIENE=['azione-screen','account-eliminato-screen','device-removed-screen','device-limit-screen','guida-screen','onboarding-screen'];
 const _SOTTO_SCHERMATE=['app','login-screen','bottom-nav','tablet-top-bar'];
 let _schermataPienaAttiva=null;
 function _aggiornaSchermatePiene(){
@@ -6837,17 +7163,12 @@ if('serviceWorker' in navigator){
   <button class="bn-item active" id="bn-ordini" aria-current="page" onclick="goTab('ordini')">
     <span class="bn-ic"><i class="ti ti-clipboard-list"></i></span><span>Ordini</span>
   </button>
+  <!-- 2.31.122: tre pulsanti. Storico, Impostazioni e Aiuto sono nel menu in alto a sinistra. -->
+  <button class="bn-item bn-new" id="bn-nuovo" onclick="apriNuovoOrdine()">
+    <span class="bn-ic-wrap" aria-hidden="true">+</span><span>Nuovo ordine</span>
+  </button>
   <button class="bn-item" id="bn-riepilogo" onclick="goTab('riepilogo')">
-    <span class="bn-ic"><i class="ti ti-chart-bar"></i></span><span>Riepilogo</span>
-  </button>
-  <button class="bn-item bn-new" id="bn-nuovo" aria-label="Nuovo ordine" onclick="apriNuovoOrdine()">
-    <span class="bn-ic-wrap">+</span>
-  </button>
-  <button class="bn-item" id="bn-storico" onclick="goTab('storico')">
-    <span class="bn-ic"><i class="ti ti-calendar"></i></span><span>Storico</span>
-  </button>
-  <button class="bn-item" id="bn-impostazioni" onclick="goTab('impostazioni')">
-    <span class="bn-ic"><i class="ti ti-settings"></i></span><span>Impost.</span>
+    <span class="bn-ic"><i class="ti ti-chart-bar" aria-hidden="true"></i></span><span>Riepilogo</span>
   </button>
 </nav>
 </body>
