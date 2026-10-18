@@ -105,6 +105,14 @@ body.portrait-phone .phdr-menu{display:flex;align-items:center;justify-content:c
 body.portrait-phone .phdr-menu:active{opacity:0.6}
 body.portrait-phone .phdr-menu:focus-visible{outline:2px solid #fff;outline-offset:2px}
 body.portrait-phone .phdr-menu+h2{margin-right:auto}
+/* 2.31.123: in Nuovo ordine "Annulla" non va mai a capo (sui telefoni stretti si spezzava in più righe,
+   fino a una lettera per riga a 320 px). Se lo spazio non basta, il gruppo scorre come nelle altre schede. */
+#tab-nuovo .phdr-annulla{white-space:nowrap;flex-shrink:0}
+#tab-nuovo .phdr>div>div{flex-shrink:0}
+/* Numero ordine largo quanto le cifre: niente frecce del campo numerico (sul computer occupavano
+   spazio a destra del numero); il numero si scrive o si corregge a mano come prima. */
+#nuovo-num-top{min-width:28px;padding:0 2px;-moz-appearance:textfield;appearance:textfield}
+#nuovo-num-top::-webkit-inner-spin-button,#nuovo-num-top::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 /* Guide dentro l'app (2.31.122). Sopra la barra in basso (300) e le finestre (100), sotto le schermate
    di sistema (9998+). La barra in alto è scura come la sidebar e lascia spazio alla zona sicura di iPhone. */
 #guida-screen{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:9000;background:var(--bg);flex-direction:column}
@@ -957,7 +965,7 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
         </div>
       </div>
       <div class="sec" id="tab-nuovo">
-        <div class="phdr"><h2>Nuovo Ordine <span id="nuovo-num-badge" style="font-size:13px;color:var(--urg)"></span></h2><div style="display:flex;align-items:center;gap:12px"><div style="display:flex;align-items:center;gap:4px"><span style="font-size:19px;font-weight:900;color:var(--txt)">#</span><input type="number" id="nuovo-num-top" min="1" aria-label="Numero ordine" style="width:64px;font-size:20px;font-weight:900;color:var(--txt);border:none;border-bottom:2px solid var(--azione);background:transparent;font-family:'Nunito',sans-serif;outline:none;text-align:center" oninput="sincNuovoNum(this.value)"></div><button onclick="goTab(_tabPrimaDiNuovo)" style="padding:8px 16px;background:#fff;color:var(--txt);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Annulla</button></div></div>
+        <div class="phdr"><h2>Nuovo Ordine <span id="nuovo-num-badge" style="font-size:13px;color:var(--urg)"></span></h2><div style="display:flex;align-items:center;gap:12px"><div style="display:flex;align-items:center;gap:4px"><span style="font-size:19px;font-weight:900;color:var(--txt)">#</span><input type="number" id="nuovo-num-top" min="1" aria-label="Numero ordine" style="width:64px;font-size:20px;font-weight:900;color:var(--txt);border:none;border-bottom:2px solid var(--azione);background:transparent;font-family:'Nunito',sans-serif;outline:none;text-align:center" oninput="sincNuovoNum(this.value)"></div><button class="phdr-annulla" onclick="goTab(_tabPrimaDiNuovo)" style="padding:8px 16px;background:#fff;color:var(--txt);border:1.5px solid var(--brd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer">Annulla</button></div></div>
         <div class="pbody has-bottom-bar">
           <div class="card" style="margin-bottom:14px">
             <div class="ch"><div class="ct"><i class="ti ti-calendar"></i> Ritiro</div></div>
@@ -1715,7 +1723,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.31.122';
+const APP_VERSION='2.31.123';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -2930,6 +2938,25 @@ window.addEventListener('resize',function(){
       phdr.insertBefore(b,h2);
     });
   }catch(e){console.warn('Pulsante menu non aggiunto',e);}
+})();
+// ─── Numero ordine in Nuovo ordine (2.31.123): largo quanto le cifre ───────────────────────
+// Prima era sempre largo 64 px, anche per "1". Ora è largo quanto le cifre, con un minimo
+// di 28 px perché resti comodo da toccare (EAA: almeno 24 px). Il numero viene impostato in più punti
+// del codice (nuovo ordine, azzeramento, digitazione): si intercetta direttamente il valore del
+// campo, così la larghezza è giusta qualunque sia la strada.
+(function(){
+  try{
+    const el=document.getElementById('nuovo-num-top');
+    const d=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+    if(!el||!d||!d.get||!d.set)return;
+    function adatta(){
+      const cifre=Math.max(1,String(d.get.call(el)||'').length);
+      el.style.width='calc('+cifre+'ch + 6px)';// min-width (CSS) tiene comodo da toccare anche un numero di una cifra
+    }
+    Object.defineProperty(el,'value',{configurable:true,get:function(){return d.get.call(el);},set:function(v){d.set.call(el,v);adatta();}});
+    el.addEventListener('input',adatta);
+    adatta();
+  }catch(e){console.warn('Larghezza del numero ordine non adattata',e);}
 })();
 // ─── Guide dentro l'app (2.31.122) ──────────────────────────────────────────────────────────
 // Il testo arriva dalle pagine del sito: si aggiorna la pagina sul sito e si aggiorna anche qui.
