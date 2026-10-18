@@ -686,6 +686,14 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
 @keyframes ai-gira{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.ai-giro{animation-duration:2.4s}}
 .ai-hint{font-size:13px;font-weight:600;color:var(--sub);margin:10px 0 0}
+/* 2.32.1 Detta con il microfono della tastiera: guida ben visibile dentro il campo (vuoto) o sotto (con testo) */
+.ai-campo{position:relative}
+.ai-guida-detta{position:absolute;inset:6px;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 12px;border-radius:9px;background:var(--azione-s);color:var(--azione-d);pointer-events:none;text-align:left}
+.ai-guida-detta[hidden]{display:none}
+.ai-guida-detta .ti,.ai-hint-detta .ti{font-size:34px;flex-shrink:0}
+.ai-guida-detta span{font-size:18px;font-weight:800;line-height:1.3}
+.ai-testo.ai-guida-on::placeholder{color:transparent}
+.ai-hint.ai-hint-detta{display:flex;align-items:center;gap:10px;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--azione-s);color:var(--azione-d);font-size:17px;font-weight:800;line-height:1.3}
 .ai-hint:empty{display:none}
 .ai-foto-riga{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
 .ai-foto{position:relative;padding:8px 8px 0 0}
@@ -1811,7 +1819,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.32.0';
+const APP_VERSION='2.32.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -7356,9 +7364,9 @@ function _aiRender(){
   if(conFoto){
     h+=`<span class="fl" id="ai-foto-lbl">Foto · ${_aiFoto.length} di ${AI_MAX_FOTO}</span><div class="ai-foto-riga" role="list" aria-labelledby="ai-foto-lbl">`+
       _aiFoto.map(function(f,i){return `<div class="ai-foto" role="listitem"><img src="${f.url}" alt="Foto ${i+1}"><button type="button" class="ai-foto-x" aria-label="Rimuovi foto ${i+1}" onclick="aiRimuoviFoto(${i})" ${occupato?'disabled':''}><i class="ti ti-x" aria-hidden="true"></i></button></div>`;}).join('')+
-      `</div><textarea class="fi ai-testo" id="ai-testo" rows="2" aria-label="Nota" placeholder="Aggiungi una nota (facoltativa)" ${occupato?'disabled':''} onpaste="aiSuIncolla(event)"></textarea>`;
+      `</div><div class="ai-campo"><textarea class="fi ai-testo" id="ai-testo" rows="2" aria-label="Nota" placeholder="Aggiungi una nota (facoltativa)" ${occupato?'disabled':''} onpaste="aiSuIncolla(event)"></textarea><div class="ai-guida-detta" id="ai-testo-guida" aria-hidden="true" hidden></div></div>`;
   }else{
-    h+=`<label class="fl" for="ai-testo">Messaggio, dettatura o foto</label><textarea class="fi ai-testo" id="ai-testo" rows="3" placeholder="Incolla il messaggio o detta l'ordine" ${occupato?'disabled':''} onpaste="aiSuIncolla(event)"></textarea>`;
+    h+=`<label class="fl" for="ai-testo">Messaggio, dettatura o foto</label><div class="ai-campo"><textarea class="fi ai-testo" id="ai-testo" rows="3" placeholder="Incolla il messaggio o detta l'ordine" ${occupato?'disabled':''} onpaste="aiSuIncolla(event)"></textarea><div class="ai-guida-detta" id="ai-testo-guida" aria-hidden="true" hidden></div></div>`;
   }
   h+=`<div class="ai-pulsanti">`+
     `<button type="button" class="ai-btn" onclick="aiIncolla()" ${occupato?'disabled':''}><i class="ti ti-clipboard" aria-hidden="true"></i>Incolla</button>`+
@@ -7427,7 +7435,35 @@ const _AI_CTX={
 };
 let _aiRiconoscimentoCtx='nuovo';
 function _aiCtx(c){return _AI_CTX[c==='mod'?'mod':'nuovo'];}
-function _aiSuggerisciIn(c,t){const s=_aiEl(_aiCtx(c).sugg);if(s)s.textContent=t||'';}
+function _aiSuggerisciIn(c,t){const s=_aiEl(_aiCtx(c).sugg);if(s){s.textContent=t||'';s.classList.remove('ai-hint-detta');}_aiNascondiGuidaDetta(_aiCtx(c).testo);}
+// Detta con il microfono della tastiera (o la dettatura del sistema): l'indicazione va in evidenza.
+// Campo vuoto: grande, dentro il campo. Campo con testo: in un riquadro sotto i pulsanti.
+// Il testo resta anche nella zona di stato (role="status"), così i lettori di schermo lo leggono.
+function _aiMostraGuidaDetta(c,testo){
+  const ctx=_aiCtx(c);const t=_aiEl(ctx.testo);const g=_aiEl(ctx.testo+'-guida');const s=_aiEl(ctx.sugg);
+  const vuoto=!t||!t.value.trim();
+  if(s){
+    s.textContent='';
+    if(vuoto){const sr=document.createElement('span');sr.className='ai-sr';sr.textContent=testo;s.appendChild(sr);}
+    else{s.classList.add('ai-hint-detta');s.innerHTML='<i class="ti ti-microphone" aria-hidden="true"></i><span></span>';s.lastChild.textContent=testo;}
+  }
+  if(g&&vuoto){g.innerHTML='<i class="ti ti-microphone" aria-hidden="true"></i><span></span>';g.lastChild.textContent=testo;g.hidden=false;if(t)t.classList.add('ai-guida-on');}
+}
+function _aiNascondiGuidaDetta(idTesto){
+  const g=_aiEl(idTesto+'-guida');if(g)g.hidden=true;
+  const t=_aiEl(idTesto);if(t)t.classList.remove('ai-guida-on');
+}
+// Appena compare del testo (scritto o dettato), la guida dentro il campo lascia il posto al testo.
+document.addEventListener('input',function(e){
+  const id=e.target&&e.target.id;
+  if((id==='ai-testo'||id==='aim-testo')&&e.target.value.trim()){
+    const g=_aiEl(id+'-guida');
+    if(g&&!g.hidden){
+      _aiNascondiGuidaDetta(id);
+      const s=_aiEl(id==='aim-testo'?'aim-suggerimento':'ai-suggerimento');if(s)s.textContent='';
+    }
+  }
+});
 
 // ── Incolla ──
 async function aiIncolla(c){
@@ -7472,8 +7508,8 @@ function aiDetta(c){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   const scorciatoia=/Mac/.test(navigator.platform)?'premi due volte il tasto Fn (o il tasto con il mappamondo) e detta l\'ordine.':'premi Windows + H e detta l\'ordine.';
   if(_aiTelefono()||!SR){
+    _aiMostraGuidaDetta(c,_aiTelefono()?'Tocca il microfono della tastiera e detta.':scorciatoia.charAt(0).toUpperCase()+scorciatoia.slice(1));
     if(t)t.focus();
-    _aiSuggerisciIn(c,_aiTelefono()?'Tocca il microfono della tastiera e detta.':scorciatoia.charAt(0).toUpperCase()+scorciatoia.slice(1));
     return;
   }
   const r=new SR();r.lang='it-IT';r.interimResults=true;r.continuous=true;
@@ -7771,9 +7807,9 @@ function _aiModInterno(o){
   if(_aiMod.foto.length){
     h+=`<span class="fl" id="aim-foto-lbl">Foto · ${_aiMod.foto.length} di ${AI_MAX_FOTO}</span><div class="ai-foto-riga" role="list" aria-labelledby="aim-foto-lbl">`+
       _aiMod.foto.map(function(f,i){return `<div class="ai-foto" role="listitem"><img src="${f.url}" alt="Foto ${i+1}"><button type="button" class="ai-foto-x" aria-label="Rimuovi foto ${i+1}" onclick="aiRimuoviFoto(${i},'mod')" ${occupato?'disabled':''}><i class="ti ti-x" aria-hidden="true"></i></button></div>`;}).join('')+
-      `</div><textarea class="fi ai-testo" id="aim-testo" rows="2" aria-label="Nota" placeholder="Aggiungi una nota (facoltativa)" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea>`;
+      `</div><div class="ai-campo"><textarea class="fi ai-testo" id="aim-testo" rows="2" aria-label="Nota" placeholder="Aggiungi una nota (facoltativa)" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea><div class="ai-guida-detta" id="aim-testo-guida" aria-hidden="true" hidden></div></div>`;
   }else{
-    h+=`<label class="fl" for="aim-testo">Cosa cambia</label><textarea class="fi ai-testo" id="aim-testo" rows="3" placeholder="Es. aggiungi mezzo chilo di polpette e togli la salsiccia" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea>`;
+    h+=`<label class="fl" for="aim-testo">Cosa cambia</label><div class="ai-campo"><textarea class="fi ai-testo" id="aim-testo" rows="3" placeholder="Es. aggiungi mezzo chilo di polpette e togli la salsiccia" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea><div class="ai-guida-detta" id="aim-testo-guida" aria-hidden="true" hidden></div></div>`;
   }
   h+=`<div class="ai-pulsanti">`+
     `<button type="button" class="ai-btn" onclick="aiIncolla('mod')" ${occupato?'disabled':''}><i class="ti ti-clipboard" aria-hidden="true"></i>Incolla</button>`+
