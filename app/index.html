@@ -1833,7 +1833,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.33.1';
+const APP_VERSION='2.33.2';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -4794,7 +4794,7 @@ async function salvaOrdine(){if(_provaScaduta){toast(_msgBloccoOrdini(),'err');r
 // 'conflitto' lo si rimette sopra ai dati aggiornati e si riprova (fino a 3 volte). Se il numero
 // scelto nel frattempo è stato usato dall'altro dispositivo, si passa al primo numero libero e lo
 // si dice chiaramente.
-const nuovoOrdine={id:id,num:numInput,nome:nome,telefono:telefono||'',clienteId:clienteId,note:note,data:calSelDate||null,turno:calOra?null:tNuovo,ora:calOra||null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseQty(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()};
+const nuovoOrdine={id:id,num:numInput,nome:nome,telefono:telefono||'',clienteId:clienteId,note:note,data:calSelDate||null,turno:_calMode==='niente'||calOra&&_calMode==='ora'?null:(tNuovo||null),ora:_calMode==='ora'?(calOra||null):null,stato:'evadere',items:_selSnapshot.map(function(s,i){return Object.assign({artId:s.id,qty:parseQty(s.qty)||1,um:s.um||'',nota:s.nota||'',done:false,pos:i},s.itemId?{itemId:s.itemId}:{})}),creato:new Date().toISOString()};
 const _meseKey=new Date().toISOString().slice(0,7);
 let numFinale=numInput,esito='';
 for(let tentativo=0;tentativo<3;tentativo++){
