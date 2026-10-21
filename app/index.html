@@ -1833,7 +1833,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.33.0';
+const APP_VERSION='2.33.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -2055,7 +2055,7 @@ try{
 _notifSettingsAll[_deviceId]={nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti};
 const _orNuovo=Object.values(_notifSettingsAll).some(v=>v&&v.nuovoOrdine!==false);
 const _orUrg=Object.values(_notifSettingsAll).some(v=>v&&v.ordiniUrgenti!==false);
-const payload={arts,ords,unitaMisura,cats,nextNum,clienti,clientiAssorbiti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};let _esitoSalvataggio='ok';try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});_registraBase();}catch(e){console.warn('Firebase save error',e);_esitoSalvataggio='errore';}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}if(_esitoSalvataggio==='ok'&&_datiUniti){refreshAll();return'unito';}return _esitoSalvataggio;}
+const payload={arts,ords,unitaMisura,cats,nextNum,clienti,clientiAssorbiti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calModeUltimo,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod,fcmTokens,notifSettings:{[_deviceId]:{nuovoOrdine:_notifNuovoOrdine,ordiniUrgenti:_notifOrdiniUrgenti}},notifNuovoOrdine:_orNuovo,notifOrdiniUrgenti:_orUrg,lastDeviceId:_deviceId};let _esitoSalvataggio='ok';try{const uid=currentUser?currentUser.uid:DOC_ID;await db.collection('dati').doc(uid).set(payload,{merge:true});_registraBase();}catch(e){console.warn('Firebase save error',e);_esitoSalvataggio='errore';}try{localStorage.setItem('mac-data',JSON.stringify(payload));}catch{}if(_esitoSalvataggio==='ok'&&_datiUniti){refreshAll();return'unito';}return _esitoSalvataggio;}
 let _abbonamento=null; // {stato,piano,scadenza,stripeCustomerId,stripeSubscriptionId} — scritto solo dal webhook Stripe, mai dal client
 let _referral=null; // {codice,invitatoDa,creditoErogato} — codice assegnato dal server (ottieniCodiceInvito, 2.31.111), invitatoDa scritto alla registrazione, il resto dal webhook
 let _datiCreato=null; // data di creazione account, per calcolare la scadenza del mese di prova
@@ -2077,7 +2077,10 @@ function applyRemoteSettings(d){
   applyProvaScadutaUI();
   _novitaPianifica(); // 2.33.0
   _urgDays=(typeof d.urgDays==='number'&&d.urgDays>=0)?d.urgDays:0;
-  _calMode=d.calMode||'ora';
+  // 2.33.1: la modalità salvata è quella dell'ultimo Nuovo ordine; mentre Modifica ordine è aperta
+  // il calendario mostra la modalità di quell'ordine e non va toccato.
+  _calModeUltimo=d.calMode||'ora';
+  {const md=document.getElementById('modal-det');if(!(md&&md.classList.contains('open')))_calMode=_calModeUltimo;}
   dateFormat=d.dateFormat||'gg dd/mm';
   _numResetFreq=d.numResetFreq||'anno';
   _numResetPeriod=d.numResetPeriod||'';
@@ -2486,7 +2489,7 @@ async function avviaCheckout(piano){
 // Tornando indietro dalla pagina di pagamento il browser può mostrare la pagina com'era, con i
 // pulsanti ancora bloccati: si riattivano.
 window.addEventListener('pageshow',function(e){if(!e.persisted)return;['mensile','annuale'].forEach(function(p){const b=document.getElementById('btn-abbonati-'+p);if(b){b.disabled=false;b.removeAttribute('aria-busy');}});});
-async function loadData(snapCondiviso){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=snapCondiviso!==undefined?snapCondiviso:await db.collection('dati').doc(uid).get();if(snap&&snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;_datiDiRiserva=false;_registraBase();try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calMode,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}_datiDiRiserva=true;arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;clienti=[];stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
+async function loadData(snapCondiviso){try{const uid=currentUser?currentUser.uid:DOC_ID;const snap=snapCondiviso!==undefined?snapCondiviso:await db.collection('dati').doc(uid).get();if(snap&&snap.exists){const d=snap.data();arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;_datiDiRiserva=false;_registraBase();try{localStorage.setItem('mac-data',JSON.stringify({arts,ords,unitaMisura,cats,nextNum,clienti,stampeCount,ordiniCreatiTotale,articoliCreatiTotale,ordiniPerMese,urgDays:_urgDays,calMode:_calModeUltimo,dateFormat,numResetFreq:_numResetFreq,numResetPeriod:_numResetPeriod}));}catch{}return;}}catch(e){console.warn('Firebase load error',e);}try{const s=localStorage.getItem('mac-data');if(s){const d=JSON.parse(s);arts=d.arts||DEFAULT_ARTS;ords=d.ords||[];unitaMisura=d.unitaMisura||DEFAULT_UM;cats=d.cats||[];nextNum=d.nextNum||1;clienti=d.clienti||[];stampeCount=d.stampeCount||0;ordiniCreatiTotale=d.ordiniCreatiTotale||0;articoliCreatiTotale=d.articoliCreatiTotale||0;ordiniPerMese=d.ordiniPerMese||{};applyRemoteSettings(d);_dataLoaded=true;return;}}catch{}_datiDiRiserva=true;arts=[...DEFAULT_ARTS];ords=[];unitaMisura=[...DEFAULT_UM];cats=[];nextNum=1;clienti=[];stampeCount=0;ordiniCreatiTotale=0;articoliCreatiTotale=0;ordiniPerMese={};_dataLoaded=true;}
 // Banner "Aggiungi a Home" per iOS — Safari, Chrome, Firefox, Edge su iOS usano tutti il motore WebKit,
 // quindi stesso comportamento su qualsiasi browser: nessun banner automatico di installazione come su Android,
 // va costruito manualmente. Non richiede alcuna infrastruttura Firebase, puro client-side.
@@ -4299,7 +4302,7 @@ function renderDetModal(o){
         <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">#Num</div>
           <input type="text" inputmode="numeric" pattern="[0-9]*" id="det-num" value="${o.num}" aria-label="Numero ordine" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;color:#fff;outline:none;caret-color:#fff" onchange="updOrdCampo(${o.id},'num',parseInt(this.value)||${o.num})"></div>
         <div style="display:flex;flex-direction:column"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Nome *</div>
-          <input id="det-nome" value="${nomeAttuale(o).replace(/"/g,'&quot;')}" aria-label="Nome cliente" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="updOrdCampo(${o.id},'nome',this.value)"></div>
+          <input id="det-nome" value="${nomeAttuale(o).replace(/"/g,'&quot;')}" aria-label="Nome cliente" style="width:100%;box-sizing:border-box;height:36px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:#fff;outline:none;caret-color:#fff" oninput="capWords(this);updOrdCampo(${o.id},'nome',this.value)"></div>
         <div style="display:flex;flex-direction:column;flex-shrink:0"><div style="font-size:10px;opacity:0.85;text-transform:uppercase;margin-bottom:2px;font-weight:700">Data</div>
           <button onclick="toggleDetCal(${o.id})" style="height:36px;box-sizing:border-box;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:7px;padding:0 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px">
             <i class="ti ti-calendar" style="font-size:16px"></i> <span id="det-data-lbl">${o.data?o.data:'—'}${o.ora?' <i class="ti ti-clock" style="font-size:16px"></i>'+o.ora:o.turno?' '+(o.turno==='mattina'?'<i class="ti ti-sun" style="font-size:16px"></i>':'<i class="ti ti-sunset-2" style="font-size:16px"></i>'):''}</span>
@@ -4358,7 +4361,7 @@ let _detCalToastPending=false;
 // o appena si tocca qualcos'altro nell'ordine (quantità, articolo, unità di misura, foto, nome/note),
 // così più modifiche consecutive a giorno/modalità/orario producono un solo toast, non uno per click.
 function _flushDetCalToast(){if(_detCalToastPending){_detCalToastPending=false;toast('Data aggiornata','v');}}
-function initDetCal(o){detCalOid=o.id;_detCalToastPending=false;const n=new Date();detCalYear=n.getFullYear();detCalMonth=n.getMonth();detCalSelDate=o.data||null;detCalTurno=o.turno||null;detCalOra=o.ora||null;renderDetCalGrid();}
+function initDetCal(o){if(detCalOid!==o.id)_calMode=_calModeDiOrdine(o);applyCalSettings();detCalOid=o.id;_detCalToastPending=false;const n=new Date();detCalYear=n.getFullYear();detCalMonth=n.getMonth();detCalSelDate=o.data||null;detCalTurno=o.turno||null;detCalOra=o.ora||null;renderDetCalGrid();}
 function toggleDetCal(oid){
   const w=document.getElementById('det-cal-wrap');
   if(!w)return;
@@ -4908,13 +4911,18 @@ async function addArtRapido(){
   }
 }
 // Impostazioni calendario — modalità: 'ora' | 'mp' | 'niente' — sincronizzata su Firestore (campo calMode nel doc 'dati')
-var _calMode='ora';
+// 2.33.1: la modalità è una scelta di ogni ordine. _calMode è quella mostrata adesso; _calModeUltimo quella
+// dell'ultimo Nuovo ordine (salvata, è la partenza del prossimo). In Modifica ordine il calendario si apre
+// nella modalità dell'ordine e cambiarla lì vale solo per quell'ordine.
+var _calMode='ora',_calModeUltimo='ora';
+function _calModeDiOrdine(o){return o&&o.ora?'ora':(o&&o.turno?'mp':(o&&o.data?'niente':_calModeUltimo));}
 function saveCalMode(mode){
-  _calMode=mode;
-  applyCalSettings();
-  renderCal();
   const detModal=document.getElementById('modal-det');
   const modalDetAperto=detModal&&detModal.classList.contains('open');
+  _calMode=mode;
+  if(!modalDetAperto)_calModeUltimo=mode;
+  applyCalSettings();
+  renderCal();
   if(modalDetAperto){
     renderDetCalGrid();
     if(detCalOid)detCalAutoSalva(detCalOid);
@@ -5161,7 +5169,7 @@ function apriSceltaContatto(oid){
 function capWords(el){
   const pos=el.selectionStart;
   const before=el.value;
-  el.value=before.replace(/(^|\s)([a-zà-ÿ])/g,(m,sep,ch)=>sep+ch.toUpperCase());
+  el.value=before.replace(/(^|[\s(])([a-zà-ÿ])/g,(m,sep,ch)=>sep+ch.toUpperCase());
   const diff=el.value.length-before.length;
   if(document.activeElement===el)el.setSelectionRange(pos+diff,pos+diff);
 }
@@ -5619,6 +5627,7 @@ function closeModal(id){
     saveData();
   }
   const el=_modalRefs[id]||document.getElementById(id);
+  if(id==='modal-det'){detCalOid=null;if(_calMode!==_calModeUltimo){_calMode=_calModeUltimo;applyCalSettings();renderCal();}}
   const returnFocus=el&&el._returnFocus;
   if(el){el.removeEventListener('keydown',_modalTrapHandler);el.classList.remove('open');}
   if(!document.querySelector('.ov.open'))document.body.style.overflow='';
@@ -7379,9 +7388,9 @@ function _aiRender(){
   if(conFoto){
     h+=`<span class="fl" id="ai-foto-lbl">Foto · ${_aiFoto.length} di ${AI_MAX_FOTO}</span><div class="ai-foto-riga" role="list" aria-labelledby="ai-foto-lbl">`+
       _aiFoto.map(function(f,i){return `<div class="ai-foto" role="listitem"><img src="${f.url}" alt="Foto ${i+1}"><button type="button" class="ai-foto-x" aria-label="Rimuovi foto ${i+1}" onclick="aiRimuoviFoto(${i})" ${occupato?'disabled':''}><i class="ti ti-x" aria-hidden="true"></i></button></div>`;}).join('')+
-      `</div><div class="ai-campo"><textarea class="fi ai-testo" id="ai-testo" rows="2" aria-label="Nota" placeholder="Aggiungi una nota (facoltativa)" ${occupato?'disabled':''} onpaste="aiSuIncolla(event)"></textarea><div class="ai-guida-detta" id="ai-testo-guida" aria-hidden="true" hidden></div></div>`;
+      `</div><div class="ai-campo"><textarea class="fi ai-testo" id="ai-testo" enterkeyhint="go" rows="2" aria-label="Nota" placeholder="Aggiungi una nota (facoltativa)" ${occupato?'disabled':''} onpaste="aiSuIncolla(event)"></textarea><div class="ai-guida-detta" id="ai-testo-guida" aria-hidden="true" hidden></div></div>`;
   }else{
-    h+=`<label class="fl" for="ai-testo">Messaggio, dettatura o foto</label><div class="ai-campo"><textarea class="fi ai-testo" id="ai-testo" rows="3" placeholder="Incolla il messaggio o detta l'ordine" ${occupato?'disabled':''} onpaste="aiSuIncolla(event)"></textarea><div class="ai-guida-detta" id="ai-testo-guida" aria-hidden="true" hidden></div></div>`;
+    h+=`<label class="fl" for="ai-testo">Messaggio, dettatura o foto</label><div class="ai-campo"><textarea class="fi ai-testo" id="ai-testo" enterkeyhint="go" rows="3" placeholder="Incolla il messaggio o detta l'ordine" ${occupato?'disabled':''} onpaste="aiSuIncolla(event)"></textarea><div class="ai-guida-detta" id="ai-testo-guida" aria-hidden="true" hidden></div></div>`;
   }
   h+=`<div class="ai-pulsanti">`+
     `<button type="button" class="ai-btn" onclick="aiIncolla()" ${occupato?'disabled':''}><i class="ti ti-clipboard" aria-hidden="true"></i>Incolla</button>`+
@@ -7468,6 +7477,15 @@ function _aiNascondiGuidaDetta(idTesto){
   const g=_aiEl(idTesto+'-guida');if(g)g.hidden=true;
   const t=_aiEl(idTesto);if(t)t.classList.remove('ai-guida-on');
 }
+// Invio nel campo dell'Inserimento rapido o della Modifica rapida = Compila / Trova le modifiche (2.33.1).
+// Maiusc + Invio va ancora a capo; durante la composizione di una parola (tastiere asiatiche, correzioni) non fa nulla.
+document.addEventListener('keydown',function(e){
+  const id=e.target&&e.target.id;
+  if(e.key!=='Enter'||e.shiftKey||e.isComposing||(id!=='ai-testo'&&id!=='aim-testo'))return;
+  e.preventDefault();
+  if(e.target.disabled)return;
+  if(id==='ai-testo')aiCompila();else aiModTrova();
+});
 // Appena compare del testo (scritto o dettato), la guida dentro il campo lascia il posto al testo.
 document.addEventListener('input',function(e){
   const id=e.target&&e.target.id;
@@ -7626,8 +7644,12 @@ function _aiApplicaOrdine(o){
     const p=o.giorno.valore.split('-');calYear=+p[0];calMonth=+p[1]-1;calSelDate=o.giorno.valore;
   }
   if(!calOra&&!tNuovo){
+    // 2.33.1: come farebbe chi scrive l'ordine, la modalità segue il messaggio: orario → Orario,
+    // solo mattina/pomeriggio → Mattina/Pomeriggio, niente → Solo giorno.
     if(o.orario&&o.orario.valore){calOra=o.orario.valore;const ti=_aiEl('cal-time-inp');if(ti)ti.value=calOra;}
     else if(o.turno&&o.turno.valore)tNuovo=o.turno.valore;
+    const m=calOra?'ora':(tNuovo?'mp':'niente');
+    if(_calMode!==m){_calMode=m;_calModeUltimo=m;applyCalSettings();}
   }
   [o.giorno,o.orario,o.turno].forEach(function(c){if(c&&c.dubbio&&dubbiRitiro.indexOf(c.dubbio)<0)dubbiRitiro.push(c.dubbio);});
   // Solo "mattina"/"pomeriggio" o solo il giorno: si registra così com'è, senza punti gialli.
@@ -7822,9 +7844,9 @@ function _aiModInterno(o){
   if(_aiMod.foto.length){
     h+=`<span class="fl" id="aim-foto-lbl">Foto · ${_aiMod.foto.length} di ${AI_MAX_FOTO}</span><div class="ai-foto-riga" role="list" aria-labelledby="aim-foto-lbl">`+
       _aiMod.foto.map(function(f,i){return `<div class="ai-foto" role="listitem"><img src="${f.url}" alt="Foto ${i+1}"><button type="button" class="ai-foto-x" aria-label="Rimuovi foto ${i+1}" onclick="aiRimuoviFoto(${i},'mod')" ${occupato?'disabled':''}><i class="ti ti-x" aria-hidden="true"></i></button></div>`;}).join('')+
-      `</div><div class="ai-campo"><textarea class="fi ai-testo" id="aim-testo" rows="2" aria-label="Nota" placeholder="Aggiungi una nota (facoltativa)" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea><div class="ai-guida-detta" id="aim-testo-guida" aria-hidden="true" hidden></div></div>`;
+      `</div><div class="ai-campo"><textarea class="fi ai-testo" id="aim-testo" enterkeyhint="go" rows="2" aria-label="Nota" placeholder="Aggiungi una nota (facoltativa)" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea><div class="ai-guida-detta" id="aim-testo-guida" aria-hidden="true" hidden></div></div>`;
   }else{
-    h+=`<label class="fl" for="aim-testo">Cosa cambia</label><div class="ai-campo"><textarea class="fi ai-testo" id="aim-testo" rows="3" placeholder="${_aiEsc(_aiEsempioModifica())}" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea><div class="ai-guida-detta" id="aim-testo-guida" aria-hidden="true" hidden></div></div>`;
+    h+=`<label class="fl" for="aim-testo">Cosa cambia</label><div class="ai-campo"><textarea class="fi ai-testo" id="aim-testo" enterkeyhint="go" rows="3" placeholder="${_aiEsc(_aiEsempioModifica())}" ${occupato?'disabled':''} oninput="_aiMod.testo=this.value" onpaste="aiSuIncolla(event,'mod')">${_aiEsc(_aiMod.testo)}</textarea><div class="ai-guida-detta" id="aim-testo-guida" aria-hidden="true" hidden></div></div>`;
   }
   h+=`<div class="ai-pulsanti">`+
     `<button type="button" class="ai-btn" onclick="aiIncolla('mod')" ${occupato?'disabled':''}><i class="ti ti-clipboard" aria-hidden="true"></i>Incolla</button>`+
@@ -7973,6 +7995,8 @@ async function aiModApplica(){
     toast('Modifiche NON salvate: controlla la connessione e riprova','err');return;
   }
   if(tolte.length)eliminaFotoRighe(tolte);
+  // Orario o turno cambiati: il calendario passa alla modalità giusta per l'ordine (2.33.1)
+  if(scelte.some(function(v){return v.titolo==='Orario'||v.titolo==='Turno';})){const uo=ords.find(function(x){return x.id===o.id;});if(uo){_calMode=_calModeDiOrdine(uo);applyCalSettings();}}
   const n=scelte.length;
   _aiModReset(o.id);
   const uo=ords.find(function(x){return x.id===o.id;});if(uo)renderDetModal(uo);
