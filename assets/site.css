@@ -292,3 +292,28 @@ img{max-width:100%;display:block}
 /* Riquadro iniziale delle pagine interne (come-funziona, guida): una colonna, etichetta - titolo - testo */
 .hero.hero-pagina{grid-template-columns:1fr;grid-template-areas:"eyebrow" "title" "text"}
 .hero-pagina .lede{grid-area:text}
+
+/* Pagina attività con video (22 ottobre 2026) */
+.hero.hero-activity.hero-has-video{grid-template-areas:"question photo" "eyebrow photo" "title photo" "start photo" "text photo" "video video" "shotslabel shotslabel" "shots shots" "cta cta"}
+.hero-video{grid-area:video;display:grid;grid-template-columns:auto minmax(0,420px);justify-content:center;align-items:center;gap:56px;margin-top:48px}
+.video-phone{width:320px;border-radius:20px;box-shadow:0 22px 48px -22px rgba(22,35,61,.45);overflow:hidden}
+.video-phone video{display:block;width:100%;aspect-ratio:9/16;border-radius:20px;background:#FFE033}
+.video-side h2{font-size:clamp(24px,3vw,32px);color:var(--navy);margin:0 0 18px}
+.video-points{list-style:none;margin:0 0 24px;padding:0;display:flex;flex-direction:column;gap:12px}
+.video-points li{display:flex;align-items:flex-start;gap:10px;font-size:17px;color:var(--ink);line-height:1.4}
+.video-points i{font-size:22px;color:var(--blue);flex:none;margin-top:1px}
+.video-text{margin-top:22px;font-size:15px;color:var(--muted)}
+.video-text summary{cursor:pointer;color:var(--blue);font-weight:700}
+.video-text summary:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:4px}
+.video-text p{margin:10px 0 0}
+.video-note{font-style:italic}
+.shots-label{grid-area:shotslabel;text-align:center;font-weight:700;color:var(--navy);font-size:18px;margin:48px 0 0}
+.hero-has-video .hero-shot-row{margin-top:16px}
+@media (max-width:800px){
+  .hero.hero-activity.hero-has-video{grid-template-areas:"question" "eyebrow" "title" "start" "photo" "text" "video" "shotslabel" "shots" "cta"}
+  .hero-video{grid-template-columns:1fr;gap:24px;margin-top:24px;justify-items:center}
+  .video-phone{width:100%;max-width:420px;box-shadow:none;border-radius:16px}
+  .video-phone video{border-radius:16px}
+  .video-side{width:100%;max-width:420px}
+  .shots-label{margin-top:28px}
+}
