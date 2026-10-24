@@ -1835,7 +1835,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.33.3';
+const APP_VERSION='2.33.4';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -4271,9 +4271,9 @@ function renderDetModal(o){
     unitaMisura.forEach(function(u){
       const sel=it.um===u;
       const dis=isRitirato?'disabled':'' ;
-      umPills+=`<button ${dis} class="um-pill${sel?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();detUpdUM(${o.id},${idx},${_jsArg(u)})" onclick="detUpdUM(${o.id},${idx},${_jsArg(u)})" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--azione)':'var(--brd)'};background:${sel?'var(--azione)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
+      umPills+=`<button ${dis} class="um-pill${sel?' active':''}" onmousedown="event.preventDefault()" ontouchstart="_tocco(event)" ontouchend="if(_toccoFermo(event)){detUpdUM(${o.id},${idx},${_jsArg(u)})}" onclick="detUpdUM(${o.id},${idx},${_jsArg(u)})" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?'var(--azione)':'var(--brd)'};background:${sel?'var(--azione)':'#fff'};color:${sel?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`;
     });
-    if(!isRitirato)umPills+=`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVoloDet(${o.id},${idx})" onclick="addUMVoloDet(${o.id},${idx})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
+    if(!isRitirato)umPills+=`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="_tocco(event)" ontouchend="if(_toccoFermo(event)){addUMVoloDet(${o.id},${idx})}" onclick="addUMVoloDet(${o.id},${idx})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
     const imgRow=it.itemId&&it.imgCaricata
       ?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px">
           <button type="button" class="act-print-rp" aria-label="Visualizza immagine" onclick="visualizzaImmagineItem(${o.id},${idx})" style="border-radius:8px;padding:8px 10px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"><i class="ti ti-photo"></i></button>
@@ -4740,6 +4740,18 @@ function togArt(id){
 function chQty(id,d){const s=sel.find(x=>x.id===id);if(!s)return;s.qty=Math.max(0,parseFloat(((parseQty(s.qty)||0)+d).toFixed(4)));const inp=document.getElementById('qin-'+id);if(inp)inp.value=s.qty}
 function setSelQty(id,v){const s=sel.find(x=>x.id===id);if(s)s.qty=parseQty(v)||1;if(s&&s.aiDubbio){delete s.aiDubbio;delete s.aiScelte;const b=document.getElementById('ai-riga-'+id);if(b)b.remove();setTimeout(_aiAggiornaEsito,0);}}
 function setSelUM(id,v){const s=sel.find(x=>x.id===id);if(s)s.um=v}
+// Unità di misura sul telefono (24/10/2026): prima bastava appoggiare il dito su una pillola, anche solo
+// per scorrere la pagina, e l'unità cambiava (kg diventava fette senza volerlo). Ora conta solo un tocco
+// vero: dito fermo e rilasciato presto. Il preventDefault sul rilascio evita il doppio clic e lascia
+// la tastiera aperta sul campo quantità.
+let _toccoX=0,_toccoY=0,_toccoT=0;
+function _tocco(e){const t=e.touches&&e.touches[0];if(t){_toccoX=t.clientX;_toccoY=t.clientY;_toccoT=Date.now();}}
+function _toccoFermo(e){
+  const t=e.changedTouches&&e.changedTouches[0];if(!t)return false;
+  const fermo=Math.abs(t.clientX-_toccoX)<10&&Math.abs(t.clientY-_toccoY)<10&&Date.now()-_toccoT<700;
+  if(fermo&&e.cancelable)e.preventDefault();
+  return fermo;
+}
 function selUMpill(id,v){
   const s=sel.find(x=>x.id===id);if(!s)return;
   s.um=v;
@@ -4787,7 +4799,7 @@ function rimuoviImgSel(id){
   renderSP();
 }
 function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent=lblArt(true,true)+' '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
-  const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();selUMpill(${s.id},${_jsArg(u)})" onclick="selUMpill(${s.id},${_jsArg(u)})" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault();addUMVolo(${s.id})" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
+  const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="_tocco(event)" ontouchend="if(_toccoFermo(event)){selUMpill(${s.id},${_jsArg(u)})}" onclick="selUMpill(${s.id},${_jsArg(u)})" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="_tocco(event)" ontouchend="if(_toccoFermo(event)){addUMVolo(${s.id})}" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
   const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi immagine</button></div>`:`<button type="button" onclick="apriImmaginePicker('sel',${s.id})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`;
   return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" aria-label="Rimuovi articolo" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" aria-label="Cerca articolo" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}${_aiHtmlRiga(s)}</div>`;}).join('');}
 async function salvaOrdine(){if(_provaScaduta){toast(_msgBloccoOrdini(),'err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}if(!_aiControllaPrimaDiSalvare())return;const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();// Se al momento del salvataggio un altro dispositivo aveva appena aggiunto ordini, saveData unisce
@@ -7699,7 +7711,11 @@ function _aiApplicaOrdine(o){
       const dd=dubbi.filter(function(d){return !/non in catalogo/i.test(d);});
       if(dd.length){
         s.aiDubbio=dd.join(' · ');s.aiScelte=[];
+        // Articolo con un dubbio ("Quale tipo di hamburger?", "Abbreviazione per…?"): l'articolo scelto e quelli
+        // simili come pulsanti; senza simili resta il solo articolo scelto, che vale come conferma.
+        if(r.articolo&&r.articolo.dubbio&&!/non in catalogo/i.test(r.articolo.dubbio))[id].concat(r.articolo.candidati||[]).forEach(function(aid){if(arts.some(function(a){return a.id===aid;})&&!s.aiScelte.some(function(x){return x.tipo==='art'&&x.v===aid;}))s.aiScelte.push({tipo:'art',v:aid});});
         if(r.unita&&r.unita.dubbio)[r.unita.valore].concat(r.unita.alternative||[]).forEach(function(u){if(u&&unitaMisura.indexOf(u)>=0&&!s.aiScelte.some(function(x){return x.tipo==='um'&&x.v===u;}))s.aiScelte.push({tipo:'um',v:u});});
+        if(r.unita&&r.unita.dubbio&&!s.aiScelte.some(function(x){return x.tipo==='um';})&&s.um)s.aiScelte.push({tipo:'um',v:s.um});
         if(r.quantita&&r.quantita.dubbio)[r.quantita.valore].concat(r.quantita.alternative||[]).forEach(function(q){if(q!=null&&q!==''&&!s.aiScelte.some(function(x){return x.tipo==='qty'&&x.v===q;}))s.aiScelte.push({tipo:'qty',v:q});});
       }
       sel.push(s);
@@ -7723,29 +7739,31 @@ function _aiRenderDubbi(){
   if(r)r.innerHTML=_aiDubbiRitiro.map(function(d,i){
     return _aiHtmlDubbio(d.testo,d.valori.map(function(v,j){
       const et=d.tipo==='giorno'?(function(t){return t.charAt(0).toUpperCase()+t.slice(1);})(_aiGiornoLeggibile(v)):(d.tipo==='turno'?(v==='mattina'?'Mattina':'Pomeriggio'):v);
-      return `<button type="button" class="ai-ok" onclick="aiSceltaRitiro(${i},${j})">${_aiEsc(et)}</button>`;}).join(''),
+      return `<button type="button" class="ai-ok" onclick="aiSceltaRitiro(${i},${j})">${d.valori.length===1?'Sì, ':''}${_aiEsc(et)}</button>`;}).join(''),
       d.tipo==='giorno'?'Giorno da controllare':(d.tipo==='ora'?'Orario da controllare':'Turno da controllare'));
   }).join('');
   const c=_aiEl('ai-dubbio-cliente');
   if(c)c.innerHTML=!_aiDubbioCliente?'':_aiHtmlDubbio(_aiDubbioCliente,_aiScelteCliente.map(function(x,i){
     const k=x.id!=null?clienti.find(function(q){return q.id===x.id;}):null;
     const et=k?k.nome:x.nome;
-    return et?`<button type="button" class="ai-ok" onclick="aiSceltaCliente(${i})">${_aiEsc(et)}</button>`:'';}).join(''),'Cliente da controllare');
+    return et?`<button type="button" class="ai-ok" onclick="aiSceltaCliente(${i})">${_aiScelteCliente.length===1?'Sì, ':''}${_aiEsc(et)}</button>`:'';}).join(''),'Cliente da controllare');
   const box=_aiEl('ai-da-completare');if(!box)return;
   if(!_aiDaCompletare.length){box.innerHTML='';box.style.display='none';return;}
   box.style.display='block';
   box.innerHTML=`<p class="fl" id="ai-dc-t">Da completare: ${_aiDaCompletare.length===1?'1 riga':_aiDaCompletare.length+' righe'}</p>`+
     _aiDaCompletare.map(function(r){
       const q=[r.qty,r.um].filter(function(x){return x!==''&&x!=null;}).join(' ');
-      const cand=r.candidati.map(function(id){const a=arts.find(function(x){return x.id===id;});return a?`<button type="button" class="ai-btn ai-btn-piccolo" onclick="aiUsaCandidato(${_jsArg(r.chiave)},${id})">${_aiEsc(a.nome)}</button>`:'';}).join('');
       let nomeNuovo=r.testo?_aiNomeDaTesto(r.testo):'';
       // Il nome letto è una scelta (crea l'articolo) solo se non coincide con uno dei proposti
       if(nomeNuovo&&r.candidati.some(function(id){const a=arts.find(function(x){return x.id===id;});return a&&a.nome.trim().toLowerCase()===nomeNuovo.toLowerCase();}))nomeNuovo='';
+      const validi=r.candidati.filter(function(id){return arts.some(function(x){return x.id===id;});});
+      const unica=validi.length+(nomeNuovo?1:0)===1; // una sola risposta: "Sì, …" e "No, elimina"
+      const cand=validi.map(function(id){const a=arts.find(function(x){return x.id===id;});return `<button type="button" class="ai-btn ai-btn-piccolo" onclick="aiUsaCandidato(${_jsArg(r.chiave)},${id})">${unica?'Sì, ':''}${_aiEsc(a.nome)}</button>`;}).join('');
       return `<div class="ai-dc" role="group" aria-label="${_aiEsc(r.testo||'Riga senza articolo')}">`+
         `<div class="ai-dc-testo"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span><b>«${_aiEsc(r.testo||'?')}»</b>${q?' · '+_aiEsc(q):''}<br>${_aiEsc(r.dubbio)}</span></div>`+
         `<div class="ai-dc-azioni">${cand}`+
-        (nomeNuovo?`<button type="button" class="ai-btn ai-btn-piccolo" onclick="aiCreaArticolo(${_jsArg(r.chiave)})">${_aiEsc(nomeNuovo)}</button>`:'')+
-        `<button type="button" class="ai-btn ai-btn-piccolo" onclick="aiScartaRiga(${_jsArg(r.chiave)})" aria-label="Elimina la riga ${_aiEsc(r.testo||'')}"><i class="ti ti-trash" aria-hidden="true"></i>Elimina</button></div></div>`;
+        (nomeNuovo?`<button type="button" class="ai-btn ai-btn-piccolo" onclick="aiCreaArticolo(${_jsArg(r.chiave)})">${unica?'Sì, ':''}${_aiEsc(nomeNuovo)}</button>`:'')+
+        `<button type="button" class="ai-btn ai-btn-piccolo" onclick="aiScartaRigaConferma(${_jsArg(r.chiave)})" aria-label="Elimina la riga ${_aiEsc(r.testo||'')}">${unica?'No, elimina':'Elimina'}</button></div></div>`;
     }).join('');
 }
 // Riquadro giallo unico per tutti i dubbi: la domanda e, sotto, i valori possibili come pulsanti.
@@ -7779,7 +7797,13 @@ function aiSceltaCliente(i){
 function aiSceltaRiga(id,k){
   const s=sel.find(function(x){return String(x.id)===String(id);});if(!s||!s.aiScelte||!s.aiScelte[k])return;
   const x=s.aiScelte[k];
-  if(x.tipo==='um')s.um=x.v;else s.qty=String(x.v).replace('.',',');
+  if(x.tipo==='art'){
+    if(x.v!==s.id){
+      // Un altro articolo: se è già nel modulo la riga doppia si toglie, altrimenti si cambia articolo
+      if(sel.some(function(y){return y.id===x.v;}))sel=sel.filter(function(y){return y!==s;});
+      else s.id=x.v;
+    }
+  }else if(x.tipo==='um')s.um=x.v;else s.qty=String(x.v).replace('.',',');
   s.aiScelte=s.aiScelte.filter(function(y){return y.tipo!==x.tipo;});
   if(!s.aiScelte.length){delete s.aiDubbio;delete s.aiScelte;}
   renderSP();_aiAggiornaEsito();
@@ -7805,6 +7829,19 @@ function _aiRigaInModulo(r,idArt){
   _aiSceltaPer=null;renderSP();_aiRenderDubbi();_aiAggiornaEsito();
 }
 function aiUsaCandidato(chiave,idArt){const r=_aiTrovaRiga(chiave);if(r)_aiRigaInModulo(r,idArt);}
+// "Elimina" usa la stessa conferma del cestino dell'articolo (confRimArt): «Rimuovere "…" dall'ordine?»
+function aiEliminaRiga(id){
+  const s=sel.find(function(x){return String(x.id)===String(id);});if(!s)return;
+  confRimArt(s.id);
+  const b=document.getElementById('modal-del-btn');const prima=b.onclick;
+  b.onclick=function(){prima();_aiAggiornaEsito();};
+}
+function aiScartaRigaConferma(chiave){
+  const r=_aiTrovaRiga(chiave);if(!r)return;
+  openModal('modal-del-conf');_modalDelResetDefault();
+  document.getElementById('modal-del-txt').textContent='Rimuovere "'+((r.testo&&_aiNomeDaTesto(r.testo))||r.testo||lblArt(false))+'" dall\'ordine?';
+  document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');aiScartaRiga(chiave);};
+}
 function aiScartaRiga(chiave){_aiDaCompletare=_aiDaCompletare.filter(function(r){return r.chiave!==chiave;});_aiRenderDubbi();_aiAggiornaEsito();}
 function aiScegliDalCatalogo(chiave){
   const r=_aiTrovaRiga(chiave);if(!r)return;
@@ -7832,7 +7869,15 @@ function _aiDopoSceltaArticolo(idArt){
 // Avviso giallo dentro la scheda dell'articolo (chiamata da renderSP).
 function _aiHtmlRiga(s){
   if(!s||!s.aiDubbio)return '';
-  const b=(s.aiScelte||[]).map(function(x,k){return `<button type="button" class="ai-ok" onclick="aiSceltaRiga(${_jsArg(s.id)},${k})">${_aiEsc(x.tipo==='qty'?String(x.v).replace('.',','):x.v)}</button>`;}).join('');
+  const sc=s.aiScelte||[];
+  const nArt=sc.filter(function(x){return x.tipo==='art';}).length;
+  let b=sc.map(function(x,k){
+    const et=x.tipo==='art'?((arts.find(function(a){return a.id===x.v;})||{}).nome||''):(x.tipo==='qty'?String(x.v).replace('.',','):x.v);
+    // Una sola risposta possibile per quel campo: "Sì, …"
+    const unica=sc.filter(function(y){return y.tipo===x.tipo;}).length===1;
+    return `<button type="button" class="ai-ok" onclick="aiSceltaRiga(${_jsArg(s.id)},${k})">${unica?'Sì, ':''}${_aiEsc(et)}</button>`;}).join('');
+  // Dubbio sull'articolo: si può anche togliere la riga (con conferma)
+  if(nArt)b+=`<button type="button" class="ai-ok" onclick="aiEliminaRiga(${_jsArg(s.id)})">${nArt===1?'No, elimina':'Elimina'}</button>`;
   return _aiHtmlDubbio(s.aiDubbio,b,'Quantità o unità da controllare','ai-riga-'+s.id);
 }
 
