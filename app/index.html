@@ -873,6 +873,10 @@ button.ob-card .ob-emoji,button.ob-card .ob-label{display:block}
       <span style="font-size:13px;font-weight:700;color:var(--sub)">Attività: <b id="ob-attivita-corrente-nome" style="color:#1A1A2E"></b> · <span role="button" tabindex="0" onclick="obTornaScelta()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();obTornaScelta();}" style="color:var(--azione);font-weight:800;text-decoration:underline;cursor:pointer">cambia</span></span>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:32px">
+      <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:2px solid var(--azione)">
+        <span style="font-size:22px;color:var(--azione);flex-shrink:0;margin-top:1px"><i class="ti ti-sparkles" aria-hidden="true"></i></span>
+        <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Inserimento rapido</div><div style="font-size:13px;color:var(--sub);font-weight:600;margin-top:2px">Fotografa il foglietto, fai uno screenshot della chat, incolla il messaggio WhatsApp o detta l'ordine: l'app lo compila per te. Tu controlli e salvi.</div></div>
+      </div>
       <div style="display:flex;align-items:flex-start;gap:14px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
         <span style="font-size:22px;color:var(--sub);flex-shrink:0;margin-top:1px"><i class="ti ti-clipboard-list"></i></span>
         <div><div style="font-size:16px;font-weight:800;color:#1A1A2E">Ordini</div><div id="ob-info-ordini-desc" style="font-size:13px;color:var(--sub);font-weight:600;margin-top:2px">Registra gli ordini dei tuoi clienti con articoli, note e data di ritiro. Se ti serve, stampa le etichette e tieni tutto in ordine</div></div>
@@ -1835,7 +1839,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.33.4';
+const APP_VERSION='2.33.5';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -3263,7 +3267,8 @@ function isUrgente(o){if(!o.data||o.stato!=='evadere')return false;return o.data
 function priScore(o){if(!o.data)return Number.MAX_SAFE_INTEGER;const base=new Date(o.data+'T00:00:00').getTime();if(o.ora){const parts=o.ora.split(':');return base+(parseInt(parts[0])||0)*3600000+(parseInt(parts[1])||0)*60000;}return base+(o.turno==='pomeriggio'?50400000:0);}
 function isRitiratoVecchio(o){if(o.stato!=='ritirato')return false;const ref=o.ritirato_il||o.creato;if(!ref)return false;return(Date.now()-new Date(ref).getTime())>24*60*60*1000;}
 function buildOcHTML(lista){
-  if(!lista.length)return`<div class="empty"><div class="ei"><i class="ti ti-clipboard-list"></i></div><p>Nessun ordine trovato.</p>${ords.length===0?'<p style="font-size:14px;color:var(--sub);font-weight:600;margin-top:12px;line-height:1.6">Trovi già alcuni '+lblArt(true)+' preimpostati di esempio.<br>Puoi aggiungerne altri da <b>Impostazioni → '+lblArt(true,true)+'</b><br>o direttamente quando crei un nuovo ordine.</p>':''}</div>`;
+  // 2.33.5: senza nessun ordine, invito a provare l'Inserimento rapido (la leva della promozione)
+  if(!lista.length)return`<div class="empty"><div class="ei"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div>${ords.length===0?'<p>Aggiungi il tuo primo ordine</p><p style="font-size:16px;color:var(--txt);font-weight:700;margin-top:10px;line-height:1.5">Fotografa un foglietto, fai uno screenshot della chat, incolla un messaggio WhatsApp o detta l\'ordine: l\'app lo compila per te.</p><button type="button" class="btn br" style="margin-top:16px" onclick="aiPrimoOrdine()"><i class="ti ti-sparkles" aria-hidden="true"></i>Prova l\'Inserimento rapido</button><p style="font-size:13px;color:var(--sub);font-weight:600;margin-top:18px;line-height:1.5">Trovi già alcuni '+lblArt(true)+' di esempio: puoi aggiungerne altri da <b>Impostazioni → '+lblArt(true,true)+'</b>.</p>':'<p>Nessun ordine trovato.</p>'}</div>`;
   return lista.map(o=>{
     const urg=isUrgente(o);
     const nc={evadere:urg?'urg':'ev',completato:'co',ritirato:'ri'}[o.stato];
@@ -8241,6 +8246,7 @@ function _aiEsempioArticolo(){
 }
 function _aiEsempioAggiunta(){const n=_aiEsempioArticolo();return n?'aggiungi anche '+n:'aggiungine altri due';}
 function _aiEsempioModifica(){return 'Es. '+_aiEsempioAggiunta()+', spostalo a venerdì';}
+function aiPrimoOrdine(){apriNuovoOrdine();setTimeout(function(){if(_currentTab==='nuovo'&&typeof aiApri==='function')aiApri();},350);}
 function novitaProva(){closeModal('modal-novita');apriNuovoOrdine();setTimeout(function(){if(_currentTab==='nuovo'&&typeof aiApri==='function')aiApri();},350);}
 function novitaGuida(){closeModal('modal-novita');apriGuida('come-funziona','inserimento-rapido');}
 </script>
