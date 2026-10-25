@@ -1839,7 +1839,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.33.5';
+const APP_VERSION='2.33.6';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -3267,8 +3267,15 @@ function isUrgente(o){if(!o.data||o.stato!=='evadere')return false;return o.data
 function priScore(o){if(!o.data)return Number.MAX_SAFE_INTEGER;const base=new Date(o.data+'T00:00:00').getTime();if(o.ora){const parts=o.ora.split(':');return base+(parseInt(parts[0])||0)*3600000+(parseInt(parts[1])||0)*60000;}return base+(o.turno==='pomeriggio'?50400000:0);}
 function isRitiratoVecchio(o){if(o.stato!=='ritirato')return false;const ref=o.ritirato_il||o.creato;if(!ref)return false;return(Date.now()-new Date(ref).getTime())>24*60*60*1000;}
 function buildOcHTML(lista){
-  // 2.33.5: senza nessun ordine, invito a provare l'Inserimento rapido (la leva della promozione)
-  if(!lista.length)return`<div class="empty"><div class="ei"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div>${ords.length===0?'<p>Aggiungi il tuo primo ordine</p><p style="font-size:16px;color:var(--txt);font-weight:700;margin-top:10px;line-height:1.5">Fotografa un foglietto, fai uno screenshot della chat, incolla un messaggio WhatsApp o detta l\'ordine: l\'app lo compila per te.</p><button type="button" class="btn br" style="margin-top:16px" onclick="aiPrimoOrdine()"><i class="ti ti-sparkles" aria-hidden="true"></i>Prova l\'Inserimento rapido</button><p style="font-size:13px;color:var(--sub);font-weight:600;margin-top:18px;line-height:1.5">Trovi già alcuni '+lblArt(true)+' di esempio: puoi aggiungerne altri da <b>Impostazioni → '+lblArt(true,true)+'</b>.</p>':'<p>Nessun ordine trovato.</p>'}</div>`;
+  // Lista vuota (2.33.6), tre casi:
+  // - ricerca o filtro attivi senza risultati → "Nessun ordine trovato.";
+  // - nessun ordine mai creato (account nuovo) → invito a provare l'Inserimento rapido;
+  // - ordini già fatti ma ora nessuno da mostrare (tutti ritirati) → "Qui apparirà la lista dei tuoi ordini".
+  const _cerca=((document.getElementById('co')||{}).value||'').trim();
+  const _filtro=!!_cerca||ft!=='tutti'||ftData!=='tutti';
+  const _primo=!_filtro&&ords.length===0&&!ordiniCreatiTotale&&!(typeof ordiniArchiviati==='number'&&ordiniArchiviati>0);
+  if(!lista.length&&!_filtro&&!_primo)return`<div class="empty"><div class="ei"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div><p>Qui apparirà la lista dei tuoi ordini</p><button type="button" class="btn br" style="margin-top:16px" onclick="apriNuovoOrdine()"><i class="ti ti-plus" aria-hidden="true"></i>Aggiungi un ordine</button></div>`;
+  if(!lista.length)return`<div class="empty"><div class="ei"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div>${_primo?'<p>Aggiungi il tuo primo ordine</p><p style="font-size:16px;color:var(--txt);font-weight:700;margin-top:10px;line-height:1.5">Fotografa un foglietto, fai uno screenshot della chat, incolla un messaggio WhatsApp o detta l\'ordine: l\'app lo compila per te.</p><button type="button" class="btn br" style="margin-top:16px" onclick="aiPrimoOrdine()"><i class="ti ti-sparkles" aria-hidden="true"></i>Prova l\'Inserimento rapido</button><p style="font-size:13px;color:var(--sub);font-weight:600;margin-top:18px;line-height:1.5">Trovi già alcuni '+lblArt(true)+' di esempio: puoi aggiungerne altri da <b>Impostazioni → '+lblArt(true,true)+'</b>.</p>':'<p>Nessun ordine trovato.</p>'}</div>`;
   return lista.map(o=>{
     const urg=isUrgente(o);
     const nc={evadere:urg?'urg':'ev',completato:'co',ritirato:'ri'}[o.stato];
