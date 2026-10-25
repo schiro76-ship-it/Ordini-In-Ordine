@@ -1839,7 +1839,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.33.6';
+const APP_VERSION='2.33.7';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -1974,7 +1974,7 @@ async function saveData(){_saveInCorso++;try{return await _saveDataImpl();}final
   // (avrebbe tolto dalla memoria l'ordine appena aggiunto): finito il salvataggio si rilegge il server.
   if(_saveInCorso===0&&_snapshotRimandato){_snapshotRimandato=false;setTimeout(function(){_riallineaConServer('aggiornamento arrivato durante un salvataggio',true);},0);}
 }}
-async function _saveDataImpl(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return'bloccato';}if(_datiDiRiserva){console.warn('saveData bloccato: dati di riserva, non letti dal server');return'bloccato';}if(ords.length===0&&nextNum>1&&!(ordiniArchiviati>0)){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return'bloccato';}
+async function _saveDataImpl(){if(!_dataLoaded){console.warn('saveData bloccato: dati non ancora caricati da Firestore');return'bloccato';}if(_datiDiRiserva){console.warn('saveData bloccato: dati di riserva, non letti dal server');return'bloccato';}if(ords.length===0&&nextNum>1&&!(ordiniArchiviati>0)&&!_deletedIds.size){console.warn('saveData bloccato: ords vuoto ma nextNum='+nextNum);return'bloccato';}
 let _datiUniti=false;
 // --- Controllo conflitti (agosto 2026, dopo l'incidente di perdita dati): prima di scrivere,
 // verifica che nessun ordine presente su Firestore sia assente dalla memoria locale. Un ordine
@@ -3273,7 +3273,7 @@ function buildOcHTML(lista){
   // - ordini già fatti ma ora nessuno da mostrare (tutti ritirati) → "Qui apparirà la lista dei tuoi ordini".
   const _cerca=((document.getElementById('co')||{}).value||'').trim();
   const _filtro=!!_cerca||ft!=='tutti'||ftData!=='tutti';
-  const _primo=!_filtro&&ords.length===0&&!ordiniCreatiTotale&&!(typeof ordiniArchiviati==='number'&&ordiniArchiviati>0);
+  const _primo=!_filtro&&ords.length===0&&!ordiniCreatiTotale&&!(nextNum>1)&&!(typeof ordiniArchiviati==='number'&&ordiniArchiviati>0);
   if(!lista.length&&!_filtro&&!_primo)return`<div class="empty"><div class="ei"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div><p>Qui apparirà la lista dei tuoi ordini</p><button type="button" class="btn br" style="margin-top:16px" onclick="apriNuovoOrdine()"><i class="ti ti-plus" aria-hidden="true"></i>Aggiungi un ordine</button></div>`;
   if(!lista.length)return`<div class="empty"><div class="ei"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div>${_primo?'<p>Aggiungi il tuo primo ordine</p><p style="font-size:16px;color:var(--txt);font-weight:700;margin-top:10px;line-height:1.5">Fotografa un foglietto, fai uno screenshot della chat, incolla un messaggio WhatsApp o detta l\'ordine: l\'app lo compila per te.</p><button type="button" class="btn br" style="margin-top:16px" onclick="aiPrimoOrdine()"><i class="ti ti-sparkles" aria-hidden="true"></i>Prova l\'Inserimento rapido</button><p style="font-size:13px;color:var(--sub);font-weight:600;margin-top:18px;line-height:1.5">Trovi già alcuni '+lblArt(true)+' di esempio: puoi aggiungerne altri da <b>Impostazioni → '+lblArt(true,true)+'</b>.</p>':'<p>Nessun ordine trovato.</p>'}</div>`;
   return lista.map(o=>{
@@ -4260,7 +4260,13 @@ async function setStato(id,stato,skipItemReset){
 function eliminaOrd(id){const o=ords.find(x=>x.id===id);if(!o)return;openModal('modal-del-conf');_modalDelResetDefault();document.getElementById('modal-del-txt').textContent='Eliminare ordine #'+o.num+' di '+nomeAttuale(o)+'?';document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');delOrd(id);};}
 async function delOrd(id){
   const el=document.querySelector('#ordini-list [data-oid="'+id+'"]');
-  const finish=async()=>{const _ordEliminato=ords.find(x=>x.id===id);_deletedIds.add(id);ords=ords.filter(x=>x.id!==id);const _esito=await saveData();_deletedIds.delete(id);if((_esito==='ok'||_esito==='unito')&&_ordEliminato)eliminaFotoRighe(_ordEliminato.items);renderOrdini();toast('Ordine eliminato','v');};
+  // 2.33.7: eliminando l'ultimo ordine la lista resta vuota; _deletedIds dice a saveData che è voluto
+  // (la protezione contro le liste vuote da cache resta per tutti gli altri casi). Se il salvataggio non
+  // riesce, l'ordine torna in lista con un messaggio d'errore invece di un falso "Ordine eliminato".
+  const finish=async()=>{const _ordEliminato=ords.find(x=>x.id===id);const _pos=ords.indexOf(_ordEliminato);_deletedIds.add(id);ords=ords.filter(x=>x.id!==id);const _esito=await saveData();_deletedIds.delete(id);
+    if(_esito==='ok'||_esito==='unito'){if(_ordEliminato)eliminaFotoRighe(_ordEliminato.items);renderOrdini();toast('Ordine eliminato','v');}
+    else{if(_ordEliminato&&!ords.some(x=>x.id===id))ords.splice(Math.max(0,_pos),0,_ordEliminato);renderOrdini();toast('Ordine NON eliminato: controlla la connessione e riprova','err');}
+  };
   if(el){
     el.style.transition='transform 0.3s ease, opacity 0.3s ease';
     el.style.transform='translateX(60px)';
