@@ -1839,7 +1839,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.34.0';
+const APP_VERSION='2.34.1';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -7741,13 +7741,17 @@ function _aiApplicaOrdine(o){
   // Note dell'ordine
   const note=_aiEl('note-ordine');if(note&&!note.value.trim()&&o.nota)note.value=o.nota;
   // Articoli
+  // 2.34.1: ogni riga letta e' valida anche se l'articolo compare due volte nel messaggio; non si
+  // raddoppiano solo gli articoli che erano gia' nel modulo prima di questa lettura (inseriti a mano
+  // o da una lettura precedente dello stesso messaggio).
+  const _giaNelModulo=new Set(sel.map(function(s){return s.id;}));
   (o.righe||[]).forEach(function(r,i){
     const dubbi=[r.articolo&&r.articolo.dubbio,r.quantita&&r.quantita.dubbio,r.unita&&r.unita.dubbio].filter(Boolean);
     const qty=r.quantita&&r.quantita.valore!=null?String(r.quantita.valore).replace('.',','):'';
     const um=r.unita&&r.unita.valore?r.unita.valore:'';
     const id=r.articolo?r.articolo.id:null;
     if(id!=null&&arts.find(function(a){return a.id===id;})){
-      if(sel.find(function(s){return s.id===id;}))return; // già nel modulo: non si tocca
+      if(_giaNelModulo.has(id))return; // già nel modulo prima della lettura: non si tocca
       const s={id:id,qty:qty,um:um,nota:r.nota||'',done:false};
       const dd=dubbi.filter(function(d){return !/non in catalogo/i.test(d);});
       if(dd.length){
@@ -7840,9 +7844,8 @@ function aiSceltaRiga(chiave,k){
   const x=s.aiScelte[k];
   if(x.tipo==='art'){
     if(x.v!==s.id){
-      // Un altro articolo: se è già nel modulo la riga doppia si toglie, altrimenti si cambia articolo
-      if(sel.some(function(y){return y.id===x.v;}))sel=sel.filter(function(y){return y!==s;});
-      else s.id=x.v;
+      // 2.34.1: un altro articolo cambia solo questa riga, anche se quell'articolo e' gia' in un'altra
+      s.id=x.v;
     }
   }else if(x.tipo==='um')s.um=x.v;else s.qty=String(x.v).replace('.',',');
   s.aiScelte=s.aiScelte.filter(function(y){return y.tipo!==x.tipo;});
@@ -7864,9 +7867,8 @@ function _aiAggiornaEsito(){if(_aiStato==='compilato'&&_aiAperto)_aiRender();}
 function _aiTrovaRiga(chiave){return _aiDaCompletare.find(function(r){return r.chiave===chiave;});}
 function _aiRigaInModulo(r,idArt){
   _aiDaCompletare=_aiDaCompletare.filter(function(x){return x!==r;});
-  const esiste=sel.find(function(s){return s.id===idArt;});
-  if(!esiste)sel.push({id:idArt,qty:r.qty,um:unitaMisura.indexOf(r.um)>=0?r.um:'',nota:r.nota||'',done:false});
-  else{if(!esiste.qty&&r.qty!=='')esiste.qty=r.qty;if(!esiste.um&&unitaMisura.indexOf(r.um)>=0)esiste.um=r.um;}
+  // 2.34.1: la riga completata diventa sempre una riga nuova, anche se l'articolo e' gia' nel modulo
+  sel.push({id:idArt,qty:r.qty,um:unitaMisura.indexOf(r.um)>=0?r.um:'',nota:r.nota||'',done:false});
   _aiSceltaPer=null;renderSP();_aiRenderDubbi();_aiAggiornaEsito();
 }
 function aiUsaCandidato(chiave,idArt){const r=_aiTrovaRiga(chiave);if(r)_aiRigaInModulo(r,idArt);}
