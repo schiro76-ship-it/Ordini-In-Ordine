@@ -1839,7 +1839,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const storage=firebase.storage();
 const DOC_ID='macelleria-schirinzi';
-const APP_VERSION='2.33.7';
+const APP_VERSION='2.34.0';
 {const v=document.getElementById('app-version-val');if(v)v.textContent=APP_VERSION;}
 let arts=[],ords=[],unitaMisura=[],cats=[],nextNum=1;let _dataLoaded=false;let _deletedIds=new Set();
 // Archivio mensile degli ordini ritirati (dati/{uid}/archivio/{AAAA-MM}), scritto SOLO dalla Cloud
@@ -4134,10 +4134,10 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
   if(pillsEl)pillsEl.innerHTML=['Tutte',...catsInRep].map(c=>`<span class="pill ${c===rpCatFilter?'active':''}" role="button" tabindex="0" onclick="setRpCat(${_jsArg(c)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setRpCat(${_jsArg(c)});}">${c}</span>`).join('');
   }
   const map={};
-  ev.forEach(o=>(o.items||[]).forEach(it=>{
+  ev.forEach(o=>(o.items||[]).forEach((it,_ri)=>{
     const k=String(it.artId);
     if(!map[k])map[k]={artId:it.artId,ordini:[]};
-    map[k].ordini.push(Object.assign({},it,{ordine:o}));
+    map[k].ordini.push(Object.assign({},it,{ordine:o,_riga:_ri}));
   }));
   let voci=Object.values(map)
     .map(v=>{
@@ -4217,17 +4217,17 @@ function renderRiepilogo(skipPills){if(_rpLocked)return;
     const _fmtA=fmtRpData(_oA);
     const _dataLabel=_fmtA.r2?'<span>'+_fmtA.r1+'</span><span>'+_fmtA.r2+'</span>':'<span>'+_fmtA.r1+'</span>';
     const _ordFiltrati=v.ordini.slice().filter(x=>rpDayFilter===null||!x.ordine.data||x.ordine.data<=rpDayFilter).sort((a,b)=>priScore(a.ordine)-priScore(b.ordine));
-    const _rigaStampaTutte=_ordFiltrati.length>=2?`<div role="button" tabindex="0" onclick="event.stopPropagation();aggiungiArticoloAlGruppoStampa(${v.artId},[${_ordFiltrati.map(x=>x.ordine.id).join(',')}])" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();aggiungiArticoloAlGruppoStampa(${v.artId},[${_ordFiltrati.map(x=>x.ordine.id).join(',')}]);}" style="padding:0 10px 6px;font-size:13px;font-weight:800;color:#256BC1;cursor:pointer;text-align:right;text-decoration:underline;text-underline-offset:2px">Aggiungi tutte alla coda di stampa (${_ordFiltrati.length})</div>`:'';
+    const _rigaStampaTutte=_ordFiltrati.length>=2?`<div role="button" tabindex="0" onclick="event.stopPropagation();aggiungiArticoloAlGruppoStampa(${v.artId},[${_ordFiltrati.map(x=>'['+x.ordine.id+','+x._riga+']').join(',')}])" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();aggiungiArticoloAlGruppoStampa(${v.artId},[${_ordFiltrati.map(x=>'['+x.ordine.id+','+x._riga+']').join(',')}]);}" style="padding:0 10px 6px;font-size:13px;font-weight:800;color:#256BC1;cursor:pointer;text-align:right;text-decoration:underline;text-underline-offset:2px">Aggiungi tutte alla coda di stampa (${_ordFiltrati.length})</div>`:'';
     const dettaglio=exp?_ordFiltrati.map(x=>{
       const q=parseQty(x.qty)||1;const qs=q%1===0?q:q.toFixed(2).replace(/\.?0+$/,'');
       const isUrg=isUrgente(x.ordine);
       const bg=x.done?'var(--gs)':isUrg?'var(--urgs)':'var(--evs)';
       const circleClass='itag-circle'+(x.done?' done':isUrg?' urg':'');
       const col=x.done?'var(--g)':isUrg?'var(--urg)':'var(--ev)';
-      const fidx=x.ordine.items.findIndex(function(i){return i.artId===x.artId&&i.qty===x.qty&&i.nota===x.nota});
+      const fidx=x._riga; // 2.34.0: la riga precisa, anche con lo stesso articolo piu' volte nell'ordine
       const _itFoto=x.ordine.items&&x.ordine.items[fidx];
       const _fotoBtn=_itFoto&&_itFoto.itemId&&_itFoto.imgCaricata?`<button type="button" class="act-print-rp" aria-label="Visualizza immagine" onclick="event.stopPropagation();visualizzaImmagineItem('${x.ordine.id}',${fidx})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center"><i class="ti ti-photo"></i></button>`:'';
-      const _printBtnR=`<button class="act-print-rp" aria-label="Stampa etichetta" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center"><i class="ti ti-printer"></i></button>`;
+      const _printBtnR=`<button class="act-print-rp" aria-label="Stampa etichetta" onclick="event.stopPropagation();stampaEtichettaRp('${x.ordine.id}',${x.artId},${fidx})" style="border-radius:8px;padding:4px 8px;font-size:18px;cursor:pointer;display:inline-flex;align-items:center"><i class="ti ti-printer"></i></button>`;
       const _qtySpanR=`<span class="rp-qty" style="color:${col}">${qs}</span>${x.um?`<span class="rp-um" style="color:${col}"> ${x.um}</span>`:""}`;
       const _qtyFotoR=`<span style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px">${_fotoBtn}<span style="white-space:nowrap">${_qtySpanR}</span>${_printBtnR}</span>`;
       return`<div class="rp-item-row" style="padding:6px 10px;border-radius:8px;background:${bg}"><div style="display:flex;align-items:center;gap:8px"><div class="${circleClass}" role="checkbox" tabindex="0" data-rpitem="${x.ordine.id}-${fidx}" aria-checked="${x.done?'true':'false'}" aria-label="${(nome||'').replace(/"/g,'&quot;')} - segna come pronto" onclick="event.stopPropagation();togRpItem('${x.ordine.id}',${fidx})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();togRpItem('${x.ordine.id}',${fidx});}" style="border:2.5px solid ${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer;${x.done?'background:var(--g);color:#fff':''}">${x.done?'<i class="ti ti-check" style="font-size:14px"></i>':''}</div><div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px"><span style="flex:1 1 0%;min-width:150px;color:var(--txt);font-weight:800;font-size:16px">#${x.ordine.num} ${nomeAttuale(x.ordine)}<span style="font-size:14px;font-weight:600;color:var(--sub);margin-left:6px">${(function(){const f=fmtRpData(x.ordine);return f.r2?f.r1+' '+f.r2:f.r1;})()}</span>${x.nota?` <span style="color:var(--sub);font-style:italic;font-weight:700;font-size:15px">"${x.nota}"</span>`:""}</span>${_qtyFotoR}</div></div></div>`;
@@ -4491,9 +4491,8 @@ function renderDetArtGrid(oid){
   if(pillsEl)pillsEl.innerHTML=catsDisp.map(c=>`<span class="pill ${c===detCatFilter?'active':''}" role="button" tabindex="0" onclick="setDetCat(${_jsArg(c)},${oid})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setDetCat(${_jsArg(c)},${oid});}">${c}</span>`).join('');
   const c=(document.getElementById('det-search-art')&&document.getElementById('det-search-art').value||'').toLowerCase().trim();
   if(!c){el.innerHTML='';return;}
-  const p=new Set((o.items||[]).map(function(it){return it.artId}));
-  const l=ordinaPerPertinenza(arts.filter(a=>!p.has(a.id)
-    &&(detCatFilter==='Tutti'||a.cat===detCatFilter)
+  // 2.34.0: anche gli articoli gia' presenti nell'ordine si possono aggiungere di nuovo
+  const l=ordinaPerPertinenza(arts.filter(a=>(detCatFilter==='Tutti'||a.cat===detCatFilter)
     &&(ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')||codMatch(c,a))
   ).sort((a,b)=>a.nome.localeCompare(b.nome)),c,a=>a.nome,a=>codMatch(c,a));
   el.innerHTML=l.length
@@ -4643,6 +4642,10 @@ function confDelItem(oid,idx){
 }
 async function delItemFromOrd(oid,idx){_flushDetCalToast();const o=ords.find(x=>x.id===oid);if(!o)return;const _rigaTolta=o.items.splice(idx,1);const _esito=await saveData();if(_esito==='ok'||_esito==='unito')eliminaFotoRighe(_rigaTolta);renderOrdini();const uo=ords.find(x=>x.id===oid);if(uo)renderDetModal(uo);toast('Rimosso','v');}
 let sel=[],tNuovo=null,catS='Tutti';
+// 2.34.0: ogni scheda del Nuovo ordine ha una chiave propria (k), cosi' lo stesso articolo puo' comparire piu' volte
+let _selSeq=0;
+function _selPerChiave(k){return sel.find(x=>x.k===k);}
+function _assegnaChiaviSel(){sel.forEach(function(s){if(s.k==null)s.k=++_selSeq;});}
 function sincNuovoNum(val){const v=parseInt(val)||0;const badge=document.getElementById('nuovo-num-badge');const usati=new Set(ords.filter(o=>!isRitiratoVecchio(o)).map(o=>o.num));if(badge)badge.innerHTML=usati.has(v)?'<i class="ti ti-alert-triangle"></i> già usato':'';}
 // Calcola l'identificativo del periodo corrente in base alla frequenza di azzeramento scelta
 // (es. '2026' per anno, '2026-08' per mese, '2026-W34' per settimana). Usato per accorgersi che
@@ -4717,28 +4720,31 @@ function initNuovo(){const numLibero=minNumeroLibero();const elTop=document.getE
 function getCats(){return['Tutti',...cats.sort()]}
 function renderPills(){const el=document.getElementById('pills');if(!el)return;el.innerHTML=getCats().map(c=>`<span class="pill ${c===catS?'active':''}" role="button" tabindex="0" onclick="setC(${_jsArg(c)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setC(${_jsArg(c)});}">${c}</span>`).join('')}
 function setC(c){catS=c;renderPills();renderArtS()}
-function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c&&catS==='Tutti'){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(!c||ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')||codMatch(c,a))).sort((a,b)=>a.nome.localeCompare(b.nome));l=ordinaPerPertinenza(l,c,a=>a.nome,a=>codMatch(c,a));agrid.innerHTML=l.length?l.map(a=>{const s=sel.find(x=>x.id===a.id);return`<button class="ac ${s?'sel':''}" onclick="togArt(${a.id})">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}${s?'<span style="position:absolute;bottom:5px;right:7px;font-size:13px;color:var(--azione);font-weight:900"><i class="ti ti-check"></i></span>':''}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun '+lblArt(false)+' trovato.</p>';}
+function renderArtS(){const c=(document.getElementById('can')&&document.getElementById('can').value||'').toLowerCase().trim();const agrid=document.getElementById('agrid');if(!agrid)return;if(!c&&catS==='Tutti'){agrid.innerHTML='';return;}let l=arts.filter(a=>(catS==='Tutti'||a.cat===catS)&&(!c||ricercaIntelligente(c,a.nome)||ricercaIntelligente(c,a.cat||'')||codMatch(c,a))).sort((a,b)=>a.nome.localeCompare(b.nome));l=ordinaPerPertinenza(l,c,a=>a.nome,a=>codMatch(c,a));agrid.innerHTML=l.length?l.map(a=>{const n=sel.filter(x=>x.id===a.id).length;return`<button class="ac ${n?'sel':''}" onclick="togArt(${a.id})">${a.cat?`<span class="acat">${a.cat}</span>`:''}${a.nome}${n?'<span style="position:absolute;bottom:5px;right:7px;font-size:13px;color:var(--azione);font-weight:900"><i class="ti ti-check" aria-hidden="true"></i>'+(n>1?'×'+n:'')+'</span><span class="ai-sr">'+(n>1?', già nell\'ordine '+n+' volte':', già nell\'ordine')+'</span>':''}</button>`}).join(''):'<p style="color:var(--sub);font-size:14px;font-weight:700;padding:8px 0">Nessun '+lblArt(false)+' trovato.</p>';}
 function tornaRicerca(){
   const can=document.getElementById('can');
   if(can){can.value='';can.focus();}
   const agrid=document.getElementById('agrid');
   if(agrid)agrid.innerHTML='';
 }
-function confRimArt(id){
-  const a=arts.find(x=>x.id===id);
+function confRimArt(k){
+  const s=_selPerChiave(k);const a=s?arts.find(x=>x.id===s.id):null;
   openModal('modal-del-conf');
   _modalDelResetDefault();
   document.getElementById('modal-del-txt').textContent='Rimuovere "'+(a?a.nome:lblArt(false))+'" dall\'ordine?';
-  document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');togArt(id);};
+  document.getElementById('modal-del-btn').onclick=function(){closeModal('modal-del-conf');rimuoviVoceSel(k);};
 }
+function rimuoviVoceSel(k){
+  const i=sel.findIndex(x=>x.k===k);if(i<0)return;
+  sel.splice(i,1);
+  renderSP();renderArtS();
+}
+// 2.34.0: toccare un articolo lo aggiunge sempre, anche se e' gia' nell'ordine (si toglie con il cestino della scheda)
 function togArt(id){
-  const i=sel.findIndex(x=>x.id===id);
-  if(i>=0){
-    sel.splice(i,1);
-    renderSP();
-  } else {
-    sel.push({id:id,qty:'',um:'',nota:'',done:false});
-    _aiDopoSceltaArticolo(id); // 2.32.0: riga da completare dell'Inserimento rapido
+  {
+    const nuova={k:++_selSeq,id:id,qty:'',um:'',nota:'',done:false};
+    sel.push(nuova);
+    _aiDopoSceltaArticolo(nuova); // 2.32.0: riga da completare dell'Inserimento rapido
     // Azzera campo ricerca e aggiorna griglia senza perdere focus
     const can=document.getElementById('can');
     if(can)can.value='';
@@ -4748,16 +4754,16 @@ function togArt(id){
     // Focus SINCRONO (stesso gesto utente, niente setTimeout prima del focus) sull'input quantità
     // dell'articolo appena aggiunto — su iOS spostare il focus fuori dal gesto originale è inaffidabile
     // e causava la tastiera/il focus in posizione casuale (a volte sulla ricerca, a volte altrove).
-    const inp=document.getElementById('qin-'+id);
+    const inp=document.getElementById('qin-'+nuova.k);
     if(inp){
       inp.focus();
       setTimeout(function(){inp.scrollIntoView({behavior:'smooth',block:'center'});},300);
     }
   }
 }
-function chQty(id,d){const s=sel.find(x=>x.id===id);if(!s)return;s.qty=Math.max(0,parseFloat(((parseQty(s.qty)||0)+d).toFixed(4)));const inp=document.getElementById('qin-'+id);if(inp)inp.value=s.qty}
-function setSelQty(id,v){const s=sel.find(x=>x.id===id);if(s)s.qty=parseQty(v)||1;if(s&&s.aiDubbio){delete s.aiDubbio;delete s.aiScelte;const b=document.getElementById('ai-riga-'+id);if(b)b.remove();setTimeout(_aiAggiornaEsito,0);}}
-function setSelUM(id,v){const s=sel.find(x=>x.id===id);if(s)s.um=v}
+function chQty(k,d){const s=_selPerChiave(k);if(!s)return;s.qty=Math.max(0,parseFloat(((parseQty(s.qty)||0)+d).toFixed(4)));const inp=document.getElementById('qin-'+k);if(inp)inp.value=s.qty}
+function setSelQty(k,v){const s=_selPerChiave(k);if(s)s.qty=parseQty(v)||1;if(s&&s.aiDubbio){delete s.aiDubbio;delete s.aiScelte;const b=document.getElementById('ai-riga-'+k);if(b)b.remove();setTimeout(_aiAggiornaEsito,0);}}
+function setSelUM(k,v){const s=_selPerChiave(k);if(s)s.um=v}
 // Unità di misura sul telefono (24/10/2026): prima bastava appoggiare il dito su una pillola, anche solo
 // per scorrere la pagina, e l'unità cambiava (kg diventava fette senza volerlo). Ora conta solo un tocco
 // vero: dito fermo e rilasciato presto. Il preventDefault sul rilascio evita il doppio clic e lascia
@@ -4770,32 +4776,32 @@ function _toccoFermo(e){
   if(fermo&&e.cancelable)e.preventDefault();
   return fermo;
 }
-function selUMpill(id,v){
-  const s=sel.find(x=>x.id===id);if(!s)return;
+function selUMpill(k,v){
+  const s=_selPerChiave(k);if(!s)return;
   s.um=v;
   if(s.aiDubbio){delete s.aiDubbio;delete s.aiScelte;setTimeout(_aiAggiornaEsito,0);} // 2.32.0: riga controllata
   renderSP();
   // Focus su nota dopo selezione UM
   setTimeout(function(){
-    const nota=document.getElementById('nota-'+id);
+    const nota=document.getElementById('nota-'+k);
     if(nota)nota.focus();
   },30);
 }
-async function addUMVolo(id){
+async function addUMVolo(k){
   const v=(await modalPromptAsync('Nome della nuova unità di misura:','')||'').trim().toLowerCase();
   if(!v)return;
-  if(unitaMisura.includes(v)){toast('Già presente!','err');selUMpill(id,v);return;}
+  if(unitaMisura.includes(v)){toast('Già presente!','err');selUMpill(k,v);return;}
   unitaMisura.push(v);
   await saveData();
   toast('"'+v+'" aggiunto','v');
-  selUMpill(id,v);
+  selUMpill(k,v);
 }
-function setSelNota(id,v){const s=sel.find(x=>x.id===id);if(s)s.nota=v}
-async function onPickImgSel(id,inputEl){
+function setSelNota(k,v){const s=_selPerChiave(k);if(s)s.nota=v}
+async function onPickImgSel(k,inputEl){
   const file=inputEl.files&&inputEl.files[0];
   inputEl.value='';
   if(!file)return;
-  const s=sel.find(x=>x.id===id);
+  const s=_selPerChiave(k);
   if(!s)return;
   try{
     const blob=await comprimiImmagine(file);
@@ -4809,18 +4815,18 @@ async function onPickImgSel(id,inputEl){
     toast('Immagine non valida, riprova','err');
   }
 }
-function rimuoviImgSel(id){
-  const s=sel.find(x=>x.id===id);
+function rimuoviImgSel(k){
+  const s=_selPerChiave(k);
   if(!s)return;
   if(s.imgPreviewUrl)URL.revokeObjectURL(s.imgPreviewUrl);
   delete s.imgBlob;delete s.imgPreviewUrl;delete s.itemId;
   renderSP();
 }
-function renderSP(){const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent=lblArt(true,true)+' '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
-  const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="_tocco(event)" ontouchend="if(_toccoFermo(event)){selUMpill(${s.id},${_jsArg(u)})}" onclick="selUMpill(${s.id},${_jsArg(u)})" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="_tocco(event)" ontouchend="if(_toccoFermo(event)){addUMVolo(${s.id})}" onclick="addUMVolo(${s.id})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
-  const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.id})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi immagine</button></div>`:`<button type="button" onclick="apriImmaginePicker('sel',${s.id})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`;
-  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" aria-label="Rimuovi articolo" onclick="confRimArt(${s.id})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.id},-1)">−</button><input id="qin-${s.id}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.id},this.value)"><button class="qty-plus" onclick="chQty(${s.id},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.id}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.id},this.value)" style="flex:1"><button class="qty-search" aria-label="Cerca articolo" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}${_aiHtmlRiga(s)}</div>`;}).join('');}
-async function salvaOrdine(){if(_provaScaduta){toast(_msgBloccoOrdini(),'err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.id);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"!','err');return}}if(!_aiControllaPrimaDiSalvare())return;const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();// Se al momento del salvataggio un altro dispositivo aveva appena aggiunto ordini, saveData unisce
+function renderSP(){_assegnaChiaviSel();const card=document.getElementById('card-sel'),el=document.getElementById('sp');if(!sel.length){if(card)card.style.display='none';if(el)el.innerHTML='';const countEl=document.getElementById('bottom-bar-count');if(countEl)countEl.style.display='none';return;}if(card)card.style.display='block';const countEl=document.getElementById('bottom-bar-count');if(countEl){countEl.style.display='none';}const selCount=document.getElementById('sel-count');if(selCount)selCount.textContent=lblArt(true,true)+' '+sel.length;el.innerHTML=sel.map(s=>{const a=arts.find(x=>x.id===s.id);
+  const umPills=unitaMisura.map(u=>`<button class="um-pill${s.um===u?' active':''}" onmousedown="event.preventDefault()" ontouchstart="_tocco(event)" ontouchend="if(_toccoFermo(event)){selUMpill(${s.k},${_jsArg(u)})}" onclick="selUMpill(${s.k},${_jsArg(u)})" style="padding:5px 10px;border-radius:18px;border:1.5px solid ${s.um===u?'var(--azione)':'var(--brd)'};background:${s.um===u?'var(--azione)':'#fff'};color:${s.um===u?'#fff':'var(--sub)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">${u}</button>`).join('')+`<button class="um-nuova-btn" onmousedown="event.preventDefault()" ontouchstart="_tocco(event)" ontouchend="if(_toccoFermo(event)){addUMVolo(${s.k})}" onclick="addUMVolo(${s.k})" style="padding:5px 10px;border-radius:18px;border:1.5px solid var(--brd);background:#fff;color:var(--azione);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap">+ Nuova</button>`;
+  const imgRow=s.imgPreviewUrl?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><img src="${s.imgPreviewUrl}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1.5px solid var(--brd)"><button type="button" onclick="rimuoviImgSel(${s.k})" style="background:none;border:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:6px 4px">Rimuovi immagine</button></div>`:`<button type="button" onclick="apriImmaginePicker('sel',${s.k})" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--sub);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;background:none;border:none;padding:0"><i class="ti ti-camera"></i> Immagine</button>`;
+  return`<div class="sel-card"><div class="sel-card-top"><div class="sel-card-name">${a?a.nome:'?'}${a&&a.cat?`<span style="font-size:12px;color:var(--sub);font-weight:700;margin-left:6px">${a.cat}</span>`:''}</div><button class="sel-rm" aria-label="Rimuovi articolo" onclick="confRimArt(${s.k})"><i class="ti ti-trash"></i></button></div><div class="qty-um-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><button class="qty-minus" onclick="chQty(${s.k},-1)">−</button><input id="qin-${s.k}" class="sel-input" type="text" inputmode="decimal" value="${s.qty}" placeholder="qtà" style="text-align:center;width:70px;flex-shrink:0" oninput="setSelQty(${s.k},this.value)"><button class="qty-plus" onclick="chQty(${s.k},+1)">+</button>${umPills}</div><div style="display:flex;align-items:center;gap:6px"><input id="nota-${s.k}" class="sel-input-nota" type="text" placeholder="Nota" value="${(s.nota||'').replace(/"/g,'&quot;')}" oninput="setSelNota(${s.k},this.value)" style="flex:1"><button class="qty-search" aria-label="Cerca articolo" onmousedown="event.preventDefault()" onclick="tornaRicerca()"><i class="ti ti-search"></i></button></div>${imgRow}${_aiHtmlRiga(s)}</div>`;}).join('');}
+async function salvaOrdine(){if(_provaScaduta){toast(_msgBloccoOrdini(),'err');return}const nome=document.getElementById('nn').value.trim();if(!nome){toast('Inserisci il nome!','err');return}if(!sel.length){toast('Seleziona almeno un '+lblArt(false)+'!','err');return}if((calOra||tNuovo)&&!calSelDate){toast('Hai scelto un orario/turno ma non il giorno di ritiro!','err');return}if(LIMITE_ORDINI_ATTIVO&&ordiniCreatiTotale>=LIMITI_FREE.ordini){toast('Hai raggiunto il limite di '+LIMITI_FREE.ordini+' ordini del piano gratuito','err');return}for(var si=0;si<sel.length;si++){var s=sel[si];const qEl=document.getElementById('qin-'+s.k);if(qEl&&qEl.value)s.qty=parseQty(qEl.value)||s.qty;const a=arts.find(x=>x.id===s.id);const nome_art=a?a.nome:lblArt(false);const _stessi=sel.filter(x=>x.id===s.id);const _rigaN=_stessi.length>1?' (riga '+(_stessi.indexOf(s)+1)+' di '+_stessi.length+')':'';if(!s.qty||parseQty(s.qty)<=0){toast('Inserisci la quantità per "'+nome_art+'"'+_rigaN+'!','err');return}if(!s.um){toast('Scegli l\'unità di misura per "'+nome_art+'"'+_rigaN+'!','err');return}}if(!_aiControllaPrimaDiSalvare())return;const numInput=parseInt(document.getElementById('nuovo-num-top')&&document.getElementById('nuovo-num-top').value)||minNumeroLibero();if(ords.filter(o=>!isRitiratoVecchio(o)).find(o=>o.num===numInput)){toast('Il numero #'+numInput+' è già usato!','err');return}if(numInput>=nextNum)nextNum=numInput+1;const noteEl=document.getElementById('note-ordine');const note=noteEl?noteEl.value.trim():'';const telInput=document.getElementById('nn-tel');const telefono=telInput?telInput.value.trim():'';const clienteId=risolviCliente(nome,telefono);const id=Date.now();const _selSnapshot=sel.slice();// Se al momento del salvataggio un altro dispositivo aveva appena aggiunto ordini, saveData unisce
 // i dati (esito 'unito') oppure, nei casi sospetti, li ricarica senza scrivere (esito 'conflitto'):
 // prima l'ordine appena scritto andava perso, pur comparendo "Ordine aggiunto!". Ora in caso di
 // 'conflitto' lo si rimette sopra ai dati aggiornati e si riprova (fino a 3 volte). Se il numero
@@ -4922,8 +4928,9 @@ async function addArtRapido(){
     await addItemToOrd(detQArtOid,id);
     detQArtOid=null;
   } else {
-    sel.push({id:id,qty:'',um:'',nota:'',done:false});
-    _aiDopoSceltaArticolo(id); // 2.32.0: "Crea articolo" dall'Inserimento rapido
+    const nuova={k:++_selSeq,id:id,qty:'',um:'',nota:'',done:false};
+    sel.push(nuova);
+    _aiDopoSceltaArticolo(nuova); // 2.32.0: "Crea articolo" dall'Inserimento rapido
     // Crea input temporaneo e focus sincrono prima del render — unico modo per aprire tastiera su iOS
     const _tmp=document.createElement('input');
     _tmp.setAttribute('type','number');
@@ -4932,9 +4939,9 @@ async function addArtRapido(){
     _tmp.focus();
     catS='Tutti';renderPills();renderArtS();renderSP();
     setTimeout(function(){
-      const card=document.querySelector('[data-sp-id="'+id+'"]')||document.getElementById('qin-'+id);
+      const card=document.getElementById('qin-'+nuova.k);
       if(card)card.scrollIntoView({behavior:'smooth',block:'center'});
-      const inp=document.getElementById('qin-'+id);
+      const inp=document.getElementById('qin-'+nuova.k);
       if(inp)inp.focus();
       if(_tmp.parentNode)_tmp.parentNode.removeChild(_tmp);
     },80);
@@ -5734,7 +5741,14 @@ function _liberaSegnaleRegistrazione(){
   if(_risolviRegistrazione){_risolviRegistrazione();_risolviRegistrazione=null;}
 }
 
-function _disegnaEtichetta(o,artIdEvidenziato){
+// 2.34.0: con "riga" (posizione nell'ordine) l'etichetta mostra solo quella riga, anche se lo stesso
+// articolo compare piu' volte; se la riga non corrisponde piu' (ordine cambiato) si torna all'articolo.
+function _righePerEtichetta(o,artId,riga){
+  const items=o.items||[];
+  if(artId&&typeof riga==='number'&&items[riga]&&items[riga].artId===artId)return [items[riga]];
+  return items.filter(function(it){return !artId||it.artId===artId;});
+}
+function _disegnaEtichetta(o,artIdEvidenziato,riga){
   const W=591,pad=28;
   const _nomeStampa=nomeAttuale(o); // sempre il nome più aggiornato del cliente, anche su ordini vecchi ristampati
   const tmpCanvas=document.createElement('canvas');
@@ -5762,7 +5776,7 @@ function _disegnaEtichetta(o,artIdEvidenziato){
   yTmp+=nNomeTmp*62+8;
   if(metaStrTmp)yTmp+=52;
   yTmp+=28;
-  (o.items||[]).filter(function(it){return !artIdEvidenziato||it.artId===artIdEvidenziato;}).forEach(function(it){
+  _righePerEtichetta(o,artIdEvidenziato,riga).forEach(function(it){
     const a=arts.find(x=>x.id===it.artId);if(!a)return;
     const qty=(it.qty?(parseQty(it.qty)||''):'—')+(it.um?' '+it.um:'');
     const font='500 34px sans-serif';
@@ -5852,7 +5866,7 @@ function _disegnaEtichetta(o,artIdEvidenziato){
 
   // Articoli
   ctx.textAlign='left';
-  (o.items||[]).filter(function(it){return !artIdEvidenziato||it.artId===artIdEvidenziato;}).forEach(function(it){
+  _righePerEtichetta(o,artIdEvidenziato,riga).forEach(function(it){
     const a=arts.find(x=>x.id===it.artId);if(!a)return;
     const qty=(it.qty?(parseQty(it.qty)||''):'—')+(it.um?' '+it.um:'');
     const font='500 34px sans-serif';
@@ -5928,7 +5942,7 @@ function caricaJsPDF(){
   });
   return _jsPdfLoadPromise;
 }
-function _mostraCanvasNelModal(canvas,oid,artId){
+function _mostraCanvasNelModal(canvas,oid,artId,riga){
   const url=canvas.toDataURL('image/png');
   openModal('modal-etichetta');
   const el=document.getElementById('etichetta-content');if(!el)return;
@@ -6020,7 +6034,7 @@ function _mostraCanvasNelModal(canvas,oid,artId){
     const btnGruppo=document.getElementById('btn-aggiungi-gruppo-etichetta');
     if(btnGruppo&&typeof oid!=='undefined'){
       btnGruppo.addEventListener('click',function(){
-        aggiungiAlGruppoStampa(oid,artId||null);
+        aggiungiAlGruppoStampa(oid,artId||null,riga);
         closeModal('modal-etichetta');
       });
     }
@@ -6135,9 +6149,10 @@ function _ripristinaGruppoStampaLocale(){
   }catch(e){}
 }
 
-function _gruppoTrovaIndice(oid,artId){
-  const a=artId||null;
-  return _gruppoStampa.findIndex(function(g){return g.oid===oid&&(g.artId||null)===a;});
+function _gruppoTrovaIndice(oid,artId,riga){
+  const a=artId||null;const r=typeof riga==='number'?riga:null;
+  // 2.34.0: con la riga si distinguono le righe dello stesso articolo; una voce senza riga vale per tutte
+  return _gruppoStampa.findIndex(function(g){return g.oid===oid&&(g.artId||null)===a&&(r===null||typeof g.riga!=='number'||g.riga===r);});
 }
 
 function _aggiornaBadgeGruppo(){
@@ -6175,12 +6190,12 @@ function _aggiornaBadgeGruppo(){
   setTimeout(adjustPhdrFit,0);
 }
 
-function aggiungiAlGruppoStampa(oid,artId){
-  if(_gruppoTrovaIndice(oid,artId)!==-1){
+function aggiungiAlGruppoStampa(oid,artId,riga){
+  if(_gruppoTrovaIndice(oid,artId,riga)!==-1){
     toast('Etichetta già in coda','err');
     return;
   }
-  _gruppoStampa.push({oid:oid,artId:artId||null});
+  _gruppoStampa.push(Object.assign({oid:oid,artId:artId||null},artId&&typeof riga==='number'?{riga:riga}:{}));
   _aggiornaBadgeGruppo();
   toast('Aggiunta alla coda','v');
 }
@@ -6233,12 +6248,19 @@ function aggiungiTuttiAlGruppoStampa(){
 // criterio "da fare" usato dal Riepilogo.
 function aggiungiArticoloAlGruppoStampa(artId,oidsList){
   let oids;
+  // 2.34.0: un'etichetta per ogni riga dell'articolo (con lo stesso articolo due volte nello stesso
+  // ordine escono due etichette). La lista arriva come [id ordine, riga]; un id da solo vale per
+  // tutte le righe di quell'articolo nell'ordine.
+  const voci=[];
+  function _aggiungiVoce(oid,riga){if(!voci.some(function(v){return v.oid===oid&&v.riga===riga;}))voci.push({oid:oid,riga:riga});}
+  function _tutteLeRighe(oid){const o=ords.find(function(y){return y.id===oid;});if(o)(o.items||[]).forEach(function(it,i){if(it.artId===artId)_aggiungiVoce(oid,i);});}
   if(Array.isArray(oidsList)){
     // Riusa esattamente gli ordini già filtrati/mostrati a schermo (rispetta
     // il filtro giorno attivo, e include sia le righe da fare che quelle
     // già completate/verdi - un'etichetta serve anche per un articolo già
     // preparato, per attaccarla sopra).
-    oids=[...new Set(oidsList)];
+    oidsList.forEach(function(x){if(Array.isArray(x))_aggiungiVoce(x[0],x[1]);else _tutteLeRighe(x);});
+    oids=[...new Set(voci.map(function(v){return v.oid;}))];
   } else {
     // Fallback di sicurezza, non dovrebbe servire nell'uso normale
     const ev=ords.filter(function(o){return o.stato==='evadere'||(o.stato==='completato'&&(o.items||[]).every(function(it){return it.done;}));});
@@ -6249,12 +6271,13 @@ function aggiungiArticoloAlGruppoStampa(artId,oidsList){
       });
     });
     oids=Object.keys(oidSet).map(Number);
+    oids.forEach(_tutteLeRighe);
   }
-  if(!oids.length){toast('Nessun ordine da aggiungere per questo articolo','err');return;}
+  if(!oids.length||!voci.length){toast('Nessun ordine da aggiungere per questo articolo','err');return;}
   let aggiunte=0;
-  oids.forEach(function(oid){
-    if(_gruppoTrovaIndice(oid,artId)===-1){
-      _gruppoStampa.push({oid:oid,artId:artId});
+  voci.forEach(function(v){
+    if(_gruppoTrovaIndice(v.oid,artId,v.riga)===-1){
+      _gruppoStampa.push({oid:v.oid,artId:artId,riga:v.riga});
       aggiunte++;
     }
   });
@@ -6308,7 +6331,7 @@ function renderGruppoStampaModal(){
     const sub=a?a.nome:'';
     let thumb;
     try{
-      const canvas=_disegnaEtichetta(o,g.artId);
+      const canvas=_disegnaEtichetta(o,g.artId,g.riga);
       const url=canvas.toDataURL('image/png');
       _gruppoThumbUrls[i]=url;
       thumb='<img src="'+url+'" alt="Anteprima etichetta '+label.replace(/"/g,'&quot;')+'" role="button" tabindex="0" onclick="visualizzaMiniaturaGruppo('+i+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();this.click();}" style="width:69px;height:69px;object-fit:cover;object-position:top;border:1.5px solid '+(a?'#256BC1':'#1A1A2E')+';border-radius:6px;flex-shrink:0;background:#fff;cursor:pointer">';
@@ -6348,7 +6371,7 @@ async function stampaGruppo(){
     for(const g of _gruppoStampa){
       const o=ords.find(x=>x.id===g.oid);
       if(!o)continue;
-      const canvas=_disegnaEtichetta(o,g.artId);
+      const canvas=_disegnaEtichetta(o,g.artId,g.riga);
       const url=canvas.toDataURL('image/png');
       const wMm=canvas.width*MM_PER_PX;
       const hMm=canvas.height*MM_PER_PX;
@@ -6371,7 +6394,7 @@ async function stampaGruppo(){
     _gruppoStampa.forEach(function(g){
       const o=ords.find(x=>x.id===g.oid);
       if(!o)return;
-      const canvas=_disegnaEtichetta(o,g.artId);
+      const canvas=_disegnaEtichetta(o,g.artId,g.riga);
       urls.push({url:canvas.toDataURL('image/png'),w:canvas.width,h:canvas.height});
     });
     if(!urls.length){toast('Nessuna etichetta valida da stampare','err');return;}
@@ -7282,10 +7305,10 @@ window.addEventListener('focus',function(){
 });
 
 
-function stampaEtichettaRp(oidStr,artId){
+function stampaEtichettaRp(oidStr,artId,riga){
   const oid=parseInt(oidStr);
   const o=ords.find(x=>x.id===oid);if(!o)return;
-  _mostraCanvasNelModal(_disegnaEtichetta(o,artId),oid,artId);
+  _mostraCanvasNelModal(_disegnaEtichetta(o,artId,riga),oid,artId,riga);
 }
 
 // Fix accesso guidato: app sorda quando schermo spento, si risveglia solo dopo visible
@@ -7812,8 +7835,8 @@ function aiSceltaCliente(i){
   _aiDubbioCliente=null;_aiScelteCliente=[];_aiRenderDubbi();_aiAggiornaEsito();
   _aiAnnuncia('Cliente: '+(nn?nn.value:''));
 }
-function aiSceltaRiga(id,k){
-  const s=sel.find(function(x){return String(x.id)===String(id);});if(!s||!s.aiScelte||!s.aiScelte[k])return;
+function aiSceltaRiga(chiave,k){
+  const s=sel.find(function(x){return String(x.k)===String(chiave);});if(!s||!s.aiScelte||!s.aiScelte[k])return;
   const x=s.aiScelte[k];
   if(x.tipo==='art'){
     if(x.v!==s.id){
@@ -7848,9 +7871,9 @@ function _aiRigaInModulo(r,idArt){
 }
 function aiUsaCandidato(chiave,idArt){const r=_aiTrovaRiga(chiave);if(r)_aiRigaInModulo(r,idArt);}
 // "Elimina" usa la stessa conferma del cestino dell'articolo (confRimArt): «Rimuovere "…" dall'ordine?»
-function aiEliminaRiga(id){
-  const s=sel.find(function(x){return String(x.id)===String(id);});if(!s)return;
-  confRimArt(s.id);
+function aiEliminaRiga(chiave){
+  const s=sel.find(function(x){return String(x.k)===String(chiave);});if(!s)return;
+  confRimArt(s.k);
   const b=document.getElementById('modal-del-btn');const prima=b.onclick;
   b.onclick=function(){prima();_aiAggiornaEsito();};
 }
@@ -7876,10 +7899,10 @@ function aiCreaArticolo(chiave){
 }
 // Chiamata da togArt() e addArtRapido() quando un articolo entra nel modulo: se si stava completando
 // una riga, le si passano quantità, unità e nota lette dal messaggio.
-function _aiDopoSceltaArticolo(idArt){
+function _aiDopoSceltaArticolo(voce){
   if(!_aiSceltaPer)return;
   const r=_aiTrovaRiga(_aiSceltaPer);_aiSceltaPer=null;if(!r)return;
-  const s=sel.find(function(x){return x.id===idArt;});
+  const s=voce&&typeof voce==='object'?voce:sel.find(function(x){return x.id===voce;});
   if(s){if(s.qty===''||s.qty==null)s.qty=r.qty;if(!s.um&&unitaMisura.indexOf(r.um)>=0)s.um=r.um;if(!s.nota&&r.nota)s.nota=r.nota;}
   _aiDaCompletare=_aiDaCompletare.filter(function(x){return x!==r;});
   _aiRenderDubbi();_aiAggiornaEsito();
@@ -7893,10 +7916,10 @@ function _aiHtmlRiga(s){
     const et=x.tipo==='art'?((arts.find(function(a){return a.id===x.v;})||{}).nome||''):(x.tipo==='qty'?String(x.v).replace('.',','):x.v);
     // Una sola risposta possibile per quel campo: "Sì, …"
     const unica=sc.filter(function(y){return y.tipo===x.tipo;}).length===1;
-    return `<button type="button" class="ai-ok" onclick="aiSceltaRiga(${_jsArg(s.id)},${k})">${unica?'Sì, ':''}${_aiEsc(et)}</button>`;}).join('');
+    return `<button type="button" class="ai-ok" onclick="aiSceltaRiga(${_jsArg(s.k)},${k})">${unica?'Sì, ':''}${_aiEsc(et)}</button>`;}).join('');
   // Dubbio sull'articolo: si può anche togliere la riga (con conferma)
-  if(nArt)b+=`<button type="button" class="ai-ok" onclick="aiEliminaRiga(${_jsArg(s.id)})">${nArt===1?'No, elimina':'Elimina'}</button>`;
-  return _aiHtmlDubbio(s.aiDubbio,b,'Quantità o unità da controllare','ai-riga-'+s.id);
+  if(nArt)b+=`<button type="button" class="ai-ok" onclick="aiEliminaRiga(${_jsArg(s.k)})">${nArt===1?'No, elimina':'Elimina'}</button>`;
+  return _aiHtmlDubbio(s.aiDubbio,b,'Quantità o unità da controllare','ai-riga-'+s.k);
 }
 
 // ── Salvataggio ──
